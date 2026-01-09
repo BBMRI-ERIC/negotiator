@@ -72,9 +72,11 @@ public class ResourcesHandlerTest {
 
   @Test
   void addRepresentative_emailNotificationEventPublished() throws InterruptedException {
+    int before = addedRepresentativeTestEventHandler.events.size();
     personService.assignAsRepresentativeForResource(104L, 10L);
     await()
         .atMost(200, MILLISECONDS)
-        .untilAsserted(() -> assertEquals(2, addedRepresentativeTestEventHandler.events.size()));
+        .untilAsserted(
+            () -> assertEquals(before + 1, addedRepresentativeTestEventHandler.events.size()));
   }
 }
