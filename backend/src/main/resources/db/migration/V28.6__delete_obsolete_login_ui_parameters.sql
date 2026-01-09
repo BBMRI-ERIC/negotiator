@@ -6,3 +6,6 @@ DELETE FROM ui_parameter WHERE category = 'login' AND name IN (
   'logincardColor',
   'loginTextColor'
 );
+
+-- Delete all parameters with category 'filtersSort'
+DELETE FROM ui_parameter WHERE category = 'filtersSort';
