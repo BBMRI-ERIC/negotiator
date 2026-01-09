@@ -192,11 +192,9 @@
 import { computed, onMounted } from 'vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
-import { useUiConfiguration } from '../store/uiConfiguration.js'
 import FilterButton from '@/components/ui/buttons/FilterButton.vue'
 
 const filtersSortData = defineModel('filtersSortData')
-const uiConfigurationStore = useUiConfiguration()
 const router = useRouter()
 
 const props = defineProps({
@@ -223,10 +221,6 @@ const sortBy = [
   { value: 'creationDate', label: 'Creation Date' },
   { value: 'currentState', label: 'Current State' },
 ]
-
-const uiConfiguration = computed(() => {
-  return uiConfigurationStore.uiConfiguration?.filtersSort
-})
 
 const returnButtonActiveColor = computed(() => {
   return {
