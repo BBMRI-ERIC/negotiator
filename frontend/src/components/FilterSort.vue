@@ -29,10 +29,7 @@
               :checked="isChecked(sort.value)"
               @change="emitFilterSortData"
             />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
+            <label class="form-check-label text-primary-text">
               {{ sort.label }}
             </label>
           </div>
@@ -78,10 +75,7 @@
               :value="status.value"
               @change="emitFilterSortData"
             />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
+            <label class="form-check-label text-primary-text">
               {{ status.label }}
             </label>
           </div>
@@ -119,10 +113,7 @@
               :value="org.id"
               @change="emitFilterSortData"
             />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
+            <label class="form-check-label text-primary-text">
               {{ org.name }}
             </label>
           </div>
@@ -150,17 +141,13 @@
           Filter by date
         </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-          <div
-            class="mx-2 my-2 dropdown-contents"
-            :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-          >
+          <div class="mx-2 my-2 dropdown-contents text-primary-text">
             <div class="d-flex align-items-center mb-2">
               <label class="pe-2 w-25" for="startDate">Start:</label>
               <input
                 id="startDate"
                 v-model="filtersSortData.dateStart"
-                class="form-control form-control-sm"
-                :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+                class="form-control form-control-sm text-primary-text"
                 type="date"
                 @input="emitFilterSortData"
               />
@@ -170,8 +157,7 @@
               <input
                 id="endDate"
                 v-model="filtersSortData.dateEnd"
-                class="form-control form-control-sm"
-                :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+                class="form-control form-control-sm text-primary-text"
                 type="date"
                 @input="emitFilterSortData"
               />
@@ -183,7 +169,12 @@
 
     <div class="my-2 ms-auto">
       <FilterButton
-        :customStyle="returnClearButtonColor"
+        :customStyle="{
+          'border-color': 'var(--bs-sort-filter-clear-button-outline)',
+          '--hovercolor': 'var(--bs-sort-filter-clear-button-outline)',
+          'background-color': '#FFFFFF',
+          color: 'var(--bs-sort-filter-clear-button-outline)',
+        }"
         customClass="custom-button-hover"
         size="sm"
         @click="clearAllFilters"
@@ -239,27 +230,18 @@ const uiConfiguration = computed(() => {
 
 const returnButtonActiveColor = computed(() => {
   return {
-    'border-color': uiConfiguration.value?.filtersSortButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortButtonColor,
-    'background-color': uiConfiguration.value?.filtersSortButtonColor,
+    'border-color': 'var(--bs-sort-filter-button-outline)',
+    '--hovercolor': 'var(--bs-sort-filter-button-outline)',
+    'background-color': 'var(--bs-sort-filter-button-outline)',
     color: '#FFFFFF',
   }
 })
 const returnButtonColor = computed(() => {
   return {
-    'border-color': uiConfiguration.value?.filtersSortButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortButtonColor,
+    'border-color': 'var(--bs-sort-filter-button-outline)',
+    '--hovercolor': 'var(--bs-sort-filter-button-outline)',
     'background-color': '#FFFFFF',
-    color: uiConfiguration.value?.filtersSortButtonColor,
-  }
-})
-
-const returnClearButtonColor = computed(() => {
-  return {
-    'border-color': uiConfiguration.value?.filtersSortClearButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortClearButtonColor,
-    'background-color': '#FFFFFF',
-    color: uiConfiguration.value?.filtersSortClearButtonColor,
+    color: 'var(--bs-sort-filter-button-outline)',
   }
 })
 
