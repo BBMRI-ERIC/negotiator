@@ -23,6 +23,7 @@ export default {
       navbar: {
         biobanker: 'Your organisation',
       },
+      displayId: 'Proposal ID',
       negotiationPage: {
         resources: 'Service | Services',
         organisations: 'Service provider | Service providers',

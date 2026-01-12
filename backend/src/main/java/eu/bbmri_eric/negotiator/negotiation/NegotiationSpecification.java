@@ -53,6 +53,10 @@ public class NegotiationSpecification {
       specs = initOrAnd(specs, byOrganization(filtersDTO.getOrganizationId()));
     }
 
+    if (filtersDTO.getSearch() != null && !filtersDTO.getSearch().trim().isEmpty()) {
+      specs = initOrAnd(specs, bySearch(filtersDTO.getSearch()));
+    }
+
     return specs;
   }
 
@@ -238,6 +242,22 @@ public class NegotiationSpecification {
           return criteriaBuilder.lessThan(root.get("creationDate"), before);
         }
       }
+    };
+  }
+
+  /**
+   * Condition to filter Negotiation by search term matching title, ID, or displayId
+   *
+   * @param searchTerm the search term to match against title, ID, or displayId (case-insensitive)
+   * @return a Specification to add as part of a query to filter Negotiations
+   */
+  public static Specification<Negotiation> bySearch(String searchTerm) {
+    return (root, query, criteriaBuilder) -> {
+      String likePattern = "%" + searchTerm.toLowerCase() + "%";
+      return criteriaBuilder.or(
+          criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), likePattern),
+          criteriaBuilder.like(criteriaBuilder.lower(root.get("id")), likePattern),
+          criteriaBuilder.like(criteriaBuilder.lower(root.get("displayId")), likePattern));
     };
   }
 }

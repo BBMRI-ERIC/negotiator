@@ -12,6 +12,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NegotiationUpdateDTO {
+  @Schema(description = "Human-readable display ID of the negotiation", example = "1001")
+  private String displayId;
+
   @Schema(description = "Payload with the details of the Negotiation")
   private JsonNode payload;
 

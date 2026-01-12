@@ -58,6 +58,9 @@ public class Negotiation extends AuditEntity {
   @Column(name = "id")
   private String id;
 
+  @Column(name = "display_id")
+  private String displayId;
+
   @OneToMany(
       mappedBy = "negotiation",
       cascade = {CascadeType.MERGE, CascadeType.REMOVE})
