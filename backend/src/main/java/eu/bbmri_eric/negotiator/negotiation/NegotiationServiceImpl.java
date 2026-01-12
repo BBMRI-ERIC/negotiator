@@ -184,7 +184,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     if (Objects.nonNull(updateDTO.getPayload())) {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
     }
-    if (Objects.nonNull(updateDTO.getDisplayId()) && AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+    if (Objects.nonNull(updateDTO.getDisplayId())
+        && AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       negotiationEntity.setDisplayId(updateDTO.getDisplayId());
     }
     if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
