@@ -267,8 +267,10 @@
         :possible-events="possibleEvents"
         :ui-configuration="uiConfiguration"
         :can-delete="canDelete"
+        :is-admin="isAdmin"
         @assign-status="assignStatus"
         @download-attachment-from-link="downloadAttachmentFromLink"
+        @update-display-id="updateDisplayId"
       />
     </div>
   </div>
@@ -511,6 +513,10 @@ function canDelete() {
 
 async function deleteNegotiation() {
   await negotiationPageStore.deleteNegotiation(negotiation.value.id).then(router.push('/'))
+}
+
+function updateDisplayId(newDisplayId) {
+  negotiation.value.displayId = newDisplayId
 }
 
 function translateTrueFalse(value) {

@@ -11,6 +11,7 @@ export default {
         doc: 'Documentation',
       },
       negotiationPage: {
+        displayId: ' Negotiation ID',
         resources: 'RESOURCE | RESOURCES',
         organisations: 'ORGANIZATION | ORGANIZATIONS',
       },
@@ -23,8 +24,8 @@ export default {
       navbar: {
         biobanker: 'Your organisation',
       },
-      displayId: 'Proposal ID',
       negotiationPage: {
+        displayId: 'Proposal ID',
         resources: 'Service | Services',
         organisations: 'Service provider | Service providers',
       },

@@ -18,6 +18,7 @@ export const useNetworksPageStore = defineStore('networksPage', () => {
         createdBefore: filtersSortData.dateEnd,
         sortBy: filtersSortData.sortBy,
         sortOrder: filtersSortData.sortDirection,
+        search: filtersSortData.search,
       },
       paramsSerializer: { indexes: null },
     }

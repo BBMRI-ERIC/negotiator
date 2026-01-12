@@ -256,7 +256,6 @@ public class NegotiationSpecification {
       String likePattern = "%" + searchTerm.toLowerCase() + "%";
       return criteriaBuilder.or(
           criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), likePattern),
-          criteriaBuilder.like(criteriaBuilder.lower(root.get("id")), likePattern),
           criteriaBuilder.like(criteriaBuilder.lower(root.get("displayId")), likePattern));
     };
   }

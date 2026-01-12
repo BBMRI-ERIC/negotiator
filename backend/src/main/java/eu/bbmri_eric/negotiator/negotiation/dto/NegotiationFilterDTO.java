@@ -37,7 +37,7 @@ public class NegotiationFilterDTO implements FilterDTO {
 
   @Schema(
       description =
-          "Search term to filter negotiations by title, ID, or display ID (case-insensitive partial match)")
+          "Search term to filter negotiations by title, or display ID (case-insensitive partial match)")
   @Size(max = 255, message = "Search term must not exceed 255 characters")
   String search;
 
