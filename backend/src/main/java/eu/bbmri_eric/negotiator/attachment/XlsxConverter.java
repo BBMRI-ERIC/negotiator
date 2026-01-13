@@ -49,7 +49,6 @@ class XlsxConverter implements FileTypeConverter {
         PDDocument document = new PDDocument();
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
-      // Process each sheet in the workbook
       for (int sheetIndex = 0; sheetIndex < workbook.getNumberOfSheets(); sheetIndex++) {
         Sheet sheet = workbook.getSheetAt(sheetIndex);
         if (sheet.getPhysicalNumberOfRows() > 0) {
@@ -58,7 +57,6 @@ class XlsxConverter implements FileTypeConverter {
       }
 
       if (document.getNumberOfPages() == 0) {
-        // Add at least one page if workbook is empty
         document.addPage(new PDPage(PDRectangle.A4));
       }
 
@@ -79,66 +77,67 @@ class XlsxConverter implements FileTypeConverter {
     try (PDPageContentStream contentStream =
         new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true)) {
 
-      float yPosition = page.getMediaBox().getHeight() - MARGIN;
       float pageWidth = page.getMediaBox().getWidth() - (2 * MARGIN);
+      float yPosition = drawSheetHeader(contentStream, sheet.getSheetName(), page.getMediaBox().getHeight());
 
-      // Draw sheet name
-      contentStream.beginText();
-      contentStream.setFont(
-          new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), FONT_SIZE + 2);
-      contentStream.newLineAtOffset(MARGIN, yPosition);
-      contentStream.showText("Sheet: " + sheet.getSheetName());
-      contentStream.endText();
-      yPosition -= LEADING * 2;
-
-      // Calculate column widths
-      int maxCols = 0;
-      for (Row row : sheet) {
-        if (row.getLastCellNum() > maxCols) {
-          maxCols = row.getLastCellNum();
-        }
-      }
+      int maxCols = calculateMaxColumns(sheet);
 
       float columnWidth = maxCols > 0 ? pageWidth / maxCols : MIN_COLUMN_WIDTH;
       columnWidth = Math.max(columnWidth, MIN_COLUMN_WIDTH);
 
-      // Process rows
       for (Row row : sheet) {
-        // Check if we need a new page
         if (yPosition < MARGIN + LEADING) {
-          // Simplified version: stop processing when page is full
-          // In production, you'd want to continue on a new page
           break;
         }
-
-        // Draw row cells
-        float xPosition = MARGIN;
-        for (int cellIndex = 0; cellIndex < maxCols; cellIndex++) {
-          Cell cell = row.getCell(cellIndex);
-          String cellValue = getCellValueAsString(cell);
-
-          // Draw cell border
-          contentStream.setStrokingColor(Color.LIGHT_GRAY);
-          contentStream.addRect(xPosition, yPosition - LEADING, columnWidth, LEADING);
-          contentStream.stroke();
-
-          // Draw cell text
-          if (cellValue != null && !cellValue.isEmpty()) {
-            contentStream.beginText();
-            contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), FONT_SIZE);
-            contentStream.newLineAtOffset(xPosition + CELL_PADDING, yPosition - FONT_SIZE);
-
-            // Truncate text if too long
-            String displayText = truncateText(cellValue, columnWidth - (2 * CELL_PADDING));
-            contentStream.showText(displayText);
-            contentStream.endText();
-          }
-
-          xPosition += columnWidth;
-        }
-
+        drawRow(contentStream, row, yPosition, columnWidth, maxCols);
         yPosition -= LEADING;
       }
+    }
+  }
+
+  private float drawSheetHeader(PDPageContentStream contentStream, String sheetName, float pageHeight) throws IOException {
+    float yPosition = pageHeight - MARGIN;
+    contentStream.beginText();
+    contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), FONT_SIZE + 2);
+    contentStream.newLineAtOffset(MARGIN, yPosition);
+    contentStream.showText("Sheet: " + sheetName);
+    contentStream.endText();
+    return yPosition - (LEADING * 2);
+  }
+
+  private int calculateMaxColumns(Sheet sheet) {
+    int maxCols = 0;
+    for (Row row : sheet) {
+      if (row.getLastCellNum() > maxCols) {
+        maxCols = row.getLastCellNum();
+      }
+    }
+    return maxCols;
+  }
+
+  private void drawRow(PDPageContentStream contentStream, Row row, float yPosition, float columnWidth, int maxCols) throws IOException {
+    float xPosition = MARGIN;
+    for (int cellIndex = 0; cellIndex < maxCols; cellIndex++) {
+      Cell cell = row.getCell(cellIndex);
+      drawCell(contentStream, cell, xPosition, yPosition, columnWidth);
+      xPosition += columnWidth;
+    }
+  }
+
+  private void drawCell(PDPageContentStream contentStream, Cell cell, float x, float y, float width) throws IOException {
+    String cellValue = getCellValueAsString(cell);
+
+    contentStream.setStrokingColor(Color.LIGHT_GRAY);
+    contentStream.addRect(x, y - LEADING, width, LEADING);
+    contentStream.stroke();
+
+    if (cellValue != null && !cellValue.isEmpty()) {
+      contentStream.beginText();
+      contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), FONT_SIZE);
+      contentStream.newLineAtOffset(x + CELL_PADDING, y - FONT_SIZE);
+      String displayText = truncateText(cellValue, width - (2 * CELL_PADDING));
+      contentStream.showText(displayText);
+      contentStream.endText();
     }
   }
 
@@ -158,7 +157,6 @@ class XlsxConverter implements FileTypeConverter {
   }
 
   private String truncateText(final String text, final float maxWidth) {
-    // Simple truncation - measure actual text width in production
     int maxChars = (int) (maxWidth / (FONT_SIZE * 0.6));
     if (text.length() > maxChars) {
       return text.substring(0, Math.max(0, maxChars - 3)) + "...";
