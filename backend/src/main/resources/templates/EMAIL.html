@@ -89,45 +89,46 @@ This is a Thymeleaf HTML template used to generate a default email
     <title>Email notification</title>
 </head>
 <body>
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f9fa; padding: 20px 0;">
-    <tr>
-        <td align="center">
-            <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e9ecef; max-width: 600px;">
-                <!-- Header with brand gradient -->
-                <tr>
-                    <td class="header-gradient" style="background: linear-gradient(135deg, #e95713 0%, #003674 100%); background-color: #e95713; padding: 30px 40px; text-align: center;">
-                        <div th:insert="~{LOGO}"></div>
-                    </td>
-                </tr>
-                <!-- Content -->
-                <tr>
-                    <td style="padding: 40px; background-color: #ffffff;">
-                        <p style="margin: 0 0 20px 0; font-size: 18px; font-weight: bold; color: #003674; font-family: Arial, Helvetica, sans-serif;">
-                            Dear <span th:utext="${recipient}"></span>,
-                        </p>
-                        <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #e95713; margin: 20px 0; font-size: 16px; line-height: 1.4; font-family: Arial, Helvetica, sans-serif;">
-                            <span th:utext="${message}"></span>
-                        </div>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                                <tr>
-                                    <td style="background-color: #e95713; border: 2px solid #e95713;">
-                                        <a th:href="${emailButtonLink}" th:text="${emailButtonText}" style="display: block; padding: 14px 28px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; font-family: Arial, Helvetica, sans-serif;"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Footer -->
-                <tr>
-                    <td>
-                        <div th:insert="~{EMAIL_FOOTER}"></div>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f9fa; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e9ecef; max-width: 600px;">
+                    <!-- Header with brand gradient -->
+                    <tr>
+                        <td class="header-gradient" style="background: linear-gradient(135deg, #e95713 0%, #003674 100%); background-color: #e95713; padding: 30px 40px; text-align: center;">
+                            <div th:insert="~{LOGO}"></div>
+                        </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px; background-color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; font-weight: bold; color: #003674; font-family: Arial, Helvetica, sans-serif;">
+                                Dear <span th:utext="${recipient}"></span>,
+                            </p>
+                            <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #e95713; margin: 20px 0; font-size: 16px; line-height: 1.4; font-family: Arial, Helvetica, sans-serif;">
+                                <span th:utext="${message}"></span>
+                            </div>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                                    <tr>
+                                        <td style="background-color: #e95713; border: 2px solid #e95713;">
+                                            <a th:href="${emailButtonLink}" th:text="${emailButtonText}" style="display: block; padding: 14px 28px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; font-family: Arial, Helvetica, sans-serif;">
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td>
+                            <div th:insert="~{EMAIL_FOOTER}"></div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
