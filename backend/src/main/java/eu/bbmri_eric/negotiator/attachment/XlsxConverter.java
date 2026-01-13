@@ -78,7 +78,8 @@ class XlsxConverter implements FileTypeConverter {
         new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true)) {
 
       float pageWidth = page.getMediaBox().getWidth() - (2 * MARGIN);
-      float yPosition = drawSheetHeader(contentStream, sheet.getSheetName(), page.getMediaBox().getHeight());
+      float yPosition =
+          drawSheetHeader(contentStream, sheet.getSheetName(), page.getMediaBox().getHeight());
 
       int maxCols = calculateMaxColumns(sheet);
 
@@ -95,7 +96,8 @@ class XlsxConverter implements FileTypeConverter {
     }
   }
 
-  private float drawSheetHeader(PDPageContentStream contentStream, String sheetName, float pageHeight) throws IOException {
+  private float drawSheetHeader(
+      PDPageContentStream contentStream, String sheetName, float pageHeight) throws IOException {
     float yPosition = pageHeight - MARGIN;
     contentStream.beginText();
     contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), FONT_SIZE + 2);
@@ -115,7 +117,9 @@ class XlsxConverter implements FileTypeConverter {
     return maxCols;
   }
 
-  private void drawRow(PDPageContentStream contentStream, Row row, float yPosition, float columnWidth, int maxCols) throws IOException {
+  private void drawRow(
+      PDPageContentStream contentStream, Row row, float yPosition, float columnWidth, int maxCols)
+      throws IOException {
     float xPosition = MARGIN;
     for (int cellIndex = 0; cellIndex < maxCols; cellIndex++) {
       Cell cell = row.getCell(cellIndex);
@@ -124,7 +128,8 @@ class XlsxConverter implements FileTypeConverter {
     }
   }
 
-  private void drawCell(PDPageContentStream contentStream, Cell cell, float x, float y, float width) throws IOException {
+  private void drawCell(PDPageContentStream contentStream, Cell cell, float x, float y, float width)
+      throws IOException {
     String cellValue = getCellValueAsString(cell);
 
     contentStream.setStrokingColor(Color.LIGHT_GRAY);
