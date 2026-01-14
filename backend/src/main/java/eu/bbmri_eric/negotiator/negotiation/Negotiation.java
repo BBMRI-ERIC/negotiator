@@ -58,7 +58,7 @@ public class Negotiation extends AuditEntity {
   @Column(name = "id")
   private String id;
 
-  @Column(name = "display_id")
+  @Column(name = "display_id", insertable = false)
   private String displayId;
 
   @OneToMany(

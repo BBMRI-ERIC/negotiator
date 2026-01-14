@@ -17,8 +17,8 @@ SET display_id = numbered_negotiations.rn::text
 FROM numbered_negotiations
 WHERE negotiation.id = numbered_negotiations.id;
 
-SELECT setval('negotiation_display_id_seq', GREATEST(COALESCE((SELECT COUNT(*) FROM negotiation), 0), 1));
-
 alter table negotiation
     alter column display_id set default nextval('negotiation_display_id_seq')::text;
+
+SELECT setval('negotiation_display_id_seq', GREATEST(COALESCE((SELECT MAX(display_id::bigint) FROM negotiation), 0), 1));
 
