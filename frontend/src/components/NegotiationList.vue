@@ -30,14 +30,14 @@
         <p>
           <span
             class="negotiations-search-results"
-            :style="{ color: uiConfiguration?.searchResultsTextColor }"
+            :style="{ color: 'var(--bs-search-results-text)' }"
           >
             <strong>Search results: </strong>
           </span>
           <br />
           <span
             class="negotiations-number"
-            :style="{ color: uiConfiguration?.searchResultsTextColor, opacity: 0.5 }"
+            :style="{ color: 'var(--bs-search-results-text)', opacity: 0.5 }"
             >{{ pagination.totalElements }} Negotiations found</span
           >
         </p>
@@ -50,7 +50,7 @@
             :class="savedNegotiationsView === 'Card-one-column' ? '' : 'bg-body'"
             :style="
               savedNegotiationsView === 'Card-one-column'
-                ? { 'background-color': uiConfiguration?.displayViewButtonColor }
+                ? { 'background-color': 'var(--bs-display-view-button-color)' }
                 : ''
             "
             @click="setSavedNegotiationsView('Card-one-column')"
@@ -65,7 +65,7 @@
             :class="savedNegotiationsView === 'Card-two-column' ? '' : 'bg-body'"
             :style="
               savedNegotiationsView === 'Card-two-column'
-                ? { 'background-color': uiConfiguration?.displayViewButtonColor }
+                ? { 'background-color': 'var(--bs-display-view-button-color)' }
                 : ''
             "
             @click="
@@ -84,7 +84,7 @@
             :class="savedNegotiationsView === 'Table' ? '' : 'bg-body'"
             :style="
               savedNegotiationsView === 'Table'
-                ? { 'background-color': uiConfiguration?.displayViewButtonColor }
+                ? { 'background-color': 'var(--bs-display-view-button-color)' }
                 : ''
             "
             @click="((savedNegotiationsView = 'Table'), setSavedNegotiationsView('Table'))"
@@ -116,11 +116,11 @@
       <div v-if="savedNegotiationsView === 'Table'">
         <PrimaryTable :headers="tableHeaders" :data="tableData">
           <template #header-title>
-            <span>Title</span>
+            <span class="text-table-header-text">Title</span>
             <SortButton
               :sortKey="'title'"
               :filtersSortData="filtersSortData"
-              :color="uiConfiguration?.tableTextColor"
+              :color="'var(--bs-table-header-text)'"
               iconAsc="bi bi-sort-alpha-up-alt"
               iconDesc="bi bi-sort-alpha-down"
               defaultIcon="bi bi-sort-alpha-up-alt"
@@ -134,11 +134,11 @@
           </template>
 
           <template #header-creationDate>
-            <span>Created on</span>
+            <span class="text-table-header-text">Created on</span>
             <SortButton
               :sortKey="'creationDate'"
               :filtersSortData="filtersSortData"
-              :color="uiConfiguration?.tableTextColor"
+              :color="'var(--bs-table-header-text)'"
               iconAsc="bi bi-sort-numeric-up-alt"
               iconDesc="bi bi-sort-numeric-down"
               defaultIcon="bi bi-sort-numeric-up-alt"
@@ -152,12 +152,12 @@
           </template>
 
           <template #header-status>
-            <span>Status</span>
+            <span class="text-table-header-text">Status</span>
             <SortButton
               id="v-step-2"
               :sortKey="'currentState'"
               :filtersSortData="filtersSortData"
-              :color="uiConfiguration?.tableTextColor"
+              :color="'var(--bs-table-header-text)'"
               iconAsc="bi bi-sort-up-alt"
               iconDesc="bi bi-sort-down"
               defaultIcon="bi bi-sort-up-alt"
@@ -180,7 +180,7 @@
           <template #chevron>
             <i
               class="bi bi-chevron-right float-end"
-              :style="{ color: uiConfiguration?.tableTextColor }"
+              :style="{ color: 'var(--bs-table-header-text)' }"
             />
           </template>
         </PrimaryTable>
@@ -230,12 +230,10 @@ import {
 } from '../composables/utils.js'
 import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
-import { useUiConfiguration } from '../store/uiConfiguration.js'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import SortButton from '@/components/ui/SortButton.vue'
 
 const filtersSortData = defineModel('filtersSortData')
-const uiConfigurationStore = useUiConfiguration()
 const router = useRouter()
 const negotiationsViewStore = useNegotiationsViewStore()
 const searchQuery = ref('')
@@ -322,10 +320,6 @@ const loading = computed(() => {
 
 const savedNegotiationsView = computed(() => {
   return negotiationsViewStore.savedNegotiationsView
-})
-
-const uiConfiguration = computed(() => {
-  return uiConfigurationStore.uiConfiguration?.negotiationList
 })
 
 onBeforeMount(() => {
