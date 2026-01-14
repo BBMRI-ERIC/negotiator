@@ -9,3 +9,6 @@ DELETE FROM ui_parameter WHERE category = 'login' AND name IN (
 
 -- Delete all parameters with category 'filtersSort'
 DELETE FROM ui_parameter WHERE category = 'filtersSort';
+
+-- Delete all parameters with category 'negotiationList'
+DELETE FROM ui_parameter WHERE category = 'negotiationList';
