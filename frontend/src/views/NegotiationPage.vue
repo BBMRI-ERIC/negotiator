@@ -1,6 +1,9 @@
 <template>
   <div v-if="!loading">
-    <GoBackButton />
+    <PrimaryButton class="mb-3" @click="goBack()">
+      <i class="bi bi-chevron-left" />
+      Go back
+    </PrimaryButton>
     <confirmation-modal
       id="abandonModal"
       :title="`Are you sure you want to ${selectedStatus ? selectedStatus.label.toLowerCase() : 'Unknown'} this Negotiation?`"
@@ -94,7 +97,8 @@
                 v-else
                 class="text-break"
                 :style="{ color: uiConfiguration.secondaryTextColor, whiteSpace: 'pre-wrap' }"
-              >{{ translateTrueFalse(subelement) }}</span>
+                >{{ translateTrueFalse(subelement) }}</span
+              >
             </div>
           </li>
           <li class="list-group-item p-3">
@@ -289,7 +293,7 @@ import { computed, onBeforeMount, onMounted, ref } from 'vue'
 import NegotiationPosts from '@/components/NegotiationPosts.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import NegotiationAttachment from '@/components/NegotiationAttachment.vue'
-import GoBackButton from '@/components/GoBackButton.vue'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 import OrganizationContainer from '@/components/OrganizationContainer.vue'
 import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
 import AddResourcesButton from '@/components/AddResourcesButton.vue'
@@ -566,6 +570,16 @@ function transformDashToSpace(text) {
 
 function updateNegotiationPayload() {
   router.push(`/edit/requests/${props.negotiationId}`)
+}
+
+function goBack() {
+  if (router.options.history.state.back) {
+    router.go(-1)
+  } else {
+    router.push({
+      name: 'home',
+    })
+  }
 }
 </script>
 

@@ -6,7 +6,7 @@
       @mouseover="handleMouseOver"
       @mouseout="handleMouseOut"
     >
-      <slot></slot>
+      <slot />
     </button>
   </div>
 </template>
