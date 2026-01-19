@@ -1835,4 +1835,81 @@ public class NegotiationControllerTests {
         .andExpect(
             header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
   }
+
+  @Test
+  @WithUserDetails("admin")
+  @Transactional
+  public void testUpdateDisplayId_Ok_whenAdmin() throws Exception {
+    String newDisplayId = "NEG-2024-001";
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setDisplayId(newDisplayId);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/%s".formatted(NEGOTIATION_1_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.displayId", is(newDisplayId)));
+
+    // Verify the displayId was persisted
+    Optional<Negotiation> negotiation = negotiationRepository.findById(NEGOTIATION_1_ID);
+    negotiation.ifPresent(value -> assertEquals(newDisplayId, value.getDisplayId()));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testUpdateDisplayId_BadRequest_whenDisplayIdTooLong() throws Exception {
+    String tooLongDisplayId = "A".repeat(21); // 21 characters, max is 20
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setDisplayId(tooLongDisplayId);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/%s".formatted(NEGOTIATION_1_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  @Transactional
+  public void testSearchNegotiations_Ok_byDisplayId() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_1_ID).orElseThrow();
+    negotiation.setDisplayId("SEARCH-001");
+    negotiationRepository.save(negotiation);
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?search=SEARCH-001"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements").value(1))
+        .andExpect(jsonPath("$._embedded.negotiations[0].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations[0].displayId", is("SEARCH-001")));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testSearchNegotiations_Ok_byTitle() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?search=Biobanking"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements").value(1))
+        .andExpect(jsonPath("$._embedded.negotiations[0].id", is(NEGOTIATION_1_ID)));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testSearchNegotiations_Ok_noResults() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?search=NonExistentSearch"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements").value(0));
+  }
 }

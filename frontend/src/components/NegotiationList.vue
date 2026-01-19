@@ -2,7 +2,31 @@
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
     <div class="pt-1">
-      <div class="row row-cols-2 d-grid-row mt-5 pt-3">
+      <div class="row mt-5 pt-3">
+        <div class="col-12 mb-3">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="form-control"
+              placeholder="Search by Display ID, or Title..."
+              @input="handleSearchInput"
+            />
+            <button
+              v-if="searchQuery"
+              class="btn btn-outline-secondary"
+              type="button"
+              @click="clearSearch"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row row-cols-2 d-grid-row">
         <p>
           <span
             class="negotiations-search-results"
@@ -114,7 +138,7 @@
                   </button>
                 </th>
                 <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Negotiation ID
+                  {{ $t('negotiationPage.displayId') }}
                 </th>
                 <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
                   Created on
@@ -176,7 +200,7 @@
                 </th>
                 <td>
                   <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ fn.id }}
+                    {{ fn.displayId }}
                   </span>
                 </td>
                 <td>
@@ -237,7 +261,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
@@ -255,6 +279,8 @@ const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
 const router = useRouter()
 const negotiationsViewStore = useNegotiationsViewStore()
+const searchQuery = ref('')
+let searchTimeout = null
 
 const props = defineProps({
   negotiations: {
@@ -325,4 +351,28 @@ function goToNegotiation(negotiation) {
     params: { negotiationId: negotiation.id },
   })
 }
+
+function handleSearchInput() {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+
+  searchTimeout = setTimeout(() => {
+    filtersSortData.value.search = searchQuery.value
+    emitFilterSortData()
+  }, 500) // 500ms debounce
+}
+
+function clearSearch() {
+  searchQuery.value = ''
+  filtersSortData.value.search = ''
+  emitFilterSortData()
+}
+
+// Initialize search query from filtersSortData
+watch(() => filtersSortData.value?.search, (newSearch) => {
+  if (newSearch !== searchQuery.value) {
+    searchQuery.value = newSearch || ''
+  }
+}, { immediate: true })
 </script>

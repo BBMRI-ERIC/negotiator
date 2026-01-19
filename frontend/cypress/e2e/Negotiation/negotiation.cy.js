@@ -10,7 +10,10 @@ describe("Test access negotiations", () => {
         it("test if table contains negotiation", () => {
             // Number of negotiation is more than 0
             cy.get(".negotiations-number").should("be.visible")
-            cy.get(".negotiations-number").contains("0").should("not.exist")
+            cy.get(".negotiations-number").invoke("text").then((text) => {
+                // Should not be "0", but can contain "0" if it's "10", "20", etc.
+                expect(text.trim()).not.to.equal("0")
+            })
 
             // Negotiation is visible in table view
             cy.get("tbody > tr > th").should("be.visible")
@@ -99,7 +102,7 @@ describe("Test access negotiations", () => {
             cy.get(".order-1 > .list-group > :nth-child(2) > span").should("be.visible")
             //  Negotiation ID:
             cy.get(".order-1 > .list-group > :nth-child(3) > .fw-bold").should("be.visible")
-            cy.get(".order-1 > .list-group > :nth-child(3) > span").should("be.visible")
+            cy.get(".order-1 > .list-group > :nth-child(3) > .d-flex").should("be.visible")
             //  Submitted at:
             cy.get(".order-1 > .list-group > :nth-child(4) > .fw-bold").should("be.visible")
             cy.get(".order-1 > .list-group > :nth-child(4) > span").should("be.visible")
