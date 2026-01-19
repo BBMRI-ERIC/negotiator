@@ -142,6 +142,10 @@ public class PersonServiceImpl implements PersonService {
       eventPublisher.publishEvent(
           new FirstRepresentativeEvent(this, resource.getId(), resource.getSourceId()));
     }
+
+    representative.addResource(resource);
+    personRepository.save(representative);
+
     eventPublisher.publishEvent(
         new AddedRepresentativeEvent(
             this,
@@ -150,9 +154,6 @@ public class PersonServiceImpl implements PersonService {
             representative.getEmail(),
             resource.getId(),
             resource.getSourceId()));
-
-    representative.addResource(resource);
-    personRepository.save(representative);
   }
 
   @Override
