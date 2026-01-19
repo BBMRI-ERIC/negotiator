@@ -39,11 +39,7 @@
             <i class="bi bi-pencil"></i>
           </button>
           <div v-if="isEditingDisplayId" class="d-flex gap-1">
-            <button
-              class="btn btn-sm btn-success p-0 px-1"
-              @click="saveDisplayId"
-              title="Save"
-            >
+            <button class="btn btn-sm btn-success p-0 px-1" @click="saveDisplayId" title="Save">
               <i class="bi bi-check-lg"></i>
             </button>
             <button
@@ -186,7 +182,12 @@ const props = defineProps({
   isAdmin: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation', 'update-display-id'])
+const emit = defineEmits([
+  'assign-status',
+  'download-attachment-from-link',
+  'transfer-negotiation',
+  'update-display-id',
+])
 
 function assignStatus(status) {
   emit('assign-status', status)
@@ -232,7 +233,7 @@ async function saveDisplayId() {
     await axios.patch(
       `${apiPaths.BASE_API_PATH}/negotiations/${props.negotiation.id}`,
       { displayId: editedDisplayId.value },
-      { headers: getBearerHeaders() }
+      { headers: getBearerHeaders() },
     )
 
     // Emit event to update the negotiation in the parent component
@@ -242,7 +243,9 @@ async function saveDisplayId() {
     isEditingDisplayId.value = false
     editedDisplayId.value = ''
   } catch (error) {
-    notifications.setNotification('Error updating Display ID: ' + (error.response?.data?.message || error.message))
+    notifications.setNotification(
+      'Error updating Display ID: ' + (error.response?.data?.message || error.message),
+    )
   }
 }
 </script>
