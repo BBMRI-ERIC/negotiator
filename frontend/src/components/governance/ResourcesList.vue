@@ -21,14 +21,14 @@
         />
         <!-- Add Resources Button at bottom -->
         <div class="add-resources-container" v-if="isAdmin">
-          <button
-            class="btn btn-outline-primary add-resources-btn"
+          <PrimaryButton
+            class="add-resources-btn"
             @click="$emit('addResources')"
-            title="Add more resources to this organization"
+            :title="$t('governancePage.addResourcesTooltip')"
           >
             <i class="bi bi-plus-circle me-2"></i>
-            Add {{ $t('governancePage.resources') }}
-          </button>
+            {{ $t('governancePage.resources') }}
+          </PrimaryButton>
         </div>
       </div>
     </div>
@@ -55,6 +55,7 @@
 
 <script setup>
 import ResourceItem from './ResourceItem.vue'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 defineProps({
   isAdmin: {
