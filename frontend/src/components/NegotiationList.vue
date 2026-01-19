@@ -232,7 +232,9 @@ import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import SortButton from '@/components/ui/SortButton.vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const filtersSortData = defineModel('filtersSortData')
 const router = useRouter()
 const negotiationsViewStore = useNegotiationsViewStore()
@@ -268,8 +270,8 @@ const tableHeaders = [
     style: { color: '#3c3c3d' },
   },
   {
-    key: 'id',
-    label: 'Negotiation ID',
+    key: 'displayId',
+    label: t('negotiationPage.displayId'),
     slot: undefined,
     style: { color: '#3c3c3d' },
   },
@@ -303,7 +305,7 @@ const tableData = computed(() =>
   Array.isArray(props.negotiations)
     ? props.negotiations.map((fn) => ({
         title: fn.payload?.project?.title,
-        id: fn.id,
+        displayId: fn.displayId,
         creationDate: fn.creationDate,
         author: fn.author.name,
         status: fn.status,
@@ -377,11 +379,15 @@ function clearSearch() {
 }
 
 // Initialize search query from filtersSortData
-watch(() => filtersSortData.value?.search, (newSearch) => {
-  if (newSearch !== searchQuery.value) {
-    searchQuery.value = newSearch || ''
-  }
-}, { immediate: true })
+watch(
+  () => filtersSortData.value?.search,
+  (newSearch) => {
+    if (newSearch !== searchQuery.value) {
+      searchQuery.value = newSearch || ''
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped>
