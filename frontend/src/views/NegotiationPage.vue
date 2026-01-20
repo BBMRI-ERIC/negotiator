@@ -94,7 +94,8 @@
                 v-else
                 class="text-break"
                 :style="{ color: uiConfiguration.secondaryTextColor, whiteSpace: 'pre-wrap' }"
-              >{{ translateTrueFalse(subelement) }}</span>
+                >{{ translateTrueFalse(subelement) }}</span
+              >
             </div>
           </li>
           <li class="list-group-item p-3">

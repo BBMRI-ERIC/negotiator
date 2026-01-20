@@ -383,9 +383,13 @@ function clearSearch() {
 }
 
 // Initialize search query from filtersSortData
-watch(() => filtersSortData.value?.search, (newSearch) => {
-  if (newSearch !== searchQuery.value) {
-    searchQuery.value = newSearch || ''
-  }
-}, { immediate: true })
+watch(
+  () => filtersSortData.value?.search,
+  (newSearch) => {
+    if (newSearch !== searchQuery.value) {
+      searchQuery.value = newSearch || ''
+    }
+  },
+  { immediate: true },
+)
 </script>
