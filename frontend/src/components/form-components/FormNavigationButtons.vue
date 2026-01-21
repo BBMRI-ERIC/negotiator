@@ -2,6 +2,7 @@
   <div class="form-navigation-buttons mt-5 d-flex align-items-center">
     <div class="col">
       <button
+        v-if="isDraftStatus"
         class="btn btn-outline-secondary"
         :disabled="saveDraftDisabled"
         @click="$emit('saveDraft')"
@@ -31,7 +32,7 @@
         class="btn btn-success"
         @click="$emit('openSaveNegotiationModal')"
       >
-        <i class="bi bi-check-circle"></i> Submit Request
+        <i class="bi bi-check-circle"></i> {{ isDraftStatus ? 'Submit Request' : 'Save' }}
       </button>
     </div>
   </div>
@@ -50,6 +51,11 @@ defineProps({
     type: Boolean,
     required: false,
     default: false,
+  },
+  isDraftStatus: {
+    type: Boolean,
+    required: false,
+    default: true,
   },
 })
 

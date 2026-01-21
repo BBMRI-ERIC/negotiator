@@ -3,8 +3,8 @@
     <button ref="openSaveModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackModal" />
     <ConfirmationModal
       id="feedbackModal"
-      :title="'Confirm submission'"
-      :text="'You will be redirected to the negotiation page where you can monitor the status. Click Confirm to proceed.'"
+      :title="isDraftStatus ? 'Confirm submission' : 'Confirm changes'"
+      :text="isDraftStatus ? 'You will be redirected to the negotiation page where you can monitor the status. Click Confirm to proceed.' : 'Your changes will be saved and you will be redirected to the negotiation page. Click Confirm to proceed.'"
       :message-enabled="false"
       dismiss-button-text="Back to HomePage"
       @confirm="updateSaveNegotiation(false)"
@@ -30,6 +30,7 @@
         <AccessFormOverview
           v-else-if="activeNavItemIndex == returnNavItems?.length + 1"
           :accessFormWithPayload="accessFormWithPayload"
+          :isDraftStatus="isDraftStatus"
           @emitErrorElementIndex="showSectionAndScrollToElement"
         />
         <div v-else>
@@ -47,7 +48,7 @@
             "
             :focusElementId="focusElementId"
             v-model:negotiationReplacedAttachmentsID="negotiationReplacedAttachmentsID"
-            @element-focus-out-event="updateSaveNegotiation(true)"
+            @element-focus-out-event="isDraftStatus ? updateSaveNegotiation(true) : undefined"
             @element-focus-out-event-validation="validateInput"
             @element-focus-in-event="saveDraftDisabled = false"
           />
@@ -58,6 +59,7 @@
           :requestId="requestId"
           :validationErrorHighlight="validationErrorHighlight"
           :saveDraftDisabled="saveDraftDisabled"
+          :isDraftStatus="isDraftStatus"
           @openSaveNegotiationModal="openSaveNegotiationModal()"
           @saveDraft="openSaveNegotiationModal(true)"
         />
@@ -163,6 +165,10 @@ onMounted(async () => {
 })
 
 const existingAttachments = ref({})
+
+const isDraftStatus = computed(() => {
+  return currentStatus.value === 'DRAFT'
+})
 
 function createAccessFormWithPayload() {
   const payload = accessFormResponse.value
@@ -322,7 +328,12 @@ async function updateSaveNegotiation(isSavingDraft) {
             backToNegotiation(requestId.value)
           }
         } else {
-          notificationsStore.setNotification('Negotiation saved correctly as draft', 'light')
+          notificationsStore.setNotification(
+            isDraftStatus.value
+              ? 'Negotiation saved correctly as draft'
+              : 'Negotiation changes saved successfully',
+            'light'
+          )
         }
       })
   }
