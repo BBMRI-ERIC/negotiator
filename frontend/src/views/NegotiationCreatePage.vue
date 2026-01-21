@@ -1,6 +1,7 @@
 <template>
   <div class="submit-modal">
     <button ref="openSaveModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackModal" />
+    <button ref="openDeleteDraftModal" hidden data-bs-toggle="modal" data-bs-target="#deleteDraftModal" />
     <ConfirmationModal
       id="feedbackModal"
       :title="isDraftStatus ? 'Confirm submission' : 'Confirm changes'"
@@ -8,6 +9,13 @@
       :message-enabled="false"
       dismiss-button-text="Back to HomePage"
       @confirm="updateSaveNegotiation(false)"
+    />
+    <ConfirmationModal
+      id="deleteDraftModal"
+      title="Delete Draft"
+      text="Are you sure you want to delete this draft? All your data will be lost."
+      :message-enabled="false"
+      @confirm="deleteDraft"
     />
   </div>
   <div class="negotiation-create-page">
@@ -62,6 +70,7 @@
           :isDraftStatus="isDraftStatus"
           @openSaveNegotiationModal="openSaveNegotiationModal()"
           @saveDraft="openSaveNegotiationModal(true)"
+          @deleteDraft="openDeleteDraftModalHandler()"
         />
       </div>
     </div>
@@ -362,6 +371,22 @@ function openSaveNegotiationModal() {
     return
   }
   openSaveModal.value.click()
+}
+
+const openDeleteDraftModal = ref(null)
+
+function openDeleteDraftModalHandler() {
+  openDeleteDraftModal.value.click()
+}
+
+async function deleteDraft() {
+  try {
+    await negotiationPageStore.deleteNegotiation(requestId.value)
+    notificationsStore.setNotification('Draft deleted successfully', 'success')
+    router.push('/')
+  } catch {
+    notificationsStore.setNotification('Failed to delete draft', 'danger')
+  }
 }
 
 const focusElementId = ref(null)

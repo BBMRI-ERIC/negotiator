@@ -15,7 +15,7 @@
             </div>
           </div>
           <div class="form-navigation-item-text d-flex flex-column">
-            <p class="fw-bold mb-0">Request Parameters</p>
+            <p class="fw-bold mb-0">Resources</p>
           </div>
         </div>
       </div>
