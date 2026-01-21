@@ -1,11 +1,20 @@
 <template>
   <div class="submit-modal">
     <button ref="openSaveModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackModal" />
-    <button ref="openDeleteDraftModal" hidden data-bs-toggle="modal" data-bs-target="#deleteDraftModal" />
+    <button
+      ref="openDeleteDraftModal"
+      hidden
+      data-bs-toggle="modal"
+      data-bs-target="#deleteDraftModal"
+    />
     <ConfirmationModal
       id="feedbackModal"
       :title="isDraftStatus ? 'Confirm submission' : 'Confirm changes'"
-      :text="isDraftStatus ? 'You will be redirected to the negotiation page where you can monitor the status. Click Confirm to proceed.' : 'Your changes will be saved and you will be redirected to the negotiation page. Click Confirm to proceed.'"
+      :text="
+        isDraftStatus
+          ? 'You will be redirected to the negotiation page where you can monitor the status. Click Confirm to proceed.'
+          : 'Your changes will be saved and you will be redirected to the negotiation page. Click Confirm to proceed.'
+      "
       :message-enabled="false"
       dismiss-button-text="Back to HomePage"
       @confirm="updateSaveNegotiation(false)"
@@ -34,6 +43,8 @@
         <RequestSummary
           v-if="requestSummary && activeNavItemIndex === 0"
           :requestSummary="requestSummary"
+          :negotiationId="requestId"
+          @resource-removed="handleResourceRemoved"
         />
         <AccessFormOverview
           v-else-if="activeNavItemIndex == returnNavItems?.length + 1"
@@ -341,7 +352,7 @@ async function updateSaveNegotiation(isSavingDraft) {
             isDraftStatus.value
               ? 'Negotiation saved correctly as draft'
               : 'Negotiation changes saved successfully',
-            'light'
+            'light',
           )
         }
       })
@@ -389,6 +400,16 @@ async function deleteDraft() {
   }
 }
 
+async function handleResourceRemoved() {
+  try {
+    requestSummary.value.resources = await negotiationPageStore.retrieveResourcesByNegotiationId(
+      requestId.value,
+    )
+  } catch (error) {
+    console.error('Error reloading request summary:', error)
+  }
+}
+
 const focusElementId = ref(null)
 
 function showSectionAndScrollToElement(item) {
@@ -431,34 +452,25 @@ async function handleMergeWithDraft(draftNegotiation) {
     const resourceIds = requestSummary.value.resources?.map((resource) => resource.id) || []
 
     if (resourceIds.length === 0) {
-      notificationsStore.setNotification(
-        'No resources found to merge',
-        'warning'
-      )
+      notificationsStore.setNotification('No resources found to merge', 'warning')
       return
     }
 
     // Call the API to add resources to the draft negotiation
-    const result = await negotiationPageStore.addResources(
-      { resourceIds },
-      draftNegotiation.id
-    )
+    const result = await negotiationPageStore.addResources({ resourceIds }, draftNegotiation.id)
 
     // Check if the API call was successful (returned data)
     if (result) {
-        await negotiationPageStore.deleteNegotiation(requestId.value)
+      await negotiationPageStore.deleteNegotiation(requestId.value)
       router.push(`/edit/requests/${draftNegotiation.id}`)
       notificationsStore.setNotification(
         'Resources successfully merged with your draft negotiation',
-        'success'
+        'success',
       )
     }
   } catch (error) {
     console.error('Error merging with draft negotiation:', error)
-    notificationsStore.setNotification(
-      'Failed to merge resources with draft negotiation',
-      'danger'
-    )
+    notificationsStore.setNotification('Failed to merge resources with draft negotiation', 'danger')
   }
 }
 
