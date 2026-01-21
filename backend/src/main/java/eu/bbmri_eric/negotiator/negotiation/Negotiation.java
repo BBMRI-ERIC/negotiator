@@ -80,7 +80,8 @@ public class Negotiation extends AuditEntity {
 
   @OneToMany(
       mappedBy = "id.negotiation",
-      cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
+      cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},
+      orphanRemoval = true)
   @NotNull
   @Builder.Default
   @Getter(AccessLevel.PRIVATE)
@@ -209,6 +210,16 @@ public class Negotiation extends AuditEntity {
    */
   public boolean addResource(Resource resource) {
     return this.resourcesLink.add(new NegotiationResourceLink(this, resource, null));
+  }
+
+  /**
+   * Remove a resource from the Negotiation.
+   *
+   * @param resource to be removed.
+   * @return true if the resource was removed, false otherwise
+   */
+  public boolean removeResource(Resource resource) {
+    return this.resourcesLink.removeIf(link -> link.getResource().getId().equals(resource.getId()));
   }
 
   private void buildResourceStateChangeRecord(Resource resource, NegotiationResourceState state) {

@@ -296,6 +296,20 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     }
   }
 
+  async function removeResource(negotiationId, resourceId) {
+    try {
+      await axios.delete(
+        `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources/${resourceId}`,
+        { headers: getBearerHeaders() },
+      )
+      notifications.setNotification('Resource removed successfully', 'success')
+      return true
+    } catch {
+      notifications.setNotification('Failed to remove resource', 'danger')
+      return false
+    }
+  }
+
   async function retrieveResourceAllStates() {
     return axios
       .get(`${apiPaths.BASE_API_PATH}/resource-lifecycle/states`, { headers: getBearerHeaders() })
@@ -377,6 +391,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     retrieveInformationSubmission,
     fetchURL,
     addResources,
+    removeResource,
     retrieveAllResources,
     retrieveResourceAllStates,
     deleteNegotiation,

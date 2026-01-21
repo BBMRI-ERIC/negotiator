@@ -11,6 +11,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
@@ -364,5 +365,45 @@ public class NegotiationServiceImpl implements NegotiationService {
       throw new ConflictStatusException("Cannot delete a Negotiation that is not in DRAFT state");
     }
     negotiationRepository.delete(negotiation);
+  }
+
+  @Override
+  public void removeResourceFromNegotiation(String negotiationId, Long resourceId) {
+    // Fetch the negotiation
+    Negotiation negotiation = findEntityById(negotiationId, false);
+
+    // Verify the user is the creator of the negotiation
+    if (!isNegotiationCreator(negotiationId)) {
+      throw new ForbiddenRequestException(
+          "Only the negotiation creator can remove resources from a draft negotiation");
+    }
+
+    // Verify the negotiation is in DRAFT state
+    if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
+      throw new ConflictStatusException(
+          "Resources can only be removed from negotiations in DRAFT state");
+    }
+
+    // Find the resource
+    Resource resource =
+        negotiation.getResources().stream()
+            .filter(r -> r.getId().equals(resourceId))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(
+                        "Resource with id %s not found in negotiation %s"
+                            .formatted(resourceId, negotiationId)));
+
+    // Remove the resource
+    boolean removed = negotiation.removeResource(resource);
+    if (!removed) {
+      throw new EntityNotFoundException(
+          "Failed to remove resource with id %s from negotiation %s"
+              .formatted(resourceId, negotiationId));
+    }
+
+    // Save the negotiation
+    negotiationRepository.save(negotiation);
   }
 }

@@ -26,7 +26,10 @@
     </div>
 
     <div class="resources-wrapper">
-      <ResourcesList :resources="props.requestSummary?.resources" />
+      <ResourcesList
+        :resources="props.requestSummary?.resources"
+        @remove-resource="handleRemoveResource"
+      />
     </div>
   </div>
 </template>
@@ -35,6 +38,8 @@
 import { ref, onMounted } from 'vue'
 import ResourcesList from '../../components/ResourcesList.vue'
 import { useDiscoveryServicesStore } from '../../store/discoveryServices.js'
+import { useNegotiationPageStore } from '../../store/negotiationPage.js'
+import { useNotificationsStore } from '../../store/notifications.js'
 
 const props = defineProps({
   requestSummary: {
@@ -42,9 +47,18 @@ const props = defineProps({
     required: true,
     default: () => {},
   },
+  negotiationId: {
+    type: String,
+    required: false,
+    default: null,
+  },
 })
 
+const emit = defineEmits(['resource-removed'])
+
 const discoveryServicesStore = useDiscoveryServicesStore()
+const negotiationPageStore = useNegotiationPageStore()
+const notificationsStore = useNotificationsStore()
 const discoveryServices = ref([])
 
 onMounted(async () => {
@@ -55,6 +69,18 @@ onMounted(async () => {
     // Silently fail - the tip just won't show if there's an error
   }
 })
+
+async function handleRemoveResource(resource) {
+  if (!props.negotiationId) {
+    notificationsStore.setNotification('Cannot remove resource: negotiation ID not provided', 'danger')
+    return
+  }
+
+  const success = await negotiationPageStore.removeResource(props.negotiationId, resource.id)
+  if (success) {
+    emit('resource-removed', resource.id)
+  }
+}
 </script>
 
 <style scoped>

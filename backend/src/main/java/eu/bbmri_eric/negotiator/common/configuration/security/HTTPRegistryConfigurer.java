@@ -97,6 +97,8 @@ public class HTTPRegistryConfigurer {
         .authenticated()
         .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/v3/negotiations/*/resources/**"))
         .authenticated()
+        .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/v3/negotiations/*/resources/**"))
+        .authenticated()
         .requestMatchers(mvc.pattern("/v3/users/*/negotiations"))
         .authenticated()
         .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/sections"))
