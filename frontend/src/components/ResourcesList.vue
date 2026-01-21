@@ -41,8 +41,9 @@
             </div>
             <button
               class="remove-btn"
+              :disabled="numberOfResources === 1"
               @click="handleRemoveResource(resource)"
-              :title="`Remove ${resource.name}`"
+              :title="numberOfResources === 1 ? 'Cannot remove the last resource. Please delete the draft completely instead.' : `Remove ${resource.name}`"
             >
               <i class="bi bi-trash3"></i>
             </button>
@@ -268,6 +269,18 @@ function handleRemoveResource(resource) {
 
 .remove-btn:active {
   background-color: #f8f9fa;
+}
+
+.remove-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #adb5bd;
+  border-color: #dee2e6;
+}
+
+.remove-btn:disabled:hover {
+  border-color: #dee2e6;
+  color: #adb5bd;
 }
 
 .empty-cart {

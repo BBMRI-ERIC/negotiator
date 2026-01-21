@@ -26,7 +26,14 @@
         Next <i class="bi bi-chevron-right"></i>
       </button>
     </div>
-    <div class="col d-flex justify-content-end">
+    <div class="col d-flex justify-content-end gap-2">
+      <button
+        v-if="isDraftStatus && activeNavItemIndex === 0"
+        class="btn btn-outline-danger"
+        @click="$emit('deleteDraft')"
+      >
+        <i class="bi bi-trash"></i> Delete Draft
+      </button>
       <button
         v-if="activeNavItemIndex == navItemsLength + 1"
         class="btn btn-success"
