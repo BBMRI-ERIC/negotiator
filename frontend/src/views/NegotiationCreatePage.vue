@@ -182,6 +182,9 @@ onMounted(async () => {
   if (!props.isEditForm) {
     await createNegotiation()
   }
+  if (recentDraftNegotiation.value){
+    handleMergeWithDraft(recentDraftNegotiation.value)
+  }
 })
 
 const existingAttachments = ref({})
