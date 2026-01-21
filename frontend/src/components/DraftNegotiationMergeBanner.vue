@@ -4,7 +4,7 @@
       <div class="flex-grow-1 mb-2 mb-md-0">
         <i class="bi bi-info-circle me-2"></i>
         <strong>Draft found:</strong>
-        Would you like to merge this request with the one you started
+        Would you like to merge the selected resources into the request you started
         <strong>{{ formatTimeAgo(draftNegotiation.creationDate) }}</strong>?
       </div>
       <div class="d-flex gap-2 ms-md-3">
