@@ -81,16 +81,18 @@
       >
         <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
           <li v-for="event in possibleEvents" :key="event.label" class="me-2">
-            <button
-              :class="getButtonColor(event.label)"
-              class="btn btn-status mb-1 d-flex text-left"
+            <PrimaryButton
+              :backgroundColor="getButtonColor(event.label)"
+              :textColor="'#FFFFFF'"
+              :size="'sm'"
+              class="mb-1 d-flex text-left w-100"
               data-bs-toggle="modal"
               data-bs-target="#abandonModal"
               @click="assignStatus(event)"
             >
               <i :class="getButtonIcon(event.label)" />
               {{ event.label }}
-            </button>
+            </PrimaryButton>
           </li>
         </ul>
       </li>
@@ -166,6 +168,7 @@ import {
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from '../store/notifications'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 useNegotiationPageStore()
 const notifications = useNotificationsStore()
