@@ -467,7 +467,7 @@ async function handleMergeWithDraft(draftNegotiation) {
       await negotiationPageStore.deleteNegotiation(requestId.value)
       router.push(`/edit/requests/${draftNegotiation.id}`)
       notificationsStore.setNotification(
-        'Resources successfully merged with your draft negotiation',
+        'Resources added',
         'success',
       )
     }
