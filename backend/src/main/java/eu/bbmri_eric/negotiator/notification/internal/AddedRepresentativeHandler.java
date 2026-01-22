@@ -30,7 +30,8 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
 
       Please log in to the Negotiator.""";
 
-  private final Map<Long, List<AddedRepresentativeEvent>> eventsBuffer = new ConcurrentHashMap<>();
+  private final Object bufferLock = new Object();
+  private Map<Long, List<AddedRepresentativeEvent>> eventsBuffer = new ConcurrentHashMap<>();
   private final NotificationService notificationService;
 
   private AddedRepresentativeHandler(NotificationService notificationService) {
@@ -39,10 +40,14 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
 
   @Scheduled(fixedRate = 300000) // Polling every 5 minutes
   public void flushEventBuffer() {
-    if (eventsBuffer.isEmpty()) return;
+    Map<Long, List<AddedRepresentativeEvent>> toHandle;
 
-    Map<Long, List<AddedRepresentativeEvent>> toHandle = new HashMap<>(eventsBuffer);
-    eventsBuffer.clear();
+    synchronized (bufferLock) {
+      if (eventsBuffer.isEmpty()) return;
+
+      toHandle = eventsBuffer;
+      eventsBuffer = new HashMap<>();
+    }
 
     handleEvents(toHandle);
   }
