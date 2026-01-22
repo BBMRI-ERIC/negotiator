@@ -1,47 +1,51 @@
 <template>
   <div class="form-navigation-buttons mt-auto d-flex">
     <div class="col">
-      <button
-        class="btn btn-sm btn-outline-info me-3 col"
-        :disabled="saveDraftDisabled"
+      <PrimaryButton
+        :isDisabled="saveDraftDisabled"
+        size="sm"
+        class="me-3 col"
         @click="$emit('saveDraft')"
       >
         <i class="bi bi-floppy" /> Save Draft
-      </button>
+      </PrimaryButton>
     </div>
     <div class="middle-buttons d-flex flex-row col">
-      <button
-        :class="activeNavItemIndex > 0 ? '' : 'disabled'"
-        label="Previous"
-        class="btn btn-sm btn-outline-info me-3"
+      <PrimaryButton
+        :isDisabled="activeNavItemIndex <= 0"
+        size="sm"
+        class="me-3"
         @click="previousTab"
       >
         Back
         <i class="bi bi-chevron-left" />
-      </button>
-      <button
-        :class="activeNavItemIndex < navItemsLength + 1 > 0 ? '' : 'disabled'"
-        class="btn btn-sm btn-outline-info me-3"
+      </PrimaryButton>
+      <PrimaryButton
+        :isDisabled="activeNavItemIndex >= navItemsLength + 1"
+        size="sm"
+        class="me-3"
         @click="nextTab"
       >
         Next
         <i class="bi bi-chevron-right" />
-      </button>
+      </PrimaryButton>
     </div>
     <div class="col">
-      <button
+      <PrimaryButton
         v-if="activeNavItemIndex == navItemsLength + 1"
-        class="btn btn-sm btn-outline-info me-3 float-end"
+        size="sm"
+        class="me-3 float-end"
         @click="$emit('openSaveNegotiationModal')"
       >
         <i class="bi bi-floppy" />
         Submit
-      </button>
+      </PrimaryButton>
     </div>
   </div>
 </template>
 
 <script setup>
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 const activeNavItemIndex = defineModel('activeNavItemIndex')
 
 defineProps({
