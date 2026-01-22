@@ -1,5 +1,5 @@
 <template>
-  <span class="badge" :class="badgeClass" :style="badgeStyle">
+  <span class="badge rounded-pill" :class="badgeClass" :style="badgeStyle">
     <i v-if="icon" :class="[icon, 'px-1']" />
     <slot />
   </span>

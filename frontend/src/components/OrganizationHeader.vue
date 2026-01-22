@@ -25,10 +25,7 @@
           title="Select current status. The term Resource is abstract and can for example refer to biological samples, datasets or a service such as sequencing."
           @click.stop="onToggleDropdown"
         >
-          <UiBadge
-            :class="'text-wrap ' + getStatusColor(org.status)"
-            :icon="getStatusIcon(org.status)"
-          >
+          <UiBadge :class="getStatusColor(org.status)" :icon="getStatusIcon(org.status)">
             {{ org.status?.replace(/_/g, ' ') || '' }}
           </UiBadge>
           <i
