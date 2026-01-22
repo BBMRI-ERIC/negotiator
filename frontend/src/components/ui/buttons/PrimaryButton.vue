@@ -1,7 +1,12 @@
 <template>
   <div class="primary-button">
     <button
-      :class="['btn', sizeClass, 'btn-outline-info', 'me-3', { disabled: isDisabled }]"
+      :class="[
+        'btn',
+        sizeClass,
+        backgroundColor ? backgroundColor : 'btn-outline-info',
+        { disabled: isDisabled },
+      ]"
       :style="buttonStyle"
       @mouseover="handleMouseOver"
       @mouseout="handleMouseOut"
