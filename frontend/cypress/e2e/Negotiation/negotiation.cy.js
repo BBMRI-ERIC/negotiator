@@ -52,7 +52,7 @@ describe("Test access negotiations", () => {
             //  Title
             cy.get(".row-col-2 > .fw-bold")
             //  Badge
-            cy.get(".row-col-2 > .bg-status-badge")
+            cy.get(".row-col-2 > .badge")
             // PROJECT
             cy.get(".list-group > :nth-child(1) > .fs-5").should("be.visible")
 
