@@ -35,6 +35,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -167,7 +168,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       }
 
       // Generate CSV first
-      MultipartFile csvFile = createSummary(requirementId, negotiationId);
+      MultipartFile csvFile = (MultipartFile) createSummary(requirementId, negotiationId);
 
       // Convert CSV to PDF
       try {
@@ -204,7 +205,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
 
       try {
         // Generate CSV first
-        MultipartFile csvFile = createSummary(requirement.getId(), negotiationId);
+        MultipartFile csvFile = (MultipartFile) createSummary(requirement.getId(), negotiationId);
 
         // Skip empty submissions
         if (csvFile.getSize() > 0) {
