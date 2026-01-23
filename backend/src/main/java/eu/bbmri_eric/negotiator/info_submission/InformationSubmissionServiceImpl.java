@@ -168,7 +168,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       }
 
       // Generate CSV first
-      MultipartFile csvFile = (MultipartFile) createSummary(requirementId, negotiationId);
+      MultipartFile csvFile = createSummary(requirementId, negotiationId);
 
       // Convert CSV to PDF
       try {
@@ -205,7 +205,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
 
       try {
         // Generate CSV first
-        MultipartFile csvFile = (MultipartFile) createSummary(requirement.getId(), negotiationId);
+        MultipartFile csvFile = createSummary(requirement.getId(), negotiationId);
 
         // Skip empty submissions
         if (csvFile.getSize() > 0) {

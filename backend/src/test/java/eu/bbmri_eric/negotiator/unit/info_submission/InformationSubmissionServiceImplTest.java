@@ -12,6 +12,7 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionServiceImpl;
+import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionSummaryDTO;
 import eu.bbmri_eric.negotiator.info_submission.pdf.InformationSubmissionToPdfConverter;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
@@ -28,7 +29,6 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,6 +59,10 @@ class InformationSubmissionServiceImplTest {
             informationSubmissionToPdfConverter);
   }
 
+  private InformationSubmissionSummaryDTO csv(String name, byte[] content) {
+    return new InformationSubmissionSummaryDTO(name, content, "text/csv");
+  }
+
   @Test
   void createPdfSummary_whenUserIsCreator_returnsSuccessfully() throws IOException {
     Long requirementId = 1L;
@@ -77,8 +81,7 @@ class InformationSubmissionServiceImplTest {
     when(negotiationRepository.existsByIdAndCreatedBy_Id(eq(negotiationId), anyLong()))
         .thenReturn(true);
 
-    MultipartFile mockCsvFile =
-        new MockMultipartFile("test.csv", "test.csv", "text/csv", "data".getBytes());
+    MultipartFile mockCsvFile = csv("test.csv", "data".getBytes());
     InformationSubmissionServiceImpl spyService = spy(service);
     doReturn(mockCsvFile).when(spyService).createSummary(requirementId, negotiationId);
     when(informationSubmissionToPdfConverter.convertCsvToPdf(
@@ -121,8 +124,7 @@ class InformationSubmissionServiceImplTest {
     when(negotiationRepository.existsByIdAndCreatedBy_Id(eq(negotiationId), anyLong()))
         .thenReturn(false);
 
-    MultipartFile mockCsvFile =
-        new MockMultipartFile("test.csv", "test.csv", "text/csv", "data".getBytes());
+    MultipartFile mockCsvFile = csv("test.csv", "data".getBytes());
     InformationSubmissionServiceImpl spyService = spy(service);
     doReturn(mockCsvFile).when(spyService).createSummary(requirementId, negotiationId);
     when(informationSubmissionToPdfConverter.convertCsvToPdf(
@@ -237,8 +239,7 @@ class InformationSubmissionServiceImplTest {
     when(negotiationRepository.existsByIdAndCreatedBy_Id(eq(negotiationId), anyLong()))
         .thenReturn(true);
 
-    MultipartFile mockCsvFile =
-        new MockMultipartFile("test.csv", "test.csv", "text/csv", "data".getBytes());
+    MultipartFile mockCsvFile = csv("test.csv", "data".getBytes());
     InformationSubmissionServiceImpl spyService = spy(service);
     doReturn(mockCsvFile).when(spyService).createSummary(requirementId, negotiationId);
     when(informationSubmissionToPdfConverter.convertCsvToPdf(
@@ -285,10 +286,8 @@ class InformationSubmissionServiceImplTest {
     when(informationRequirementRepository.findAll())
         .thenReturn(Arrays.asList(requirement1, requirement2));
 
-    MultipartFile mockCsvFile1 =
-        new MockMultipartFile("test1.csv", "test1.csv", "text/csv", "data1".getBytes());
-    MultipartFile mockCsvFile2 =
-        new MockMultipartFile("test2.csv", "test2.csv", "text/csv", "data2".getBytes());
+    MultipartFile mockCsvFile1 = csv("test1.csv", "data1".getBytes());
+    MultipartFile mockCsvFile2 = csv("test2.csv", "data2".getBytes());
 
     byte[] pdfBytes1 = new byte[] {1, 2, 3};
     byte[] pdfBytes2 = new byte[] {4, 5, 6};
@@ -348,10 +347,8 @@ class InformationSubmissionServiceImplTest {
     when(informationRequirementRepository.findAll())
         .thenReturn(Arrays.asList(requirement1, requirement2));
 
-    MultipartFile mockCsvFile1 =
-        new MockMultipartFile("test1.csv", "test1.csv", "text/csv", "data1".getBytes());
-    MultipartFile mockCsvFile2 =
-        new MockMultipartFile("test2.csv", "test2.csv", "text/csv", "data2".getBytes());
+    MultipartFile mockCsvFile1 = csv("test1.csv", "data1".getBytes());
+    MultipartFile mockCsvFile2 = csv("test2.csv", "data2".getBytes());
 
     byte[] pdfBytes1 = new byte[] {1, 2, 3};
     byte[] pdfBytes2 = new byte[] {4, 5, 6};
@@ -406,8 +403,7 @@ class InformationSubmissionServiceImplTest {
     when(informationRequirementRepository.findAll())
         .thenReturn(Arrays.asList(requirement1, requirement2));
 
-    MultipartFile mockCsvFile1 =
-        new MockMultipartFile("test1.csv", "test1.csv", "text/csv", "data1".getBytes());
+    MultipartFile mockCsvFile1 = csv("test1.csv", "data1".getBytes());
 
     byte[] pdfBytes1 = new byte[] {1, 2, 3};
 
@@ -504,10 +500,8 @@ class InformationSubmissionServiceImplTest {
     when(informationRequirementRepository.findAll())
         .thenReturn(Arrays.asList(requirement1, requirement2));
 
-    MultipartFile mockCsvFile1 =
-        new MockMultipartFile("test1.csv", "test1.csv", "text/csv", new byte[0]);
-    MultipartFile mockCsvFile2 =
-        new MockMultipartFile("test2.csv", "test2.csv", "text/csv", "data2".getBytes());
+    MultipartFile mockCsvFile1 = csv("test.csv1", new byte[0]);
+    MultipartFile mockCsvFile2 = csv("test2.csv", "data2".getBytes());
 
     byte[] pdfBytes2 = new byte[] {4, 5, 6};
 
@@ -563,10 +557,8 @@ class InformationSubmissionServiceImplTest {
     when(informationRequirementRepository.findAll())
         .thenReturn(Arrays.asList(requirement1, requirement2));
 
-    MultipartFile mockCsvFile1 =
-        new MockMultipartFile("test1.csv", "test1.csv", "text/csv", "data1".getBytes());
-    MultipartFile mockCsvFile2 =
-        new MockMultipartFile("test2.csv", "test2.csv", "text/csv", "data2".getBytes());
+    MultipartFile mockCsvFile1 = csv("test1.csv", "data1".getBytes());
+    MultipartFile mockCsvFile2 = csv("test2.csv", "data2".getBytes());
 
     byte[] pdfBytes2 = new byte[] {4, 5, 6};
 
@@ -621,8 +613,7 @@ class InformationSubmissionServiceImplTest {
     when(informationRequirementRepository.findAll())
         .thenReturn(Arrays.asList(requirement1, requirement2));
 
-    MultipartFile mockCsvFile2 =
-        new MockMultipartFile("test2.csv", "test2.csv", "text/csv", "data2".getBytes());
+    MultipartFile mockCsvFile2 = csv("test2.csv", "data2".getBytes());
     byte[] pdfBytes2 = new byte[] {4, 5, 6};
 
     InformationSubmissionServiceImpl spyService = spy(service);
