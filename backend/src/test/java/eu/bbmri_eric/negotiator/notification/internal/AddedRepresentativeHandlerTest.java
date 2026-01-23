@@ -45,7 +45,6 @@ public class AddedRepresentativeHandlerTest {
   public void handleRepresentativeAddedEvents_whenDifferentRepresentatives_firstRepresentative_ok()
       throws Exception {
     personService.assignAsRepresentativeForResource(105L, 9L);
-    personService.assignAsRepresentativeForResource(109L, 10L);
     addedRepresentativeHandler.flushEventBuffer();
     mockMvc
         .perform(get(String.format(USER_NOTIFICATIONS_ENDPOINT, 105L)))
@@ -57,6 +56,7 @@ public class AddedRepresentativeHandlerTest {
   @WithMockNegotiatorUser(id = 109L)
   public void handleRepresentativeAddedEvents_whenDifferentRepresentatives_secondRepresentative_ok()
       throws Exception {
+    personService.assignAsRepresentativeForResource(109L, 10L);
     addedRepresentativeHandler.flushEventBuffer();
     mockMvc
         .perform(get(String.format(USER_NOTIFICATIONS_ENDPOINT, 109L)))
