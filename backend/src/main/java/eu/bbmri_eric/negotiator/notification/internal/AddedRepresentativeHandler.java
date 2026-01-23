@@ -67,11 +67,9 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
               new NotificationCreateDTO(List.of(representativeId), TITLE, TEXT, null);
           notificationService.createNotifications(notification);
           log.info(
-              "Sent notification to representative:"
-                  + representativeId
-                  + "to notify about"
-                  + addedRepresentativeEvents.size()
-                  + " added resources.");
+              String.format(
+                  "Notification sent to representative %d about %d added resources",
+                  representativeId, addedRepresentativeEvents.size()));
         });
   }
 }
