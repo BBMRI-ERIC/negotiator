@@ -58,6 +58,9 @@ public class Negotiation extends AuditEntity {
   @Column(name = "id")
   private String id;
 
+  @Column(name = "display_id", insertable = false)
+  private String displayId;
+
   @OneToMany(
       mappedBy = "negotiation",
       cascade = {CascadeType.MERGE, CascadeType.REMOVE})
@@ -86,9 +89,6 @@ public class Negotiation extends AuditEntity {
 
   @Formula(value = "JSON_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
   private String title;
-
-  @Column(name = "display_id")
-  private String displayId;
 
   @Type(JsonType.class)
   @Column(columnDefinition = "json")

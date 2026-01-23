@@ -1,15 +1,24 @@
--- Add display_id column to negotiation table
-ALTER TABLE negotiation
-ADD COLUMN display_id VARCHAR(255);
+alter table negotiation
+    add column display_id varchar(255);
 
--- Optional: If you want to populate the new column with existing data, you can use an UPDATE statement here
-UPDATE negotiation 
-SET display_id = id;
-
--- Create a sequence for generating unique display_id values
 create sequence negotiation_display_id_seq
-    start with 2000
     increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
+
+WITH numbered_negotiations AS (
+    SELECT id, row_number() OVER (ORDER BY id) as rn
+    FROM negotiation
+)
+
+UPDATE negotiation
+SET display_id = numbered_negotiations.rn::text
+FROM numbered_negotiations
+WHERE negotiation.id = numbered_negotiations.id;
+
+alter table negotiation
+    alter column display_id set default nextval('negotiation_display_id_seq')::text;
+
+SELECT setval('negotiation_display_id_seq', GREATEST(COALESCE((SELECT MAX(display_id::bigint) FROM negotiation), 0), 1));
+

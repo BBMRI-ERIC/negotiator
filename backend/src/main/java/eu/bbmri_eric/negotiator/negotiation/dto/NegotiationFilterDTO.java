@@ -6,6 +6,7 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,12 @@ public class NegotiationFilterDTO implements FilterDTO {
 
   @Schema(description = "Search term to filter negotiations by display id", example = "2024-00")
   String displayId;
+
+  @Schema(
+      description =
+          "Search term to filter negotiations by title, or display ID (case-insensitive partial match)")
+  @Size(max = 255, message = "Search term must not exceed 255 characters")
+  String search;
 
   @Schema(
       description = "The date after which the negotiations were created",

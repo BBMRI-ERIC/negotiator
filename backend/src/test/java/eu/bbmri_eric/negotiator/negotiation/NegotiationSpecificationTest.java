@@ -419,7 +419,7 @@ public class NegotiationSpecificationTest {
     when(cb.like(lowerDisplayIdExpr, expectedPattern)).thenReturn(predicate);
 
     // Act
-    Specification<Negotiation> spec = NegotiationSpecification.searchByDisplayID(searchTerm);
+    Specification<Negotiation> spec = NegotiationSpecification.bySearch(searchTerm);
     Predicate result = spec.toPredicate(root, query, cb);
 
     // Assert

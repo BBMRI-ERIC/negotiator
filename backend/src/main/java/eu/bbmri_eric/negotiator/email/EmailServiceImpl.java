@@ -1,10 +1,12 @@
 package eu.bbmri_eric.negotiator.email;
 
+import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,25 +30,34 @@ public class EmailServiceImpl implements EmailService {
 
   private final JavaMailSender javaMailSender;
   private final NotificationEmailRepository notificationEmailRepository;
+  private final NotificationService notificationService;
 
   @Value("${negotiator.email-address}")
   private String fromAddress;
 
   EmailServiceImpl(
-      JavaMailSender javaMailSender, NotificationEmailRepository notificationEmailRepository) {
+      JavaMailSender javaMailSender,
+      NotificationEmailRepository notificationEmailRepository,
+      NotificationService notificationService) {
     this.javaMailSender = Objects.requireNonNull(javaMailSender, "JavaMailSender must not be null");
     this.notificationEmailRepository =
         Objects.requireNonNull(
             notificationEmailRepository, "NotificationEmailRepository must not be null");
+    this.notificationService = notificationService;
   }
 
   @Override
-  public void sendEmail(Person recipient, String subject, String content) {
+  public void sendEmail(Person recipient, String subject, String content, String negotiationId) {
     Objects.requireNonNull(recipient, "Recipient must not be null");
     validateEmailParameters(recipient.getEmail(), subject, content);
     var recipientEmail = recipient.getEmail();
     try {
-      deliverEmail(recipientEmail, subject, content);
+      String messageId =
+          notificationService.countByRecipientIdAndNegotiationId(recipient.getId(), negotiationId)
+                  > 1
+              ? UUID.randomUUID().toString()
+              : negotiationId;
+      deliverEmail(recipientEmail, subject, content, negotiationId, messageId);
     } catch (Exception e) {
       log.error("Failed to send email to person " + recipient.getId() + ": " + e.getMessage());
     }
@@ -55,14 +66,27 @@ public class EmailServiceImpl implements EmailService {
   @Override
   public void sendEmail(String emailAddress, String subject, String content) {
     validateEmailParameters(emailAddress, subject, content);
-    deliverEmail(emailAddress, subject, content);
+    deliverEmail(emailAddress, subject, content, null, null);
   }
 
-  private void deliverEmail(String recipientAddress, String subject, String content) {
+  private void deliverEmail(
+      String recipientAddress,
+      String subject,
+      String content,
+      String negotiationId,
+      String messageId) {
     var mimeMessage = buildMimeMessage(recipientAddress, subject, content);
+    String domain = fromAddress.split("@")[1];
+
     try {
+      if (negotiationId != null) {
+        mimeMessage.setHeader("Message-ID", "<" + messageId + "@" + domain);
+        mimeMessage.setHeader("In-Reply-To", "<" + negotiationId + "@" + domain);
+        mimeMessage.setHeader("References", "<" + negotiationId + "@" + domain);
+      }
+
       javaMailSender.send(mimeMessage);
-    } catch (MailSendException e) {
+    } catch (MailSendException | MessagingException e) {
       log.error(
           "Failed to send email to "
               + recipientAddress

@@ -13,16 +13,51 @@
       </li>
       <li class="list-group-item p-2">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
-          ID:
+          {{ $t('negotiationPage.displayId') }}:
         </div>
-        <span :style="{ color: uiConfiguration.secondaryTextColor }">
-          {{ negotiation ? negotiation.displayId : '' }}</span
-        >
+        <div class="d-flex align-items-center gap-2">
+          <span v-if="!isEditingDisplayId" :style="{ color: uiConfiguration.secondaryTextColor }">
+            {{ negotiation ? negotiation.displayId : '' }}
+          </span>
+          <input
+            v-else
+            v-model="editedDisplayId"
+            type="text"
+            class="form-control form-control-sm"
+            maxlength="20"
+            :style="{ color: uiConfiguration.secondaryTextColor }"
+            @keyup.enter="saveDisplayId"
+            @keyup.esc="cancelEditDisplayId"
+          />
+          <button
+            v-if="isAdmin && !isEditingDisplayId"
+            class="btn btn-sm btn-link p-0"
+            :style="{ color: uiConfiguration.primaryTextColor }"
+            @click="startEditDisplayId"
+            title="Edit Display ID"
+          >
+            <i class="bi bi-pencil"></i>
+          </button>
+          <div v-if="isEditingDisplayId" class="d-flex gap-1">
+            <button
+              class="btn btn-sm btn-success p-0 px-1"
+              @click="saveDisplayId"
+              title="Save"
+            >
+              <i class="bi bi-check-lg"></i>
+            </button>
+            <button
+              class="btn btn-sm btn-secondary p-0 px-1"
+              @click="cancelEditDisplayId"
+              title="Cancel"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
       </li>
       <li class="list-group-item p-2">
-        <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
-          Negotiation ID:
-        </div>
+        <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">UUID:</div>
         <span :style="{ color: uiConfiguration.secondaryTextColor }">
           {{ negotiation ? negotiation.id : '' }}</span
         >
@@ -119,6 +154,8 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import axios from 'axios'
 import PDFButton from '@/components/PDFButton.vue'
 import TransferButton from '@/components/TransferButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
@@ -130,17 +167,25 @@ import {
   transformStatus,
   formatTimestampToLocalDateTime,
 } from '../composables/utils.js'
+import { apiPaths, getBearerHeaders } from '../config/apiPaths'
+import { useNotificationsStore } from '../store/notifications'
 
 useNegotiationPageStore()
-defineProps({
+const notifications = useNotificationsStore()
+
+const isEditingDisplayId = ref(false)
+const editedDisplayId = ref('')
+
+const props = defineProps({
   negotiation: { type: Object, required: true },
   author: { type: Object, required: true },
   possibleEvents: { type: Array, required: true },
   uiConfiguration: { type: Object, required: true },
   canDelete: { type: Function, required: true },
+  isAdmin: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation'])
+const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation', 'update-display-id'])
 
 function printDate(date) {
   return formatTimestampToLocalDateTime(date)
@@ -168,6 +213,40 @@ function handleTransferNegotiation(subjectId) {
   // Optional: Log or perform cleanup
   console.log(`Negotiation transferred to Subject ID: ${subjectId}`)
   emit('transfer-negotiation', subjectId)
+}
+
+function startEditDisplayId() {
+  editedDisplayId.value = props.negotiation.displayId
+  isEditingDisplayId.value = true
+}
+
+function cancelEditDisplayId() {
+  isEditingDisplayId.value = false
+  editedDisplayId.value = ''
+}
+
+async function saveDisplayId() {
+  if (!editedDisplayId.value || editedDisplayId.value === props.negotiation.displayId) {
+    cancelEditDisplayId()
+    return
+  }
+
+  try {
+    await axios.patch(
+      `${apiPaths.BASE_API_PATH}/negotiations/${props.negotiation.id}`,
+      { displayId: editedDisplayId.value },
+      { headers: getBearerHeaders() }
+    )
+
+    // Emit event to update the negotiation in the parent component
+    emit('update-display-id', editedDisplayId.value)
+
+    notifications.setNotification('Display ID updated successfully')
+    isEditingDisplayId.value = false
+    editedDisplayId.value = ''
+  } catch (error) {
+    notifications.setNotification('Error updating Display ID: ' + (error.response?.data?.message || error.message))
+  }
 }
 </script>
 

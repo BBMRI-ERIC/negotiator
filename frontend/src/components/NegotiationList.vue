@@ -2,29 +2,31 @@
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
     <div class="pt-1">
-      <!-- Display Id Input -->
-      <div class="row mt-3">
-        <div class="col-md-6">
+      <div class="row mt-5 pt-3">
+        <div class="col-12 mb-3">
           <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
             <input
-              v-model="searchDisplayId"
+              v-model="searchQuery"
               type="text"
               class="form-control"
-              placeholder="Search negotiations by ID..."
-              @input="onDisplayIdInput"
+              placeholder="Search by Display ID, or Title..."
+              @input="handleSearchInput"
             />
-            <button 
-              v-if="searchDisplayId" 
-              class="btn btn-outline-secondary" 
-              type="button" 
-              @click="clearSearchDisplayId"
+            <button
+              v-if="searchQuery"
+              class="btn btn-outline-secondary"
+              type="button"
+              @click="clearSearch"
             >
-              <i class="bi bi-x"></i>
+              <i class="bi bi-x-lg"></i>
             </button>
           </div>
         </div>
       </div>
-      <div class="row row-cols-2 d-grid-row mt-3 pt-3">
+      <div class="row row-cols-2 d-grid-row">
         <p>
           <span
             class="negotiations-search-results"
@@ -102,7 +104,7 @@
           v-for="fn in negotiations"
           :id="fn.id"
           :key="fn.id"
-          :title="fn.displayId"
+          :title="fn.payload.project.title"
           :status="fn.status"
           :submitter="fn.author.name"
           :creation-date="formatDate(fn.creationDate)"
@@ -116,25 +118,6 @@
           <table class="table table-hover">
             <thead class="text-nowrap">
               <tr class="text-table-header-text">
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  ID
-                  <button
-                    class="btn btn-sm py-0"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                    type="button"
-                    @click="(changeSortDirection('displayId'), emitFilterSortData())"
-                  >
-                    <i
-                      :class="
-                        filtersSortData.sortDirection === 'ASC' &&
-                        filtersSortData.sortBy === 'displayId'
-                          ? 'bi bi-sort-alpha-up-alt'
-                          : 'bi-sort-alpha-down'
-                      "
-                    />
-                    <i v-if="filtersSortData.sortBy !== 'displayId'" class="bi bi-sort-alpha-up-alt" />
-                  </button>
-                </th>
                 <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
                   Title
                   <button
@@ -154,7 +137,9 @@
                     <i v-if="filtersSortData.sortBy !== 'title'" class="bi bi-sort-alpha-up-alt" />
                   </button>
                 </th>
-
+                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
+                  {{ $t('negotiationPage.displayId') }}
+                </th>
                 <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
                   Created on
                   <button
@@ -210,12 +195,12 @@
               >
                 <th scope="row" :style="{ color: uiConfiguration?.tableTextColor }">
                   <span>
-                    {{ fn.displayId }}
+                    {{ fn.payload?.project?.title }}
                   </span>
                 </th>
                 <td>
                   <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ fn.payload?.project?.title }}
+                    {{ fn.displayId }}
                   </span>
                 </td>
                 <td>
@@ -276,7 +261,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
@@ -294,6 +279,8 @@ const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
 const router = useRouter()
 const negotiationsViewStore = useNegotiationsViewStore()
+const searchQuery = ref('')
+let searchTimeout = null
 
 const props = defineProps({
   negotiations: {
@@ -327,25 +314,6 @@ const savedNegotiationsView = computed(() => {
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.negotiationList
 })
-
-// Search functionality
-const searchDisplayId = ref('')
-let searchTimeout = null
-
-function onDisplayIdInput() {
-  // Debounce search to avoid too many requests
-  clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    filtersSortData.value.displayId = searchDisplayId.value.trim()
-    emitFilterSortData()
-  }, 300)
-}
-
-function clearSearchDisplayId() {
-  searchDisplayId.value = ''
-  filtersSortData.value.displayId = ''
-  emitFilterSortData()
-}
 
 onBeforeMount(() => {
   if (negotiationsViewStore.savedNegotiationsView === '') {
@@ -383,4 +351,28 @@ function goToNegotiation(negotiation) {
     params: { negotiationId: negotiation.id },
   })
 }
+
+function handleSearchInput() {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+
+  searchTimeout = setTimeout(() => {
+    filtersSortData.value.search = searchQuery.value
+    emitFilterSortData()
+  }, 500) // 500ms debounce
+}
+
+function clearSearch() {
+  searchQuery.value = ''
+  filtersSortData.value.search = ''
+  emitFilterSortData()
+}
+
+// Initialize search query from filtersSortData
+watch(() => filtersSortData.value?.search, (newSearch) => {
+  if (newSearch !== searchQuery.value) {
+    searchQuery.value = newSearch || ''
+  }
+}, { immediate: true })
 </script>
