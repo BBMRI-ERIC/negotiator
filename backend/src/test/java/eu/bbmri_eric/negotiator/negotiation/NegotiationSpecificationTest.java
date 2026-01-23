@@ -404,19 +404,31 @@ public class NegotiationSpecificationTest {
     @SuppressWarnings("unchecked")
     CriteriaBuilder cb = mock(CriteriaBuilder.class);
     @SuppressWarnings("unchecked")
-    Predicate predicate = mock(Predicate.class);
+    Predicate finalPredicate = mock(Predicate.class);
     @SuppressWarnings("unchecked")
-    jakarta.persistence.criteria.Path<String> displayIdPath =
-        mock(jakarta.persistence.criteria.Path.class);
+    Predicate titleLikePredicate = mock(Predicate.class);
     @SuppressWarnings("unchecked")
-    jakarta.persistence.criteria.Expression<String> lowerDisplayIdExpr =
-        mock(jakarta.persistence.criteria.Expression.class);
+    Predicate displayIdLikePredicate = mock(Predicate.class);
 
-    // Mock CriteriaBuilder and Root behavior
-    // Use ArgumentMatchers to avoid generic type issues
-    when(root.get(anyString())).thenReturn((jakarta.persistence.criteria.Path) displayIdPath);
-    when(cb.lower(displayIdPath)).thenReturn(lowerDisplayIdExpr);
-    when(cb.like(lowerDisplayIdExpr, expectedPattern)).thenReturn(predicate);
+    @SuppressWarnings("unchecked")
+    jakarta.persistence.criteria.Path<String> titlePath = mock(jakarta.persistence.criteria.Path.class);
+    @SuppressWarnings("unchecked")
+    jakarta.persistence.criteria.Path<String> displayIdPath = mock(jakarta.persistence.criteria.Path.class);
+
+    // Mock root.get() for both fields
+    when(root.get("title")).thenReturn((jakarta.persistence.criteria.Path) titlePath);
+    when(root.get("displayId")).thenReturn((jakarta.persistence.criteria.Path) displayIdPath);
+
+    // Mock criteriaBuilder.lower() for both, cast to Path
+    when(cb.lower(titlePath)).thenReturn((jakarta.persistence.criteria.Path) titlePath);
+    when(cb.lower(displayIdPath)).thenReturn((jakarta.persistence.criteria.Path) displayIdPath);
+
+    // Mock criteriaBuilder.like() for both
+    when(cb.like(titlePath, expectedPattern)).thenReturn(titleLikePredicate);
+    when(cb.like(displayIdPath, expectedPattern)).thenReturn(displayIdLikePredicate);
+
+    // Mock criteriaBuilder.or() to return the final predicate
+    when(cb.or(titleLikePredicate, displayIdLikePredicate)).thenReturn(finalPredicate);
 
     // Act
     Specification<Negotiation> spec = NegotiationSpecification.bySearch(searchTerm);
@@ -424,7 +436,13 @@ public class NegotiationSpecificationTest {
 
     // Assert
     assertNotNull(result);
-    assertEquals(predicate, result);
-    verify(cb).like(lowerDisplayIdExpr, expectedPattern);
+    assertEquals(finalPredicate, result);
+
+    // Verify interactions
+    verify(cb).lower(titlePath);
+    verify(cb).lower(displayIdPath);
+    verify(cb).like(titlePath, expectedPattern);
+    verify(cb).like(displayIdPath, expectedPattern);
+    verify(cb).or(titleLikePredicate, displayIdLikePredicate);
   }
 }
