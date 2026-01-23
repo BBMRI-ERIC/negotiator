@@ -411,9 +411,11 @@ public class NegotiationSpecificationTest {
     Predicate displayIdLikePredicate = mock(Predicate.class);
 
     @SuppressWarnings("unchecked")
-    jakarta.persistence.criteria.Path<String> titlePath = mock(jakarta.persistence.criteria.Path.class);
+    jakarta.persistence.criteria.Path<String> titlePath =
+        mock(jakarta.persistence.criteria.Path.class);
     @SuppressWarnings("unchecked")
-    jakarta.persistence.criteria.Path<String> displayIdPath = mock(jakarta.persistence.criteria.Path.class);
+    jakarta.persistence.criteria.Path<String> displayIdPath =
+        mock(jakarta.persistence.criteria.Path.class);
 
     // Mock root.get() for both fields
     when(root.get("title")).thenReturn((jakarta.persistence.criteria.Path) titlePath);
