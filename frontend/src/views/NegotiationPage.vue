@@ -39,10 +39,12 @@
           This Negotiation is currently saved as a draft. Please review and edit the information
           below to ensure accuracy and completeness before publishing.
         </p>
-        <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
-          ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
-          {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
+        <UiBadge
+          :class="getBadgeColor(negotiation.status) + ' py-2'"
+          :icon="getBadgeIcon(negotiation.status)"
         >
+          {{ negotiation ? transformStatus(negotiation.status) : '' }}
+        </UiBadge>
       </div>
       <div class="col-12 col-md-8 order-2 order-md-1">
         <ul class="list-group list-group-flush rounded border px-3 my-3">
@@ -303,6 +305,7 @@ import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
 import { ROLES } from '@/config/consts.js'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   negotiationId: {
