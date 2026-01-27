@@ -128,7 +128,7 @@
 import { computed } from 'vue'
 import UiConfigurationSetting from '../components/UiConfigurationSetting.vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
-import HomePage from '../views/HomePage.vue'
+import LoginPage from '../views/LoginPage.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 
 const uiConfigurationStore = useUiConfiguration()
