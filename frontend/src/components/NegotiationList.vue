@@ -2,18 +2,42 @@
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
     <div class="pt-1">
-      <div class="row row-cols-2 d-grid-row mt-5 pt-3">
+      <div class="row mt-5 pt-3">
+        <div class="col-12 mb-3">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="form-control"
+              placeholder="Search by Display ID, or Title..."
+              @input="handleSearchInput"
+            />
+            <button
+              v-if="searchQuery"
+              class="btn btn-outline-secondary"
+              type="button"
+              @click="clearSearch"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row row-cols-2 d-grid-row">
         <p>
           <span
             class="negotiations-search-results"
-            :style="{ color: uiConfiguration?.searchResultsTextColor }"
+            :style="{ color: 'var(--bs-search-results-text)' }"
           >
             <strong>Search results: </strong>
           </span>
           <br />
           <span
             class="negotiations-number"
-            :style="{ color: uiConfiguration?.searchResultsTextColor, opacity: 0.5 }"
+            :style="{ color: 'var(--bs-search-results-text)', opacity: 0.5 }"
             >{{ pagination.totalElements }} Negotiations found</span
           >
         </p>
@@ -26,7 +50,7 @@
             :class="savedNegotiationsView === 'Card-one-column' ? '' : 'bg-body'"
             :style="
               savedNegotiationsView === 'Card-one-column'
-                ? { 'background-color': uiConfiguration?.displayViewButtonColor }
+                ? { 'background-color': 'var(--bs-display-view-button-color)' }
                 : ''
             "
             @click="setSavedNegotiationsView('Card-one-column')"
@@ -41,7 +65,7 @@
             :class="savedNegotiationsView === 'Card-two-column' ? '' : 'bg-body'"
             :style="
               savedNegotiationsView === 'Card-two-column'
-                ? { 'background-color': uiConfiguration?.displayViewButtonColor }
+                ? { 'background-color': 'var(--bs-display-view-button-color)' }
                 : ''
             "
             @click="
@@ -60,7 +84,7 @@
             :class="savedNegotiationsView === 'Table' ? '' : 'bg-body'"
             :style="
               savedNegotiationsView === 'Table'
-                ? { 'background-color': uiConfiguration?.displayViewButtonColor }
+                ? { 'background-color': 'var(--bs-display-view-button-color)' }
                 : ''
             "
             @click="((savedNegotiationsView = 'Table'), setSavedNegotiationsView('Table'))"
@@ -90,121 +114,76 @@
       </div>
 
       <div v-if="savedNegotiationsView === 'Table'">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="text-nowrap">
-              <tr class="text-table-header-text">
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Title
-                  <button
-                    class="btn btn-sm py-0"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                    type="button"
-                    @click="(changeSortDirection('title'), emitFilterSortData())"
-                  >
-                    <i
-                      :class="
-                        filtersSortData.sortDirection === 'ASC' &&
-                        filtersSortData.sortBy === 'title'
-                          ? 'bi bi-sort-alpha-up-alt'
-                          : 'bi-sort-alpha-down'
-                      "
-                    />
-                    <i v-if="filtersSortData.sortBy !== 'title'" class="bi bi-sort-alpha-up-alt" />
-                  </button>
-                </th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Negotiation ID
-                </th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Created on
-                  <button
-                    class="btn btn-sm py-0"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                    type="button"
-                    @click="(changeSortDirection('creationDate'), emitFilterSortData())"
-                  >
-                    <i
-                      :class="
-                        filtersSortData.sortDirection === 'ASC' &&
-                        filtersSortData.sortBy === 'creationDate'
-                          ? 'bi bi-sort-numeric-up-alt'
-                          : 'bi-sort-numeric-down'
-                      "
-                    />
-                    <i
-                      v-if="filtersSortData.sortBy !== 'creationDate'"
-                      class="bi bi-sort-numeric-up-alt"
-                    />
-                  </button>
-                </th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">Author</th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Status
-                  <button
-                    id="v-step-2"
-                    class="btn btn-sm py-0"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                    type="button"
-                    @click="(changeSortDirection('currentState'), emitFilterSortData())"
-                  >
-                    <i
-                      :class="
-                        filtersSortData.sortDirection === 'ASC' &&
-                        filtersSortData.sortBy === 'currentState'
-                          ? 'bi bi-sort-up-alt'
-                          : 'bi-sort-down'
-                      "
-                    />
-                    <i v-if="filtersSortData.sortBy !== 'currentState'" class="bi bi-sort-up-alt" />
-                  </button>
-                </th>
-                <th scope="col" />
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(fn, index) in negotiations"
-                :key="index"
-                @click="goToNegotiation(fn)"
-                class="cursor-pointer"
-              >
-                <th scope="row" :style="{ color: uiConfiguration?.tableTextColor }">
-                  <span>
-                    {{ fn.payload?.project?.title }}
-                  </span>
-                </th>
-                <td>
-                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ fn.id }}
-                  </span>
-                </td>
-                <td>
-                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ formatDate(fn.creationDate) }}
-                  </span>
-                </td>
-                <td>
-                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ fn.author.name }}
-                  </span>
-                </td>
-                <td>
-                  <span class="badge" :class="getBadgeColor(fn.status)" style="width: 120px">
-                    <i :class="getBadgeIcon(fn.status)" class="px-1" />
-                    {{ transformStatus(fn.status) }}
-                  </span>
-                </td>
-                <td>
-                  <i
-                    class="bi bi-chevron-right float-end"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <PrimaryTable :headers="tableHeaders" :data="tableData">
+          <template #header-title>
+            <span class="text-table-header-text">Title</span>
+            <SortButton
+              :sortKey="'title'"
+              :filtersSortData="filtersSortData"
+              :color="'var(--bs-table-header-text)'"
+              iconAsc="bi bi-sort-alpha-up-alt"
+              iconDesc="bi bi-sort-alpha-down"
+              defaultIcon="bi bi-sort-alpha-up-alt"
+              @sort="
+                (key) => {
+                  changeSortDirection(key)
+                  emitFilterSortData()
+                }
+              "
+            />
+          </template>
+
+          <template #header-creationDate>
+            <span class="text-table-header-text">Created on</span>
+            <SortButton
+              :sortKey="'creationDate'"
+              :filtersSortData="filtersSortData"
+              :color="'var(--bs-table-header-text)'"
+              iconAsc="bi bi-sort-numeric-up-alt"
+              iconDesc="bi bi-sort-numeric-down"
+              defaultIcon="bi bi-sort-numeric-up-alt"
+              @sort="
+                (key) => {
+                  changeSortDirection(key)
+                  emitFilterSortData()
+                }
+              "
+            />
+          </template>
+
+          <template #header-status>
+            <span class="text-table-header-text">Status</span>
+            <SortButton
+              id="v-step-2"
+              :sortKey="'currentState'"
+              :filtersSortData="filtersSortData"
+              :color="'var(--bs-table-header-text)'"
+              iconAsc="bi bi-sort-up-alt"
+              iconDesc="bi bi-sort-down"
+              defaultIcon="bi bi-sort-up-alt"
+              @sort="
+                (key) => {
+                  changeSortDirection(key)
+                  emitFilterSortData()
+                }
+              "
+            />
+          </template>
+          <template #creationDate="{ value }">
+            <TimeStamp :value="value" :muted="true" />
+          </template>
+          <template #status="{ value }">
+            <UiBadge :class="getBadgeColor(value)" :icon="getBadgeIcon(value)" width="120px">
+              {{ transformStatus(value) }}
+            </UiBadge>
+          </template>
+          <template #chevron>
+            <i
+              class="bi bi-chevron-right float-end"
+              :style="{ color: 'var(--bs-table-header-text)' }"
+            />
+          </template>
+        </PrimaryTable>
       </div>
 
       <h2 v-if="negotiations.length === 0" class="text-center">No Negotiations found</h2>
@@ -237,8 +216,10 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
+import UiBadge from '@/components/ui/UiBadge.vue'
+import PrimaryTable from '@/components/ui/table/PrimaryTable.vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import {
@@ -249,12 +230,16 @@ import {
 } from '../composables/utils.js'
 import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
-import { useUiConfiguration } from '../store/uiConfiguration.js'
+import TimeStamp from '@/components/ui/TimeStamp.vue'
+import SortButton from '@/components/ui/SortButton.vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const filtersSortData = defineModel('filtersSortData')
-const uiConfigurationStore = useUiConfiguration()
 const router = useRouter()
 const negotiationsViewStore = useNegotiationsViewStore()
+const searchQuery = ref('')
+let searchTimeout = null
 
 const props = defineProps({
   negotiations: {
@@ -277,16 +262,66 @@ const props = defineProps({
   },
 })
 
+const tableHeaders = [
+  {
+    key: 'title',
+    label: 'Title',
+    slot: undefined,
+    style: { color: '#3c3c3d' },
+  },
+  {
+    key: 'displayId',
+    label: t('negotiationPage.displayId'),
+    slot: undefined,
+    style: { color: '#3c3c3d' },
+  },
+  {
+    key: 'creationDate',
+    label: 'Created on',
+    slot: 'creationDate',
+    style: {},
+  },
+  {
+    key: 'author',
+    label: 'Author',
+    slot: undefined,
+    style: { color: '#3c3c3d' },
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    slot: 'status',
+    style: {},
+  },
+  {
+    key: 'chevron',
+    label: '',
+    slot: 'chevron',
+    style: {},
+  },
+]
+
+const tableData = computed(() =>
+  Array.isArray(props.negotiations)
+    ? props.negotiations.map((fn) => ({
+        title: fn.payload?.project?.title,
+        displayId: fn.displayId,
+        creationDate: fn.creationDate,
+        author: fn.author.name,
+        status: fn.status,
+        chevron: '',
+        href: router.resolve({ name: 'negotiation-page', params: { negotiationId: fn.id } }).href,
+        _raw: fn,
+      }))
+    : [],
+)
+
 const loading = computed(() => {
   return props.negotiations === undefined
 })
 
 const savedNegotiationsView = computed(() => {
   return negotiationsViewStore.savedNegotiationsView
-})
-
-const uiConfiguration = computed(() => {
-  return uiConfigurationStore.uiConfiguration?.negotiationList
 })
 
 onBeforeMount(() => {
@@ -325,4 +360,45 @@ function goToNegotiation(negotiation) {
     params: { negotiationId: negotiation.id },
   })
 }
+
+function handleSearchInput() {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+
+  searchTimeout = setTimeout(() => {
+    filtersSortData.value.search = searchQuery.value
+    emitFilterSortData()
+  }, 500) // 500ms debounce
+}
+
+function clearSearch() {
+  searchQuery.value = ''
+  filtersSortData.value.search = ''
+  emitFilterSortData()
+}
+
+// Initialize search query from filtersSortData
+watch(
+  () => filtersSortData.value?.search,
+  (newSearch) => {
+    if (newSearch !== searchQuery.value) {
+      searchQuery.value = newSearch || ''
+    }
+  },
+  { immediate: true },
+)
 </script>
+
+<style scoped>
+tbody a.d-table-row > .d-table-cell {
+  vertical-align: middle;
+  align-items: center;
+  display: table-cell;
+}
+
+tbody a.d-table-row {
+  border-bottom: 1px solid #dee2e6; /* Bootstrap table border color */
+  box-sizing: border-box;
+}
+</style>

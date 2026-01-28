@@ -26,6 +26,7 @@ class EmailNotificationRequestListener {
       NotificationService notificationService,
       PersonRepository personRepository,
       NegotiationRepository negotiationRepository,
+      NotificationRepository notificationRepository,
       EmailContextBuilder emailContextBuilder) {
     this.emailService = emailService;
     this.notificationService = notificationService;
@@ -62,6 +63,14 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
 
-    emailService.sendEmail(person, notification.getTitle(), emailContent);
+    String negotiationId = negotiation != null ? negotiation.getId() : null;
+    String subject =
+        negotiation != null
+            ? "New notification for Negotiation:"
+                + " "
+                + negotiation.getTitle().substring(0, Math.min(negotiation.getTitle().length(), 30))
+            : notification.getTitle();
+
+    emailService.sendEmail(person, subject, emailContent, negotiationId);
   }
 }

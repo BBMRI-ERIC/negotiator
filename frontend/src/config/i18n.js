@@ -11,6 +11,7 @@ export default {
         doc: 'Documentation',
       },
       negotiationPage: {
+        displayId: ' Negotiation ID',
         resources: 'RESOURCE | RESOURCES',
         organisations: 'ORGANIZATION | ORGANIZATIONS',
       },
@@ -24,6 +25,7 @@ export default {
         biobanker: 'Your organisation',
       },
       negotiationPage: {
+        displayId: 'Proposal ID',
         resources: 'Service | Services',
         organisations: 'Service provider | Service providers',
       },

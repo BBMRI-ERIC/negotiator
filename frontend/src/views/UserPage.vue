@@ -57,6 +57,7 @@ const filtersSortData = ref({
   dateEnd: '',
   sortBy: 'creationDate',
   sortDirection: 'DESC',
+  search: '',
 })
 
 const loading = computed(() => {

@@ -106,9 +106,9 @@
                 <span v-else class="text-muted">-</span>
               </td>
               <td class="py-2">
-                <span :class="getStatusBadgeClass(resource)">
+                <UiBadge :class="getStatusBadgeClass(resource)">
                   {{ getStatusText(resource) }}
-                </span>
+                </UiBadge>
               </td>
             </tr>
           </tbody>
@@ -137,6 +137,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   organization: {
@@ -224,7 +225,7 @@ const truncateText = (text, maxLength) => {
 
 const getStatusBadgeClass = (resource) => {
   const isActive = !resource.withdrawn
-  return isActive ? 'badge bg-success' : 'badge bg-secondary'
+  return isActive ? 'bg-success' : 'bg-secondary'
 }
 
 const getStatusText = (resource) => {
