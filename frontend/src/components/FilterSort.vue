@@ -50,7 +50,7 @@
         </FilterButton>
       </div>
 
-      <div id="v-step-3 v-step-23" class="filter-by-status">
+      <div class="filter-by-status v-step-3 v-step-23">
         <FilterButton
           :customStyle="
             filtersSortData.status.length > 0 ? returnButtonActiveColor : returnButtonColor

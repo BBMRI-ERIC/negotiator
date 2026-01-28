@@ -28,7 +28,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { RouterView, useRoute, useRouter } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import { useNotificationsStore } from '@/store/notifications.js'
 import AllVueTours from './components/vue-tours/AllVueTours.vue'
 import NavigationBar from './components/NavigationBar.vue'
@@ -41,10 +41,6 @@ import { useUiConfiguration } from '@/store/uiConfiguration.js'
 const uiConfigurationStore = useUiConfiguration()
 const useNotifications = useNotificationsStore()
 const router = useRouter()
-
-const vueTourFeatureFlag = !!(
-  allFeatureFlags.vueTour === 'true' || allFeatureFlags.vueTour === true
-)
 
 onMounted(async () => {
   await updateFaviconUrl()
