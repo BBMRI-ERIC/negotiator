@@ -58,9 +58,9 @@
               >
                 <i class="bi bi-database me-2"></i>
                 Resources
-                <span v-if="resourcesCount > 0" class="badge bg-secondary ms-2">{{
+                <UiBadge v-if="resourcesCount > 0" :class="'bg-secondary ms-2'">{{
                   resourcesCount
-                }}</span>
+                }}</UiBadge>
               </button>
             </li>
           </ul>
@@ -237,6 +237,7 @@
 import { ref, watch } from 'vue'
 import { useOrganizationsStore } from '@/store/organizations'
 import ResourcesViewer from '@/components/governance/ResourcesViewer.vue'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   modalId: {
