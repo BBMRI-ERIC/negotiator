@@ -1,6 +1,9 @@
 <template>
   <div v-if="!loading">
-    <GoBackButton />
+    <PrimaryButton class="mb-3" @click="goBack()">
+      <i class="bi bi-chevron-left" />
+      Go back
+    </PrimaryButton>
     <confirmation-modal
       id="abandonModal"
       :title="`Are you sure you want to ${selectedStatus ? selectedStatus.label.toLowerCase() : 'Unknown'} this Negotiation?`"
@@ -36,10 +39,12 @@
           This Negotiation is currently saved as a draft. Please review and edit the information
           below to ensure accuracy and completeness before publishing.
         </p>
-        <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
-          ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
-          {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
+        <UiBadge
+          :class="getBadgeColor(negotiation.status) + ' py-2'"
+          :icon="getBadgeIcon(negotiation.status)"
         >
+          {{ negotiation ? transformStatus(negotiation.status) : '' }}
+        </UiBadge>
       </div>
       <div class="col-12 col-md-8 order-2 order-md-1">
         <ul class="list-group list-group-flush rounded border px-3 my-3">
@@ -94,7 +99,8 @@
                 v-else
                 class="text-break"
                 :style="{ color: uiConfiguration.secondaryTextColor, whiteSpace: 'pre-wrap' }"
-              >{{ translateTrueFalse(subelement) }}</span>
+                >{{ translateTrueFalse(subelement) }}</span
+              >
             </div>
           </li>
           <li class="list-group-item p-3">
@@ -289,7 +295,7 @@ import { computed, onBeforeMount, onMounted, ref } from 'vue'
 import NegotiationPosts from '@/components/NegotiationPosts.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import NegotiationAttachment from '@/components/NegotiationAttachment.vue'
-import GoBackButton from '@/components/GoBackButton.vue'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 import OrganizationContainer from '@/components/OrganizationContainer.vue'
 import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
 import AddResourcesButton from '@/components/AddResourcesButton.vue'
@@ -299,6 +305,7 @@ import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
 import { ROLES } from '@/config/consts.js'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   negotiationId: {
@@ -566,6 +573,16 @@ function transformDashToSpace(text) {
 
 function updateNegotiationPayload() {
   router.push(`/edit/requests/${props.negotiationId}`)
+}
+
+function goBack() {
+  if (router.options.history.state.back) {
+    router.go(-1)
+  } else {
+    router.push({
+      name: 'home',
+    })
+  }
 }
 </script>
 
