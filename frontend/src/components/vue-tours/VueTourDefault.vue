@@ -26,7 +26,7 @@ const steps = ref([
     content: 'You can see the current status of your enquiry at a glance.',
   },
   {
-    target: '#v-step-3',
+    target: '.v-step-3',
     header: {
       title: 'Filter',
     },

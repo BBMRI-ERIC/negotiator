@@ -1,5 +1,5 @@
 <template>
-  <v-tour name="myTour" :steps="steps" :callbacks="myCallbacks" />
+  <v-tour name="myTour" :steps="steps" :callbacks="myCallbacks" :options="{ debug: true }" />
 </template>
 
 <script>
