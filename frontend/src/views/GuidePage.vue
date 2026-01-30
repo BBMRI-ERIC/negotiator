@@ -8,36 +8,37 @@
       <ul>
         <li>
           <strong>Menu:</strong> Navigating the BBMRI-ERIC Negotiator
-          <button @click="startNavTour()" class="btn btn-sm btn-outline-dark">Take the Tour</button>
+          <PrimaryButton @click="startNavTour()" size="sm" class="ms-2"
+            >Take the Tour</PrimaryButton
+          >
         </li>
         <li>
           <strong>Filter:</strong> Use the filter bar to quickly find what you're looking for.
-          <button @click="startFilterSortTour()" class="btn btn-sm btn-outline-dark">
-            Take the Tour
-          </button>
+          <PrimaryButton @click="startFilterSortTour()" size="sm" class="ms-2"
+            >Take the Tour</PrimaryButton
+          >
         </li>
         <li>
           <strong>Negotiation Page:</strong> It allows users to manage and track the progress of
           negotiations efficiently
-          <button @click="startNegotiationTour()" class="btn btn-sm btn-outline-dark">
-            Take the Tour
-          </button>
+          <PrimaryButton @click="startNegotiationTour()" size="sm" class="ms-2"
+            >Take the Tour</PrimaryButton
+          >
         </li>
         <li v-if="isRepresentative || isAdmin">
           <strong>Governance:</strong> The Negotiator operates on a hierarchical governance
           structure designed to mirror real-world organizational relationships and resource
           management.
-          <button @click="startGovernanceTour()" class="btn btn-sm btn-outline-dark">
-            Take the Tour
-          </button>
+          <PrimaryButton @click="startGovernanceTour()" size="sm" class="ms-2"
+            >Take the Tour</PrimaryButton
+          >
         </li>
         <li v-if="isAdmin">
           <strong>Admin Settings:</strong> Manage Information Requirements, Webhooks, Emails, Users,
           Templates, Access Forms and Form Elements.
-
-          <button @click="startAdminSettingsTour()" class="btn btn-sm btn-outline-dark my-3">
-            Take the Tour
-          </button>
+          <PrimaryButton @click="startAdminSettingsTour()" size="sm" class="ms-2"
+            >Take the Tour</PrimaryButton
+          >
         </li>
       </ul>
     </section>
@@ -58,6 +59,7 @@
 </template>
 
 <script setup>
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user.js'
@@ -147,27 +149,13 @@ function disableOtherTours() {
 </script>
 
 <style scoped>
-.guide-page {
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  padding: 20px;
+li {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 h1 {
   color: #2c3e50;
-}
-
-h2 {
-  color: #34495e;
-  margin-top: 20px;
-}
-
-ul {
-  list-style-type: disc;
-  margin-left: 20px;
-}
-
-p {
-  margin-bottom: 15px;
 }
 </style>
