@@ -19,7 +19,7 @@
           style="cursor: pointer; user-select: none"
           role="row"
         >
-          <a :href="row.href || undefined">
+          <a :href="row.href || undefined" @click.prevent="handleRowClick(row)">
             <TableCell
               v-for="(header, colIdx) in headers"
               :key="colIdx"
@@ -42,6 +42,9 @@
 <script setup>
 import TableHeader from './TableHeader.vue'
 import TableCell from './TableCell.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 defineProps({
   headers: {
@@ -58,6 +61,12 @@ defineProps({
     default: () => {},
   },
 })
+
+function handleRowClick(row) {
+  if (row.href) {
+    router.push(row.href)
+  }
+}
 </script>
 
 <style scoped>
