@@ -42,7 +42,7 @@ const isVueTourDefaultVisible = computed(() => {
     (route.fullPath === '/researcher' ||
       route.fullPath === '/admin' ||
       route.fullPath === '/biobanker') &&
-    !localStorage.getItem('vue-tour-default-1')
+    !localStorage.getItem('vue_default_tour_1')
   )
 })
 
