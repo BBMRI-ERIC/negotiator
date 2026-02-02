@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { useVueTourStore } from '@/store/vueTour.js'
 
-export function useTourSteps(tourName) {
+export function useTourSteps(tourName, props = {}) {
   const vueTourStore = useVueTourStore()
 
   const tourSteps = {
@@ -323,6 +323,78 @@ export function useTourSteps(tourName) {
           'Create and customize form elements that can be used in access forms throughout the Negotiator system.',
       },
     ],
+    navTour: () => {
+      const steps = [
+        {
+          target: '#v-step-0',
+          header: { title: 'Welcome' },
+          content:
+            'The navigation bar at the top of the screen is your primary tool for getting around the platform. Its divided into two main sections: the Main Menu on the left and your User and System Information on the right.',
+        },
+      ]
+      if (props.isAdmin) {
+        steps.push({
+          target: '.v-step-10',
+          header: { title: 'Review Requests' },
+          content:
+            'Navigate to a page where you can view and manage access requests requiring your attention.',
+        })
+      }
+      if (props.isResearcher) {
+        steps.push({
+          target: '.v-step-11',
+          header: { title: 'Your Negotiations' },
+          content:
+            'Displays a list of all negotiations you are currently involved in or have been involved in previously.',
+        })
+      }
+      if (props.isRepresentative) {
+        steps.push({
+          target: '.v-step-12',
+          header: { title: 'Biobanker' },
+          content:
+            'Provides tools and resources for biobank representatives to manage and contribute data effectively.',
+        })
+      }
+      if (props.isRepresentative || props.isAdmin) {
+        steps.push({
+          target: '.v-step-13',
+          header: { title: 'Governance' },
+          content: 'Access documents and information regarding the platforms rules and policies.',
+        })
+      }
+      if (props.isNetworksTabDisplayed) {
+        steps.push({
+          target: '.v-step-14',
+          header: { title: 'Networks' },
+          content: 'Access and manage your networks within the platform.',
+        })
+      }
+      steps.push(
+        {
+          target: '.v-step-15',
+          header: { title: 'Support' },
+          content:
+            'Find help resources or ways to contact the support team if you encounter issues.',
+        },
+        {
+          target: '.v-step-16',
+          header: { title: 'Notifications' },
+          content:
+            'Stay updated with real-time alerts about important events, updates, or actions that require your attention on the platform.',
+        },
+        {
+          target: '.v-step-17',
+          header: { title: 'User Avatar' },
+          content:
+            'The blue circle displays your initials. Clicking on this will typically open a drop-down menu with options to view your profile, manage account settings, or log out.',
+        },
+      )
+      return steps
+    },
+  }
+  if (tourName === 'navTour' && typeof tourSteps.navTour === 'function') {
+    return ref(tourSteps.navTour(props))
   }
   return ref(tourSteps[tourName] || [])
 }
