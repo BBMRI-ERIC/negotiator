@@ -26,7 +26,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithXlsxAttachment_ConvertsSuccessfully() throws IOException {
+  void testConvertAttachmentsToPdf_WithXlsxAttachment_ConvertsSuccessfully() throws IOException {
     String attachmentId = "xlsx-attachment-1";
     byte[] xlsxBytes = AttachmentTestHelper.createValidXlsxBytes();
     AttachmentDTO xlsxAttachment =
@@ -50,7 +50,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithXlsxNullPayload_SkipsAttachment() {
+  void testConvertAttachmentsToPdf_WithXlsxNullPayload_SkipsAttachment() {
     String attachmentId = "xlsx-null-payload";
     AttachmentDTO attachment =
         AttachmentDTO.builder()
@@ -68,7 +68,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithXlsxEmptyPayload_SkipsAttachment() {
+  void testConvertAttachmentsToPdf_WithXlsxEmptyPayload_SkipsAttachment() {
     String attachmentId = "xlsx-empty-payload";
     AttachmentDTO attachment =
         AttachmentDTO.builder()
@@ -86,7 +86,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithInvalidXlsxBytes_SkipsAttachment() {
+  void testConvertAttachmentsToPdf_WithInvalidXlsxBytes_SkipsAttachment() {
     String attachmentId = "invalid-xlsx-1";
     AttachmentDTO invalidXlsxAttachment =
         AttachmentDTO.builder()
@@ -104,7 +104,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithCorruptedXlsxFile_SkipsAttachment() {
+  void testConvertAttachmentsToPdf_WithCorruptedXlsxFile_SkipsAttachment() {
     String attachmentId = "corrupted-xlsx-1";
     byte[] corruptedXlsxBytes = "This is not a valid XLSX file".getBytes();
     AttachmentDTO corruptedXlsxAttachment =
@@ -123,7 +123,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithMultipleXlsxSheets_ConvertsSuccessfully()
+  void testConvertAttachmentsToPdf_WithMultipleXlsxSheets_ConvertsSuccessfully()
       throws IOException {
     String attachmentId = "multi-sheet-xlsx";
     byte[] xlsxBytes = AttachmentTestHelper.createXlsxWithMultipleSheets();
@@ -148,7 +148,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithEmptyXlsxWorkbook_ConvertsSuccessfully() throws IOException {
+  void testConvertAttachmentsToPdf_WithEmptyXlsxWorkbook_ConvertsSuccessfully() throws IOException {
     String attachmentId = "empty-xlsx";
     byte[] xlsxBytes = AttachmentTestHelper.createEmptyXlsxBytes();
     AttachmentDTO xlsxAttachment =
@@ -168,7 +168,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithMixedDocxAndXlsx_ProcessesBoth() throws IOException {
+  void testConvertAttachmentsToPdf_WithMixedDocxAndXlsx_ProcessesBoth() throws IOException {
     String docxId = "docx-1";
     String xlsxId = "xlsx-1";
 
@@ -202,7 +202,7 @@ class XlsxConverterTest {
   }
 
   @Test
-  void testconvertAttachmentsToPdf_WithXlsxWithFormulas_ConvertsSuccessfully() throws IOException {
+  void testConvertAttachmentsToPdf_WithXlsxWithFormulas_ConvertsSuccessfully() throws IOException {
     String attachmentId = "xlsx-with-formulas";
     byte[] xlsxBytes = AttachmentTestHelper.createXlsxWithFormulas();
     AttachmentDTO xlsxAttachment =
