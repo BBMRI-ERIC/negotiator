@@ -12,11 +12,10 @@ import lombok.Setter;
 @Getter
 @Entity
 public class StateMachine {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Long id;
 
-    private String name;
-
+  private String name;
 }

@@ -12,11 +12,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Transition {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Long id;
-    private Long source;
-    private Long target;
-    private String name;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Long id;
+
+  private Long source;
+  private Long target;
+  private String name;
 }

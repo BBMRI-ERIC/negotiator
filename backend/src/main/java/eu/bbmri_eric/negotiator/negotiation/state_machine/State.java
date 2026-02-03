@@ -12,13 +12,12 @@ import lombok.Setter;
 @Getter
 @Entity
 public class State {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Long id;
 
-    private Long stateMachineId;
-    private String name;
-    private StateType type;
-
+  private Long stateMachineId;
+  private String name;
+  private StateType type;
 }

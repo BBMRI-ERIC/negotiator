@@ -19,18 +19,20 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "security_auth")
 public class StateMachineConfigController {
 
-    private final StateMachineConfigService stateMachineConfigService;
+  private final StateMachineConfigService stateMachineConfigService;
 
-    public StateMachineConfigController(StateMachineConfigService stateMachineConfigService) {
-        this.stateMachineConfigService = stateMachineConfigService;
-    }
+  public StateMachineConfigController(StateMachineConfigService stateMachineConfigService) {
+    this.stateMachineConfigService = stateMachineConfigService;
+  }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Create a new state machine configuration",
-               description = "Creates a new state machine with states and transitions atomically")
-    public StateMachine createStateMachineConfig(@Valid @RequestBody StateMachineConfigDTO config) {
-        return stateMachineConfigService.createStateMachineConfig(config);
-    }
+  @PostMapping(
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+      summary = "Create a new state machine configuration",
+      description = "Creates a new state machine with states and transitions atomically")
+  public StateMachine createStateMachineConfig(@Valid @RequestBody StateMachineConfigDTO config) {
+    return stateMachineConfigService.createStateMachineConfig(config);
+  }
 }
-
