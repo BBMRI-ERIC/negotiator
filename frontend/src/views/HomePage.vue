@@ -64,7 +64,7 @@
       </div>
     </div>
   </div>
-  <div class="discovery-services">
+  <div class="discovery-services mb-5">
     <h2 class="my-0 fw-bold mb-3">Discovery Services</h2>
     <div class="d-flex flex-row flex-wrap">
       <div v-for="(service, index) in allDiscoveryServices" :key="index">
