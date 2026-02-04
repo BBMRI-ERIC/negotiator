@@ -64,7 +64,7 @@
       </div>
       <div id="collapse3" class="login-config row collapse">
         <UiConfigurationSetting v-model="uiConfiguration.login" />
-        <HomePage :is-ui-config-active="true" />
+        <LoginPage :is-ui-config-active="true" />
       </div>
     </div>
 
