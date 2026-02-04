@@ -1,13 +1,14 @@
 <template>
   <FilterSort
-    v-if="!loading"
+    v-if="!loading && !isHomePage"
     v-model:filtersSortData="filtersSortData"
     :user-role="userRole"
     :filters-status="filtersStatus"
     @filters-sort-data="retrieveNegotiationsBySortAndFilter"
   />
   <NegotiationList
-    :negotiations="negotiations"
+    :isHomePage="isHomePage"
+    :negotiations="returnNegotiations"
     :pagination="pagination"
     :user-role="userRole"
     v-model:filtersSortData="filtersSortData"
@@ -37,6 +38,16 @@ const router = useRouter()
 const route = useRoute()
 
 const props = defineProps({
+  isHomePage: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  totalNegotiationsCount: {
+    type: Number,
+    required: false,
+    default: 5,
+  },
   userRole: {
     type: String,
     required: true,
@@ -62,6 +73,13 @@ const filtersSortData = ref({
 
 const loading = computed(() => {
   return negotiations.value === undefined
+})
+
+const returnNegotiations = computed(() => {
+  if (props.isHomePage) {
+    return negotiations.value?.slice(0, props.totalNegotiationsCount)
+  }
+  return negotiations.value
 })
 
 onMounted(async () => {

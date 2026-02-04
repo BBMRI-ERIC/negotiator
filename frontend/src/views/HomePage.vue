@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <p class="app-name-text my-0">NEGOTIATOR</p>
+    <p class="app-name-text my-0 fw-bold">NEGOTIATOR</p>
     <p>
       The BBMRI-ERIC Negotiator is a service that provides an efficient communication platform for
       biobankers and researchers requesting samples and/or data.
@@ -23,19 +23,40 @@
       />
     </div>
   </div>
-  <div class="d-flex">
-    <div v-if="userRoles.includes(ROLES.RESEARCHER)" class="mb-5">
-      <h2 class="my-0 fw-bold mb-3">YOURS NEGOTIATIONS</h2>
-      <UserPage :userRole="'ROLE_RESEARCHER'" :isHomePage="true" />
-    </div>
-    <div v-if="userRoles.includes(ROLES.REPRESENTATIVE)" class="mb-5">
-      <h2 class="my-0 fw-bold mb-3">REPRESENTATIVE REQUESTS</h2>
-      <UserPage :userRole="'ROLE_REPRESENTATIVE'" :isHomePage="true" />
+  <div class="d-flex flex-row flex-wrap flex-md-nowrap">
+    <div v-if="userRoles.includes(ROLES.ADMINISTRATOR)" class="mb-5">
+      <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.admin') }}</h2>
+      <UserPage
+        :userRole="ROLES.ADMINISTRATOR"
+        :isHomePage="true"
+        :totalNegotiationsCount="totalNegotiationsCount"
+      />
+      <div class="d-flex justify-content-center mt-2 w-100">
+        <PrimaryButton @click="$router.push('/admin')"> see more </PrimaryButton>
+      </div>
     </div>
 
-    <div v-if="userRoles.includes(ROLES.ADMINISTRATOR)" class="mb-5">
-      <h2 class="my-0 fw-bold mb-3">REVIEW REQUESTS</h2>
-      <UserPage :userRole="'ROLE_ADMIN'" :isHomePage="true" />
+    <div v-if="userRoles.includes(ROLES.RESEARCHER)" class="mb-5">
+      <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.researcher') }}</h2>
+      <UserPage
+        :userRole="ROLES.RESEARCHER"
+        :isHomePage="true"
+        :totalNegotiationsCount="totalNegotiationsCount"
+      />
+      <div class="d-flex justify-content-center mt-2 w-100">
+        <PrimaryButton @click="$router.push('/researcher')"> see more </PrimaryButton>
+      </div>
+    </div>
+    <div v-if="userRoles.includes(ROLES.REPRESENTATIVE)" class="mb-5">
+      <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.biobanker') }}</h2>
+      <UserPage
+        :userRole="ROLES.REPRESENTATIVE"
+        :isHomePage="true"
+        :totalNegotiationsCount="totalNegotiationsCount"
+      />
+      <div class="d-flex justify-content-center mt-2 w-100">
+        <PrimaryButton @click="$router.push('/biobanker')"> see more </PrimaryButton>
+      </div>
     </div>
   </div>
   <div class="discovery-services">
@@ -59,12 +80,14 @@ import { useUserStore } from '../store/user.js'
 import { ROLES } from '@/config/consts.js'
 import BigButton from '@/components/ui/buttons/BigButton.vue'
 import { useDiscoveryServicesStore } from '../store/discoveryServices.js'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 const userStore = useUserStore()
 const discoveryServices = useDiscoveryServicesStore()
 const userRoles = ref([])
 
 const allDiscoveryServices = ref([])
+const totalNegotiationsCount = ref(5)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
@@ -88,10 +111,17 @@ function openService(service) {
 .home-page {
   margin-top: -20px;
 }
+
 .app-name-text {
-  font-size: 6rem;
-  font-weight: bold;
+  font-size: 4rem;
 }
+
+@media only screen and (min-width: 768px) {
+  .app-name-text {
+    font-size: 6rem;
+  }
+}
+
 .card {
   box-shadow:
     0 3px 6px 0 rgba(0, 0, 0, 0.2),
