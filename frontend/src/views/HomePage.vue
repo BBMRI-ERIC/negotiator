@@ -17,6 +17,11 @@
         @click="openDocumentation()"
       />
       <BigButton
+        :buttonIcon="'bi-people'"
+        :buttonText="$t('navbar.FAQ')"
+        @click="$router.push('/FAQ')"
+      />
+      <BigButton
         :buttonIcon="'bi-play-circle'"
         :buttonText="'Take a Tour'"
         @click="$router.push('/guide')"
