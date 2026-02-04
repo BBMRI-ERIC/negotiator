@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import OidcCallback from '@/components/OidcCallback.vue'
 import LoginPage from '../views/LoginPage.vue'
+import HomePage from '../views/HomePage.vue'
 import NegotiationCreatePage from '../views/NegotiationCreatePage.vue'
 import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
@@ -61,6 +62,12 @@ const router = createRouter({
       name: 'oidcCallback',
       component: OidcCallback,
       meta: { isPublic: true },
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: HomePage,
+      meta: { isPublic: false },
     },
     {
       path: '/requests/:requestId',
