@@ -28,8 +28,8 @@
       />
     </div>
   </div>
-  <div class="d-flex flex-row flex-wrap flex-md-nowrap">
-    <div v-if="userRoles.includes(ROLES.ADMINISTRATOR)" class="mb-5">
+  <div class="row">
+    <div v-if="userRoles.includes(ROLES.ADMINISTRATOR)" class="mb-5 col-12 col-md-6">
       <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.admin') }}</h2>
       <UserPage
         :userRole="ROLES.ADMINISTRATOR"
@@ -40,8 +40,7 @@
         <PrimaryButton @click="$router.push('/admin')"> see more </PrimaryButton>
       </div>
     </div>
-
-    <div v-if="userRoles.includes(ROLES.RESEARCHER)" class="mb-5">
+    <div v-if="userRoles.includes(ROLES.RESEARCHER)" class="mb-5 col-12 col-md-6">
       <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.researcher') }}</h2>
       <UserPage
         :userRole="ROLES.RESEARCHER"
@@ -52,7 +51,7 @@
         <PrimaryButton @click="$router.push('/researcher')"> see more </PrimaryButton>
       </div>
     </div>
-    <div v-if="userRoles.includes(ROLES.REPRESENTATIVE)" class="mb-5">
+    <div v-if="userRoles.includes(ROLES.REPRESENTATIVE)" class="mb-5 col-12 col-md-6">
       <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.biobanker') }}</h2>
       <UserPage
         :userRole="ROLES.REPRESENTATIVE"
@@ -92,7 +91,7 @@ const discoveryServices = useDiscoveryServicesStore()
 const userRoles = ref([])
 
 const allDiscoveryServices = ref([])
-const totalNegotiationsCount = ref(5)
+const totalNegotiationsCount = ref(3)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
@@ -125,11 +124,5 @@ function openService(service) {
   .app-name-text {
     font-size: 6rem;
   }
-}
-
-.card {
-  box-shadow:
-    0 3px 6px 0 rgba(0, 0, 0, 0.2),
-    0 3px 6px 0 rgba(0, 0, 0, 0.19);
 }
 </style>
