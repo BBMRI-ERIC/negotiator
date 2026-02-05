@@ -13,7 +13,10 @@ export const useDiscoveryServicesStore = defineStore('discoveryServices', () => 
         return response.data
       })
       .catch((error) => {
-        notifications.setNotification('Error getting discovery-services request data from server')
+        notifications.setNotification(
+          'Failed to load discovery services. Please try again or contact support if the issue persists.',
+          'danger',
+        )
         if (error.response) {
           return error.response.data
         }

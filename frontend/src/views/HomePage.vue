@@ -91,7 +91,8 @@ const discoveryServices = useDiscoveryServicesStore()
 const userRoles = ref([])
 
 const allDiscoveryServices = ref([])
-const totalNegotiationsCount = ref(3)
+const INITIAL_TOTAL_NEGOTIATIONS_COUNT = 3
+const totalNegotiationsCount = ref(INITIAL_TOTAL_NEGOTIATIONS_COUNT)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
