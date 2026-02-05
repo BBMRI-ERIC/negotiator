@@ -76,7 +76,7 @@ const loading = computed(() => {
 })
 
 const returnNegotiations = computed(() => {
-  if (props.isHomePage) {
+  if (props.isHomePage && Array.isArray(negotiations.value)) {
     return negotiations.value?.slice(0, props.totalNegotiationsCount)
   }
   return negotiations.value
