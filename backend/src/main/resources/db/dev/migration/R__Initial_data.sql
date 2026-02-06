@@ -23,7 +23,7 @@ values (1, 'Dummy test collection', 'This is the fist test collection',
 on conflict do nothing;
 
 insert into resource_representative_link (resource_id, person_id)
-values (2, 2)
+values (2, 2), (1, 2)
 on conflict do nothing;
 
 insert into network (id, external_id, name, uri, contact_email)
