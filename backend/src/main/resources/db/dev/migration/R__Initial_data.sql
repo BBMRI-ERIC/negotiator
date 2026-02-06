@@ -30,23 +30,23 @@ values (1, 1);
 insert into network_person_link (network_id, person_id)
 values (1, 1);
 
-INSERT INTO public.value_set (id, name, external_documentation)
-VALUES (100, 'multi_choice_test', 'none');
-INSERT INTO public.value_set (id, name, external_documentation)
-VALUES (101, 'single_choice_test', 'https://directory.bbmri-eric.eu/#/catalogue');
+insert into public.value_set (id, name, external_documentation)
+values (100, 'multi_choice_test', 'none');
+insert into public.value_set (id, name, external_documentation)
+values (101, 'single_choice_test', 'https://directory.bbmri-eric.eu/#/catalogue');
 
-INSERT INTO public.value_set_available_values (value_set_id, available_values)
-VALUES (100, 'first_choice');
-INSERT INTO public.value_set_available_values (value_set_id, available_values)
-VALUES (100, 'second_choice');
-INSERT INTO public.value_set_available_values (value_set_id, available_values)
-VALUES (100, 'third_choice');
-INSERT INTO public.value_set_available_values (value_set_id, available_values)
-VALUES (101, 'first_choice');
-INSERT INTO public.value_set_available_values (value_set_id, available_values)
-VALUES (101, 'second_choice');
-INSERT INTO public.value_set_available_values (value_set_id, available_values)
-VALUES (101, 'third_choice');
+insert into public.value_set_available_values (value_set_id, available_values)
+values (100, 'first_choice');
+insert into public.value_set_available_values (value_set_id, available_values)
+values (100, 'second_choice');
+insert into public.value_set_available_values (value_set_id, available_values)
+values (100, 'third_choice');
+insert into public.value_set_available_values (value_set_id, available_values)
+values (101, 'first_choice');
+insert into public.value_set_available_values (value_set_id, available_values)
+values (101, 'second_choice');
+insert into public.value_set_available_values (value_set_id, available_values)
+values (101, 'third_choice');
 insert into public.access_form_element (id, creation_date, modified_date, created_by, modified_by, name, label,
                                         description, type, access_form_section_id, value_set_id)
 values (100, '2024-05-29 13:14:33.787183', '2024-05-29 13:14:33.787183', 2, 2, 'Multichoice test', 'Select multiple',
