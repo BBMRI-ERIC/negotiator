@@ -18,7 +18,7 @@
     v-if="!loading && isHomePage && returnNegotiations.length > 0"
     class="d-flex justify-content-center mt-2"
   >
-    <PrimaryButton @click="navigateToNegotiationPage()"> see more </PrimaryButton>
+    <PrimaryButton @click="navigateToNegotiationPage()">  Show more... </PrimaryButton>
   </div>
   <NegotiationPagination
     :negotiations="negotiations"
