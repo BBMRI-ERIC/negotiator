@@ -2,7 +2,7 @@
   <div class="big-home-button">
     <button class="btn panel-button d-flex flex-row align-items-center rounded-4 me-4 mt-2 px-4">
       <div v-if="buttonIcon" class="my-1">
-        <i class="bi me-2 my-0 h4" :class="[buttonIcon]"></i>
+        <i class="bi me-2 h4" :class="[buttonIcon]"></i>
       </div>
       <h4 v-if="buttonText" class="my-0 fw-bold">{{ buttonText }}</h4>
     </button>
