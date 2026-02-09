@@ -36,9 +36,6 @@
         :isHomePage="true"
         :totalNegotiationsCount="totalNegotiationsCount"
       />
-      <div class="d-flex justify-content-center mt-2 w-100">
-        <PrimaryButton @click="$router.push('/admin')"> see more </PrimaryButton>
-      </div>
     </div>
     <div v-if="userRoles.includes(ROLES.RESEARCHER)" class="mb-5 col-12 col-md-6">
       <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.researcher') }}</h2>
@@ -47,9 +44,6 @@
         :isHomePage="true"
         :totalNegotiationsCount="totalNegotiationsCount"
       />
-      <div class="d-flex justify-content-center mt-2 w-100">
-        <PrimaryButton @click="$router.push('/researcher')"> see more </PrimaryButton>
-      </div>
     </div>
     <div v-if="userRoles.includes(ROLES.REPRESENTATIVE)" class="mb-5 col-12 col-md-6">
       <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.biobanker') }}</h2>
@@ -58,9 +52,6 @@
         :isHomePage="true"
         :totalNegotiationsCount="totalNegotiationsCount"
       />
-      <div class="d-flex justify-content-center mt-2 w-100">
-        <PrimaryButton @click="$router.push('/biobanker')"> see more </PrimaryButton>
-      </div>
     </div>
   </div>
   <div class="discovery-services mb-5">
@@ -84,7 +75,6 @@ import { useUserStore } from '../store/user.js'
 import { ROLES } from '@/config/consts.js'
 import BigButton from '@/components/ui/buttons/BigButton.vue'
 import { useDiscoveryServicesStore } from '../store/discoveryServices.js'
-import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 const userStore = useUserStore()
 const discoveryServices = useDiscoveryServicesStore()
