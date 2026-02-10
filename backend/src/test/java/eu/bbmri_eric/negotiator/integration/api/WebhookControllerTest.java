@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookCreateDTO;
@@ -298,6 +297,6 @@ public class WebhookControllerTest {
     verify(
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(equalToJson(JSONUtils.toJSON(payload))));
+            .withRequestBody(equalToJson(payload)));
   }
 }

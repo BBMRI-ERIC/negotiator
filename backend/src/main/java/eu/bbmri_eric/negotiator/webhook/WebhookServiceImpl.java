@@ -129,7 +129,7 @@ public class WebhookServiceImpl implements WebhookService {
   private static @NotNull HttpEntity<String> buildHttpEntity(String jsonPayload) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    return new HttpEntity<>(JSONUtils.toJSON(jsonPayload), headers);
+    return new HttpEntity<>(jsonPayload, headers);
   }
 
   /**
