@@ -1,5 +1,3 @@
-## Negotiator pull request:
-
 ### Description:
 
 _Please provide a short description of what this PR is supposed to accomplish..._
