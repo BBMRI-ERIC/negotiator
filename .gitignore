@@ -47,3 +47,9 @@ application.properties
 
 ### Docker Compose ###
 compose.dev.yml
+
+### Yarn ###
+frontend/.yarn
+frontend/.yarnrc.yml
+# Currently not checked in
+frontend/yarn.lock
