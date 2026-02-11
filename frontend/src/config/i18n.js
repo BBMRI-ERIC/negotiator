@@ -8,7 +8,7 @@ export default {
         researcher: 'Your negotiations',
         biobanker: 'Your biobank',
         FAQ: 'Support',
-        doc: 'Documentation',
+        guide: 'Guide',
       },
       negotiationPage: {
         displayId: ' Negotiation ID',

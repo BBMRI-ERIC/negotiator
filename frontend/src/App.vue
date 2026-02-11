@@ -1,8 +1,8 @@
 <template>
   <div :style="{ 'background-color': uiConfiguration?.appBackgroundColor }">
-    <VueTour v-if="isVueTourVisible" />
     <AnalyticsNotice :privacy-link="privacyPolicyLink" />
 
+    <AllVueTours />
     <header>
       <navigation-bar />
     </header>
@@ -28,10 +28,9 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { RouterView, useRoute, useRouter } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import { useNotificationsStore } from '@/store/notifications.js'
-import allFeatureFlags from '@/config/featureFlags.js'
-import VueTour from './components/VueTour.vue'
+import AllVueTours from './components/vue-tours/AllVueTours.vue'
 import NavigationBar from './components/NavigationBar.vue'
 import AlertNotification from './components/AlertNotification.vue'
 import AnalyticsNotice from './components/AnalyticsNotice.vue'
@@ -41,12 +40,7 @@ import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const uiConfigurationStore = useUiConfiguration()
 const useNotifications = useNotificationsStore()
-const route = useRoute()
 const router = useRouter()
-
-const vueTourFeatureFlag = !!(
-  allFeatureFlags.vueTour === 'true' || allFeatureFlags.vueTour === true
-)
 
 onMounted(async () => {
   await updateFaviconUrl()
@@ -61,15 +55,6 @@ watch(
     }
   },
 )
-
-const isVueTourVisible = computed(() => {
-  return (
-    (route.fullPath === '/researcher' ||
-      route.fullPath === '/admin' ||
-      route.fullPath === '/biobanker') &&
-    vueTourFeatureFlag
-  )
-})
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme

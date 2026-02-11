@@ -116,7 +116,6 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `I18N_FALLBACKLOCALE`        | Fallback locale if no match is found                                                                                   | `en`                   |
 | `FEATURE_FLAG_FAQPAGE`       | Toggle to enable the FAQ page                                                                                          | `false`                |
 | `FEATURE_FLAG_NETWORKS`      | Toggle to enable the Networks feature                                                                                  | `false`                |
-| `FEATURE_FLAG_VUETOUR`       | Toggle to enable Vue.js tour                                                                                           | `false`                |
 | `FEATURE_FLAG_NOTIFICATIONS` | Toggle to enable notification features                                                                                 | `false`                |
 | `DEV_MODE`                   | Enables development mode behavior                                                                                      | `false`                |
 | `AUTH_MANAGEMENT_LINK`       | Link to external authentication management interface                                                                   | `none`                 |
