@@ -31,10 +31,25 @@ export default defineConfig({
     },
     server: {
         port: 8080,
+        cors: true,
+        strictPort: false,
         proxy: {
-            "^/api": {
+            "/api": {
                 target: PROXY_TARGET,
-                changeOrigin: true
+                changeOrigin: true,
+                secure: false,
+                ws: true,
+                configure: (proxy) => {
+                    proxy.on('error', (err) => {
+                        console.log('proxy error', err);
+                    });
+                    proxy.on('proxyReq', (_proxyReq, req) => {
+                        console.log('Sending Request:', req.method, req.url);
+                    });
+                    proxy.on('proxyRes', (proxyRes, req) => {
+                        console.log('Received Response:', proxyRes.statusCode, req.url);
+                    });
+                }
             }
         }
     }
