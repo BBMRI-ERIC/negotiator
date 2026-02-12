@@ -4,15 +4,9 @@ import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.List;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,14 +14,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@CommonsLog
 public class WebhookServiceImpl implements WebhookService {
   private final WebhookRepository webhookRepository;
   private final ModelMapper modelMapper;
+  private final RestTemplate secureRestTemplate;
+  private final RestTemplate insecureRestTemplate;
 
-  public WebhookServiceImpl(WebhookRepository webhookRepository, ModelMapper modelMapper) {
+  public WebhookServiceImpl(
+      WebhookRepository webhookRepository,
+      ModelMapper modelMapper,
+      @Qualifier("secureWebhookRestTemplate") RestTemplate secureRestTemplate,
+      @Qualifier("insecureWebhookRestTemplate") RestTemplate insecureRestTemplate) {
     this.webhookRepository = webhookRepository;
     this.modelMapper = modelMapper;
+    this.secureRestTemplate = secureRestTemplate;
+    this.insecureRestTemplate = insecureRestTemplate;
   }
 
   @Override
@@ -79,7 +80,7 @@ public class WebhookServiceImpl implements WebhookService {
     }
     Webhook webhook = getWebhook(webhookId);
     RestTemplate restTemplate =
-        webhook.isSslVerification() ? new RestTemplate() : createNoSSLRestTemplate();
+        webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
     return deliverWebhook(jsonPayload, restTemplate, webhook);
   }
 
@@ -130,40 +131,6 @@ public class WebhookServiceImpl implements WebhookService {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     return new HttpEntity<>(jsonPayload, headers);
-  }
-
-  /**
-   * Allows the creation of a RestTemplate that does not verify SSL certificates.
-   *
-   * @return
-   */
-  private RestTemplate createNoSSLRestTemplate() {
-    try {
-      SSLContext sslContext = SSLContext.getInstance("TLS");
-      sslContext.init(
-          null,
-          new TrustManager[] {
-            new X509TrustManager() {
-              public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[0];
-              }
-
-              public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                // Empty implementation
-              }
-
-              public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                // Empty implementation
-              }
-            }
-          },
-          new SecureRandom());
-      HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-      HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
-      return new RestTemplate();
-    } catch (Exception e) {
-      throw new InternalError();
-    }
   }
 
   private String parseErrorMessage(String errorMessage) {
