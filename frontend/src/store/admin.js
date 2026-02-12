@@ -29,8 +29,10 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   function retrieveInfoRequirement(link) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = link.startsWith('http') ? new URL(link).pathname : link
     return axios
-      .get(`${link}`, { headers: getBearerHeaders() })
+      .get(url, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
