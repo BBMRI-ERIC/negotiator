@@ -35,7 +35,6 @@ public class PersonServiceImpl implements PersonService {
 
   private final ResourceRepository resourceRepository;
   private final OrganizationRepository organizationRepository;
-
   private final ModelMapper modelMapper;
   private final ApplicationEventPublisher eventPublisher;
 
@@ -143,8 +142,18 @@ public class PersonServiceImpl implements PersonService {
       eventPublisher.publishEvent(
           new FirstRepresentativeEvent(this, resource.getId(), resource.getSourceId()));
     }
+
     representative.addResource(resource);
     personRepository.save(representative);
+
+    eventPublisher.publishEvent(
+        new AddedRepresentativeEvent(
+            this,
+            representative.getId(),
+            representative.getName(),
+            representative.getEmail(),
+            resource.getId(),
+            resource.getSourceId()));
   }
 
   @Override

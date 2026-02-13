@@ -44,3 +44,6 @@ build/
 
 ### Configuration Files ###
 application.properties
+
+### Docker Compose ###
+compose.dev.yml
