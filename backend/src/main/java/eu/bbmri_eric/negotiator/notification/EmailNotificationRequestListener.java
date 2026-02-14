@@ -36,7 +36,7 @@ class EmailNotificationRequestListener {
   }
 
   @TransactionalEventListener
-  @Async
+  @Async("emailTaskExecutor")
   void onNewNotification(NewNotificationEvent event) {
     NotificationDTO notification = notificationService.findById(event.getNotificationId());
     if (notification == null) {

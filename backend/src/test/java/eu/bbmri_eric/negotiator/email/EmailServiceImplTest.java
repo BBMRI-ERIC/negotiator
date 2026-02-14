@@ -4,11 +4,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import eu.bbmri_eric.negotiator.email.EmailRateLimitConfig.EmailRateLimitProperties;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +39,10 @@ class EmailServiceImplTest {
 
   @Mock private NotificationService notificationService;
 
+  private Semaphore emailRateLimitSemaphore;
+
+  private EmailRateLimitProperties rateLimitProperties;
+
   private static final String FROM_ADDRESS = "noreply@negotiator.com";
   private static final String VALID_EMAIL = "test@example.com";
   private static final String VALID_SUBJECT = "Test Subject";
@@ -39,8 +50,16 @@ class EmailServiceImplTest {
 
   @BeforeEach
   void setUp() {
+    emailRateLimitSemaphore = new Semaphore(2, true);
+    rateLimitProperties = new EmailRateLimitProperties();
+    rateLimitProperties.setSemaphoreTimeoutSeconds(30);
     emailService =
-        new EmailServiceImpl(javaMailSender, notificationEmailRepository, notificationService);
+        new EmailServiceImpl(
+            javaMailSender,
+            notificationEmailRepository,
+            notificationService,
+            emailRateLimitSemaphore,
+            rateLimitProperties);
     ReflectionTestUtils.setField(emailService, "fromAddress", FROM_ADDRESS);
   }
 
@@ -48,14 +67,51 @@ class EmailServiceImplTest {
   void constructor_WithNullJavaMailSender_ThrowsNullPointerException() {
     assertThrows(
         NullPointerException.class,
-        () -> new EmailServiceImpl(null, notificationEmailRepository, notificationService));
+        () ->
+            new EmailServiceImpl(
+                null,
+                notificationEmailRepository,
+                notificationService,
+                emailRateLimitSemaphore,
+                rateLimitProperties));
   }
 
   @Test
   void constructor_WithNullRepository_ThrowsNullPointerException() {
     assertThrows(
         NullPointerException.class,
-        () -> new EmailServiceImpl(javaMailSender, null, notificationService));
+        () ->
+            new EmailServiceImpl(
+                javaMailSender,
+                null,
+                notificationService,
+                emailRateLimitSemaphore,
+                rateLimitProperties));
+  }
+
+  @Test
+  void constructor_WithNullSemaphore_ThrowsNullPointerException() {
+    assertThrows(
+        NullPointerException.class,
+        () ->
+            new EmailServiceImpl(
+                javaMailSender,
+                notificationEmailRepository,
+                notificationService,
+                null,
+                rateLimitProperties));
+  }
+
+  @Test
+  void constructor_WithNullProperties_UsesDefaultTimeout() {
+    assertDoesNotThrow(
+        () ->
+            new EmailServiceImpl(
+                javaMailSender,
+                notificationEmailRepository,
+                notificationService,
+                emailRateLimitSemaphore,
+                null));
   }
 
   @Test
@@ -339,5 +395,222 @@ class EmailServiceImplTest {
     inOrder.verify(javaMailSender).createMimeMessage();
     inOrder.verify(javaMailSender).send(mimeMessage);
     inOrder.verify(notificationEmailRepository).save(any(NotificationEmail.class));
+  }
+
+  @Test
+  void sendEmail_ReleasesSemaphoreAfterSuccessfulSend() {
+    when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+    var notificationEmail =
+        NotificationEmail.builder()
+            .address(VALID_EMAIL)
+            .message(VALID_MAIL_BODY)
+            .sentAt(LocalDateTime.now())
+            .build();
+
+    when(notificationEmailRepository.save(any(NotificationEmail.class)))
+        .thenReturn(notificationEmail);
+
+    int initialPermits = emailRateLimitSemaphore.availablePermits();
+
+    emailService.sendEmail(VALID_EMAIL, VALID_SUBJECT, VALID_MAIL_BODY);
+    assertEquals(
+        initialPermits,
+        emailRateLimitSemaphore.availablePermits(),
+        "Semaphore should release permit after successful email send");
+  }
+
+  @Test
+  void sendEmail_ReleasesSemaphoreEvenOnFailure() {
+    when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+    doThrow(new MailSendException("SMTP error")).when(javaMailSender).send(any(MimeMessage.class));
+
+    int initialPermits = emailRateLimitSemaphore.availablePermits();
+
+    assertThrows(
+        RuntimeException.class,
+        () -> emailService.sendEmail(VALID_EMAIL, VALID_SUBJECT, VALID_MAIL_BODY));
+
+    // Semaphore should still be released even on failure
+    assertEquals(
+        initialPermits,
+        emailRateLimitSemaphore.availablePermits(),
+        "Semaphore should release permit even after failed email send");
+  }
+
+  @Test
+  void sendEmail_HighVolume_2500Emails_RespectsConcurrencyLimit() throws InterruptedException {
+    int maxConcurrentConnections = 2;
+    emailRateLimitSemaphore = new Semaphore(maxConcurrentConnections, true);
+    rateLimitProperties = new EmailRateLimitProperties();
+    rateLimitProperties.setSemaphoreTimeoutSeconds(120);
+    emailService =
+        new EmailServiceImpl(
+            javaMailSender,
+            notificationEmailRepository,
+            notificationService,
+            emailRateLimitSemaphore,
+            rateLimitProperties);
+    ReflectionTestUtils.setField(emailService, "fromAddress", FROM_ADDRESS);
+
+    when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+    var notificationEmail =
+        NotificationEmail.builder()
+            .address(VALID_EMAIL)
+            .message(VALID_MAIL_BODY)
+            .sentAt(LocalDateTime.now())
+            .build();
+
+    when(notificationEmailRepository.save(any(NotificationEmail.class)))
+        .thenReturn(notificationEmail);
+
+    int totalEmails = 2500;
+    int threadPoolSize = 20;
+
+    CountDownLatch completionLatch = new CountDownLatch(totalEmails);
+    ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+
+    AtomicInteger successCount = new AtomicInteger(0);
+    AtomicInteger failureCount = new AtomicInteger(0);
+    AtomicInteger maxObservedConcurrency = new AtomicInteger(0);
+    AtomicInteger currentConcurrency = new AtomicInteger(0);
+
+    doAnswer(
+            invocation -> {
+              int concurrent = currentConcurrency.incrementAndGet();
+              maxObservedConcurrency.updateAndGet(current -> Math.max(current, concurrent));
+              Thread.sleep(1 + (int) (Math.random() * 4));
+              currentConcurrency.decrementAndGet();
+              return null;
+            })
+        .when(javaMailSender)
+        .send(any(MimeMessage.class));
+
+    long startTime = System.currentTimeMillis();
+
+    for (int i = 0; i < totalEmails; i++) {
+      final int emailIndex = i;
+      executor.submit(
+          () -> {
+            try {
+              String uniqueEmail = "user" + emailIndex + "@example.com";
+              emailService.sendEmail(uniqueEmail, VALID_SUBJECT, VALID_MAIL_BODY);
+              successCount.incrementAndGet();
+            } catch (Exception e) {
+              failureCount.incrementAndGet();
+            } finally {
+              completionLatch.countDown();
+            }
+          });
+    }
+
+    boolean completed = completionLatch.await(5, TimeUnit.MINUTES);
+    long duration = System.currentTimeMillis() - startTime;
+
+    executor.shutdown();
+    executor.awaitTermination(10, TimeUnit.SECONDS);
+
+    assertTrue(completed, "All emails should complete within timeout");
+    assertEquals(
+        totalEmails,
+        successCount.get(),
+        "All " + totalEmails + " emails should be sent successfully");
+    assertEquals(0, failureCount.get(), "No emails should fail");
+
+    assertTrue(
+        maxObservedConcurrency.get() <= maxConcurrentConnections,
+        "Concurrent SMTP connections should never exceed "
+            + maxConcurrentConnections
+            + ", but observed: "
+            + maxObservedConcurrency.get());
+
+    assertEquals(
+        maxConcurrentConnections,
+        emailRateLimitSemaphore.availablePermits(),
+        "All semaphore permits should be released after completion");
+
+    System.out.println("High volume test completed:");
+    System.out.println("  - Total emails: " + totalEmails);
+    System.out.println("  - Duration: " + duration + "ms");
+    System.out.println("  - Throughput: " + (totalEmails * 1000.0 / duration) + " emails/sec");
+    System.out.println("  - Max observed concurrency: " + maxObservedConcurrency.get());
+  }
+
+  @Test
+  void sendEmail_HighVolume_WithFailures_ReleasesAllSemaphorePermits() throws InterruptedException {
+    int maxConcurrentConnections = 2;
+    emailRateLimitSemaphore = new Semaphore(maxConcurrentConnections, true);
+    rateLimitProperties = new EmailRateLimitProperties();
+    rateLimitProperties.setSemaphoreTimeoutSeconds(60);
+    emailService =
+        new EmailServiceImpl(
+            javaMailSender,
+            notificationEmailRepository,
+            notificationService,
+            emailRateLimitSemaphore,
+            rateLimitProperties);
+    ReflectionTestUtils.setField(emailService, "fromAddress", FROM_ADDRESS);
+
+    when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+    var notificationEmail =
+        NotificationEmail.builder()
+            .address(VALID_EMAIL)
+            .message(VALID_MAIL_BODY)
+            .sentAt(LocalDateTime.now())
+            .build();
+
+    when(notificationEmailRepository.save(any(NotificationEmail.class)))
+        .thenReturn(notificationEmail);
+
+    int totalEmails = 100;
+    int failEveryN = 10;
+
+    CountDownLatch completionLatch = new CountDownLatch(totalEmails);
+    ExecutorService executor = Executors.newFixedThreadPool(10);
+
+    AtomicInteger sendAttempt = new AtomicInteger(0);
+    AtomicInteger successCount = new AtomicInteger(0);
+    AtomicInteger failureCount = new AtomicInteger(0);
+
+    doAnswer(
+            invocation -> {
+              int attempt = sendAttempt.incrementAndGet();
+              if (attempt % failEveryN == 0) {
+                throw new MailSendException("Simulated SMTP failure");
+              }
+              Thread.sleep(1);
+              return null;
+            })
+        .when(javaMailSender)
+        .send(any(MimeMessage.class));
+
+    for (int i = 0; i < totalEmails; i++) {
+      executor.submit(
+          () -> {
+            try {
+              emailService.sendEmail(VALID_EMAIL, VALID_SUBJECT, VALID_MAIL_BODY);
+              successCount.incrementAndGet();
+            } catch (Exception e) {
+              failureCount.incrementAndGet();
+            } finally {
+              completionLatch.countDown();
+            }
+          });
+    }
+
+    completionLatch.await(2, TimeUnit.MINUTES);
+    executor.shutdown();
+    executor.awaitTermination(10, TimeUnit.SECONDS);
+
+    assertEquals(
+        maxConcurrentConnections,
+        emailRateLimitSemaphore.availablePermits(),
+        "All semaphore permits should be released even with failures");
+
+    assertTrue(failureCount.get() > 0, "Test should have some failures to verify cleanup");
+    assertEquals(
+        totalEmails, successCount.get() + failureCount.get(), "All emails should be accounted for");
   }
 }

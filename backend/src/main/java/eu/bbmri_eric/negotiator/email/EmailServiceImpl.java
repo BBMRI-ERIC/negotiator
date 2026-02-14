@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.email;
 
+import eu.bbmri_eric.negotiator.email.EmailRateLimitConfig.EmailRateLimitProperties;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.mail.MessagingException;
@@ -7,6 +8,8 @@ import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +18,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of EmailService with rate limiting to prevent SMTP throttling.
+ *
+ * <p>This service uses a semaphore to limit the number of concurrent SMTP connections, which is
+ * particularly important for email providers like Microsoft 365 that enforce strict connection
+ * limits (e.g., max 3 concurrent connections).
+ *
+ * <p>The implementation is designed to handle high-volume scenarios (1000+ emails) by queuing email
+ * tasks and processing them with controlled concurrency.
+ */
 @CommonsLog
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -31,6 +44,8 @@ public class EmailServiceImpl implements EmailService {
   private final JavaMailSender javaMailSender;
   private final NotificationEmailRepository notificationEmailRepository;
   private final NotificationService notificationService;
+  private final Semaphore emailRateLimitSemaphore;
+  private final int semaphoreTimeoutSeconds;
 
   @Value("${negotiator.email-address}")
   private String fromAddress;
@@ -38,12 +53,19 @@ public class EmailServiceImpl implements EmailService {
   EmailServiceImpl(
       JavaMailSender javaMailSender,
       NotificationEmailRepository notificationEmailRepository,
-      NotificationService notificationService) {
+      NotificationService notificationService,
+      Semaphore emailRateLimitSemaphore,
+      EmailRateLimitProperties rateLimitProperties) {
     this.javaMailSender = Objects.requireNonNull(javaMailSender, "JavaMailSender must not be null");
     this.notificationEmailRepository =
         Objects.requireNonNull(
             notificationEmailRepository, "NotificationEmailRepository must not be null");
     this.notificationService = notificationService;
+    this.emailRateLimitSemaphore =
+        Objects.requireNonNull(
+            emailRateLimitSemaphore, "Email rate limit semaphore must not be null");
+    this.semaphoreTimeoutSeconds =
+        rateLimitProperties != null ? rateLimitProperties.getSemaphoreTimeoutSeconds() : 120;
   }
 
   @Override
@@ -78,7 +100,25 @@ public class EmailServiceImpl implements EmailService {
     var mimeMessage = buildMimeMessage(recipientAddress, subject, content);
     String domain = fromAddress.split("@")[1];
 
+    boolean permitAcquired = false;
     try {
+      // Acquire permit to limit concurrent SMTP connections
+      log.debug(
+          "Waiting for email rate limit permit. Available permits: "
+              + emailRateLimitSemaphore.availablePermits());
+      permitAcquired =
+          emailRateLimitSemaphore.tryAcquire(semaphoreTimeoutSeconds, TimeUnit.SECONDS);
+      if (!permitAcquired) {
+        log.warn(
+            "Timeout waiting for email rate limit permit for recipient: "
+                + recipientAddress
+                + ". Queue may be overloaded.");
+        throw new RuntimeException("Timeout waiting for email rate limit permit");
+      }
+      log.debug(
+          "Acquired email rate limit permit. Remaining permits: "
+              + emailRateLimitSemaphore.availablePermits());
+
       if (negotiationId != null) {
         mimeMessage.setHeader("Message-ID", "<" + messageId + "@" + domain);
         mimeMessage.setHeader("In-Reply-To", "<" + negotiationId + "@" + domain);
@@ -86,6 +126,7 @@ public class EmailServiceImpl implements EmailService {
       }
 
       javaMailSender.send(mimeMessage);
+      log.debug("Successfully sent email to: " + recipientAddress);
     } catch (MailSendException | MessagingException e) {
       log.error(
           "Failed to send email to "
@@ -93,6 +134,17 @@ public class EmailServiceImpl implements EmailService {
               + ". SMTP configuration error: "
               + e.getMessage());
       throw new RuntimeException(ERROR_SMTP_CONFIG, e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      log.error("Interrupted while waiting for email rate limit permit: " + e.getMessage());
+      throw new RuntimeException("Email sending interrupted", e);
+    } finally {
+      if (permitAcquired) {
+        emailRateLimitSemaphore.release();
+        log.debug(
+            "Released email rate limit permit. Available permits: "
+                + emailRateLimitSemaphore.availablePermits());
+      }
     }
     recordEmailNotification(recipientAddress, content);
   }
