@@ -14,13 +14,12 @@
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <version>3.5.8</version>
+        <version>3.5.10</version>
     </parent>
     <properties>
         <java.version>21</java.version>
         <spring-modulith.version>1.4.1</spring-modulith.version>
         <testcontainers-util.version>1.21.1</testcontainers-util.version>
-        <flyway.version>11.10.0</flyway.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
 
         <!-- Third-party libraries -->
@@ -40,16 +39,12 @@
         <jsoup.version>1.17.2</jsoup.version>
         <loki-logback.version>1.6.0</loki-logback.version>
         <lombok.version>1.18.30</lombok.version>
-        <micrometer.version>1.14.4</micrometer.version>
         <modelmapper.version>3.2.4</modelmapper.version>
         <moxy.version>2.5.1</moxy.version>
         <netty-macos.version>4.1.119.Final</netty-macos.version>
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.5</pdfbox.version>
         <poi.version>5.4.1</poi.version>
-        <postgresql.version>42.7.7</postgresql.version>
-        <reactor.version>3.7.3</reactor.version>
-        <spring-hateoas.version>2.5.1</spring-hateoas.version>
         <springdoc.version>2.8.9</springdoc.version>
         <tika.version>3.2.2</tika.version>
         <wiremock.version>3.13.0</wiremock.version>
@@ -224,12 +219,10 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-            <version>${flyway.version}</version>
         </dependency>
         <dependency>
             <groupId>io.hypersistence</groupId>
@@ -239,7 +232,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -253,7 +245,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer.version}</version>
         </dependency>
 
         <!-- Utilities -->
@@ -343,12 +334,10 @@
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
-            <version>${spring-hateoas.version}</version>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
-            <version>${reactor.version}</version>
         </dependency>
 
         <!-- Documents / PDF / Office -->
@@ -436,7 +425,6 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${testcontainers-util.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
