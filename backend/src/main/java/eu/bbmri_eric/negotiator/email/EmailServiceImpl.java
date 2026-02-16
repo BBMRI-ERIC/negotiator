@@ -45,8 +45,7 @@ public class EmailServiceImpl implements EmailService {
   private final NotificationEmailRepository notificationEmailRepository;
   private final NotificationService notificationService;
   private final Semaphore emailRateLimitSemaphore;
-  private final int semaphoreTimeoutSeconds;
-  private final long delayBetweenEmailsMs;
+  private final EmailRateLimitProperties rateLimitProperties;
 
   @Value("${negotiator.email-address}")
   private String fromAddress;
@@ -65,10 +64,8 @@ public class EmailServiceImpl implements EmailService {
     this.emailRateLimitSemaphore =
         Objects.requireNonNull(
             emailRateLimitSemaphore, "Email rate limit semaphore must not be null");
-    this.semaphoreTimeoutSeconds =
-        rateLimitProperties != null ? rateLimitProperties.getSemaphoreTimeoutSeconds() : 120;
-    this.delayBetweenEmailsMs =
-        rateLimitProperties != null ? rateLimitProperties.getDelayBetweenEmailsMs() : 1000;
+    this.rateLimitProperties =
+        Objects.requireNonNull(rateLimitProperties, "EmailRateLimitProperties must not be null");
   }
 
   @Override
@@ -133,7 +130,8 @@ public class EmailServiceImpl implements EmailService {
             .formatted(emailRateLimitSemaphore.availablePermits()));
 
     boolean permitAcquired =
-        emailRateLimitSemaphore.tryAcquire(semaphoreTimeoutSeconds, TimeUnit.SECONDS);
+        emailRateLimitSemaphore.tryAcquire(
+            rateLimitProperties.getSemaphoreTimeoutSeconds(), TimeUnit.SECONDS);
 
     if (!permitAcquired) {
       log.warn(
@@ -172,8 +170,8 @@ public class EmailServiceImpl implements EmailService {
   }
 
   private void applyRateLimitDelay() throws InterruptedException {
-    if (delayBetweenEmailsMs > 0) {
-      Thread.sleep(delayBetweenEmailsMs);
+    if (rateLimitProperties.getDelayBetweenEmailsMs() > 0) {
+      Thread.sleep(rateLimitProperties.getDelayBetweenEmailsMs());
     }
   }
 

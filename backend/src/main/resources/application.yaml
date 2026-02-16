@@ -115,7 +115,7 @@ negotiator:
       wait-for-tasks-to-complete-on-shutdown: true
       await-termination-seconds: 300
       semaphore-timeout-seconds: 120
-      delay-between-emails-ms: 1000
+      delay-between-emails-ms: 2000
 logging:
   pattern:
     level: "%p"

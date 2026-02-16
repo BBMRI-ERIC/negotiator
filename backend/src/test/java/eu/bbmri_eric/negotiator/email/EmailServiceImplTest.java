@@ -92,7 +92,7 @@ class EmailServiceImplTest {
   }
 
   @Test
-  void constructor_WithNullSemaphore_ThrowsNullPointerException() {
+  void constructor_WithNulls_ThrowsNullPointerException() {
     assertThrows(
         NullPointerException.class,
         () ->
@@ -102,11 +102,8 @@ class EmailServiceImplTest {
                 notificationService,
                 null,
                 rateLimitProperties));
-  }
-
-  @Test
-  void constructor_WithNullProperties_UsesDefaultTimeout() {
-    assertDoesNotThrow(
+    assertThrows(
+        NullPointerException.class,
         () ->
             new EmailServiceImpl(
                 javaMailSender,
@@ -445,7 +442,6 @@ class EmailServiceImplTest {
     int maxConcurrentConnections = 2;
     emailRateLimitSemaphore = new Semaphore(maxConcurrentConnections, true);
     rateLimitProperties = new EmailRateLimitProperties();
-    rateLimitProperties.setSemaphoreTimeoutSeconds(120);
     rateLimitProperties.setDelayBetweenEmailsMs(0);
     emailService =
         new EmailServiceImpl(
