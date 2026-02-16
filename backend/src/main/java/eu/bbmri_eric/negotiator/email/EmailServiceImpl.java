@@ -81,8 +81,7 @@ public class EmailServiceImpl implements EmailService {
       deliverEmail(recipientEmail, subject, content, negotiationId, messageId);
     } catch (Exception e) {
       log.error(
-          String.format(
-              "Failed to send email to person %s: %s", recipient.getId(), e.getMessage()));
+          "Failed to send email to person %s: %s".formatted(recipient.getId(), e.getMessage()));
     }
   }
 
@@ -130,25 +129,22 @@ public class EmailServiceImpl implements EmailService {
 
   private boolean acquireRateLimitPermit(String recipientAddress) throws InterruptedException {
     log.debug(
-        String.format(
-            "Waiting for email rate limit permit. Available permits: %d",
-            emailRateLimitSemaphore.availablePermits()));
+        "Waiting for email rate limit permit. Available permits: %d"
+            .formatted(emailRateLimitSemaphore.availablePermits()));
 
     boolean permitAcquired =
         emailRateLimitSemaphore.tryAcquire(semaphoreTimeoutSeconds, TimeUnit.SECONDS);
 
     if (!permitAcquired) {
       log.warn(
-          String.format(
-              "Timeout waiting for email rate limit permit for recipient: %s. Queue may be overloaded.",
-              recipientAddress));
+          "Timeout waiting for email rate limit permit for recipient: %s. Queue may be overloaded."
+              .formatted(recipientAddress));
       throw new RuntimeException("Timeout waiting for email rate limit permit");
     }
 
     log.debug(
-        String.format(
-            "Acquired email rate limit permit. Remaining permits: %d",
-            emailRateLimitSemaphore.availablePermits()));
+        "Acquired email rate limit permit. Remaining permits: %d"
+            .formatted(emailRateLimitSemaphore.availablePermits()));
 
     return true;
   }
@@ -171,7 +167,7 @@ public class EmailServiceImpl implements EmailService {
   private void sendAndDelay(MimeMessage mimeMessage, String recipientAddress)
       throws InterruptedException {
     javaMailSender.send(mimeMessage);
-    log.debug(String.format("Successfully sent email to: %s", recipientAddress));
+    log.debug("Successfully sent email to: %s".formatted(recipientAddress));
     applyRateLimitDelay();
   }
 
@@ -183,16 +179,15 @@ public class EmailServiceImpl implements EmailService {
 
   private void handleMailException(String recipientAddress, Exception e) {
     log.error(
-        String.format(
-            "Failed to send email to %s. SMTP configuration error: %s",
-            recipientAddress, e.getMessage()));
+        "Failed to send email to %s. SMTP configuration error: %s"
+            .formatted(recipientAddress, e.getMessage()));
     throw new RuntimeException(ERROR_SMTP_CONFIG, e);
   }
 
   private void handleInterruptedException(InterruptedException e) {
     Thread.currentThread().interrupt();
     log.error(
-        String.format("Interrupted while waiting for email rate limit permit: %s", e.getMessage()));
+        "Interrupted while waiting for email rate limit permit: %s".formatted(e.getMessage()));
     throw new RuntimeException("Email sending interrupted", e);
   }
 
@@ -200,9 +195,8 @@ public class EmailServiceImpl implements EmailService {
     if (permitAcquired) {
       emailRateLimitSemaphore.release();
       log.debug(
-          String.format(
-              "Released email rate limit permit. Available permits: %d",
-              emailRateLimitSemaphore.availablePermits()));
+          "Released email rate limit permit. Available permits: %d"
+              .formatted(emailRateLimitSemaphore.availablePermits()));
     }
   }
 
@@ -231,7 +225,7 @@ public class EmailServiceImpl implements EmailService {
       helper.setFrom(fromAddress);
       return mimeMessage;
     } catch (MessagingException e) {
-      log.error("Failed to configure email message: " + e.getMessage());
+      log.error("Failed to configure email message: %s".formatted(e.getMessage()));
       throw new RuntimeException(ERROR_BUILD_MESSAGE, e);
     }
   }

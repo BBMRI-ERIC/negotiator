@@ -38,9 +38,8 @@ class EmailRateLimitConfig {
   Semaphore emailRateLimitSemaphore(EmailRateLimitProperties properties) {
     int maxConnections = properties.getMaxConcurrentConnections();
     log.info(
-        String.format(
-            "Initializing email rate limit semaphore with %d concurrent connections allowed, %dms delay between emails",
-            maxConnections, properties.getDelayBetweenEmailsMs()));
+        "Initializing email rate limit semaphore with %d concurrent connections allowed, %dms delay between emails"
+            .formatted(maxConnections, properties.getDelayBetweenEmailsMs()));
     return new Semaphore(maxConnections, true);
   }
 
@@ -57,22 +56,22 @@ class EmailRateLimitConfig {
     executor.setRejectedExecutionHandler(
         (runnable, threadPoolExecutor) -> {
           log.warn(
-              String.format(
-                  "Email task rejected. Queue size: %d, Active threads: %d, Pool size: %d",
-                  threadPoolExecutor.getQueue().size(),
-                  threadPoolExecutor.getActiveCount(),
-                  threadPoolExecutor.getPoolSize()));
+              "Email task rejected. Queue size: %d, Active threads: %d, Pool size: %d"
+                  .formatted(
+                      threadPoolExecutor.getQueue().size(),
+                      threadPoolExecutor.getActiveCount(),
+                      threadPoolExecutor.getPoolSize()));
           runnable.run();
         });
 
     executor.initialize();
 
     log.info(
-        String.format(
-            "Email task executor initialized - Core pool: %d, Max pool: %d, Queue capacity: %d",
-            properties.getCorePoolSize(),
-            properties.getMaxPoolSize(),
-            properties.getQueueCapacity()));
+        "Email task executor initialized - Core pool: %d, Max pool: %d, Queue capacity: %d"
+            .formatted(
+                properties.getCorePoolSize(),
+                properties.getMaxPoolSize(),
+                properties.getQueueCapacity()));
 
     return executor;
   }

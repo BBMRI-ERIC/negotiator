@@ -534,10 +534,10 @@ class EmailServiceImplTest {
         "All semaphore permits should be released after completion");
 
     log.info("High volume test completed:");
-    log.info(String.format("  - Total emails: %d", totalEmails));
-    log.info(String.format("  - Duration: %dms", duration));
-    log.info(String.format("  - Throughput: %.2f emails/sec", (totalEmails * 1000.0 / duration)));
-    log.info(String.format("  - Max observed concurrency: %d", maxObservedConcurrency.get()));
+    log.info("  - Total emails: %d".formatted(totalEmails));
+    log.info("  - Duration: %dms".formatted(duration));
+    log.info("  - Throughput: %.2f emails/sec".formatted(totalEmails * 1000.0 / duration));
+    log.info("  - Max observed concurrency: %d".formatted(maxObservedConcurrency.get()));
   }
 
   @Test
