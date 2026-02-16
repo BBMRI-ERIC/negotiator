@@ -11,6 +11,7 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
+import eu.bbmri_eric.negotiator.info_submission.pdf.InformationSubmissionToPdfConverter;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -34,6 +35,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -47,6 +49,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   private final ModelMapper modelMapper;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final PersonRepository personRepository;
+  private final InformationSubmissionToPdfConverter informationSubmissionToPdfConverter;
 
   public InformationSubmissionServiceImpl(
       InformationSubmissionRepository informationSubmissionRepository,
@@ -55,7 +58,8 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       NegotiationRepository negotiationRepository,
       ModelMapper modelMapper,
       ApplicationEventPublisher applicationEventPublisher,
-      PersonRepository personRepository) {
+      PersonRepository personRepository,
+      InformationSubmissionToPdfConverter informationSubmissionToPdfConverter) {
     this.informationSubmissionRepository = informationSubmissionRepository;
     this.informationRequirementRepository = informationRequirementRepository;
     this.resourceRepository = resourceRepository;
@@ -63,6 +67,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     this.modelMapper = modelMapper;
     this.applicationEventPublisher = applicationEventPublisher;
     this.personRepository = personRepository;
+    this.informationSubmissionToPdfConverter = informationSubmissionToPdfConverter;
   }
 
   @Override
@@ -146,6 +151,85 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       return generateCSVFile(allSubmissions, "%s-summary.csv".formatted(name));
     }
     throw new ForbiddenRequestException("You are not authorized to perform this action");
+  }
+
+  @Override
+  public byte[] createPdfSummary(Long requirementId, String negotiationId) {
+    if (negotiationRepository.existsByIdAndCreatedBy_Id(
+            negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      InformationRequirement requirement =
+          informationRequirementRepository
+              .findById(requirementId)
+              .orElseThrow(() -> new EntityNotFoundException(requirementId));
+      if (requirement.isViewableOnlyByAdmin()
+          && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+        throw new ForbiddenRequestException("You are not authorized to perform this action");
+      }
+
+      // Generate CSV first
+      MultipartFile csvFile = createSummary(requirementId, negotiationId);
+
+      // Convert CSV to PDF
+      try {
+        String requirementName = requirement.getRequiredAccessForm().getName();
+        return informationSubmissionToPdfConverter.convertCsvToPdf(
+            csvFile, negotiationId, requirementName);
+      } catch (IOException e) {
+        log.error("Failed to convert CSV to PDF", e);
+        throw new InternalError("Could not generate the PDF file. Please try again later");
+      }
+    }
+    throw new ForbiddenRequestException("You are not authorized to perform this action");
+  }
+
+  @Override
+  public List<byte[]> createAllPdfSummaries(String negotiationId) {
+    List<byte[]> pdfList = new ArrayList<>();
+
+    if (!negotiationRepository.existsByIdAndCreatedBy_Id(
+            negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
+        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      throw new ForbiddenRequestException("You are not authorized to perform this action");
+    }
+
+    // Get all information requirements
+    List<InformationRequirement> requirements = informationRequirementRepository.findAll();
+
+    for (InformationRequirement requirement : requirements) {
+      // Skip admin-only requirements if user is not admin
+      if (requirement.isViewableOnlyByAdmin()
+          && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+        continue;
+      }
+
+      try {
+        // Generate CSV first
+        MultipartFile csvFile = createSummary(requirement.getId(), negotiationId);
+
+        // Skip empty submissions
+        if (csvFile.getSize() > 0) {
+          String requirementName = requirement.getRequiredAccessForm().getName();
+          byte[] pdfBytes =
+              informationSubmissionToPdfConverter.convertCsvToPdf(
+                  csvFile, negotiationId, requirementName);
+          pdfList.add(pdfBytes);
+        }
+      } catch (IOException e) {
+        log.warn(
+            "Failed to generate PDF for requirement "
+                + requirement.getId()
+                + ": "
+                + e.getMessage());
+        // Continue with other requirements
+      } catch (Exception e) {
+        log.warn(
+            "Skipping requirement " + requirement.getId() + " due to error: " + e.getMessage());
+        // Continue with other requirements
+      }
+    }
+
+    return pdfList;
   }
 
   private SubmittedInformationDTO saveInformationSubmission(

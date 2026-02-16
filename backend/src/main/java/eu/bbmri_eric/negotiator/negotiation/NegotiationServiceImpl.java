@@ -53,6 +53,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
   private NegotiationAccessManager negotiationAccessManager;
+  private final NegotiationDisplayIdGeneratorService displayIdGeneratorService;
 
   public NegotiationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -63,7 +64,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       ModelMapper modelMapper,
       PersonService personService,
       ApplicationEventPublisher eventPublisher,
-      NegotiationAccessManager negotiationAccessManager) {
+      NegotiationAccessManager negotiationAccessManager,
+      NegotiationDisplayIdGeneratorService displayIdGeneratorService) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
@@ -73,6 +75,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.personService = personService;
     this.eventPublisher = eventPublisher;
     this.negotiationAccessManager = negotiationAccessManager;
+    this.displayIdGeneratorService = displayIdGeneratorService;
   }
 
   @Override
@@ -168,6 +171,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     negotiation.setResources(new HashSet<>(request.getResources()));
     negotiation.setHumanReadable(request.getHumanReadable());
     negotiation.setDiscoveryService(request.getDiscoveryService());
+    negotiation.setDisplayId(displayIdGeneratorService.generateDisplayId(negotiation.getId()));
+
     return negotiation;
   }
 

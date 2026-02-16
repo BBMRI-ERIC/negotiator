@@ -48,4 +48,21 @@ public interface InformationSubmissionService {
    * @return a summary file
    */
   InformationSubmissionSummaryDTO createSummary(Long requirementId, String negotiationId);
+
+  /**
+   * Generates a PDF summary for a specific requirement within a negotiation.
+   *
+   * @param requirementId the ID of the requirement
+   * @param negotiationId the ID of the negotiation
+   * @return a byte array containing the PDF data
+   */
+  byte[] createPdfSummary(Long requirementId, String negotiationId);
+
+  /**
+   * Generates all PDF summaries for a given negotiation.
+   *
+   * @param negotiationId the ID of the negotiation
+   * @return a list of byte arrays, each containing a PDF summary
+   */
+  List<byte[]> createAllPdfSummaries(String negotiationId);
 }

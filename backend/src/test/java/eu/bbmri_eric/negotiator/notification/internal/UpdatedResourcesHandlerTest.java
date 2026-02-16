@@ -30,7 +30,7 @@ class UpdatedResourcesHandlerTest {
 
   @Test
   void notify_CallsResourceNotificationService() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NewResourcesAddedEvent event = new NewResourcesAddedEvent(this, negotiationId);
 
     handler.notify(event);
@@ -40,7 +40,7 @@ class UpdatedResourcesHandlerTest {
 
   @Test
   void notify_WithDifferentNegotiationId_CallsServiceWithCorrectId() {
-    String negotiationId = "NEG-456";
+    String negotiationId = "456";
     NewResourcesAddedEvent event = new NewResourcesAddedEvent(this, negotiationId);
 
     handler.notify(event);
