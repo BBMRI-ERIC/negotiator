@@ -65,9 +65,8 @@ backend/src/main/java/eu/bbmri_eric/negotiator/email/NotificationEmailController
 1. Replace `import lombok.extern.apachecommons.CommonsLog;` with `import lombok.extern.slf4j.Slf4j;`
 2. Replace `@CommonsLog` annotation with `@Slf4j` annotation
 3. Verify that all logging calls remain compatible (both use `log` as the logger instance name)
-4. Update documentation in `.github/instructions/spring.instructions.md` to fix the typo
-5. Run all tests to ensure no regression
-6. Verify logging output in runtime environment
+4. Run all tests to ensure no regression
+5. Verify logging output in runtime environment
 
 ## Technical Considerations
 
