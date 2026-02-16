@@ -35,8 +35,9 @@ class EmailRateLimitConfig {
   Semaphore emailRateLimitSemaphore(EmailRateLimitProperties properties) {
     int maxConnections = properties.getMaxConcurrentConnections();
     log.info(
-        "Initializing email rate limit semaphore with {} concurrent connections allowed"
-            .replace("{}", String.valueOf(maxConnections)));
+        String.format(
+            "Initializing email rate limit semaphore with %d concurrent connections allowed",
+            maxConnections));
     return new Semaphore(maxConnections, true);
   }
 
@@ -53,20 +54,22 @@ class EmailRateLimitConfig {
     executor.setRejectedExecutionHandler(
         (runnable, threadPoolExecutor) -> {
           log.warn(
-              "Email task rejected. Queue size: {}, Active threads: {}, Pool size: {}"
-                  .replace("{}", String.valueOf(threadPoolExecutor.getQueue().size()))
-                  .replace("{}", String.valueOf(threadPoolExecutor.getActiveCount()))
-                  .replace("{}", String.valueOf(threadPoolExecutor.getPoolSize())));
+              String.format(
+                  "Email task rejected. Queue size: %d, Active threads: %d, Pool size: %d",
+                  threadPoolExecutor.getQueue().size(),
+                  threadPoolExecutor.getActiveCount(),
+                  threadPoolExecutor.getPoolSize()));
           runnable.run();
         });
 
     executor.initialize();
 
     log.info(
-        "Email task executor initialized - Core pool: {}, Max pool: {}, Queue capacity: {}"
-            .replace("{}", String.valueOf(properties.getCorePoolSize()))
-            .replace("{}", String.valueOf(properties.getMaxPoolSize()))
-            .replace("{}", String.valueOf(properties.getQueueCapacity())));
+        String.format(
+            "Email task executor initialized - Core pool: %d, Max pool: %d, Queue capacity: %d",
+            properties.getCorePoolSize(),
+            properties.getMaxPoolSize(),
+            properties.getQueueCapacity()));
 
     return executor;
   }

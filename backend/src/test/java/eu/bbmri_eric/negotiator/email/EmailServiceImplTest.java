@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
+@CommonsLog
 class EmailServiceImplTest {
 
   @Mock private JavaMailSender javaMailSender;
@@ -530,11 +532,11 @@ class EmailServiceImplTest {
         emailRateLimitSemaphore.availablePermits(),
         "All semaphore permits should be released after completion");
 
-    System.out.println("High volume test completed:");
-    System.out.println("  - Total emails: " + totalEmails);
-    System.out.println("  - Duration: " + duration + "ms");
-    System.out.println("  - Throughput: " + (totalEmails * 1000.0 / duration) + " emails/sec");
-    System.out.println("  - Max observed concurrency: " + maxObservedConcurrency.get());
+    log.info("High volume test completed:");
+    log.info(String.format("  - Total emails: %d", totalEmails));
+    log.info(String.format("  - Duration: %dms", duration));
+    log.info(String.format("  - Throughput: %.2f emails/sec", (totalEmails * 1000.0 / duration)));
+    log.info(String.format("  - Max observed concurrency: %d", maxObservedConcurrency.get()));
   }
 
   @Test
