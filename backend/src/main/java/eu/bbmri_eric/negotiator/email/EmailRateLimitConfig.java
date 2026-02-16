@@ -20,15 +20,18 @@ class EmailRateLimitConfig {
   @Component
   @ConfigurationProperties(prefix = "negotiator.email.rate-limit")
   static class EmailRateLimitProperties {
-    private int maxConcurrentConnections = 2;
-    private int corePoolSize = 4;
-    private int maxPoolSize = 8;
+    private int maxConcurrentConnections = 1;
+    private int corePoolSize = 2;
+    private int maxPoolSize = 4;
     private int queueCapacity = 2000;
     private int keepAliveSeconds = 120;
     private String threadNamePrefix = "email-sender-";
     private boolean waitForTasksToCompleteOnShutdown = true;
     private int awaitTerminationSeconds = 300;
     private int semaphoreTimeoutSeconds = 120;
+
+    /** Delay in milliseconds between sending emails to avoid SPF rate limits and spam marking. */
+    private long delayBetweenEmailsMs = 1000;
   }
 
   @Bean
@@ -36,8 +39,8 @@ class EmailRateLimitConfig {
     int maxConnections = properties.getMaxConcurrentConnections();
     log.info(
         String.format(
-            "Initializing email rate limit semaphore with %d concurrent connections allowed",
-            maxConnections));
+            "Initializing email rate limit semaphore with %d concurrent connections allowed, %dms delay between emails",
+            maxConnections, properties.getDelayBetweenEmailsMs()));
     return new Semaphore(maxConnections, true);
   }
 

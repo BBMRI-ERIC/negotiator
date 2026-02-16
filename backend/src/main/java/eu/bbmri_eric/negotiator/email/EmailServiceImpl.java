@@ -46,6 +46,7 @@ public class EmailServiceImpl implements EmailService {
   private final NotificationService notificationService;
   private final Semaphore emailRateLimitSemaphore;
   private final int semaphoreTimeoutSeconds;
+  private final long delayBetweenEmailsMs;
 
   @Value("${negotiator.email-address}")
   private String fromAddress;
@@ -66,6 +67,8 @@ public class EmailServiceImpl implements EmailService {
             emailRateLimitSemaphore, "Email rate limit semaphore must not be null");
     this.semaphoreTimeoutSeconds =
         rateLimitProperties != null ? rateLimitProperties.getSemaphoreTimeoutSeconds() : 120;
+    this.delayBetweenEmailsMs =
+        rateLimitProperties != null ? rateLimitProperties.getDelayBetweenEmailsMs() : 1000;
   }
 
   @Override
@@ -74,14 +77,12 @@ public class EmailServiceImpl implements EmailService {
     validateEmailParameters(recipient.getEmail(), subject, content);
     var recipientEmail = recipient.getEmail();
     try {
-      String messageId =
-          notificationService.countByRecipientIdAndNegotiationId(recipient.getId(), negotiationId)
-                  > 1
-              ? UUID.randomUUID().toString()
-              : negotiationId;
+      String messageId = resolveMessageId(recipient.getId(), negotiationId);
       deliverEmail(recipientEmail, subject, content, negotiationId, messageId);
     } catch (Exception e) {
-      log.error("Failed to send email to person " + recipient.getId() + ": " + e.getMessage());
+      log.error(
+          String.format(
+              "Failed to send email to person %s: %s", recipient.getId(), e.getMessage()));
     }
   }
 
@@ -91,6 +92,12 @@ public class EmailServiceImpl implements EmailService {
     deliverEmail(emailAddress, subject, content, null, null);
   }
 
+  private String resolveMessageId(Long recipientId, String negotiationId) {
+    return notificationService.countByRecipientIdAndNegotiationId(recipientId, negotiationId) > 1
+        ? UUID.randomUUID().toString()
+        : negotiationId;
+  }
+
   private void deliverEmail(
       String recipientAddress,
       String subject,
@@ -98,55 +105,98 @@ public class EmailServiceImpl implements EmailService {
       String negotiationId,
       String messageId) {
     var mimeMessage = buildMimeMessage(recipientAddress, subject, content);
-    String domain = fromAddress.split("@")[1];
 
     boolean permitAcquired = false;
     try {
-      // Acquire permit to limit concurrent SMTP connections
-      log.debug(
-          "Waiting for email rate limit permit. Available permits: "
-              + emailRateLimitSemaphore.availablePermits());
-      permitAcquired =
-          emailRateLimitSemaphore.tryAcquire(semaphoreTimeoutSeconds, TimeUnit.SECONDS);
-      if (!permitAcquired) {
-        log.warn(
-            "Timeout waiting for email rate limit permit for recipient: "
-                + recipientAddress
-                + ". Queue may be overloaded.");
-        throw new RuntimeException("Timeout waiting for email rate limit permit");
-      }
-      log.debug(
-          "Acquired email rate limit permit. Remaining permits: "
-              + emailRateLimitSemaphore.availablePermits());
-
-      if (negotiationId != null) {
-        mimeMessage.setHeader("Message-ID", "<" + messageId + "@" + domain);
-        mimeMessage.setHeader("In-Reply-To", "<" + negotiationId + "@" + domain);
-        mimeMessage.setHeader("References", "<" + negotiationId + "@" + domain);
-      }
-
-      javaMailSender.send(mimeMessage);
-      log.debug("Successfully sent email to: " + recipientAddress);
+      permitAcquired = acquireRateLimitPermit(recipientAddress);
+      setEmailHeaders(mimeMessage, negotiationId, messageId);
+      sendAndDelay(mimeMessage, recipientAddress);
     } catch (MailSendException | MessagingException e) {
-      log.error(
-          "Failed to send email to "
-              + recipientAddress
-              + ". SMTP configuration error: "
-              + e.getMessage());
-      throw new RuntimeException(ERROR_SMTP_CONFIG, e);
+      handleMailException(recipientAddress, e);
     } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      log.error("Interrupted while waiting for email rate limit permit: " + e.getMessage());
-      throw new RuntimeException("Email sending interrupted", e);
+      handleInterruptedException(e);
     } finally {
-      if (permitAcquired) {
-        emailRateLimitSemaphore.release();
-        log.debug(
-            "Released email rate limit permit. Available permits: "
-                + emailRateLimitSemaphore.availablePermits());
-      }
+      releasePermitIfAcquired(permitAcquired);
     }
     recordEmailNotification(recipientAddress, content);
+  }
+
+  private boolean acquireRateLimitPermit(String recipientAddress) throws InterruptedException {
+    log.debug(
+        String.format(
+            "Waiting for email rate limit permit. Available permits: %d",
+            emailRateLimitSemaphore.availablePermits()));
+
+    boolean permitAcquired =
+        emailRateLimitSemaphore.tryAcquire(semaphoreTimeoutSeconds, TimeUnit.SECONDS);
+
+    if (!permitAcquired) {
+      log.warn(
+          String.format(
+              "Timeout waiting for email rate limit permit for recipient: %s. Queue may be overloaded.",
+              recipientAddress));
+      throw new RuntimeException("Timeout waiting for email rate limit permit");
+    }
+
+    log.debug(
+        String.format(
+            "Acquired email rate limit permit. Remaining permits: %d",
+            emailRateLimitSemaphore.availablePermits()));
+
+    return true;
+  }
+
+  private void setEmailHeaders(MimeMessage mimeMessage, String negotiationId, String messageId)
+      throws MessagingException {
+    if (negotiationId == null) {
+      return;
+    }
+    String domain = extractDomainFromAddress();
+    mimeMessage.setHeader("Message-ID", "<" + messageId + "@" + domain);
+    mimeMessage.setHeader("In-Reply-To", "<" + negotiationId + "@" + domain);
+    mimeMessage.setHeader("References", "<" + negotiationId + "@" + domain);
+  }
+
+  private String extractDomainFromAddress() {
+    return fromAddress.split("@")[1];
+  }
+
+  private void sendAndDelay(MimeMessage mimeMessage, String recipientAddress)
+      throws InterruptedException {
+    javaMailSender.send(mimeMessage);
+    log.debug(String.format("Successfully sent email to: %s", recipientAddress));
+    applyRateLimitDelay();
+  }
+
+  private void applyRateLimitDelay() throws InterruptedException {
+    if (delayBetweenEmailsMs > 0) {
+      Thread.sleep(delayBetweenEmailsMs);
+    }
+  }
+
+  private void handleMailException(String recipientAddress, Exception e) {
+    log.error(
+        String.format(
+            "Failed to send email to %s. SMTP configuration error: %s",
+            recipientAddress, e.getMessage()));
+    throw new RuntimeException(ERROR_SMTP_CONFIG, e);
+  }
+
+  private void handleInterruptedException(InterruptedException e) {
+    Thread.currentThread().interrupt();
+    log.error(
+        String.format("Interrupted while waiting for email rate limit permit: %s", e.getMessage()));
+    throw new RuntimeException("Email sending interrupted", e);
+  }
+
+  private void releasePermitIfAcquired(boolean permitAcquired) {
+    if (permitAcquired) {
+      emailRateLimitSemaphore.release();
+      log.debug(
+          String.format(
+              "Released email rate limit permit. Available permits: %d",
+              emailRateLimitSemaphore.availablePermits()));
+    }
   }
 
   private void validateEmailParameters(String emailAddress, String subject, String mailBody) {

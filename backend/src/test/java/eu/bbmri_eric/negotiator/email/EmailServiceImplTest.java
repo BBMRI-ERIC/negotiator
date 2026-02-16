@@ -446,6 +446,7 @@ class EmailServiceImplTest {
     emailRateLimitSemaphore = new Semaphore(maxConcurrentConnections, true);
     rateLimitProperties = new EmailRateLimitProperties();
     rateLimitProperties.setSemaphoreTimeoutSeconds(120);
+    rateLimitProperties.setDelayBetweenEmailsMs(0);
     emailService =
         new EmailServiceImpl(
             javaMailSender,
@@ -545,6 +546,7 @@ class EmailServiceImplTest {
     emailRateLimitSemaphore = new Semaphore(maxConcurrentConnections, true);
     rateLimitProperties = new EmailRateLimitProperties();
     rateLimitProperties.setSemaphoreTimeoutSeconds(60);
+    rateLimitProperties.setDelayBetweenEmailsMs(0);
     emailService =
         new EmailServiceImpl(
             javaMailSender,
