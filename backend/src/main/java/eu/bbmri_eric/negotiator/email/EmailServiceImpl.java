@@ -92,10 +92,17 @@ public class EmailServiceImpl implements EmailService {
     deliverEmail(emailAddress, subject, content, null, null);
   }
 
+  /**
+   * Resolves the Message-ID for email threading.
+   *
+   * <p>The first email in a thread uses the negotiationId as Message-ID to establish the thread.
+   * Subsequent emails use a unique UUID to avoid duplicate Message-IDs while still referencing the
+   * original thread via In-Reply-To and References headers.
+   */
   private String resolveMessageId(Long recipientId, String negotiationId) {
-    return notificationService.countByRecipientIdAndNegotiationId(recipientId, negotiationId) > 1
-        ? UUID.randomUUID().toString()
-        : negotiationId;
+    long existingCount =
+        notificationService.countByRecipientIdAndNegotiationId(recipientId, negotiationId);
+    return existingCount >= 1 ? UUID.randomUUID().toString() : negotiationId;
   }
 
   private void deliverEmail(
@@ -152,9 +159,9 @@ public class EmailServiceImpl implements EmailService {
       return;
     }
     String domain = extractDomainFromAddress();
-    mimeMessage.setHeader("Message-ID", "<" + messageId + "@" + domain);
-    mimeMessage.setHeader("In-Reply-To", "<" + negotiationId + "@" + domain);
-    mimeMessage.setHeader("References", "<" + negotiationId + "@" + domain);
+    mimeMessage.setHeader("Message-ID", "<" + messageId + "@" + domain + ">");
+    mimeMessage.setHeader("In-Reply-To", "<" + negotiationId + "@" + domain + ">");
+    mimeMessage.setHeader("References", "<" + negotiationId + "@" + domain + ">");
   }
 
   private String extractDomainFromAddress() {
