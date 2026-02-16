@@ -105,17 +105,6 @@ negotiator:
     reminder-cron-expression: "0 0 6 * * *"
   email:
     frequency-cron-expression: "0 0 * * * *"
-    rate-limit:
-      max-concurrent-connections: 1
-      core-pool-size: 2
-      max-pool-size: 4
-      queue-capacity: 2000
-      keep-alive-seconds: 120
-      thread-name-prefix: "email-sender-"
-      wait-for-tasks-to-complete-on-shutdown: true
-      await-termination-seconds: 300
-      semaphore-timeout-seconds: 120
-      delay-between-emails-ms: 2000
 logging:
   pattern:
     level: "%p"

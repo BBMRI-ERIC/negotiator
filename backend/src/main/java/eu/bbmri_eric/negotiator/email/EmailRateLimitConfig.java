@@ -29,7 +29,7 @@ class EmailRateLimitConfig {
     private boolean waitForTasksToCompleteOnShutdown = true;
     private int awaitTerminationSeconds = 300;
     private int semaphoreTimeoutSeconds = 120;
-    private long delayBetweenEmailsMs = 1000;
+    private long delayBetweenEmailsMs = 2000;
   }
 
   @Bean
