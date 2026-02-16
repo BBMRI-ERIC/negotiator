@@ -81,7 +81,21 @@ public class WebhookServiceImpl implements WebhookService {
     Webhook webhook = getWebhook(webhookId);
     RestTemplate restTemplate =
         webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-    return deliverWebhook(jsonPayload, restTemplate, webhook);
+    return deliverWebhook(jsonPayload, restTemplate, webhook, null);
+  }
+
+  @Override
+  @Transactional
+  public void deliverToActiveWebhooks(String jsonPayload, String eventType) {
+    if (!JSONUtils.isJSONValid(jsonPayload)) {
+      throw new IllegalArgumentException("Content is not a valid JSON");
+    }
+    List<Webhook> webhooks = webhookRepository.findByActiveTrue();
+    for (Webhook webhook : webhooks) {
+      RestTemplate restTemplate =
+          webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
+      deliverWebhook(jsonPayload, restTemplate, webhook, eventType);
+    }
   }
 
   private @NotNull Webhook getWebhook(Long webhookId) {
@@ -97,10 +111,10 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   private DeliveryDTO deliverWebhook(
-      String jsonPayload, RestTemplate restTemplate, Webhook webhook) {
+      String jsonPayload, RestTemplate restTemplate, Webhook webhook, String eventType) {
     Delivery delivery;
     try {
-      HttpEntity<String> request = buildHttpEntity(jsonPayload);
+      HttpEntity<String> request = buildHttpEntity(jsonPayload, eventType);
       int statusCode = postWebhook(restTemplate, webhook, request);
       delivery = new Delivery(jsonPayload, statusCode);
     } catch (org.springframework.web.client.HttpClientErrorException
@@ -127,9 +141,12 @@ public class WebhookServiceImpl implements WebhookService {
         .value();
   }
 
-  private static @NotNull HttpEntity<String> buildHttpEntity(String jsonPayload) {
+  private static @NotNull HttpEntity<String> buildHttpEntity(String jsonPayload, String eventType) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
+    if (eventType != null && !eventType.isBlank()) {
+      headers.add(WebhookHeaders.EVENT_TYPE, eventType);
+    }
     return new HttpEntity<>(jsonPayload, headers);
   }
 

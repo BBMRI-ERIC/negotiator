@@ -49,4 +49,12 @@ public interface WebhookService {
    * @return a DTO representing the newly created delivery
    */
   DeliveryDTO deliver(String jsonPayload, Long webhookId);
+
+  /**
+   * Creates a new delivery for all active webhooks with an event type header.
+   *
+   * @param jsonPayload the JSON content for the delivery
+   * @param eventType the event type to send as a header
+   */
+  void deliverToActiveWebhooks(String jsonPayload, String eventType);
 }
