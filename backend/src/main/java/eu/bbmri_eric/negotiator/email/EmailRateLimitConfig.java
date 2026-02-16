@@ -29,8 +29,6 @@ class EmailRateLimitConfig {
     private boolean waitForTasksToCompleteOnShutdown = true;
     private int awaitTerminationSeconds = 300;
     private int semaphoreTimeoutSeconds = 120;
-
-    /** Delay in milliseconds between sending emails to avoid SPF rate limits and spam marking. */
     private long delayBetweenEmailsMs = 1000;
   }
 
