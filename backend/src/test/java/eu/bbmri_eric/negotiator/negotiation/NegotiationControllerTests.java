@@ -1023,6 +1023,7 @@ public class NegotiationControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isString())
+            .andExpect(jsonPath("$.displayId").isString())
             .andExpect(jsonPath("$.publicPostsEnabled", is(true)))
             .andExpect(jsonPath("$.privatePostsEnabled", is(false)))
             .andExpect(jsonPath("$.payload.project.title", is("Title")))
@@ -1146,6 +1147,24 @@ public class NegotiationControllerTests {
         .andReturn();
     Optional<Negotiation> negotiation = negotiationRepository.findById(NEGOTIATION_1_ID);
     negotiation.ifPresent(value -> assertEquals(value.getModifiedBy().getName(), "TheResearcher"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @Transactional
+  public void testUpdate_asAdminOk_whenChangePayload() throws Exception {
+    String requestBody = "{\"displayId\":\"POP88\"}";
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.displayId").isString())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+    Optional<Negotiation> negotiation = negotiationRepository.findById(NEGOTIATION_1_ID);
+    assertEquals("POP88", negotiation.get().getDisplayId());
   }
 
   @Test

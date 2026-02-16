@@ -21,6 +21,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +54,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
   private NegotiationAccessManager negotiationAccessManager;
+  private EntityManager entityManager;
 
   public NegotiationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -63,7 +65,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       ModelMapper modelMapper,
       PersonService personService,
       ApplicationEventPublisher eventPublisher,
-      NegotiationAccessManager negotiationAccessManager) {
+      NegotiationAccessManager negotiationAccessManager,
+      EntityManager entityManager) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
@@ -73,6 +76,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.personService = personService;
     this.eventPublisher = eventPublisher;
     this.negotiationAccessManager = negotiationAccessManager;
+    this.entityManager = entityManager;
   }
 
   @Override
@@ -145,6 +149,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       NegotiationCreateDTO negotiationBody, Negotiation negotiation) {
     try {
       negotiation = negotiationRepository.save(negotiation);
+      entityManager.flush();
+      entityManager.refresh(negotiation);
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated", ex);
       throw new EntityNotStorableException();
