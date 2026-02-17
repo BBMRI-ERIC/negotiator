@@ -36,10 +36,12 @@ $body-color: #3c3c3d;
 
 $default-text-color: white;
 
+$font-size-base: 0.9rem;
+
 @import '../../../node_modules/bootstrap/scss/bootstrap';
 
 body {
-  font-family: Calibri, Arial, sans-serif;
+  font-family: 'Open Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
 }
 
 .btn-primary {
