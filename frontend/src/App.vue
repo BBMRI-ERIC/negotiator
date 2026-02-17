@@ -63,7 +63,7 @@ const uiConfiguration = computed(() => {
 const privacyPolicyLink = computed(() => {
   return uiConfigurationStore.uiConfiguration?.footer?.footerPrivacyPolicyLink
 })
-const faviconUrl = ref('../public/favicon.ico')
+const faviconUrl = ref('/favicon.ico')
 
 async function updateFaviconUrl() {
   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -74,10 +74,10 @@ async function updateFaviconUrl() {
         ? uiConfiguration.value.faviconUrlDark
         : uiConfiguration.value.faviconUrlLight
     } else {
-      faviconUrl.value = '../public/favicon.ico'
+      faviconUrl.value = '/favicon.ico'
     }
   } catch {
-    faviconUrl.value = '../public/favicon.ico'
+    faviconUrl.value = '/favicon.ico'
   }
 }
 
