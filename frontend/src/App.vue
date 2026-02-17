@@ -74,10 +74,10 @@ async function updateFaviconUrl() {
         ? uiConfiguration.value.faviconUrlDark
         : uiConfiguration.value.faviconUrlLight
     } else {
-      faviconUrl.value = '../public/favicon.ico'
+      faviconUrl.value = '/favicon.ico'
     }
   } catch {
-    faviconUrl.value = '../public/favicon.ico'
+    faviconUrl.value = '/favicon.ico'
   }
 }
 
