@@ -1152,7 +1152,7 @@ public class NegotiationControllerTests {
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
   @Transactional
-  public void testUpdate_asAdminOk_whenChangePayload() throws Exception {
+  public void testUpdate_asAdminOk_whenUpdateDisplayId() throws Exception {
     String requestBody = "{\"displayId\":\"POP88\"}";
     mockMvc
         .perform(
