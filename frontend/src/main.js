@@ -19,7 +19,10 @@ import { createI18n } from 'vue-i18n'
 import i18nConfig from './config/i18n.js'
 import { useMatomo } from '@/composables/useMatomo.js'
 import('./assets/scss/theme.scss')
-import '@fontsource/open-sans'
+import '@fontsource/open-sans/400.css'
+import '@fontsource/open-sans/500.css'
+import '@fontsource/open-sans/600.css'
+import '@fontsource/open-sans/700.css'
 
 library.add(faSpinner)
 library.add(faPencil)
