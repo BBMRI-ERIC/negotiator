@@ -63,7 +63,7 @@ const uiConfiguration = computed(() => {
 const privacyPolicyLink = computed(() => {
   return uiConfigurationStore.uiConfiguration?.footer?.footerPrivacyPolicyLink
 })
-const faviconUrl = ref('../public/favicon.ico')
+const faviconUrl = ref('/favicon.ico')
 
 async function updateFaviconUrl() {
   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
