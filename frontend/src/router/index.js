@@ -166,6 +166,10 @@ const router = createRouter({
       meta: { isPublic: false },
     },
     {
+      path: '/login.xhtml',
+      redirect: { path: '/', replace: true },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'error-page',
       component: ErrorPage,
