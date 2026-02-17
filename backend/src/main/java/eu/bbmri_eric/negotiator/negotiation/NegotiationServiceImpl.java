@@ -150,6 +150,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     try {
       negotiation = negotiationRepository.save(negotiation);
       entityManager.flush();
+      // Necessary to load the generated display ID from the DB
       entityManager.refresh(negotiation);
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated", ex);
