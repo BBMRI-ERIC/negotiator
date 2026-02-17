@@ -38,11 +38,11 @@ $default-text-color: white;
 
 $font-size-base: 0.9rem;
 
+$font-family-sans-serif: 'Open Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+$font-family-base: $font-family-sans-serif;
+
 @import '../../../node_modules/bootstrap/scss/bootstrap';
 
-body {
-  font-family: 'Open Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-}
 
 .btn-primary {
   color: white;
