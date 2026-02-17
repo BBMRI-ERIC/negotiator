@@ -165,6 +165,7 @@ const router = createRouter({
       component: GuidePage,
       meta: { isPublic: false },
     },
+    // For backwards compatability with Negotiator v2 login path
     {
       path: '/login.xhtml',
       redirect: { path: '/', replace: true },
