@@ -11,6 +11,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.bbmri_eric.negotiator.email.EmailService;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.integration.api.WebhookSslTestConfig;
+import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
@@ -121,7 +122,7 @@ class WebhookEventListenerIntegrationTest {
   }
 
   @Test
-  void createPost_dispatchesToActiveWebhooks() {
+  void publishNewPostEvent_dispatchesToActiveWebhooks() {
     String baseUrl = wireMockServer.getRuntimeInfo().getHttpBaseUrl();
     createWebhook(baseUrl + "/post-one", true);
     createWebhook(baseUrl + "/post-two", true);
@@ -145,6 +146,34 @@ class WebhookEventListenerIntegrationTest {
                   postRequestedFor(urlEqualTo("/post-two"))
                       .withHeader(WebhookHeaders.EVENT_TYPE, equalTo("NewPostEvent")));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/post-inactive")));
+            });
+  }
+
+  @Test
+  void publishNewNegotiationEvent_dispatchesToActiveWebhooks() {
+    String baseUrl = wireMockServer.getRuntimeInfo().getHttpBaseUrl();
+    createWebhook(baseUrl + "/new-negotiation-one", true);
+    createWebhook(baseUrl + "/new-negotiation-two", true);
+    createWebhook(baseUrl + "/new-negotiation-inactive", false);
+
+    wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-one")));
+    wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-two")));
+
+    eventPublisher.publishEvent(new NewNegotiationEvent(this, "negotiation-4"));
+
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              wireMockServer.verify(
+                  1,
+                  postRequestedFor(urlEqualTo("/new-negotiation-one"))
+                      .withHeader(WebhookHeaders.EVENT_TYPE, equalTo("NewNegotiationEvent")));
+              wireMockServer.verify(
+                  1,
+                  postRequestedFor(urlEqualTo("/new-negotiation-two"))
+                      .withHeader(WebhookHeaders.EVENT_TYPE, equalTo("NewNegotiationEvent")));
+              wireMockServer.verify(0, postRequestedFor(urlEqualTo("/new-negotiation-inactive")));
             });
   }
 
