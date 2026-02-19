@@ -15,6 +15,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+/**
+ * Listens for specific application events and dispatches them to active webhooks. This listener
+ * serializes supported events and delivers them to all configured webhooks using the {@link
+ * WebhookService}. Only events listed in {@code DISPATCHED_EVENTS} are processed.
+ */
 @Component
 @CommonsLog
 class WebhookEventListener {
@@ -35,6 +40,11 @@ class WebhookEventListener {
         objectMapper.copy().addMixIn(ApplicationEvent.class, ApplicationEventMixin.class);
   }
 
+  /**
+   * Handles application events asynchronously and dispatches them to webhooks if supported.
+   *
+   * @param event the application event to process
+   */
   @Async
   @TransactionalEventListener(fallbackExecution = true)
   void onWebhookEvent(ApplicationEvent event) {
@@ -69,6 +79,7 @@ class WebhookEventListener {
     return event.getClass().getSimpleName();
   }
 
+  /** Jackson mixin to ignore the source property when serializing {@link ApplicationEvent}. */
   private static final class ApplicationEventMixin {
     @JsonIgnore
     public Object getSource() {
