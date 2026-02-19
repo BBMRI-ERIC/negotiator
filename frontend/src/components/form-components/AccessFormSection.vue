@@ -14,7 +14,7 @@
       :class="
         element.required === true &&
         focusElementId === element.id &&
-        validationErrorHighlight.includes(element.id)
+        validationErrorHighlight && validationErrorHighlight && validationErrorHighlight.includes(element.id)
           ? 'border border-danger rounded p-3'
           : focusElementId === element.id
             ? 'border border-border-color rounded p-3'
@@ -76,11 +76,11 @@
         </div>
 
         <div v-else-if="element.type === 'MULTIPLE_CHOICE'">
-          <div
-            v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
-            :key="index"
-          >
-            <div class="form-check form-check-inline">
+          <div v-if="valueSetsLoading">
+            <span class="text-muted">Loading options...</span>
+          </div>
+          <div v-else>
+            <div class="form-check form-check-inline" v-for="(value, index) in negotiationValueSets[element.id]?.availableValues">
               <input
                 :id="`inlineCheckbox-${element.id}-${index}`"
                 v-model="element.value"
@@ -105,11 +105,11 @@
         </div>
 
         <div v-else-if="element.type === 'SINGLE_CHOICE'">
-          <div
-            v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
-            :key="index"
-          >
-            <div class="form-check form-check-inline">
+          <div v-if="valueSetsLoading">
+            <span class="text-muted">Loading options...</span>
+          </div>
+          <div v-else>
+            <div class="form-check form-check-inline" v-for="(value, index) in negotiationValueSets[element.id]?.availableValues">
               <input
                 :id="`inlineRadio-${element.id}-${index}`"
                 v-model="element.value"
@@ -195,7 +195,7 @@
         />
 
         <div
-          v-if="validationErrorHighlight && validationErrorHighlight.includes(element.id)"
+          v-if="validationErrorHighlight && validationErrorHighlight && validationErrorHighlight && validationErrorHighlight.includes(element.id)"
           class="invalid-text"
         >
           {{ transformMessage(element.type) }}
@@ -243,21 +243,37 @@ const props = defineProps({
   },
 })
 
-onMounted(() => {
-  accessFormWithPayloadSection.value.elements.forEach((element) => {
-    if (element.type === 'MULTIPLE_CHOICE' || element.type === 'SINGLE_CHOICE') {
-      getValueSet(element.id)
-    }
-  })
-})
-
+// --- Robust value set loading pattern ---
+import { watch } from 'vue'
 const negotiationValueSets = ref({})
+const valueSetsLoading = ref(false)
 
-async function getValueSet(id) {
-  await negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(id).then((res) => {
-    negotiationValueSets.value[id] = res
+function loadValueSets() {
+  valueSetsLoading.value = true
+  const elements = accessFormWithPayloadSection.value?.elements || []
+  const promises = elements
+    .filter(e => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
+    .map(e =>
+      negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(e.id).then(res => {
+        negotiationValueSets.value[e.id] = res
+      })
+    )
+  Promise.all(promises).finally(() => {
+    valueSetsLoading.value = false
   })
 }
+
+onMounted(loadValueSets)
+
+watch(
+  () => accessFormWithPayloadSection.value?.elements,
+  (newElements, oldElements) => {
+    if (newElements !== oldElements) {
+      loadValueSets()
+    }
+  },
+  { deep: true }
+)
 
 function handleFileUpload(event, indexOfElement) {
   if (

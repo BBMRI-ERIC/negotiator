@@ -227,7 +227,7 @@
                         :required="criteria.required"
                         class="form-check-input"
                         :class="
-                          validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
+                          validationColorHighlight && validationColorHighlight && validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
                         "
                         type="checkbox"
                       />
@@ -263,7 +263,7 @@
                         :required="criteria.required"
                         class="form-check-input"
                         :class="
-                          validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
+                          validationColorHighlight && validationColorHighlight && validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
                         "
                         type="radio"
                         @click="uncheckRadioButton(value, section.name, criteria.name)"
