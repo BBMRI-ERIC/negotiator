@@ -12,8 +12,8 @@ export default {
       },
       negotiationPage: {
         displayId: ' Negotiation ID',
-        resources: 'RESOURCE | RESOURCES',
-        organisations: 'ORGANIZATION | ORGANIZATIONS',
+        resources: 'Resource | Resources',
+        organisations: 'Organization | Organizations',
       },
       governancePage: {
         resources: 'Resource | Resources',
