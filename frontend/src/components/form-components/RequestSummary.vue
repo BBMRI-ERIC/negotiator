@@ -102,6 +102,12 @@ watch(() => props.requestSummary?.resources, () => nextTick(checkScrollable), { 
   background: #6c757d;
 }
 
+.add-resources-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6c757d;
+}
+
 @media (max-width: 768px) {
   .resources-wrapper {
     max-height: 50vh;

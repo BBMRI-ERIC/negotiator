@@ -168,6 +168,11 @@ public class AccessFormController {
           "Returns an access form with sections and"
               + " elements that are relevant for the given resources being requested.")
   public EntityModel<AccessFormDTO> combineForNegotiation(@PathVariable String id) {
+    try {
+      Thread.sleep(2000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
     return accessFormModelAssembler.toModel(accessFormService.getAccessFormForNegotiation(id));
   }
 
