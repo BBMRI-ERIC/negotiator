@@ -28,12 +28,14 @@
     />
   </div>
   <div class="negotiation-create-page">
-    <DraftNegotiationMergeBanner
-      :draftNegotiation="recentDraftNegotiation"
-      @merge="handleMergeWithDraft"
-      @dismiss="handleDismissBanner"
-    />
     <div class="d-flex flex-column flex-md-row mt-5">
+      <div v-if="isLoading" class="loading-container">
+        <div class="spinner-border loading-spinner" role="status" :style="{ color: spinnerColor }">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-4 loading-text">Loading your request...</p>
+      </div>
+      <template v-else>
       <FormNavigation
         :navItems="returnNavItems"
         v-model:activeNavItemIndex="activeNavItemIndex"
@@ -84,6 +86,7 @@
           @deleteDraft="openDeleteDraftModalHandler()"
         />
       </div>
+      </template>
     </div>
   </div>
 </template>
@@ -96,13 +99,12 @@ import RequestSummary from '../components/form-components/RequestSummary.vue'
 import AccessFormSection from '../components/form-components/AccessFormSection.vue'
 import AccessFormOverview from '../components/form-components/AccessFormOverview.vue'
 import FormNavigationButtons from '../components/form-components/FormNavigationButtons.vue'
-import DraftNegotiationMergeBanner from '../components/DraftNegotiationMergeBanner.vue'
 import { useNegotiationFormStore } from '../store/negotiationForm.js'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useNegotiationsStore } from '../store/negotiations.js'
 import { useNotificationsStore } from '../store/notifications.js'
 import ConfirmationModal from '../components/modals/ConfirmationModal.vue'
-
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -120,6 +122,8 @@ const negotiationPageStore = useNegotiationPageStore()
 const negotiationsStore = useNegotiationsStore()
 
 const route = useRoute()
+const uiConfigurationStore = useUiConfiguration()
+const spinnerColor = computed(() => uiConfigurationStore.uiConfiguration?.theme?.primaryColor || '#26336B')
 const requestId = ref(route.params.requestId)
 
 const requestSummary = ref(null)
@@ -133,6 +137,7 @@ const openSaveModal = ref(null)
 const negotiationReplacedAttachmentsID = ref([])
 const saveDraftDisabled = ref(true)
 const recentDraftNegotiation = ref(null)
+const isLoading = ref(true)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
@@ -185,6 +190,7 @@ onMounted(async () => {
   if (recentDraftNegotiation.value){
     handleMergeWithDraft(recentDraftNegotiation.value)
   }
+  isLoading.value = false
 })
 
 const existingAttachments = ref({})
@@ -442,7 +448,15 @@ async function fetchRecentDraftNegotiation() {
     if (response?._embedded?.negotiations?.length > 0) {
       // Get the most recent draft (first in the sorted list)
       const mostRecentDraft = response._embedded.negotiations[1]
-      recentDraftNegotiation.value = mostRecentDraft
+      const createdDate = new Date(mostRecentDraft.creationDate)
+      const today = new Date()
+      const isToday =
+        createdDate.getFullYear() === today.getFullYear() &&
+        createdDate.getMonth() === today.getMonth() &&
+        createdDate.getDate() === today.getDate()
+      if (isToday) {
+        recentDraftNegotiation.value = mostRecentDraft
+      }
     }
   } catch (error) {
     console.error('Error fetching recent draft negotiations:', error)
@@ -460,30 +474,44 @@ async function handleMergeWithDraft(draftNegotiation) {
     }
 
     // Call the API to add resources to the draft negotiation
-    const result = await negotiationPageStore.addResources({ resourceIds }, draftNegotiation.id)
+    const result = await negotiationPageStore.addResources({ resourceIds }, draftNegotiation.id, true)
 
     // Check if the API call was successful (returned data)
     if (result) {
-      await negotiationPageStore.deleteNegotiation(requestId.value)
+      await negotiationPageStore.deleteNegotiation(requestId.value, true)
       router.push(`/edit/requests/${draftNegotiation.id}`)
-      notificationsStore.setNotification(
-        'Resources added',
-        'success',
-      )
     }
   } catch (error) {
     console.error('Error merging with draft negotiation:', error)
     notificationsStore.setNotification('Failed to merge resources with draft negotiation', 'danger')
   }
 }
-
-function handleDismissBanner() {
-  // Simply hide the banner by clearing the reference
-  recentDraftNegotiation.value = null
-}
 </script>
 
 <style scoped>
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 60vh;
+}
+
+.loading-spinner {
+  width: 4rem;
+  height: 4rem;
+  border-width: 0.35rem;
+  color: #26336B;
+}
+
+.loading-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #6c757d;
+  letter-spacing: 0.02em;
+}
+
 .access-form {
   width: 50%;
 }

@@ -1,11 +1,38 @@
 <template>
   <div class="shopping-cart-container">
     <!-- Cart Header -->
-    <div class="cart-header mb-5">
-      <h2 class="fw-bold mb-0">Selected {{ $t('negotiationPage.resources', 2) }}</h2>
-      <p class="mb-0 mt-2 text-muted">
-        {{ numberOfResources }} {{ $t('negotiationPage.resources', numberOfResources) }}
-      </p>
+    <div class="cart-header mb-5 d-flex align-items-center justify-content-between">
+      <div>
+        <h2 class="fw-bold mb-0">Selected {{ $t('negotiationPage.resources', 2) }}</h2>
+        <p class="mb-0 mt-2 text-muted">
+          {{ numberOfResources }} {{ $t('negotiationPage.resources', numberOfResources) }}
+        </p>
+      </div>
+      <div v-if="activeDiscoveryServices.length > 0" class="dropdown">
+        <PrimaryButton
+          size="sm"
+          :backgroundColor="primaryColor"
+          :textColor="'#ffffff'"
+          :hoverBackgroundColor="primaryColor"
+          :hoverTextColor="'#ffffff'"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="bi bi-plus-lg me-1"></i>Add {{ $t('negotiationPage.resources', 2) }}
+        </PrimaryButton>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li v-for="service in activeDiscoveryServices" :key="service.id">
+            <a
+              class="dropdown-item"
+              :href="service.url"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="bi bi-box-arrow-up-right me-2"></i>{{ service.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- Cart Items -->
@@ -62,8 +89,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
+import { useDiscoveryServicesStore } from '@/store/discoveryServices.js'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 const props = defineProps({
   resources: {
@@ -81,9 +110,17 @@ function handleRemoveResource(resource) {
 }
 
 const uiConfigurationStore = useUiConfiguration()
+const discoveryServicesStore = useDiscoveryServicesStore()
+const activeDiscoveryServices = ref([])
+
 const primaryColor = computed(
   () => uiConfigurationStore.uiConfiguration?.theme?.primaryColor || '#26336B',
 )
+
+onMounted(async () => {
+  const services = await discoveryServicesStore.fetchDiscoveryServices()
+  activeDiscoveryServices.value = services.filter((s) => s.active)
+})
 const linksColor = computed(
   () => uiConfigurationStore.uiConfiguration?.theme?.linksColor || primaryColor.value,
 )

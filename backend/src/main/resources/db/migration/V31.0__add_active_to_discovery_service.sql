@@ -1,0 +1,3 @@
+ALTER TABLE discovery_service
+    ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;
+
