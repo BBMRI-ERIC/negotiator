@@ -46,7 +46,6 @@
 </template>
 
 <script setup>
-import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 const activeNavItemIndex = defineModel('activeNavItemIndex')
 
 defineProps({
