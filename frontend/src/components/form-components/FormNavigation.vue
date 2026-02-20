@@ -48,11 +48,11 @@
         >
           <div class="form-navigation-item-number mx-3">
             <div class="avatar --bs-secondary-bg text-info avatar-background">
-              <i class="bi bi-info-circle" />
+              <i class="bi bi-check-circle" />
             </div>
           </div>
           <div class="form-navigation-item-text d-flex flex-column">
-            <p class="fw-bold mb-0">Overview</p>
+            <p class="fw-bold mb-0">Review</p>
           </div>
         </div>
       </div>
