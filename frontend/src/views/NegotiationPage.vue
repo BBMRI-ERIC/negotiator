@@ -1,6 +1,9 @@
 <template>
   <div v-if="!loading">
-    <GoBackButton />
+    <PrimaryButton class="mb-3" @click="goBack()">
+      <i class="bi bi-chevron-left" />
+      Go back
+    </PrimaryButton>
     <confirmation-modal
       id="abandonModal"
       :title="`Are you sure you want to ${selectedStatus ? selectedStatus.label.toLowerCase() : 'Unknown'} this Negotiation?`"
@@ -25,7 +28,10 @@
     />
     <div class="row mt-4">
       <div class="row-col-2">
-        <h1 class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
+        <h1
+          class="fw-bold v-step-negotiation-0"
+          :style="{ color: uiConfiguration.primaryTextColor }"
+        >
           {{ negotiation ? negotiation.payload?.project?.title?.toUpperCase() : '' }}
         </h1>
         <p
@@ -36,13 +42,15 @@
           This Negotiation is currently saved as a draft. Please review and edit the information
           below to ensure accuracy and completeness before publishing.
         </p>
-        <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
-          ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
-          {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
+        <UiBadge
+          :class="getBadgeColor(negotiation.status) + ' py-2'"
+          :icon="getBadgeIcon(negotiation.status)"
         >
+          {{ negotiation ? transformStatus(negotiation.status) : '' }}
+        </UiBadge>
       </div>
       <div class="col-12 col-md-8 order-2 order-md-1">
-        <ul class="list-group list-group-flush rounded border px-3 my-3">
+        <ul class="list-group list-group-flush rounded border px-3 my-3 v-step-negotiation-1">
           <li
             v-for="(element, key) in negotiation.payload"
             :key="element"
@@ -94,7 +102,8 @@
                 v-else
                 class="text-break"
                 :style="{ color: uiConfiguration.secondaryTextColor, whiteSpace: 'pre-wrap' }"
-              >{{ translateTrueFalse(subelement) }}</span>
+                >{{ translateTrueFalse(subelement) }}</span
+              >
             </div>
           </li>
           <li class="list-group-item p-3">
@@ -258,7 +267,7 @@
           :external-posts="posts"
           :timeline-events="timelineEvents"
           @new_attachment="retrieveAttachments()"
-          class="col-11 ms-2"
+          class="col-11 ms-2 v-step-negotiation-9"
         />
       </div>
       <NegotiationSidebar
@@ -289,16 +298,18 @@ import { computed, onBeforeMount, onMounted, ref } from 'vue'
 import NegotiationPosts from '@/components/NegotiationPosts.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import NegotiationAttachment from '@/components/NegotiationAttachment.vue'
-import GoBackButton from '@/components/GoBackButton.vue'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 import OrganizationContainer from '@/components/OrganizationContainer.vue'
 import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
 import AddResourcesButton from '@/components/AddResourcesButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUserStore } from '../store/user.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
+import { useVueTourStore } from '@/store/vueTour'
 import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
 import { ROLES } from '@/config/consts.js'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   negotiationId: {
@@ -319,6 +330,7 @@ const isAddResourcesButtonVisible = ref(false)
 const resourceStates = ref([])
 const userStore = useUserStore()
 const negotiationPageStore = useNegotiationPageStore()
+const vueTourStore = useVueTourStore()
 const router = useRouter()
 const negotiationPosts = ref(null)
 const timelineEvents = ref([])
@@ -460,6 +472,8 @@ onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
     await userStore.retrieveUser()
   }
+
+  vueTourStore.isNegotiationVisible = true
 })
 
 async function retrieveAttachments() {
@@ -566,6 +580,16 @@ function transformDashToSpace(text) {
 
 function updateNegotiationPayload() {
   router.push(`/edit/requests/${props.negotiationId}`)
+}
+
+function goBack() {
+  if (router.options.history.state.back) {
+    router.go(-1)
+  } else {
+    router.push({
+      name: 'home',
+    })
+  }
 }
 </script>
 

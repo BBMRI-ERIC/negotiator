@@ -15,13 +15,4 @@ public final class JSONUtils {
       return false;
     }
   }
-
-  public static String toJSON(String jsonInString) {
-    try {
-      final ObjectMapper mapper = new ObjectMapper();
-      return mapper.writeValueAsString(jsonInString);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Failed to convert to JSON", e);
-    }
-  }
 }

@@ -50,8 +50,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function updateResourceStatus(link) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = link.startsWith('http') ? new URL(link).pathname : link
     return axios
-      .put(`${link}`, {}, { headers: getBearerHeaders() })
+      .put(url, {}, { headers: getBearerHeaders() })
       .then((response) => {
         notifications.setNotification(
           `Than you. Your action for Negotiation ${response.data.id} was submitted successfully`,
@@ -206,8 +208,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function downloadAttachmentFromLink(href) {
-    axios.get(`${href}`, { headers: getBearerHeaders(), responseType: 'blob' }).then((response) => {
-      const disposition = response.headers['Content-Disposition']
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = href.startsWith('http') ? new URL(href).pathname : href
+    axios.get(url, { headers: getBearerHeaders(), responseType: 'blob' }).then((response) => {
+      const disposition = response.headers['content-disposition'] || response.headers['Content-Disposition']
       let filename = 'summary.csv'
       console.log(response.headers)
       if (disposition) {
@@ -232,8 +236,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function retrieveInfoRequirement(link) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = link.startsWith('http') ? new URL(link).pathname : link
     return axios
-      .get(`${link}`, { headers: getBearerHeaders() })
+      .get(url, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -243,8 +249,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function retrieveInformationSubmission(href) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = href.startsWith('http') ? new URL(href).pathname : href
     return axios
-      .get(`${href}`, { headers: getBearerHeaders() })
+      .get(url, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -270,8 +278,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   async function fetchURL(url) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const relativeUrl = url.startsWith('http') ? new URL(url).pathname : url
     return axios
-      .get(`${url}`, { headers: getBearerHeaders() })
+      .get(relativeUrl, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -340,7 +350,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
         responseType: 'blob',
       })
       .then((response) => {
-        const disposition = response.headers['content-disposition']
+        const disposition = response.headers['content-disposition'] || response.headers['Content-Disposition']
 
         let filename = `negotiation-${id}.pdf`
         if (disposition && disposition.includes('filename=')) {

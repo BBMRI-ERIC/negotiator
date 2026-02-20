@@ -1,13 +1,12 @@
 <template>
   <div>
     <div v-if="selectedChannelName" class="mt-2">
-      <span
-        class="badge rounded-pill"
-        :class="channelId === 'public' ? 'bg-warning' : 'bg-primary'"
+      <UiBadge
+        :class="channelId === 'public' ? 'bg-warning rounded-pill' : 'bg-primary rounded-pill'"
+        :icon="channelId === 'public' ? 'bi bi-globe' : 'bi bi-lock-fill'"
       >
-        <i :class="channelId === 'public' ? 'bi bi-globe' : 'bi bi-lock-fill'" />
         Channel: {{ selectedChannelName }}
-      </span>
+      </UiBadge>
       <div class="text-muted small mt-1">
         {{ channelVisibilityMessage }}
       </div>
@@ -35,6 +34,7 @@
 </template>
 
 <script setup>
+import UiBadge from '@/components/ui/UiBadge.vue'
 defineProps({
   selectedChannelName: String,
   channelVisibilityMessage: String,

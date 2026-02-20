@@ -1,18 +1,22 @@
 <template>
   <div class="container d-flex flex-row flex-wrap justify-content-between">
-    <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0">
-      <div class="sort-by">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
-          :class="filtersSortData.sortBy !== '' ? 'show' : ''"
+    <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0 v-step-20">
+      <div class="sort-by v-step-21">
+        <FilterButton
+          :customStyle="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
+          customClass="dropdown-toggle custom-button-hover"
+          :active="filtersSortData.sortBy !== ''"
+          size="sm"
+          dropdown
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          v-bind="{
+            'data-bs-toggle': 'dropdown',
+            'data-bs-auto-close': 'outside',
+            'aria-expanded': 'false',
+          }"
         >
           Sort by
-        </button>
+        </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
           <div v-for="(sort, index) in sortBy" :key="index" class="form-check mx-2 my-2">
             <input
@@ -25,38 +29,45 @@
               :checked="isChecked(sort.value)"
               @change="emitFilterSortData"
             />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
+            <label class="form-check-label text-primary-text">
               {{ sort.label }}
             </label>
           </div>
         </ul>
       </div>
 
-      <button
-        class="btn btn-sm custom-button-hover"
-        :style="returnButtonColor"
-        type="button"
-        @click="changeSortDirection()"
-      >
-        <i v-if="filtersSortData.sortDirection === 'DESC'" class="bi bi-sort-down" />
-        <i v-if="filtersSortData.sortDirection === 'ASC'" class="bi bi-sort-up" />
-      </button>
+      <div class="v-step-22">
+        <FilterButton
+          :customStyle="returnButtonColor"
+          customClass="custom-button-hover"
+          size="sm"
+          @click="changeSortDirection"
+        >
+          <template #icon>
+            <i v-if="filtersSortData.sortDirection === 'DESC'" class="bi bi-sort-down" />
+            <i v-if="filtersSortData.sortDirection === 'ASC'" class="bi bi-sort-up" />
+          </template>
+        </FilterButton>
+      </div>
 
-      <div id="v-step-3" class="filter-by-status">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="filtersSortData.status.length > 0 ? returnButtonActiveColor : returnButtonColor"
-          :class="filtersSortData.status.length > 0 ? 'show' : ''"
+      <div class="filter-by-status v-step-3 v-step-23">
+        <FilterButton
+          :customStyle="
+            filtersSortData.status.length > 0 ? returnButtonActiveColor : returnButtonColor
+          "
+          customClass="dropdown-toggle custom-button-hover"
+          :active="filtersSortData.status.length > 0"
+          size="sm"
+          dropdown
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          v-bind="{
+            'data-bs-toggle': 'dropdown',
+            'data-bs-auto-close': 'outside',
+            'aria-expanded': 'false',
+          }"
         >
           Filter by status
-        </button>
+        </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
           <div v-for="(status, index) in filtersStatus" :key="index" class="form-check mx-2 my-2">
             <input
@@ -66,10 +77,7 @@
               :value="status.value"
               @change="emitFilterSortData"
             />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
+            <label class="form-check-label text-primary-text">
               {{ status.label }}
             </label>
           </div>
@@ -77,19 +85,23 @@
       </div>
 
       <div id="v-step-4" class="filter-by-org" v-if="filterOrganizations.length > 0">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="
+        <FilterButton
+          :customStyle="
             filtersSortData.organizations.length > 0 ? returnButtonActiveColor : returnButtonColor
           "
-          :class="filtersSortData.organizations.length > 0 ? 'show' : ''"
+          customClass="dropdown-toggle custom-button-hover"
+          :active="filtersSortData.organizations.length > 0"
+          size="sm"
+          dropdown
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          v-bind="{
+            'data-bs-toggle': 'dropdown',
+            'data-bs-auto-close': 'outside',
+            'aria-expanded': 'false',
+          }"
         >
           Filter by Organization
-        </button>
+        </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
           <div
             v-for="(org, index) in filterOrganizations"
@@ -103,48 +115,41 @@
               :value="org.id"
               @change="emitFilterSortData"
             />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
+            <label class="form-check-label text-primary-text">
               {{ org.name }}
             </label>
           </div>
         </ul>
       </div>
 
-      <div class="filter-by-date">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="
+      <div class="filter-by-date v-step-24">
+        <FilterButton
+          :customStyle="
             filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''
               ? returnButtonActiveColor
               : returnButtonColor
           "
-          :class="
-            filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''
-              ? 'btn-primary show'
-              : ''
-          "
+          customClass="dropdown-toggle custom-button-hover"
+          :active="filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''"
+          size="sm"
+          dropdown
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          v-bind="{
+            'data-bs-toggle': 'dropdown',
+            'data-bs-auto-close': 'outside',
+            'aria-expanded': 'false',
+          }"
         >
           Filter by date
-        </button>
+        </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-          <div
-            class="mx-2 my-2 dropdown-contents"
-            :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-          >
+          <div class="mx-2 my-2 dropdown-contents text-primary-text">
             <div class="d-flex align-items-center mb-2">
               <label class="pe-2 w-25" for="startDate">Start:</label>
               <input
                 id="startDate"
                 v-model="filtersSortData.dateStart"
-                class="form-control form-control-sm"
-                :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+                class="form-control form-control-sm text-primary-text"
                 type="date"
                 @input="emitFilterSortData"
               />
@@ -154,8 +159,7 @@
               <input
                 id="endDate"
                 v-model="filtersSortData.dateEnd"
-                class="form-control form-control-sm"
-                :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+                class="form-control form-control-sm text-primary-text"
                 type="date"
                 @input="emitFilterSortData"
               />
@@ -165,16 +169,23 @@
       </div>
     </div>
 
-    <div class="my-2 ms-auto">
-      <button
-        type="button"
-        :style="returnClearButtonColor"
-        class="btn btn-sm custom-button-hover"
-        @click="clearAllFilters()"
+    <div class="my-2 ms-auto v-step-25">
+      <FilterButton
+        :customStyle="{
+          'border-color': 'var(--bs-sort-filter-clear-button-outline)',
+          '--hovercolor': 'var(--bs-sort-filter-clear-button-outline)',
+          'background-color': '#FFFFFF',
+          color: 'var(--bs-sort-filter-clear-button-outline)',
+        }"
+        customClass="custom-button-hover"
+        size="sm"
+        @click="clearAllFilters"
       >
-        <i class="bi bi-x-circle" />
+        <template #icon>
+          <i class="bi bi-x-circle" />
+        </template>
         Clear all filters
-      </button>
+      </FilterButton>
     </div>
   </div>
 </template>
@@ -183,10 +194,12 @@
 import { computed, onMounted } from 'vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
-import { useUiConfiguration } from '../store/uiConfiguration.js'
+import FilterButton from '@/components/ui/buttons/FilterButton.vue'
+import { useVueTourStore } from '../store/vueTour'
 
 const filtersSortData = defineModel('filtersSortData')
-const uiConfigurationStore = useUiConfiguration()
+const vueTourStore = useVueTourStore()
+
 const router = useRouter()
 
 const props = defineProps({
@@ -214,33 +227,20 @@ const sortBy = [
   { value: 'currentState', label: 'Current State' },
 ]
 
-const uiConfiguration = computed(() => {
-  return uiConfigurationStore.uiConfiguration?.filtersSort
-})
-
 const returnButtonActiveColor = computed(() => {
   return {
-    'border-color': uiConfiguration.value?.filtersSortButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortButtonColor,
-    'background-color': uiConfiguration.value?.filtersSortButtonColor,
+    'border-color': 'var(--bs-sort-filter-button-outline)',
+    '--hovercolor': 'var(--bs-sort-filter-button-outline)',
+    'background-color': 'var(--bs-sort-filter-button-outline)',
     color: '#FFFFFF',
   }
 })
 const returnButtonColor = computed(() => {
   return {
-    'border-color': uiConfiguration.value?.filtersSortButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortButtonColor,
+    'border-color': 'var(--bs-sort-filter-button-outline)',
+    '--hovercolor': 'var(--bs-sort-filter-button-outline)',
     'background-color': '#FFFFFF',
-    color: uiConfiguration.value?.filtersSortButtonColor,
-  }
-})
-
-const returnClearButtonColor = computed(() => {
-  return {
-    'border-color': uiConfiguration.value?.filtersSortClearButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortClearButtonColor,
-    'background-color': '#FFFFFF',
-    color: uiConfiguration.value?.filtersSortClearButtonColor,
+    color: 'var(--bs-sort-filter-button-outline)',
   }
 })
 
@@ -288,6 +288,7 @@ function initializeRepresentativeDefaults() {
 
 onMounted(() => {
   initializeRepresentativeDefaults()
+  vueTourStore.isFilterSortVisible = true
 })
 </script>
 

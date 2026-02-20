@@ -29,6 +29,7 @@ import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import jakarta.persistence.EntityManager;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +56,7 @@ public class NegotiationServiceTest {
   @Mock NegotiationRepository negotiationRepository;
   @Mock PersonRepository personRepository;
   @Mock ApplicationEventPublisher eventPublisher;
+  @Mock EntityManager entityManager;
 
   @Mock RequestRepository requestRepository;
   @Mock ModelMapper modelMapper;

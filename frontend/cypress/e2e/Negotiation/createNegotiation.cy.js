@@ -91,7 +91,7 @@ describe("Test create negotiation", () => {
             cy.get(":nth-child(3) > :nth-child(2) > .element-text > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(3) > :nth-child(3) > .element-text > :nth-child(2)").should("be.visible")
             //  Submit request
-            cy.get(".form-navigation-buttons > :nth-child(3) > .btn").contains("Submit").click()
+            cy.get(".form-navigation-buttons > :nth-child(3) > .primary-button > .btn").contains("Submit").click()
 
             // Confirmation modal
             cy.get(".modal-content").should("be.visible")
@@ -109,7 +109,7 @@ describe("Test create negotiation", () => {
 
             // Submit request
             cy.wait(200)
-            cy.get(".form-navigation-buttons > :nth-child(3) > .btn").contains("Submit").click()
+            cy.get(".form-navigation-buttons > :nth-child(3) > .primary-button > .btn").contains("Submit").click()
             cy.wait(200)
             cy.get(".btn-danger").click()
 

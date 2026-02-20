@@ -5,19 +5,16 @@
       Organizations & Resources
     </h2>
     <div class="actions-group" v-if="props.isAdmin">
-      <button
-        class="btn btn-primary"
-        @click="$emit('createOrganization')"
-        :disabled="props.loading"
-      >
-        <i class="bi bi-plus-circle me-2"></i>
+      <primaryButton :loading="props.loading" @click="$emit('createOrganization')">
+        <i class="bi bi-plus-circle me-2 v-step-governance-3"></i>
         Create {{ $t('governancePage.organisations') }}
-      </button>
+      </primaryButton>
     </div>
   </div>
 </template>
 
 <script setup>
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 const props = defineProps({
   isAdmin: {
     type: Boolean,

@@ -31,16 +31,16 @@
           <div class="card-header">
             <div class="mb-2">
               <span>
-                <span
+                <UiBadge
                   v-for="badge in getUserBadges(item)"
                   :key="badge"
-                  data-bs-toggle="tooltip"
-                  class="badge rounded-pill"
-                  :style="{ 'background-color': uiConfiguration.primaryTextColor }"
+                  :class="'rounded-pill'"
+                  :style="{ backgroundColor: uiConfiguration.primaryTextColor }"
                   :title="getBadgeTooltip(badge)"
+                  data-bs-toggle="tooltip"
                 >
                   {{ badge }}
-                </span>
+                </UiBadge>
               </span>
             </div>
             <div class="d-flex justify-content-between align-items-center">
@@ -52,13 +52,11 @@
                 <span class="ms-2">
                   <strong>{{ getAuthorName(item) }}</strong>
                 </span>
-                <span
-                  class="ms-1"
-                  :style="{ color: uiConfiguration.primaryTextColor, opacity: 0.7 }"
-                >
-                  posted on {{ printDate(item.creationDate) }}
+                <span class="ms-1 ui-timestamp-text">
+                  posted on <TimeStamp :value="item.creationDate" :muted="true" />
                 </span>
               </div>
+
               <span class="badge rounded-pill" :class="getChannelPostColor(item)">
                 <i :class="getChannelIcon(item)" />
                 {{ getChannelName(item) }}
@@ -78,13 +76,14 @@
       class="text-muted small text-end"
       style="min-width: 140px; flex-shrink: 0"
     >
-      {{ printDate(item.timestamp) }}
+      <TimeStamp :value="item.timestamp" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { formatTimestampToLocalDateTime } from '@/composables/utils'
+import UiBadge from '@/components/ui/UiBadge.vue'
+import TimeStamp from '@/components/ui/TimeStamp.vue'
 
 const props = defineProps({
   item: {
@@ -157,10 +156,6 @@ function getBadgeTooltip(badge) {
   return badgeTooltips[badge] || 'Badge details'
 }
 
-function printDate(date) {
-  return date ? formatTimestampToLocalDateTime(date) : 'Unknown date'
-}
-
 function formatText(text) {
   if (!text) return ''
   // Escape HTML to prevent XSS, then replace newlines with <br>
@@ -183,5 +178,10 @@ function formatText(text) {
 }
 .timeline-content .card {
   width: 100%;
+}
+
+.ui-timestamp-text {
+  color: #3c3c3d;
+  opacity: 0.7;
 }
 </style>

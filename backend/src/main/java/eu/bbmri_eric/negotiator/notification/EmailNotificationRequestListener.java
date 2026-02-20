@@ -36,7 +36,7 @@ class EmailNotificationRequestListener {
   }
 
   @TransactionalEventListener
-  @Async
+  @Async("emailTaskExecutor")
   void onNewNotification(NewNotificationEvent event) {
     NotificationDTO notification = notificationService.findById(event.getNotificationId());
     if (notification == null) {
@@ -53,7 +53,9 @@ class EmailNotificationRequestListener {
             .orElseThrow(() -> new EntityNotFoundException(notification.getRecipientId()));
 
     Negotiation negotiation =
-        negotiationRepository.findById(notification.getNegotiationId()).orElse(null);
+        notification.getNegotiationId() != null
+            ? negotiationRepository.findById(notification.getNegotiationId()).orElse(null)
+            : null;
 
     String emailContent =
         emailContextBuilder.buildEmailContent(

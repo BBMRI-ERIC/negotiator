@@ -1,62 +1,44 @@
 <template>
-  <v-tour name="myTour" :steps="steps" :callbacks="myCallbacks" />
+  <v-tour name="myTour" :steps="steps" :callbacks="myCallbacks" :options="{ debug: true }" />
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      myCallbacks: {
-        onSkip: this.dontShowVueTour,
-        onFinish: this.dontShowVueTour,
-      },
-      steps: [
-        {
-          target: '#v-step-0',
-          header: {
-            title: 'Welcome',
-          },
-          content:
-            'In the <strong>Negotiator</strong>, you can view the status of your negotiations and stay in contact with the providers of the desired resources.',
-        },
-        {
-          target: '#v-step-1',
-          header: {
-            title: 'Selection of the view.',
-          },
-          content:
-            'You can present your enquiries in a compact table or an informative card layout.',
-        },
-        {
-          target: '#v-step-2',
-          header: {
-            title: 'Status',
-          },
-          params: {
-            placement: 'top',
-          },
-          content: 'You can see the current status of your enquiry at a glance.',
-        },
-        {
-          target: '#v-step-3',
-          header: {
-            title: 'Filter',
-          },
-          content: 'You also have the option of sorting and filtering your negotiations.',
-        },
-      ],
-    }
-  },
   mounted: function () {
-    // Do not display after the first visit so that returning users are not annoyed!
-    if (!localStorage.getItem('show_vue_tour_1')) {
-      this.$tours.myTour.start()
+    this.$tours.myTour.start()
+  },
+}
+</script>
+
+<script setup>
+const props = defineProps({
+  tourName: {
+    type: String,
+    required: true,
+    default: 'defaultTour',
+  },
+  steps: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+  isStoreToLocalStorage: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+})
+
+const myCallbacks = {
+  onSkip: () => {
+    if (props.isStoreToLocalStorage) {
+      localStorage.setItem(props.tourName, true)
     }
   },
-  methods: {
-    dontShowVueTour() {
-      localStorage.setItem('show_vue_tour_1', true)
-    },
+  onFinish: () => {
+    if (props.isStoreToLocalStorage) {
+      localStorage.setItem(props.tourName, true)
+    }
   },
 }
 </script>

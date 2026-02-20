@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.handler;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.governance.resource.NonRepresentedResourcesHandler;
@@ -8,6 +10,8 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.notification.NotificationService;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
@@ -17,9 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 @IntegrationTest(loadTestData = true)
 public class ResourcesHandlerTest {
   @Autowired NegotiationRepository negotiationRepository;
+  @Autowired PersonRepository personRepository;
   @Autowired NonRepresentedResourcesHandler handler;
   @Autowired PersonService personService;
   @Autowired TestEventListener testEventListener;
+  @Autowired AddedRepresentativeTestEventHandler addedRepresentativeTestEventHandler;
+  @Autowired NotificationService notificationService;
 
   @Test
   @Transactional
@@ -54,7 +61,22 @@ public class ResourcesHandlerTest {
   @Test
   void addRepresentative_firstRepresentative_eventPublished() throws InterruptedException {
     personService.assignAsRepresentativeForResource(103L, 10L);
-    Thread.sleep(100L);
-    assertEquals(1, testEventListener.events.size());
+    await()
+        .atMost(200, MILLISECONDS)
+        .untilAsserted(
+            () -> {
+              assertEquals(1, testEventListener.events.size());
+              assertEquals(1, addedRepresentativeTestEventHandler.events.size());
+            });
+  }
+
+  @Test
+  void addRepresentative_emailNotificationEventPublished() throws InterruptedException {
+    int before = addedRepresentativeTestEventHandler.events.size();
+    personService.assignAsRepresentativeForResource(104L, 10L);
+    await()
+        .atMost(200, MILLISECONDS)
+        .untilAsserted(
+            () -> assertEquals(before + 1, addedRepresentativeTestEventHandler.events.size()));
   }
 }

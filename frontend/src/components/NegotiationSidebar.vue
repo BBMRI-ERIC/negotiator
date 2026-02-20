@@ -7,11 +7,11 @@
           {{ author.name }}
         </div>
       </li>
-      <li class="list-group-item p-2">
+      <li class="list-group-item p-2 v-step-negotiation-3">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Email:</div>
         <span :style="{ color: uiConfiguration.secondaryTextColor }">{{ author.email }}</span>
       </li>
-      <li class="list-group-item p-2">
+      <li class="list-group-item p-2 v-step-negotiation-4">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           {{ $t('negotiationPage.displayId') }}:
         </div>
@@ -39,11 +39,7 @@
             <i class="bi bi-pencil"></i>
           </button>
           <div v-if="isEditingDisplayId" class="d-flex gap-1">
-            <button
-              class="btn btn-sm btn-success p-0 px-1"
-              @click="saveDisplayId"
-              title="Save"
-            >
+            <button class="btn btn-sm btn-success p-0 px-1" @click="saveDisplayId" title="Save">
               <i class="bi bi-check-lg"></i>
             </button>
             <button
@@ -62,21 +58,21 @@
           {{ negotiation ? negotiation.id : '' }}</span
         >
       </li>
-      <li class="list-group-item p-2">
+      <li class="list-group-item p-2 v-step-negotiation-5">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Submitted at:
         </div>
-        <span :style="{ color: uiConfiguration.secondaryTextColor }">
-          {{ negotiation ? printDate(negotiation.creationDate) : '' }}</span
-        >
+        <TimeStamp :value="negotiation ? negotiation.creationDate : ''" />
       </li>
-      <li class="list-group-item p-2 d-flex justify-content-between">
+      <li class="list-group-item p-2 d-flex justify-content-between v-step-negotiation-6">
         <div>
           <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Status:</div>
-          <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
-            ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
-            {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
+          <UiBadge
+            :class="getBadgeColor(negotiation.status) + ' py-2 rounded-pill bg'"
+            :icon="getBadgeIcon(negotiation.status)"
           >
+            {{ negotiation ? transformStatus(negotiation.status) : '' }}
+          </UiBadge>
         </div>
       </li>
       <li
@@ -85,16 +81,18 @@
       >
         <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
           <li v-for="event in possibleEvents" :key="event.label" class="me-2">
-            <button
-              :class="getButtonColor(event.label)"
-              class="btn btn-status mb-1 d-flex text-left"
+            <PrimaryButton
+              :backgroundColor="getButtonColor(event.label)"
+              :textColor="'#FFFFFF'"
+              :size="'sm'"
+              class="mb-1 d-flex text-left w-100"
               data-bs-toggle="modal"
               data-bs-target="#abandonModal"
               @click="assignStatus(event)"
             >
               <i :class="getButtonIcon(event.label)" />
               {{ event.label }}
-            </button>
+            </PrimaryButton>
           </li>
         </ul>
       </li>
@@ -111,10 +109,10 @@
           </li>
         </ul>
       </li>
-      <li class="list-group-item p-2 btn-sm border-bottom-0">
+      <li class="list-group-item p-2 btn-sm border-bottom-0 v-step-negotiation-7">
         <PDFButton
           id="pdf-button"
-          class="mt-2"
+          class="mt-2 v-step-negotiation-8"
           :negotiation-pdf-data="negotiation"
           data-cy="pdf-button"
           text="Download PDF"
@@ -156,6 +154,7 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import UiBadge from '@/components/ui/UiBadge.vue'
 import PDFButton from '@/components/PDFButton.vue'
 import TransferButton from '@/components/TransferButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
@@ -165,10 +164,11 @@ import {
   getButtonColor,
   getButtonIcon,
   transformStatus,
-  formatTimestampToLocalDateTime,
 } from '../composables/utils.js'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from '../store/notifications'
+import TimeStamp from '@/components/ui/TimeStamp.vue'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 useNegotiationPageStore()
 const notifications = useNotificationsStore()
@@ -185,11 +185,12 @@ const props = defineProps({
   isAdmin: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation', 'update-display-id'])
-
-function printDate(date) {
-  return formatTimestampToLocalDateTime(date)
-}
+const emit = defineEmits([
+  'assign-status',
+  'download-attachment-from-link',
+  'transfer-negotiation',
+  'update-display-id',
+])
 
 function assignStatus(status) {
   emit('assign-status', status)
@@ -235,7 +236,7 @@ async function saveDisplayId() {
     await axios.patch(
       `${apiPaths.BASE_API_PATH}/negotiations/${props.negotiation.id}`,
       { displayId: editedDisplayId.value },
-      { headers: getBearerHeaders() }
+      { headers: getBearerHeaders() },
     )
 
     // Emit event to update the negotiation in the parent component
@@ -245,7 +246,9 @@ async function saveDisplayId() {
     isEditingDisplayId.value = false
     editedDisplayId.value = ''
   } catch (error) {
-    notifications.setNotification('Error updating Display ID: ' + (error.response?.data?.message || error.message))
+    notifications.setNotification(
+      'Error updating Display ID: ' + (error.response?.data?.message || error.message),
+    )
   }
 }
 </script>
