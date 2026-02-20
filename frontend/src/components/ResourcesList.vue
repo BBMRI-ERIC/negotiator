@@ -2,53 +2,54 @@
   <div class="shopping-cart-container">
     <!-- Cart Header -->
     <div class="cart-header mb-5">
-      <h2 class="fw-bold mb-0">{{ $t('negotiationPage.resources') }}</h2>
+      <h2 class="fw-bold mb-0">Selected {{ $t('negotiationPage.resources', 2) }}</h2>
       <p class="mb-0 mt-2 text-muted">
-        {{ numberOfResources }} {{ numberOfResources === 1 ? 'resource' : 'resources' }} selected
+        {{ numberOfResources }} {{ $t('negotiationPage.resources', numberOfResources) }}
       </p>
     </div>
 
     <!-- Cart Items -->
     <div class="cart-items-container">
-      <div
-        v-for="[orgId, org] in Object.entries(organizationsById)"
-        :key="orgId"
-        class="organization-section"
-      >
-        <!-- Organization/Vendor Header -->
-        <div class="vendor-header">
-          <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-building vendor-icon"></i>
-            <span class="vendor-name">{{ org.name }}</span>
+      <div v-for="resource in props.resources" :key="resource.id" class="cart-item">
+        <div class="item-details">
+          <div class="item-icon" :style="iconStyle">
+            <i class="bi bi-database-fill"></i>
           </div>
-          <span class="vendor-badge">{{ org.resources.length }}</span>
-        </div>
-
-        <!-- Resources/Items List -->
-        <div class="items-list">
-          <div v-for="resource in org.resources" :key="resource.id" class="cart-item">
-            <div class="item-details">
-              <div class="item-icon">
-                <i class="bi bi-database-fill"></i>
-              </div>
-              <div class="item-info">
-                <div class="item-name">{{ resource.name }}</div>
-                <div class="item-meta">
-                  <i class="bi bi-tag-fill me-2"></i>
-                  <span class="item-id">{{ resource.sourceId }}</span>
-                </div>
-              </div>
+          <div class="item-info">
+            <div class="item-name">
+              <a
+                v-if="resource.uri"
+                :href="resource.uri"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="item-name-link"
+                :style="{ color: linksColor }"
+              >
+                {{ resource.name }}
+                <i class="bi bi-box-arrow-up-right ms-1"></i>
+              </a>
+              <span v-else>{{ resource.name }}</span>
             </div>
-            <button
-              class="remove-btn"
-              :disabled="numberOfResources === 1"
-              @click="handleRemoveResource(resource)"
-              :title="numberOfResources === 1 ? 'Cannot remove the last resource. Please delete the draft completely instead.' : `Remove ${resource.name}`"
-            >
-              <i class="bi bi-trash3"></i>
-            </button>
+            <div v-if="resource.description" class="item-description">
+              {{ resource.description }}
+            </div>
+            <div class="item-org-tag">
+              <i class="bi bi-building me-1"></i>{{ resource.organization.name }}
+            </div>
           </div>
         </div>
+        <button
+          class="remove-btn"
+          :disabled="numberOfResources === 1"
+          @click="handleRemoveResource(resource)"
+          :title="
+            numberOfResources === 1
+              ? 'Cannot remove the last resource. Please delete the draft completely instead.'
+              : `Remove ${resource.name}`
+          "
+        >
+          <i class="bi bi-trash3"></i>
+        </button>
       </div>
 
       <!-- Empty State -->
@@ -62,6 +63,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const props = defineProps({
   resources: {
@@ -72,27 +74,24 @@ const props = defineProps({
 
 const emit = defineEmits(['remove-resource'])
 
-const organizationsById = computed(() => {
-  return props.resources.reduce((organizations, resource) => {
-    if (resource.organization.externalId in organizations) {
-      organizations[resource.organization.externalId].resources.push(resource)
-    } else {
-      organizations[resource.organization.externalId] = {
-        name: resource.organization.name,
-        resources: [resource],
-      }
-    }
-    return organizations
-  }, {})
-})
-
-const numberOfResources = computed(() => {
-  return props.resources.length
-})
+const numberOfResources = computed(() => props.resources.length)
 
 function handleRemoveResource(resource) {
   emit('remove-resource', resource)
 }
+
+const uiConfigurationStore = useUiConfiguration()
+const primaryColor = computed(
+  () => uiConfigurationStore.uiConfiguration?.theme?.primaryColor || '#26336B',
+)
+const linksColor = computed(
+  () => uiConfigurationStore.uiConfiguration?.theme?.linksColor || primaryColor.value,
+)
+
+const iconStyle = computed(() => ({
+  backgroundColor: primaryColor.value + '1a',
+  color: primaryColor.value,
+}))
 </script>
 
 <style scoped>
@@ -126,72 +125,33 @@ function handleRemoveResource(resource) {
 .cart-items-container {
   overflow-y: visible;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .cart-items-container::-webkit-scrollbar {
   display: none;
 }
 
-.organization-section {
-  background-color: transparent;
-  border-radius: 0;
-  margin-bottom: 1.5rem;
-  overflow: visible;
-}
-
-.organization-section:last-child {
-  margin-bottom: 0;
-}
-
-.vendor-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  background-color: transparent;
-  border-left: 3px solid #495057;
-  padding-left: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.vendor-icon {
-  font-size: 1.5rem;
-  color: #495057;
-}
-
-.vendor-name {
-  font-weight: 700;
-  font-size: 1.125rem;
-  color: #212529;
-}
-
-.vendor-badge {
-  background-color: #495057;
-  color: #ffffff;
-  font-size: 0.875rem;
-  font-weight: 700;
-  padding: 0.4rem 0.875rem;
-  border-radius: 16px;
-}
-
-.items-list {
-  background-color: transparent;
-  padding: 0;
-}
-
 .cart-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 0 1rem 2rem;
-  background-color: transparent;
-  border-left: 2px solid #e9ecef;
-  margin-bottom: 0;
-  border-bottom: 1px solid #f1f3f5;
+  padding: 1rem 1.25rem;
+  background-color: #ffffff;
+  border: 1px solid #e8ecef;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.cart-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .cart-item:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid #e8ecef;
 }
 
 .item-details {
@@ -209,9 +169,7 @@ function handleRemoveResource(resource) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
   border-radius: 12px;
-  color: #1976d2;
   font-size: 1.5rem;
 }
 
@@ -228,22 +186,43 @@ function handleRemoveResource(resource) {
   line-height: 1.4;
 }
 
-.item-meta {
-  display: flex;
-  align-items: center;
-  font-size: 0.95rem;
-  color: #6c757d;
+.item-name-link {
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
 }
 
-.item-id {
-  font-family: 'Courier New', monospace;
-  background-color: #f1f3f5;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  color: #495057;
+.item-name-link:hover {
+  text-decoration: underline;
+}
+
+.item-name-link .bi-box-arrow-up-right {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.item-description {
   font-size: 0.875rem;
-  border: 1px solid #dee2e6;
+  color: #6c757d;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.item-org-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
   font-weight: 500;
+  color: #495057;
+  background-color: #f1f3f5;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+}
+
+.item-org-tag .bi-building {
+  font-size: 0.75rem;
 }
 
 .remove-btn {
@@ -321,7 +300,6 @@ function handleRemoveResource(resource) {
     padding: 0;
   }
 
-
   .cart-item {
     padding: 0.875rem 0 0.875rem 1.5rem;
   }
@@ -340,11 +318,7 @@ function handleRemoveResource(resource) {
     font-size: 1rem;
   }
 
-  .item-meta {
-    font-size: 0.85rem;
-  }
-
-  .item-id {
+  .item-description {
     font-size: 0.8rem;
   }
 
