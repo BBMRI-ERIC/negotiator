@@ -71,7 +71,12 @@ class WebhookEventListenerIntegrationTest {
 
     eventPublisher.publishEvent(
         new NegotiationStateChangeEvent(
-            this, "negotiation-1", NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "post"));
+            this,
+            "negotiation-1",
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT,
+            "post"));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -85,7 +90,8 @@ class WebhookEventListenerIntegrationTest {
                           equalTo(WebhookEventType.NEGOTIATION_STATE_UPDATED))
                       .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-1\""))
-                      .withRequestBody(containing("\"changedTo\":\"SUBMITTED\""))
+                      .withRequestBody(containing("\"fromState\":\"DRAFT\""))
+                      .withRequestBody(containing("\"toState\":\"SUBMITTED\""))
                       .withRequestBody(containing("\"event\":\"SUBMIT\""))
                       .withRequestBody(containing("\"post\":\"post\"")));
               wireMockServer.verify(
