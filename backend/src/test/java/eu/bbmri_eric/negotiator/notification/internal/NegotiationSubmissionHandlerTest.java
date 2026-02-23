@@ -53,8 +53,7 @@ class NegotiationSubmissionHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            "Test post");
+            NegotiationEvent.SUBMIT);
 
     Person admin1 = createPerson(1L, "admin1@test.com");
     Person admin2 = createPerson(2L, "admin2@test.com");
@@ -87,8 +86,7 @@ class NegotiationSubmissionHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            "Test post");
+            NegotiationEvent.SUBMIT);
 
     when(personRepository.findAllByAdminIsTrue()).thenReturn(Collections.emptyList());
 
@@ -109,8 +107,7 @@ class NegotiationSubmissionHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE,
-            "Test post");
+            NegotiationEvent.APPROVE);
 
     // When
     handler.notify(event);
@@ -138,12 +135,7 @@ class NegotiationSubmissionHandlerTest {
     for (NegotiationState state : nonSubmittedStates) {
       NegotiationStateChangeEvent event =
           new NegotiationStateChangeEvent(
-              this,
-              negotiationId,
-              NegotiationState.SUBMITTED,
-              state,
-              NegotiationEvent.APPROVE,
-              "Test post");
+              this, negotiationId, NegotiationState.SUBMITTED, state, NegotiationEvent.APPROVE);
 
       // When
       handler.notify(event);
@@ -159,8 +151,7 @@ class NegotiationSubmissionHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            "Test post");
+            NegotiationEvent.SUBMIT);
     handler.notify(submittedEvent);
 
     verify(notificationService, times(1)).createNotifications(any());

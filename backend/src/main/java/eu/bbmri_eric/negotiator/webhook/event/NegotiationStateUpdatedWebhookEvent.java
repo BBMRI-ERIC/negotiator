@@ -10,11 +10,9 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
  * @param fromState source negotiation state before transition
  * @param toState target negotiation state after transition
  * @param event state-machine event that triggered the transition
- * @param post optional post payload associated with the transition
  */
 record NegotiationStateUpdatedWebhookEvent(
     String negotiationId,
     NegotiationState fromState,
     NegotiationState toState,
-    NegotiationEvent event,
-    String post) {}
+    NegotiationEvent event) {}

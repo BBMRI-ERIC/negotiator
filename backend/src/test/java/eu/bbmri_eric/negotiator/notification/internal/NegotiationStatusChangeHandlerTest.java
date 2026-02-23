@@ -63,8 +63,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            "Test post");
+            NegotiationEvent.SUBMIT);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -95,8 +94,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE,
-            "Test post");
+            NegotiationEvent.APPROVE);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -126,8 +124,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.IN_PROGRESS,
             NegotiationState.DECLINED,
-            NegotiationEvent.DECLINE,
-            "Test post");
+            NegotiationEvent.DECLINE);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -157,8 +154,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.IN_PROGRESS,
             NegotiationState.ABANDONED,
-            NegotiationEvent.ABANDON,
-            "Test post");
+            NegotiationEvent.ABANDON);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -188,8 +184,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            "Test post");
+            NegotiationEvent.SUBMIT);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
 
@@ -210,8 +205,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.DRAFT,
-            NegotiationEvent.SUBMIT,
-            "Test post");
+            NegotiationEvent.SUBMIT);
 
     // When
     handler.notify(event);
@@ -233,8 +227,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE,
-            "Test post");
+            NegotiationEvent.APPROVE);
     handler.notify(inProgressEvent);
 
     ArgumentCaptor<NotificationCreateDTO> captor =
@@ -255,8 +248,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.IN_PROGRESS,
             NegotiationState.DECLINED,
-            NegotiationEvent.DECLINE,
-            "Test post");
+            NegotiationEvent.DECLINE);
     handler.notify(declinedEvent);
 
     verify(notificationService, times(1)).createNotifications(captor.capture());
@@ -274,8 +266,7 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.IN_PROGRESS,
             NegotiationState.ABANDONED,
-            NegotiationEvent.ABANDON,
-            "Test post");
+            NegotiationEvent.ABANDON);
     handler.notify(abandonedEvent);
 
     verify(notificationService, times(1)).createNotifications(captor.capture());
