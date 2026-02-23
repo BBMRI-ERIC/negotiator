@@ -7,19 +7,22 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class NegotiationStateChangeEvent extends ApplicationEvent {
   private final String negotiationId;
-  private final NegotiationState changedTo;
+  private final NegotiationState fromState;
+  private final NegotiationState toState;
   private final NegotiationEvent event;
   private final String post;
 
   public NegotiationStateChangeEvent(
       Object source,
       String negotiationId,
-      NegotiationState changedTo,
+      NegotiationState fromState,
+      NegotiationState toState,
       NegotiationEvent event,
       String post) {
     super(source);
     this.negotiationId = negotiationId;
-    this.changedTo = changedTo;
+    this.fromState = fromState;
+    this.toState = toState;
     this.event = event;
     this.post = post;
   }
