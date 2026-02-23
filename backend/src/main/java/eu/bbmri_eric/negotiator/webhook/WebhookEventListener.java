@@ -1,14 +1,9 @@
 package eu.bbmri_eric.negotiator.webhook;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
-import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
-import eu.bbmri_eric.negotiator.post.NewPostEvent;
-import java.util.Set;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventEnvelope;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventMapper;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.scheduling.annotation.Async;
@@ -17,27 +12,23 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Listens for specific application events and dispatches them to active webhooks. This listener
- * serializes supported events and delivers them to all configured webhooks using the {@link
- * WebhookService}. Only events listed in {@code DISPATCHED_EVENTS} are processed.
+ * serializes mapped webhook envelopes and delivers them to all configured webhooks using the {@link
+ * WebhookService}.
  */
 @Component
 @CommonsLog
 class WebhookEventListener {
-  private static final Set<Class<? extends ApplicationEvent>> DISPATCHED_EVENTS =
-      Set.of(
-          InformationSubmissionEvent.class,
-          NegotiationStateChangeEvent.class,
-          NewNegotiationEvent.class,
-          NewPostEvent.class,
-          ResourceStateChangeEvent.class);
-
   private final WebhookService webhookService;
-  private final ObjectMapper eventObjectMapper;
+  private final ObjectMapper objectMapper;
+  private final WebhookEventMapper webhookEventMapper;
 
-  WebhookEventListener(WebhookService webhookService, ObjectMapper objectMapper) {
+  WebhookEventListener(
+      WebhookService webhookService,
+      ObjectMapper objectMapper,
+      WebhookEventMapper webhookEventMapper) {
     this.webhookService = webhookService;
-    this.eventObjectMapper =
-        objectMapper.copy().addMixIn(ApplicationEvent.class, ApplicationEventMixin.class);
+    this.objectMapper = objectMapper;
+    this.webhookEventMapper = webhookEventMapper;
   }
 
   /**
@@ -48,41 +39,24 @@ class WebhookEventListener {
   @Async
   @TransactionalEventListener(fallbackExecution = true)
   void onWebhookEvent(ApplicationEvent event) {
-    if (!DISPATCHED_EVENTS.contains(event.getClass())) {
-      return;
-    }
-    dispatch(event);
+    webhookEventMapper.map(event).ifPresent(this::dispatch);
   }
 
-  private void dispatch(ApplicationEvent event) {
-    String payload = serializePayload(event);
+  private void dispatch(WebhookEventEnvelope<?> eventEnvelope) {
+    String payload = serializePayload(eventEnvelope);
     if (payload == null) {
       return;
     }
-
-    webhookService.deliverToActiveWebhooks(payload, eventName(event));
+    webhookService.deliverToActiveWebhooks(payload, eventEnvelope.eventType());
   }
 
-  private String serializePayload(ApplicationEvent event) {
+  private String serializePayload(WebhookEventEnvelope<?> eventEnvelope) {
     try {
-      return eventObjectMapper.writeValueAsString(event);
+      return objectMapper.writeValueAsString(eventEnvelope);
     } catch (JsonProcessingException e) {
       log.error(
-          "Failed to serialize webhook payload for event: %s"
-              .formatted(event.getClass().getSimpleName()),
+          "Failed to serialize webhook payload for event: %s".formatted(eventEnvelope.eventType()),
           e);
-      return null;
-    }
-  }
-
-  private String eventName(ApplicationEvent event) {
-    return event.getClass().getSimpleName();
-  }
-
-  /** Jackson mixin to ignore the source property when serializing {@link ApplicationEvent}. */
-  private static final class ApplicationEventMixin {
-    @JsonIgnore
-    public Object getSource() {
       return null;
     }
   }
