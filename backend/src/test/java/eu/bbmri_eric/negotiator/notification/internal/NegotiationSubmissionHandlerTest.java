@@ -49,7 +49,12 @@ class NegotiationSubmissionHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT,
+            "Test post");
 
     Person admin1 = createPerson(1L, "admin1@test.com");
     Person admin2 = createPerson(2L, "admin2@test.com");
@@ -78,7 +83,12 @@ class NegotiationSubmissionHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT,
+            "Test post");
 
     when(personRepository.findAllByAdminIsTrue()).thenReturn(Collections.emptyList());
 
@@ -97,6 +107,7 @@ class NegotiationSubmissionHandlerTest {
         new NegotiationStateChangeEvent(
             this,
             negotiationId,
+            NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
             NegotiationEvent.APPROVE,
             "Test post");
@@ -127,7 +138,12 @@ class NegotiationSubmissionHandlerTest {
     for (NegotiationState state : nonSubmittedStates) {
       NegotiationStateChangeEvent event =
           new NegotiationStateChangeEvent(
-              this, negotiationId, state, NegotiationEvent.APPROVE, "Test post");
+              this,
+              negotiationId,
+              NegotiationState.SUBMITTED,
+              state,
+              NegotiationEvent.APPROVE,
+              "Test post");
 
       // When
       handler.notify(event);
@@ -139,7 +155,12 @@ class NegotiationSubmissionHandlerTest {
     // But should work for SUBMITTED
     NegotiationStateChangeEvent submittedEvent =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT,
+            "Test post");
     handler.notify(submittedEvent);
 
     verify(notificationService, times(1)).createNotifications(any());
