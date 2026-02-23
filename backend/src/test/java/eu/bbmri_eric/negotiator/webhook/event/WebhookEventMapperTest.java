@@ -56,8 +56,7 @@ class WebhookEventMapperTest {
             "negotiation-2",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            "post");
+            NegotiationEvent.SUBMIT);
 
     Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
 
@@ -70,8 +69,7 @@ class WebhookEventMapperTest {
                 "negotiation-2",
                 NegotiationState.DRAFT,
                 NegotiationState.SUBMITTED,
-                NegotiationEvent.SUBMIT,
-                "post"));
+                NegotiationEvent.SUBMIT));
   }
 
   @Test
