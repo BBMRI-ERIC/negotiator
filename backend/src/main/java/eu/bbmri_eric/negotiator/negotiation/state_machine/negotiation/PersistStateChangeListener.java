@@ -59,14 +59,11 @@ public class PersistStateChangeListener
     if (Objects.nonNull(postSenderId) && Objects.nonNull(postBody) && !postBody.isEmpty()) {
       createPostFromMessage(postSenderId, negotiation, postBody);
     }
-    publishChangeEvent(state, transition, negotiationId, postBody);
+    publishChangeEvent(state, transition, negotiationId);
   }
 
   private void publishChangeEvent(
-      State<String, String> state,
-      Transition<String, String> transition,
-      String negotiationId,
-      String postBody) {
+      State<String, String> state, Transition<String, String> transition, String negotiationId) {
     NegotiationEvent event;
     NegotiationState fromState;
     NegotiationState toState;
@@ -80,7 +77,7 @@ public class PersistStateChangeListener
     }
 
     eventPublisher.publishEvent(
-        new NegotiationStateChangeEvent(this, negotiationId, fromState, toState, event, postBody));
+        new NegotiationStateChangeEvent(this, negotiationId, fromState, toState, event));
   }
 
   private void createPostFromMessage(Long postSenderId, Negotiation negotiation, String postBody) {
