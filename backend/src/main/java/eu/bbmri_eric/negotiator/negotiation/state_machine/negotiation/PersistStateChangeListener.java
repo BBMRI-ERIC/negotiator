@@ -68,16 +68,19 @@ public class PersistStateChangeListener
       String negotiationId,
       String postBody) {
     NegotiationEvent event;
+    NegotiationState fromState;
+    NegotiationState toState;
     try {
       event = NegotiationEvent.valueOf(transition.getTrigger().getEvent());
+      fromState = NegotiationState.valueOf(transition.getSource().getId());
+      toState = NegotiationState.valueOf(state.getId());
     } catch (IllegalArgumentException e) {
       log.error("Error publishing event about Negotiation status change", e);
       return;
     }
 
     eventPublisher.publishEvent(
-        new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.valueOf(state.getId()), event, postBody));
+        new NegotiationStateChangeEvent(this, negotiationId, fromState, toState, event, postBody));
   }
 
   private void createPostFromMessage(Long postSenderId, Negotiation negotiation, String postBody) {

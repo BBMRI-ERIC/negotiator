@@ -35,7 +35,7 @@ class NegotiationSubmissionHandler implements NotificationStrategy<NegotiationSt
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    if (event.getChangedTo() == NegotiationState.SUBMITTED) {
+    if (event.getToState() == NegotiationState.SUBMITTED) {
       notifyAdminsAboutNewSubmission(event.getNegotiationId());
     }
   }

@@ -52,7 +52,12 @@ class WebhookEventMapperTest {
   void map_whenNegotiationStateChangeEvent_returnsStableEventTypeAndData() {
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, "negotiation-2", NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "post");
+            this,
+            "negotiation-2",
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT,
+            "post");
 
     Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
 
@@ -62,7 +67,11 @@ class WebhookEventMapperTest {
     assertThat(mapped.get().data())
         .isEqualTo(
             new NegotiationStateUpdatedWebhookEvent(
-                "negotiation-2", NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "post"));
+                "negotiation-2",
+                NegotiationState.DRAFT,
+                NegotiationState.SUBMITTED,
+                NegotiationEvent.SUBMIT,
+                "post"));
   }
 
   @Test

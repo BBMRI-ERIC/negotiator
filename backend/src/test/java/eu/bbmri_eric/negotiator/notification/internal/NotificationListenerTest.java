@@ -149,6 +149,7 @@ class NotificationListenerTest {
         new NegotiationStateChangeEvent(
             this,
             "negotiation-123",
+            NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
             NegotiationEvent.SUBMIT,
             "Test post");
@@ -207,6 +208,7 @@ class NotificationListenerTest {
         new NegotiationStateChangeEvent(
             this,
             "negotiation-123",
+            NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
             NegotiationEvent.SUBMIT,
             "Test post");
@@ -317,6 +319,7 @@ class NotificationListenerTest {
         new NegotiationStateChangeEvent(
             this,
             "negotiation-123",
+            NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
             NegotiationEvent.SUBMIT,
             "Test post");
@@ -374,6 +377,7 @@ class NotificationListenerTest {
         new NegotiationStateChangeEvent(
             this,
             "negotiation-123",
+            NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
             NegotiationEvent.SUBMIT,
             "Test post 1");
@@ -381,6 +385,7 @@ class NotificationListenerTest {
         new NegotiationStateChangeEvent(
             this,
             "negotiation-456",
+            NegotiationState.SUBMITTED,
             NegotiationState.APPROVED,
             NegotiationEvent.APPROVE,
             "Test post 2");
@@ -455,6 +460,7 @@ class NotificationListenerTest {
         new NegotiationStateChangeEvent(
             this,
             "negotiation-123",
+            NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
             NegotiationEvent.SUBMIT,
             "Test post");
@@ -488,6 +494,7 @@ class NotificationListenerTest {
         new NegotiationStateChangeEvent(
             this,
             "negotiation-123",
+            NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
             NegotiationEvent.SUBMIT,
             "Test post");

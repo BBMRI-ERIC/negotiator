@@ -59,7 +59,12 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT,
+            "Test post");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -88,6 +93,7 @@ class NegotiationStatusChangeHandlerTest {
         new NegotiationStateChangeEvent(
             this,
             negotiationId,
+            NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
             NegotiationEvent.APPROVE,
             "Test post");
@@ -116,7 +122,12 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.DECLINED, NegotiationEvent.DECLINE, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationState.DECLINED,
+            NegotiationEvent.DECLINE,
+            "Test post");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -142,7 +153,12 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.ABANDONED, NegotiationEvent.ABANDON, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationState.ABANDONED,
+            NegotiationEvent.ABANDON,
+            "Test post");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -168,7 +184,12 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT,
+            "Test post");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
 
@@ -185,7 +206,12 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.DRAFT, NegotiationEvent.SUBMIT, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.DRAFT,
+            NegotiationState.DRAFT,
+            NegotiationEvent.SUBMIT,
+            "Test post");
 
     // When
     handler.notify(event);
@@ -205,6 +231,7 @@ class NegotiationStatusChangeHandlerTest {
         new NegotiationStateChangeEvent(
             this,
             negotiationId,
+            NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
             NegotiationEvent.APPROVE,
             "Test post");
@@ -224,7 +251,12 @@ class NegotiationStatusChangeHandlerTest {
     // Test DECLINED message content
     NegotiationStateChangeEvent declinedEvent =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.DECLINED, NegotiationEvent.DECLINE, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationState.DECLINED,
+            NegotiationEvent.DECLINE,
+            "Test post");
     handler.notify(declinedEvent);
 
     verify(notificationService, times(1)).createNotifications(captor.capture());
@@ -238,7 +270,12 @@ class NegotiationStatusChangeHandlerTest {
     // Test ABANDONED message content
     NegotiationStateChangeEvent abandonedEvent =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.ABANDONED, NegotiationEvent.ABANDON, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationState.ABANDONED,
+            NegotiationEvent.ABANDON,
+            "Test post");
     handler.notify(abandonedEvent);
 
     verify(notificationService, times(1)).createNotifications(captor.capture());
