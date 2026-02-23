@@ -15,9 +15,9 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
 
 /**
- * Maps internal Spring {@link ApplicationEvent} instances to stable webhook event envelopes.
- * The mapper keeps the external webhook contract stable by converting supported application
- * events into dedicated webhook DTO records and semantic event type names.
+ * Maps internal Spring {@link ApplicationEvent} instances to stable webhook event envelopes. The
+ * mapper keeps the external webhook contract stable by converting supported application events into
+ * dedicated webhook DTO records and semantic event type names.
  */
 @Component
 public class WebhookEventMapper {
