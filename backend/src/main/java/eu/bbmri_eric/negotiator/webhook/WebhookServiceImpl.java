@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import java.net.SocketTimeoutException;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import javax.net.ssl.SSLException;
 import org.apache.commons.lang3.StringUtils;
@@ -29,16 +30,19 @@ public class WebhookServiceImpl implements WebhookService {
   private static final String SSL_VALIDATION_ERROR_MESSAGE = "SSL certificate validation failed";
 
   private final WebhookRepository webhookRepository;
+  private final DeliveryRepository deliveryRepository;
   private final ModelMapper modelMapper;
   private final RestTemplate secureRestTemplate;
   private final RestTemplate insecureRestTemplate;
 
   public WebhookServiceImpl(
       WebhookRepository webhookRepository,
+      DeliveryRepository deliveryRepository,
       ModelMapper modelMapper,
       @Qualifier("secureWebhookRestTemplate") RestTemplate secureRestTemplate,
       @Qualifier("insecureWebhookRestTemplate") RestTemplate insecureRestTemplate) {
     this.webhookRepository = webhookRepository;
+    this.deliveryRepository = deliveryRepository;
     this.modelMapper = modelMapper;
     this.secureRestTemplate = secureRestTemplate;
     this.insecureRestTemplate = insecureRestTemplate;
@@ -95,7 +99,37 @@ public class WebhookServiceImpl implements WebhookService {
     Webhook webhook = getWebhook(webhookId);
     RestTemplate restTemplate =
         webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-    return deliverWebhook(jsonPayload, restTemplate, webhook, eventType, Instant.now());
+    return deliverWebhook(jsonPayload, restTemplate, webhook, eventType, Instant.now(), null);
+  }
+
+  @Override
+  @Transactional
+  public DeliveryDTO redeliver(Long webhookId, String deliveryId) {
+    Webhook webhook = getWebhook(webhookId);
+    Delivery sourceDelivery =
+        deliveryRepository
+            .findByIdAndWebhookId(deliveryId, webhookId)
+            .orElseThrow(() -> new EntityNotFoundException(deliveryId));
+
+    RestTemplate restTemplate =
+        webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
+
+    Instant timestamp = Instant.from(sourceDelivery.getAt().atZone(ZoneId.systemDefault()));
+
+    // If this is a redelivery of a redelivery, we want to keep the original delivery id as
+    // reference
+    String rootDeliveryId =
+        sourceDelivery.getRedeliveryOfDeliveryId() == null
+            ? deliveryId
+            : sourceDelivery.getRedeliveryOfDeliveryId();
+
+    return deliverWebhook(
+        sourceDelivery.getContent(),
+        restTemplate,
+        webhook,
+        sourceDelivery.getEventType(),
+        timestamp,
+        rootDeliveryId);
   }
 
   @Override
@@ -109,7 +143,7 @@ public class WebhookServiceImpl implements WebhookService {
     for (Webhook webhook : webhooks) {
       RestTemplate restTemplate =
           webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-      deliverWebhook(jsonPayload, restTemplate, webhook, eventType, occurredAt);
+      deliverWebhook(jsonPayload, restTemplate, webhook, eventType, occurredAt, null);
     }
   }
 
@@ -130,32 +164,36 @@ public class WebhookServiceImpl implements WebhookService {
       RestTemplate restTemplate,
       Webhook webhook,
       WebhookEventType eventType,
-      Instant occurredAt) {
+      Instant occurredAt,
+      String redeliveryOfDeliveryId) {
     Delivery delivery;
     try {
       HttpEntity<String> request = buildHttpEntity(jsonPayload, eventType, occurredAt);
       int statusCode = postWebhook(restTemplate, webhook, request);
-      delivery = new Delivery(jsonPayload, statusCode);
+      delivery = new Delivery(jsonPayload, statusCode, eventType);
     } catch (HttpClientErrorException | HttpServerErrorException ex) {
-      delivery = new Delivery(jsonPayload, ex.getStatusCode().value(), parseErrorMessage(ex));
+      delivery =
+          new Delivery(jsonPayload, ex.getStatusCode().value(), parseErrorMessage(ex), eventType);
     } catch (ResourceAccessException ex) {
-      delivery = mapTransportException(jsonPayload, ex);
+      delivery = mapTransportException(jsonPayload, ex, eventType);
     } catch (Exception ex) {
-      delivery = new Delivery(jsonPayload, null, parseErrorMessage(ex));
+      delivery = new Delivery(jsonPayload, null, parseErrorMessage(ex), eventType);
     }
+    delivery.setRedeliveryOfDeliveryId(redeliveryOfDeliveryId);
     return persistDelivery(webhook, delivery);
   }
 
-  private Delivery mapTransportException(String jsonPayload, ResourceAccessException ex) {
+  private Delivery mapTransportException(
+      String jsonPayload, ResourceAccessException ex, WebhookEventType eventType) {
     if (containsCause(ex, ConnectTimeoutException.class)
         || containsCause(ex, SocketTimeoutException.class)) {
-      return new Delivery(jsonPayload, null, REQUEST_TIMEOUT_ERROR_MESSAGE);
+      return new Delivery(jsonPayload, null, REQUEST_TIMEOUT_ERROR_MESSAGE, eventType);
     }
 
     if (containsCause(ex, SSLException.class)) {
-      return new Delivery(jsonPayload, null, SSL_VALIDATION_ERROR_MESSAGE);
+      return new Delivery(jsonPayload, null, SSL_VALIDATION_ERROR_MESSAGE, eventType);
     }
-    return new Delivery(jsonPayload, null, parseErrorMessage(ex));
+    return new Delivery(jsonPayload, null, parseErrorMessage(ex), eventType);
   }
 
   private DeliveryDTO persistDelivery(Webhook webhook, Delivery delivery) {
