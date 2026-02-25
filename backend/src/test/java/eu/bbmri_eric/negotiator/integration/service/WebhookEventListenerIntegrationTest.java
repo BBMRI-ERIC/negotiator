@@ -19,6 +19,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.ResourceStateChangeListener;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
@@ -120,7 +121,8 @@ class WebhookEventListenerIntegrationTest {
             "negotiation-2",
             "resource-1",
             NegotiationResourceState.SUBMITTED,
-            NegotiationResourceState.RESOURCE_AVAILABLE));
+            NegotiationResourceState.RESOURCE_AVAILABLE,
+            NegotiationResourceEvent.MARK_AS_AVAILABLE));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -136,7 +138,8 @@ class WebhookEventListenerIntegrationTest {
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-2\""))
                       .withRequestBody(containing("\"resourceId\":\"resource-1\""))
                       .withRequestBody(containing("\"fromState\":\"SUBMITTED\""))
-                      .withRequestBody(containing("\"toState\":\"RESOURCE_AVAILABLE\"")));
+                      .withRequestBody(containing("\"toState\":\"RESOURCE_AVAILABLE\""))
+                      .withRequestBody(containing("\"event\":\"MARK_AS_AVAILABLE\"")));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/resource-two"))
