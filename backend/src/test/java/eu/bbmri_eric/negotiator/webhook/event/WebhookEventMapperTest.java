@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
@@ -118,7 +119,8 @@ class WebhookEventMapperTest {
             "negotiation-5",
             "resource-1",
             NegotiationResourceState.SUBMITTED,
-            NegotiationResourceState.RESOURCE_AVAILABLE);
+            NegotiationResourceState.RESOURCE_AVAILABLE,
+            NegotiationResourceEvent.MARK_AS_AVAILABLE);
 
     Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
 
@@ -132,6 +134,7 @@ class WebhookEventMapperTest {
                 "negotiation-5",
                 "resource-1",
                 NegotiationResourceState.SUBMITTED,
-                NegotiationResourceState.RESOURCE_AVAILABLE));
+                NegotiationResourceState.RESOURCE_AVAILABLE,
+                NegotiationResourceEvent.MARK_AS_AVAILABLE));
   }
 }
