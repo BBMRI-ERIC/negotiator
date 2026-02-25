@@ -53,6 +53,15 @@ public interface WebhookService {
   DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId);
 
   /**
+   * Creates a manual redelivery for a previously recorded delivery.
+   *
+   * @param webhookId the owning webhook id
+   * @param deliveryId the source delivery id to redeliver
+   * @return a DTO representing the newly created delivery attempt
+   */
+  DeliveryDTO redeliver(Long webhookId, String deliveryId);
+
+  /**
    * Creates a new delivery for all active webhooks with an event type header.
    *
    * @param jsonPayload the JSON content for the delivery
