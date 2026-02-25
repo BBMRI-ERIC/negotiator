@@ -6,8 +6,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -17,7 +17,6 @@ import eu.bbmri_eric.negotiator.webhook.DeliveryDTO;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import eu.bbmri_eric.negotiator.webhook.WebhookService;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -99,8 +98,8 @@ public class WebhookDeliverySslIntegrationTest {
 
     DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
 
-    assertEquals(500, delivery.getHttpStatusCode());
-    assertTrue(StringUtils.contains(delivery.getErrorMessage(), "certificate_unknown"));
+    assertNull(delivery.getHttpStatusCode());
+    assertEquals("SSL certificate validation failed", delivery.getErrorMessage());
     untrustedHttpsServer.verify(0, postRequestedFor(urlEqualTo("/test-endpoint")));
   }
 

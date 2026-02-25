@@ -103,6 +103,10 @@ negotiator:
     admin-claim-value: ""
   notification:
     reminder-cron-expression: "0 0 6 * * *"
+  webhook:
+    timeout:
+      connect: "2s"
+      read: "8s"
   email:
     frequency-cron-expression: "0 0 * * * *"
 logging:
