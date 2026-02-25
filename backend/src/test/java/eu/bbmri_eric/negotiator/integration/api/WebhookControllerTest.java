@@ -10,6 +10,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -295,6 +297,188 @@ public class WebhookControllerTest {
 
     // Verify that the stub endpoint received a POST request with the expected JSON payload.
     verify(
+        postRequestedFor(urlEqualTo("/test-endpoint"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withRequestBody(equalToJson(payload)));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void redeliver_validDelivery_returnsCreatedAndLinksToOriginal(WireMockRuntimeInfo wmRuntimeInfo)
+      throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = webhookRepository.save(new Webhook(url, true, true));
+    stubFor(
+        post(urlEqualTo("/test-endpoint"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withBody("{\"status\":\"received\"}")));
+
+    String payload = "{\"data\":\"redelivery\"}";
+
+    MvcResult firstDeliveryResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(
+                        String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    String sourceDeliveryId =
+        objectMapper
+            .readTree(firstDeliveryResult.getResponse().getContentAsString())
+            .get("id")
+            .asText();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format(
+                        "/v3/webhooks/%d/deliveries/%s/redeliver",
+                        webhook.getId(), sourceDeliveryId))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id", not(sourceDeliveryId)))
+        .andExpect(jsonPath("$.rootId", is(sourceDeliveryId)))
+        .andExpect(jsonPath("$.redelivery", is(true)))
+        .andExpect(jsonPath("$.httpStatusCode", is(200)))
+        .andExpect(jsonPath("$.errorMessage").doesNotExist());
+
+    verify(
+        2,
+        postRequestedFor(urlEqualTo("/test-endpoint"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withRequestBody(equalToJson(payload)));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void redeliver_unknownDelivery_returns4xx(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = webhookRepository.save(new Webhook(url, true, true));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format(
+                        "/v3/webhooks/%d/deliveries/%s/redeliver",
+                        webhook.getId(), "unknown-delivery"))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void redeliver_inactiveWebhook_returnsBadRequest(WireMockRuntimeInfo wmRuntimeInfo)
+      throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = webhookRepository.save(new Webhook(url, true, true));
+    stubFor(
+        post(urlEqualTo("/test-endpoint")).willReturn(aResponse().withStatus(200).withBody("OK")));
+
+    String payload = "{\"data\":\"redelivery\"}";
+    MvcResult firstDeliveryResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(
+                        String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload))
+            .andExpect(status().isOk())
+            .andReturn();
+    String sourceDeliveryId =
+        objectMapper
+            .readTree(firstDeliveryResult.getResponse().getContentAsString())
+            .get("id")
+            .asText();
+
+    webhook.setActive(false);
+    webhookRepository.save(webhook);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format(
+                        "/v3/webhooks/%d/deliveries/%s/redeliver",
+                        webhook.getId(), sourceDeliveryId))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath(
+                "$.detail", containsString("Webhook is not active, therefore cannot deliver")));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void redeliver_redeliveryOfRedelivery_preservesOriginalRootId(WireMockRuntimeInfo wmRuntimeInfo)
+      throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = webhookRepository.save(new Webhook(url, true, true));
+    stubFor(
+        post(urlEqualTo("/test-endpoint"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withBody("{\"status\":\"received\"}")));
+
+    String payload = "{\"data\":\"redelivery\"}";
+
+    MvcResult sourceDeliveryResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(
+                        String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    String sourceDeliveryId =
+        objectMapper
+            .readTree(sourceDeliveryResult.getResponse().getContentAsString())
+            .get("id")
+            .asText();
+
+    MvcResult firstRedeliveryResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(
+                        String.format(
+                            "/v3/webhooks/%d/deliveries/%s/redeliver",
+                            webhook.getId(), sourceDeliveryId))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.rootId", is(sourceDeliveryId)))
+            .andExpect(jsonPath("$.redelivery", is(true)))
+            .andReturn();
+
+    String firstRedeliveryId =
+        objectMapper
+            .readTree(firstRedeliveryResult.getResponse().getContentAsString())
+            .get("id")
+            .asText();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format(
+                        "/v3/webhooks/%d/deliveries/%s/redeliver",
+                        webhook.getId(), firstRedeliveryId))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id", not(firstRedeliveryId)))
+        .andExpect(jsonPath("$.rootId", is(sourceDeliveryId)))
+        .andExpect(jsonPath("$.redelivery", is(true)))
+        .andExpect(jsonPath("$.httpStatusCode", is(200)))
+        .andExpect(jsonPath("$.errorMessage").doesNotExist());
+
+    verify(
+        3,
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
             .withRequestBody(equalToJson(payload)));

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -87,6 +89,18 @@ public class WebhookController {
               type = "object")
           String content) {
     DeliveryDTO dto = webhookService.deliver(content, WebhookEventType.CUSTOM, id);
+    return EntityModel.of(dto);
+  }
+
+  @Operation(
+      summary = "Manually redeliver a delivery",
+      description =
+          "Creates a new delivery attempt for an existing delivery using the same payload")
+  @PostMapping(value = "/{webhookId}/deliveries/{deliveryId}/redeliver")
+  @ResponseStatus(HttpStatus.CREATED)
+  public EntityModel<DeliveryDTO> redeliver(
+      @PathVariable Long webhookId, @PathVariable String deliveryId) {
+    DeliveryDTO dto = webhookService.redeliver(webhookId, deliveryId);
     return EntityModel.of(dto);
   }
 }
