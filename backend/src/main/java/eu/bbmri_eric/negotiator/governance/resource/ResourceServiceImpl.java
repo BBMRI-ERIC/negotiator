@@ -25,6 +25,7 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -154,7 +155,12 @@ public class ResourceServiceImpl implements ResourceService {
       negotiation.setStateForResource(resource.getSourceId(), state);
       applicationEventPublisher.publishEvent(
           new ResourceStateChangeEvent(
-              this, negotiation.getId(), resource.getSourceId(), before, state));
+              this,
+              negotiation.getId(),
+              resource.getSourceId(),
+              before,
+              state,
+              NegotiationResourceEvent.FORCE));
     }
   }
 
