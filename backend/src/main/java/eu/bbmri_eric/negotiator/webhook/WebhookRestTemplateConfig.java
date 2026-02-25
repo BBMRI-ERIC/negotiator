@@ -2,6 +2,8 @@ package eu.bbmri_eric.negotiator.webhook;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
@@ -11,6 +13,7 @@ import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
 import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -22,9 +25,13 @@ import org.springframework.web.client.RestTemplate;
 @Configuration(proxyBeanMethods = false)
 class WebhookRestTemplateConfig {
   private final RestTemplateBuilder restTemplateBuilder;
+  private final WebhookTimeoutProperties webhookHttpClientProperties;
 
-  WebhookRestTemplateConfig(RestTemplateBuilder restTemplateBuilder) {
+  WebhookRestTemplateConfig(
+      RestTemplateBuilder restTemplateBuilder,
+      WebhookTimeoutProperties webhookHttpClientProperties) {
     this.restTemplateBuilder = restTemplateBuilder;
+    this.webhookHttpClientProperties = webhookHttpClientProperties;
   }
 
   @Bean
@@ -40,6 +47,7 @@ class WebhookRestTemplateConfig {
   CloseableHttpClient secureWebhookHttpClient(
       @Qualifier("secureWebhookSslContext") SSLContext secureWebhookSslContext) {
     return HttpClients.custom()
+        .setDefaultRequestConfig(requestConfig())
         .setConnectionManager(
             connectionManager(secureWebhookSslContext, new DefaultHostnameVerifier()))
         .build();
@@ -61,6 +69,7 @@ class WebhookRestTemplateConfig {
       SSLContext insecureWebhookSslContext =
           SSLContexts.custom().loadTrustMaterial(TrustAllStrategy.INSTANCE).build();
       return HttpClients.custom()
+          .setDefaultRequestConfig(requestConfig())
           .setConnectionManager(
               connectionManager(insecureWebhookSslContext, NoopHostnameVerifier.INSTANCE))
           .build();
@@ -77,11 +86,24 @@ class WebhookRestTemplateConfig {
         .build();
   }
 
+  private RequestConfig requestConfig() {
+    return RequestConfig.custom()
+        .setResponseTimeout(Timeout.of(webhookHttpClientProperties.getRead()))
+        .build();
+  }
+
+  private ConnectionConfig connectionConfig() {
+    return ConnectionConfig.custom()
+        .setConnectTimeout(Timeout.of(webhookHttpClientProperties.getConnect()))
+        .build();
+  }
+
   private PoolingHttpClientConnectionManager connectionManager(
       SSLContext sslContext, HostnameVerifier hostnameVerifier) {
     DefaultClientTlsStrategy tlsStrategy =
         new DefaultClientTlsStrategy(sslContext, hostnameVerifier);
     return PoolingHttpClientConnectionManagerBuilder.create()
+        .setDefaultConnectionConfig(connectionConfig())
         .setTlsSocketStrategy(tlsStrategy)
         .build();
   }
