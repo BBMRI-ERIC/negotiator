@@ -4,18 +4,29 @@ import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
+import java.net.SocketTimeoutException;
 import java.time.Instant;
 import java.util.List;
+import javax.net.ssl.SSLException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 public class WebhookServiceImpl implements WebhookService {
+  private static final String REQUEST_TIMEOUT_ERROR_MESSAGE = "Request timeout";
+  private static final String SSL_VALIDATION_ERROR_MESSAGE = "SSL certificate validation failed";
+
   private final WebhookRepository webhookRepository;
   private final ModelMapper modelMapper;
   private final RestTemplate secureRestTemplate;
@@ -122,14 +133,26 @@ public class WebhookServiceImpl implements WebhookService {
       HttpEntity<String> request = buildHttpEntity(jsonPayload, eventType, occurredAt);
       int statusCode = postWebhook(restTemplate, webhook, request);
       delivery = new Delivery(jsonPayload, statusCode);
-    } catch (org.springframework.web.client.HttpClientErrorException
-        | org.springframework.web.client.HttpServerErrorException ex) {
-      delivery =
-          new Delivery(jsonPayload, ex.getStatusCode().value(), parseErrorMessage(ex.getMessage()));
+    } catch (HttpClientErrorException | HttpServerErrorException ex) {
+      delivery = new Delivery(jsonPayload, ex.getStatusCode().value(), parseErrorMessage(ex));
+    } catch (ResourceAccessException ex) {
+      delivery = mapTransportException(jsonPayload, ex);
     } catch (Exception ex) {
-      delivery = new Delivery(jsonPayload, 500, parseErrorMessage(ex.getMessage()));
+      delivery = new Delivery(jsonPayload, null, parseErrorMessage(ex));
     }
     return persistDelivery(webhook, delivery);
+  }
+
+  private Delivery mapTransportException(String jsonPayload, ResourceAccessException ex) {
+    if (containsCause(ex, ConnectTimeoutException.class)
+        || containsCause(ex, SocketTimeoutException.class)) {
+      return new Delivery(jsonPayload, null, REQUEST_TIMEOUT_ERROR_MESSAGE);
+    }
+
+    if (containsCause(ex, SSLException.class)) {
+      return new Delivery(jsonPayload, null, SSL_VALIDATION_ERROR_MESSAGE);
+    }
+    return new Delivery(jsonPayload, null, parseErrorMessage(ex));
   }
 
   private DeliveryDTO persistDelivery(Webhook webhook, Delivery delivery) {
@@ -163,11 +186,11 @@ public class WebhookServiceImpl implements WebhookService {
     return new HttpEntity<>(jsonPayload, headers);
   }
 
-  private String parseErrorMessage(String errorMessage) {
-    if (errorMessage != null && errorMessage.length() > 255) {
-      return errorMessage.substring(0, 255);
-    } else {
-      return errorMessage;
-    }
+  private String parseErrorMessage(Exception ex) {
+    return StringUtils.abbreviate(ex.getMessage(), "...", 255);
+  }
+
+  private boolean containsCause(Throwable throwable, Class<? extends Throwable> causeClass) {
+    return ExceptionUtils.indexOfType(throwable, causeClass) != -1;
   }
 }
