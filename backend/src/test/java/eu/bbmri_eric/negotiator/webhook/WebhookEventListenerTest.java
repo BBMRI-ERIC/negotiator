@@ -47,7 +47,7 @@ class WebhookEventListenerTest {
     webhookEventListener.onWebhookEvent(unsupportedEvent);
 
     verify(objectMapper, never()).writeValueAsString(any());
-    verify(webhookService, never()).deliverToActiveWebhooks(any(), any());
+    verify(webhookService, never()).deliverToActiveWebhooks(any(), any(), any());
   }
 
   @Test
@@ -60,12 +60,12 @@ class WebhookEventListenerTest {
             Instant.parse("2026-01-01T00:00:00Z"),
             Map.of("negotiationId", "negotiation-1"));
     when(webhookEventMapper.map(event)).thenReturn(Optional.of(envelope));
-    when(objectMapper.writeValueAsString(envelope))
+    when(objectMapper.writeValueAsString(envelope.data()))
         .thenThrow(new JsonProcessingException("serialization failed") {});
 
     webhookEventListener.onWebhookEvent(event);
 
-    verify(webhookService, never()).deliverToActiveWebhooks(any(), any());
+    verify(webhookService, never()).deliverToActiveWebhooks(any(), any(), any());
   }
 
   @Test
@@ -77,14 +77,15 @@ class WebhookEventListenerTest {
             Instant.parse("2026-01-01T00:00:00Z"),
             Map.of("negotiationId", "negotiation-1"));
     when(webhookEventMapper.map(event)).thenReturn(Optional.of(envelope));
-    when(objectMapper.writeValueAsString(envelope))
-        .thenReturn("{\"data\":{\"negotiationId\":\"negotiation-1\"}}");
+    when(objectMapper.writeValueAsString(envelope.data()))
+        .thenReturn("{\"negotiationId\":\"negotiation-1\"}");
 
     webhookEventListener.onWebhookEvent(event);
 
     verify(webhookService)
         .deliverToActiveWebhooks(
-            "{\"data\":{\"negotiationId\":\"negotiation-1\"}}",
-            WebhookEventType.NEGOTIATION_INFO_UPDATED);
+            "{\"negotiationId\":\"negotiation-1\"}",
+            WebhookEventType.NEGOTIATION_INFO_UPDATED,
+            Instant.parse("2026-01-01T00:00:00Z"));
   }
 }

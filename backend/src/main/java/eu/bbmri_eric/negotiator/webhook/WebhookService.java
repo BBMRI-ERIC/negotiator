@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface WebhookService {
@@ -55,6 +56,7 @@ public interface WebhookService {
    *
    * @param jsonPayload the JSON content for the delivery
    * @param eventType the event type to send as a header
+   * @param occurredAt the event timestamp to send as a header
    */
-  void deliverToActiveWebhooks(String jsonPayload, String eventType);
+  void deliverToActiveWebhooks(String jsonPayload, String eventType, Instant occurredAt);
 }

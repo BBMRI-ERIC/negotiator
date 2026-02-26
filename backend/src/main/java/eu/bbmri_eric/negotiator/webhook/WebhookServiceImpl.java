@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -81,12 +82,12 @@ public class WebhookServiceImpl implements WebhookService {
     Webhook webhook = getWebhook(webhookId);
     RestTemplate restTemplate =
         webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-    return deliverWebhook(jsonPayload, restTemplate, webhook, null);
+    return deliverWebhook(jsonPayload, restTemplate, webhook, null, null);
   }
 
   @Override
   @Transactional
-  public void deliverToActiveWebhooks(String jsonPayload, String eventType) {
+  public void deliverToActiveWebhooks(String jsonPayload, String eventType, Instant occurredAt) {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
     }
@@ -94,7 +95,7 @@ public class WebhookServiceImpl implements WebhookService {
     for (Webhook webhook : webhooks) {
       RestTemplate restTemplate =
           webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-      deliverWebhook(jsonPayload, restTemplate, webhook, eventType);
+      deliverWebhook(jsonPayload, restTemplate, webhook, eventType, occurredAt);
     }
   }
 
@@ -111,10 +112,14 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   private DeliveryDTO deliverWebhook(
-      String jsonPayload, RestTemplate restTemplate, Webhook webhook, String eventType) {
+      String jsonPayload,
+      RestTemplate restTemplate,
+      Webhook webhook,
+      String eventType,
+      Instant occurredAt) {
     Delivery delivery;
     try {
-      HttpEntity<String> request = buildHttpEntity(jsonPayload, eventType);
+      HttpEntity<String> request = buildHttpEntity(jsonPayload, eventType, occurredAt);
       int statusCode = postWebhook(restTemplate, webhook, request);
       delivery = new Delivery(jsonPayload, statusCode);
     } catch (org.springframework.web.client.HttpClientErrorException
@@ -142,10 +147,18 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   private static @NotNull HttpEntity<String> buildHttpEntity(String jsonPayload, String eventType) {
+    return buildHttpEntity(jsonPayload, eventType, null);
+  }
+
+  private static @NotNull HttpEntity<String> buildHttpEntity(
+      String jsonPayload, String eventType, Instant occurredAt) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     if (eventType != null && !eventType.isBlank()) {
       headers.add(WebhookHeaders.EVENT_TYPE, eventType);
+    }
+    if (occurredAt != null) {
+      headers.add(WebhookHeaders.OCCURRED_AT, occurredAt.toString());
     }
     return new HttpEntity<>(jsonPayload, headers);
   }
