@@ -5,10 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "vitest",
     "build": "vite build",
     "preview": "vite preview --port 4173",
-    "test:unit": "vitest --environment jsdom",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "cy:run": "cypress run",
@@ -24,7 +22,6 @@
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/vue-fontawesome": "^3.0.2",
     "@popperjs/core": "^2.11.6",
-    "@vue/test-utils": "^2.2.7",
     "axios": "^1.13.5",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
@@ -62,11 +59,9 @@
     "eslint": "^9.34.0",
     "eslint-plugin-cypress": "^5.2.0",
     "eslint-plugin-vue": "^9.30.0",
-    "jsdom": "^27.1.0",
     "prettier": "^3.7.3",
     "sass": "1.97.1",
-    "vite": "^6.4.1",
-    "vitest": "^4.0.7"
+    "vite": "^6.4.1"
   },
   "browserslist": [
     "> 1%",

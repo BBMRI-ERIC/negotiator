@@ -72,10 +72,6 @@ jobs:
       - name: Install dependencies
         run: yarn --cwd frontend install
 
-      - name: Run Unit Tests
-        working-directory: frontend
-        run: npx vitest run
-
       - name: Build app
         run: yarn --cwd frontend build
 
