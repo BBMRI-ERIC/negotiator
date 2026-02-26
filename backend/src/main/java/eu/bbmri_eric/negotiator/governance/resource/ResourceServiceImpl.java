@@ -160,7 +160,7 @@ public class ResourceServiceImpl implements ResourceService {
               resource.getSourceId(),
               before,
               state,
-              NegotiationResourceEvent.FORCE));
+              NegotiationResourceEvent.OVERRIDE));
     }
   }
 

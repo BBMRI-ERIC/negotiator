@@ -24,8 +24,7 @@ public enum NegotiationResourceEvent {
   DECLINE_ACCESS_CONDITIONS(
       "Decline Access Conditions", "Decline access conditions for the resource"),
   GRANT_ACCESS_TO_RESOURCE("Grant Access to Resource", "Grant access to the resource"),
-  @Deprecated(forRemoval = true)
-  FORCE("Force Transition", "Force a transition to another state, ignoring guards");
+  OVERRIDE("Override current state", "Override current state, ignoring state machine guards");
 
   private final String label;
   private final String description;
