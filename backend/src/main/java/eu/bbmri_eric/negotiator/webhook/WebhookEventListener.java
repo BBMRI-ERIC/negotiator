@@ -43,20 +43,19 @@ class WebhookEventListener {
   }
 
   private void dispatch(WebhookEventEnvelope<?> eventEnvelope) {
-    String payload = serializePayload(eventEnvelope);
+    String payload = serializePayload(eventEnvelope.data());
     if (payload == null) {
       return;
     }
-    webhookService.deliverToActiveWebhooks(payload, eventEnvelope.eventType());
+    webhookService.deliverToActiveWebhooks(
+        payload, eventEnvelope.eventType(), eventEnvelope.occurredAt());
   }
 
-  private String serializePayload(WebhookEventEnvelope<?> eventEnvelope) {
+  private String serializePayload(Object payloadObject) {
     try {
-      return objectMapper.writeValueAsString(eventEnvelope);
+      return objectMapper.writeValueAsString(payloadObject);
     } catch (JsonProcessingException e) {
-      log.error(
-          "Failed to serialize webhook payload for event: %s".formatted(eventEnvelope.eventType()),
-          e);
+      log.error("Failed to serialize webhook payload", e);
       return null;
     }
   }
