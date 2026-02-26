@@ -37,9 +37,9 @@ class NegotiationInProgressHandlerTest {
         new NegotiationStateChangeEvent(
             this,
             negotiationId,
+            NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE,
-            "Test post");
+            NegotiationEvent.APPROVE);
 
     handler.notify(event);
 
@@ -51,7 +51,11 @@ class NegotiationInProgressHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT);
 
     handler.notify(event);
 
@@ -65,9 +69,9 @@ class NegotiationInProgressHandlerTest {
         new NegotiationStateChangeEvent(
             this,
             negotiationId,
+            NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE,
-            "Test post");
+            NegotiationEvent.APPROVE);
 
     handler.notify(event);
 

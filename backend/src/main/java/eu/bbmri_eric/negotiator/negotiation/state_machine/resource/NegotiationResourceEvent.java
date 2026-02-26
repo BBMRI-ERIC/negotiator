@@ -1,6 +1,10 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
+import io.micrometer.common.lang.NonNull;
+import java.util.Optional;
 import lombok.Getter;
+import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.trigger.Trigger;
 
 @Getter
 public enum NegotiationResourceEvent {
@@ -19,7 +23,8 @@ public enum NegotiationResourceEvent {
   ACCEPT_ACCESS_CONDITIONS("Accept Access Conditions", "Accept access conditions for the resource"),
   DECLINE_ACCESS_CONDITIONS(
       "Decline Access Conditions", "Decline access conditions for the resource"),
-  GRANT_ACCESS_TO_RESOURCE("Grant Access to Resource", "Grant access to the resource");
+  GRANT_ACCESS_TO_RESOURCE("Grant Access to Resource", "Grant access to the resource"),
+  OVERRIDE("Override current state", "Override current state, ignoring state machine guards");
 
   private final String label;
   private final String description;
@@ -31,5 +36,23 @@ public enum NegotiationResourceEvent {
 
   public String getValue() {
     return this.name();
+  }
+
+  public static NegotiationResourceEvent fromTransition(
+      @NonNull Transition<String, String> transition) {
+    return fromTransitionOptional(transition)
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    "Could not get event for transition from %s to %s"
+                        .formatted(transition.getSource(), transition.getTarget())));
+  }
+
+  private static Optional<NegotiationResourceEvent> fromTransitionOptional(
+      Transition<String, String> transition) {
+    return Optional.ofNullable(transition)
+        .map(Transition::getTrigger)
+        .map(Trigger::getEvent)
+        .map(NegotiationResourceEvent::valueOf);
   }
 }
