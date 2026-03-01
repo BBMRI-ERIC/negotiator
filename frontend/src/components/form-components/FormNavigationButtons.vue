@@ -1,51 +1,51 @@
 <template>
-  <div class="form-navigation-buttons mt-auto d-flex">
+  <div class="form-navigation-buttons mt-5 d-flex align-items-center">
     <div class="col">
-      <PrimaryButton
-        :isDisabled="saveDraftDisabled"
-        size="sm"
-        class="me-3 col"
+      <button
+        v-if="isDraftStatus"
+        class="btn btn-outline-secondary"
+        :disabled="saveDraftDisabled"
         @click="$emit('saveDraft')"
       >
-        <i class="bi bi-floppy" /> Save Draft
-      </PrimaryButton>
+        <i class="bi bi-floppy"></i> Save Draft
+      </button>
     </div>
-    <div class="middle-buttons d-flex flex-row col">
-      <PrimaryButton
-        :isDisabled="activeNavItemIndex <= 0"
-        size="sm"
-        class="me-3"
+    <div class="middle-buttons d-flex flex-row col justify-content-center gap-2">
+      <button
+        :class="activeNavItemIndex > 0 ? '' : 'disabled'"
+        class="btn btn-outline-primary"
         @click="previousTab"
       >
-        Back
-        <i class="bi bi-chevron-left" />
-      </PrimaryButton>
-      <PrimaryButton
-        :isDisabled="activeNavItemIndex >= navItemsLength + 1"
-        size="sm"
-        class="me-3"
+        <i class="bi bi-chevron-left"></i> Back
+      </button>
+      <button
+        :class="activeNavItemIndex < navItemsLength + 1 > 0 ? '' : 'disabled'"
+        class="btn btn-outline-primary"
         @click="nextTab"
       >
-        Next
-        <i class="bi bi-chevron-right" />
-      </PrimaryButton>
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
     </div>
-    <div class="col">
-      <PrimaryButton
+    <div class="col d-flex justify-content-end gap-2">
+      <button
+        v-if="isDraftStatus && activeNavItemIndex === 0"
+        class="btn btn-outline-danger"
+        @click="$emit('deleteDraft')"
+      >
+        <i class="bi bi-trash"></i> Delete Draft
+      </button>
+      <button
         v-if="activeNavItemIndex == navItemsLength + 1"
-        size="sm"
-        class="me-3 float-end"
+        class="btn btn-success"
         @click="$emit('openSaveNegotiationModal')"
       >
-        <i class="bi bi-floppy" />
-        Submit
-      </PrimaryButton>
+        <i class="bi bi-check-circle"></i> {{ isDraftStatus ? 'Submit Request' : 'Save' }}
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 const activeNavItemIndex = defineModel('activeNavItemIndex')
 
 defineProps({
@@ -59,6 +59,11 @@ defineProps({
     required: false,
     default: false,
   },
+  isDraftStatus: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 
 function nextTab() {
@@ -69,3 +74,4 @@ function previousTab() {
   activeNavItemIndex.value -= 1
 }
 </script>
+

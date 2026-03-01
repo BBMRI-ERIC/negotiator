@@ -291,18 +291,32 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function addResources(data, negotiationId) {
+  async function addResources(data, negotiationId, silent = false) {
     try {
       const response = await axios.patch(
         `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources`,
         data,
         { headers: getBearerHeaders() },
       )
-      notifications.setNotification('Resources were successfully updated')
+      if (!silent) notifications.setNotification('Resources were successfully updated')
       return response.data
     } catch {
-      notifications.setNotification('There was an error saving the attachment')
+      if (!silent) notifications.setNotification('There was an error saving the attachment')
       return undefined
+    }
+  }
+
+  async function removeResource(negotiationId, resourceId) {
+    try {
+      await axios.delete(
+        `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources/${resourceId}`,
+        { headers: getBearerHeaders() },
+      )
+      notifications.setNotification('Resource removed successfully', 'success')
+      return true
+    } catch {
+      notifications.setNotification('Failed to remove resource', 'danger')
+      return false
     }
   }
 
@@ -318,14 +332,18 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function deleteNegotiation(negotiationId) {
+  async function deleteNegotiation(negotiationId, silent = false) {
     return axios
       .delete(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, { headers: getBearerHeaders() })
       .then(() => {
-        notifications.setNotification(`Negotiation with id ${negotiationId} deleted successfully`)
+        if (!silent) {
+          notifications.setNotification(`Negotiation with id ${negotiationId} deleted successfully`)
+        }
       })
       .catch(() => {
-        notifications.setNotification('Error deleting negotiation')
+        if (!silent) {
+          notifications.setNotification('Error deleting negotiation')
+        }
       })
   }
 
@@ -387,6 +405,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     retrieveInformationSubmission,
     fetchURL,
     addResources,
+    removeResource,
     retrieveAllResources,
     retrieveResourceAllStates,
     deleteNegotiation,

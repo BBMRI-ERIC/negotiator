@@ -18,4 +18,6 @@ public class DiscoveryServiceDTO {
   private String name;
 
   private String url;
+
+  private boolean active;
 }

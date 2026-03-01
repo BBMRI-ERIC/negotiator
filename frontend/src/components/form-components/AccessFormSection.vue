@@ -337,6 +337,13 @@ function isNumber(evt) {
 </script>
 
 <style scoped>
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
 .required:after {
   content: '  *\00a0';
   color: red;

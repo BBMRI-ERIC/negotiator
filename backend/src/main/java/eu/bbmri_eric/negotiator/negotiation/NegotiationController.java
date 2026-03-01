@@ -303,6 +303,18 @@ public class NegotiationController {
         resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
   }
 
+  @DeleteMapping(value = "/negotiations/{id}/resources/{resourceId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+      summary = "Remove a resource from a negotiation",
+      description =
+          "Endpoint to remove a resource from a negotiation. The operation is allowed only if the negotiation is in DRAFT "
+              + "state and the user is the creator of the negotiation")
+  @SecurityRequirement(name = "security_auth")
+  public void removeResource(@Valid @PathVariable String id, @Valid @PathVariable Long resourceId) {
+    negotiationService.removeResourceFromNegotiation(id, resourceId);
+  }
+
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(
       summary = "Generate a PDF for a negotiation",
