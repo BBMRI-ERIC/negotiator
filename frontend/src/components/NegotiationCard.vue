@@ -1,7 +1,10 @@
 <template>
   <div>
-    <div class="card mb-2">
-      <div class="card-header bg-body" :style="{ color: 'var(--bs-card-title-text)' }">
+    <div class="card border-0 rounded-top-4 mb-2">
+      <div
+        class="card-header bg-body mt-1 pb-1 rounded-top-4"
+        :style="{ color: 'var(--bs-card-title-text)' }"
+      >
         <span class="h5">{{ title }}</span>
         <h6 class="float-end">
           <UiBadge :class="getBadgeColor(status)" :icon="getBadgeIcon(status)" width="125px">
@@ -45,3 +48,10 @@ defineProps({
   },
 })
 </script>
+
+<style scoped>
+.card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+}
+</style>

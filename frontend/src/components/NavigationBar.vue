@@ -11,6 +11,21 @@
       </router-link>
       <div id="menu-navbar" class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
+          <li class="nav-item">
+            <router-link
+              :style="{
+                color:
+                  $route.path === '/home'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
+              }"
+              class="nav-link active nav-option"
+              to="/home"
+            >
+              <i class="bi bi-house" />
+              Home
+            </router-link>
+          </li>
           <li v-if="isAdmin" class="nav-item v-step-10">
             <router-link
               :style="{
