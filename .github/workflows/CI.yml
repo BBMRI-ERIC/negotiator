@@ -23,10 +23,10 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Set up JDK
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v4
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v4
         with:
           java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
@@ -41,10 +41,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
         with:
           node-version: '24.11.0'
           cache: 'yarn'
@@ -60,10 +60,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
         with:
           node-version: '24.11.0'
           cache: 'yarn'
@@ -81,13 +81,13 @@ jobs:
 
     steps:
       - name: Set up JDK
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v4
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v4
         with:
           java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
 
       - name: Checkout Code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Lint Code Base
         run: mvn -f backend clean com.spotify.fmt:fmt-maven-plugin:check
@@ -97,10 +97,10 @@ jobs:
     name: Lint JS Code
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
         with:
           node-version: '24.11.0'
           cache: 'yarn'
@@ -124,10 +124,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Set up JDK
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v4
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v4
         with:
           java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
@@ -159,10 +159,10 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Set up JDK
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v4
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v4
         with:
           java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
@@ -190,10 +190,10 @@ jobs:
         browser: [ "chrome", "electron" ]
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
         with:
           node-version: '24.11.0'
           cache: 'yarn'
@@ -227,7 +227,7 @@ jobs:
         run: sleep 30
 
       - name: Cypress run
-        uses: cypress-io/github-action@2ad32e649e4db26c07674ebae31a297601dbcbaf #v6
+        uses: cypress-io/github-action@e44ee0fa67251ab7e2d854d85b3a466577f47d14 #v6
         with:
           working-directory: frontend
           browser: ${{ matrix.browser }}
@@ -247,7 +247,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
@@ -256,7 +256,7 @@ jobs:
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Build and push
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: backend
           tags: bbmrieric/negotiator:latest
@@ -276,7 +276,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
@@ -285,7 +285,7 @@ jobs:
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Build and push
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: frontend
           tags: bbmrieric/negotiator-frontend:latest
@@ -325,7 +325,7 @@ jobs:
         run: docker load --input /tmp/negotiator-frontend.tar
 
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8
+        uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518
         with:
           image-ref: bbmrieric/negotiator:latest
           format: sarif
@@ -334,7 +334,7 @@ jobs:
           timeout: '15m0s'
 
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8
+        uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518
         with:
           image-ref: bbmrieric/negotiator-frontend:latest
           format: sarif
@@ -362,7 +362,7 @@ jobs:
           path: /tmp
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Load image
         run: docker load --input /tmp/negotiator.tar
@@ -402,7 +402,7 @@ jobs:
         run: docker load --input /tmp/negotiator.tar
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Setup environment with auth server
         run: docker compose up -d
@@ -434,7 +434,7 @@ jobs:
         run: docker load --input /tmp/negotiator.tar
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Setup environment with auth server
         run: docker compose up -d
@@ -468,7 +468,7 @@ jobs:
           path: /tmp
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Setup environment with auth server
         run: docker compose up -d
@@ -495,7 +495,7 @@ jobs:
         run: docker logs negotiator
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Check health
         run: .github/scripts/check_health.sh negotiator
@@ -515,7 +515,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
@@ -524,13 +524,13 @@ jobs:
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Login to DockerHub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -552,7 +552,7 @@ jobs:
       
 
       - name: Build and push
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: backend
           platforms: linux/amd64,linux/arm64
@@ -578,7 +578,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
@@ -587,13 +587,13 @@ jobs:
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Login to DockerHub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -617,7 +617,7 @@ jobs:
         run: cp -r .git frontend
 
       - name: Build and push
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: frontend
           platforms: linux/amd64,linux/arm64
@@ -632,12 +632,12 @@ jobs:
     name: Build Docs
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
         with:
           node-version: 24
           cache: npm
@@ -687,10 +687,10 @@ jobs:
       - prometheus-test
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
       - name: Set up JDK
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v4
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v4
         with:
           java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
