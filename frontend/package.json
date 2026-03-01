@@ -22,7 +22,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/vue-fontawesome": "^3.0.2",
     "@popperjs/core": "^2.11.6",
-    "axios": "^1.13.5",
+    "axios": "^1.13.6",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "chart.js": "^4.4.7",
