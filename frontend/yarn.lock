@@ -2623,10 +2623,10 @@ oidc-client-ts@^2.0.4:
     crypto-js "^4.2.0"
     jwt-decode "^3.1.2"
 
-oidc-client-ts@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/oidc-client-ts/-/oidc-client-ts-3.1.0.tgz#28d3254951a1c64cc9780042c61492a71b2240dd"
-  integrity sha512-IDopEXjiwjkmJLYZo6BTlvwOtnlSniWZkKZoXforC/oLZHC9wkIxd25Kwtmo5yKFMMVcsp3JY6bhcNJqdYk8+g==
+oidc-client-ts@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/oidc-client-ts/-/oidc-client-ts-3.4.1.tgz#7cad95ba7213cb93b7c141965ce03ad658baa30f"
+  integrity sha512-jNdst/U28Iasukx/L5MP6b274Vr7ftQs6qAhPBCvz6Wt5rPCA+Q/tUmCzfCHHWweWw5szeMy2Gfrm1rITwUKrw==
   dependencies:
     jwt-decode "^4.0.0"
 
