@@ -16,10 +16,12 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationServiceImpl;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
@@ -28,6 +30,7 @@ import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.persistence.EntityManager;
 import java.io.IOException;
@@ -55,6 +58,9 @@ public class NegotiationServiceTest {
   @Mock AttachmentRepository attachmentRepository;
   @Mock NegotiationRepository negotiationRepository;
   @Mock PersonRepository personRepository;
+  @Mock PersonService personService;
+  @Mock NetworkRepository networkRepository;
+  @Mock NegotiationAccessManager negotiationAccessManager;
   @Mock ApplicationEventPublisher eventPublisher;
   @Mock EntityManager entityManager;
 
@@ -124,6 +130,34 @@ public class NegotiationServiceTest {
   public void test_isNegotiatorCreator_IsTrue_WhenPersonRepositoryIsNegotiatiorCreator_IsTrue() {
     when(personRepository.isNegotiationCreator(any(), any())).thenReturn(true);
     assertTrue(negotiationService.isNegotiationCreator("123"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 2L,
+      authName = "networkManager",
+      authSubject = "networkManager@aai.eu",
+      authEmail = "networkManager@aai.eu",
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_isAuthorizedForNegotiation_IsTrue_WhenUserIsNetworkManager() {
+    when(personRepository.isNegotiationCreator(2L, "123")).thenReturn(false);
+    when(personService.isRepresentativeOfAnyResourceOfNegotiation(2L, "123")).thenReturn(false);
+    when(personRepository.isManagerOfAnyResourceOfNegotiation(2L, "123")).thenReturn(true);
+    assertTrue(negotiationService.isAuthorizedForNegotiation("123"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 2L,
+      authName = "researcher",
+      authSubject = "researcher@aai.eu",
+      authEmail = "researcher@aai.eu",
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_isAuthorizedForNegotiation_IsFalse_WhenUserHasNoAccess() {
+    when(personRepository.isNegotiationCreator(2L, "123")).thenReturn(false);
+    when(personService.isRepresentativeOfAnyResourceOfNegotiation(2L, "123")).thenReturn(false);
+    when(personRepository.isManagerOfAnyResourceOfNegotiation(2L, "123")).thenReturn(false);
+    assertFalse(negotiationService.isAuthorizedForNegotiation("123"));
   }
 
   @Test
