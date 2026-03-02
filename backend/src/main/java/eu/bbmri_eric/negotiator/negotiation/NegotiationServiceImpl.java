@@ -94,9 +94,10 @@ public class NegotiationServiceImpl implements NegotiationService {
    */
   @Override
   public boolean isAuthorizedForNegotiation(String negotiationId) {
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     return isNegotiationCreator(negotiationId)
-        || personService.isRepresentativeOfAnyResourceOfNegotiation(
-            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId)
+        || personService.isRepresentativeOfAnyResourceOfNegotiation(userId, negotiationId)
+        || personRepository.isManagerOfAnyResourceOfNegotiation(userId, negotiationId)
         || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 

@@ -35,11 +35,19 @@ class NegotiationTimelineTest {
   }
 
   @Test
-  @WithUserDetails("directory")
+  @WithUserDetails("SarahRepr")
   void getTimeline_notAuthorized_403() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/timeline"))
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("directory")
+  void getTimeline_asNetworkManager_200() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/timeline"))
+        .andExpect(status().isOk());
   }
 
   @Test
