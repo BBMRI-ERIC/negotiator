@@ -151,9 +151,9 @@ const returnAcronymOfName = computed(() => {
   const name = props.user?.name || ''
   const words = name.trim().split(/\s+/).filter(Boolean)
   let initials = ''
-  if (words.length === 1 && words[0].length > 1) {
-    // Single word: take first two letters
-    initials = words[0][0].toUpperCase() + (words[0][1] ? words[0][1].toUpperCase() : '')
+  if (words.length === 1) {
+    // Single word: take only the first letter
+    initials = words[0][0] ? words[0][0].toUpperCase() : ''
   } else if (words.length > 1) {
     // Multiple words: take first letter of first two words
     initials = words[0][0].toUpperCase() + ' ' + words[1][0].toUpperCase()
