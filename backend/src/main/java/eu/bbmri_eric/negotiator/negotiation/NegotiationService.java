@@ -121,7 +121,9 @@ public interface NegotiationService {
    *
    * @param negotiationId the id of the negotiaton to check
    * @return true if the authenticated user is authorized, false otherwise
+   * @deprecated Rather use {@link NegotiationAccessManager}
    */
+  @Deprecated(forRemoval = true)
   boolean isAuthorizedForNegotiation(String negotiationId);
 
   /**

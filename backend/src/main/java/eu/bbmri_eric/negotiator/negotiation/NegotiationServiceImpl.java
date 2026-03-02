@@ -86,13 +86,15 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   /**
-   * Check if the currently authenticated user is authorized for teh negotiation
+   * Check if the currently authenticated user is authorized for the negotiation
    *
    * @param negotiationId the id of the negotiaton to check
    * @return true if the user is the creator of the negotiation or if he/she is representative of
    *     any resource involved in the negotiation
+   * @deprecated Rather use {@link NegotiationAccessManager}
    */
   @Override
+  @Deprecated(forRemoval = true)
   public boolean isAuthorizedForNegotiation(String negotiationId) {
     Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     return isNegotiationCreator(negotiationId)
