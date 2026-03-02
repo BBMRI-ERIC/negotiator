@@ -148,19 +148,19 @@ const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.navbar
 })
 const returnAcronymOfName = computed(() => {
-  const words = props.user?.name.split(' ')
-
-  // Initialize an empty string for the acronym
-  let acronym = ''
-
-  // Iterate over each word
-  words.forEach((word) => {
-    // Get the first character of each word and append it to the acronym
-    if (word.length > 0) {
-      acronym += word[0].toUpperCase() + ' '
-    }
-  })
-  return acronym
+  const name = props.user?.name || ''
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  let initials = ''
+  if (words.length === 1 && words[0].length > 1) {
+    // Single word: take first two letters
+    initials = words[0][0].toUpperCase() + (words[0][1] ? words[0][1].toUpperCase() : '')
+  } else if (words.length > 1) {
+    // Multiple words: take first letter of first two words
+    initials = words[0][0].toUpperCase() + ' ' + words[1][0].toUpperCase()
+  } else {
+    initials = ''
+  }
+  return initials
 })
 
 function signOutOidc() {
