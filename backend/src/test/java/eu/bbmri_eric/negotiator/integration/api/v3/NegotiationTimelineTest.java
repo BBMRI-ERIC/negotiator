@@ -43,7 +43,7 @@ class NegotiationTimelineTest {
   }
 
   @Test
-  @WithUserDetails("directory")
+  @WithMockNegotiatorUser(id = 102L)
   void getTimeline_asNetworkManager_200() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/timeline"))
