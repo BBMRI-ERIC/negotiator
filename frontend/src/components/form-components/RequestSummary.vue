@@ -4,6 +4,7 @@
       <div class="resources-wrapper" ref="wrapperRef" @scroll="onScroll">
         <ResourcesList
           :resources="props.requestSummary?.resources"
+          :showAddResources="props.createdToday"
           @remove-resource="handleRemoveResource"
         />
       </div>
@@ -28,6 +29,11 @@ const props = defineProps({
     type: String,
     required: false,
     default: null,
+  },
+  createdToday: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 })
 
