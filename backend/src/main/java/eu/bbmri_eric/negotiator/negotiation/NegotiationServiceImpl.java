@@ -380,6 +380,13 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public void removeResourceFromNegotiation(String negotiationId, Long resourceId) {
     Negotiation negotiation = findEntityById(negotiationId, false);
+    verifyRemoveResourcePreconditions(negotiationId, negotiation);
+    Resource resource = findResourceInNegotiation(negotiationId, resourceId, negotiation);
+    negotiation.removeResource(resource);
+    negotiationRepository.save(negotiation);
+  }
+
+  private void verifyRemoveResourcePreconditions(String negotiationId, Negotiation negotiation) {
     if (!isNegotiationCreator(negotiationId)) {
       throw new ForbiddenRequestException(
           "Only the negotiation author can remove resources from a draft negotiation");
@@ -391,21 +398,17 @@ public class NegotiationServiceImpl implements NegotiationService {
     if (negotiation.getResources().size() <= 1) {
       throw new IllegalArgumentException("Cannot remove the last resource from a negotiation");
     }
-    Resource resource =
-        negotiation.getResources().stream()
-            .filter(r -> r.getId().equals(resourceId))
-            .findFirst()
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(
-                        "Resource with id %s not found in negotiation %s"
-                            .formatted(resourceId, negotiationId)));
-    boolean removed = negotiation.removeResource(resource);
-    if (!removed) {
-      throw new EntityNotFoundException(
-          "Failed to remove resource with id %s from negotiation %s"
-              .formatted(resourceId, negotiationId));
-    }
-    negotiationRepository.save(negotiation);
+  }
+
+  private Resource findResourceInNegotiation(
+      String negotiationId, Long resourceId, Negotiation negotiation) {
+    return negotiation.getResources().stream()
+        .filter(r -> r.getId().equals(resourceId))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new EntityNotFoundException(
+                    "Resource with id %s not found in negotiation %s"
+                        .formatted(resourceId, negotiationId)));
   }
 }
