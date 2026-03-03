@@ -46,6 +46,7 @@
           v-if="requestSummary && activeNavItemIndex === 0"
           :requestSummary="requestSummary"
           :negotiationId="requestId"
+          :createdToday="isNegotiationCreatedToday"
           @resource-removed="handleResourceRemoved"
         />
         <AccessFormOverview
@@ -197,6 +198,18 @@ const existingAttachments = ref({})
 
 const isDraftStatus = computed(() => {
   return currentStatus.value === 'DRAFT'
+})
+
+const isNegotiationCreatedToday = computed(() => {
+  const creationDate = requestSummary.value?.creationDate
+  if (!creationDate) return false
+  const created = new Date(creationDate)
+  const today = new Date()
+  return (
+    created.getFullYear() === today.getFullYear() &&
+    created.getMonth() === today.getMonth() &&
+    created.getDate() === today.getDate()
+  )
 })
 
 function createAccessFormWithPayload() {
