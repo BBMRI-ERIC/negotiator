@@ -376,22 +376,18 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public void removeResourceFromNegotiation(String negotiationId, Long resourceId) {
-    // Fetch the negotiation
     Negotiation negotiation = findEntityById(negotiationId, false);
-
-    // Verify the user is the creator of the negotiation
     if (!isNegotiationCreator(negotiationId)) {
       throw new ForbiddenRequestException(
-          "Only the negotiation creator can remove resources from a draft negotiation");
+          "Only the negotiation author can remove resources from a draft negotiation");
     }
-
-    // Verify the negotiation is in DRAFT state
     if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
-      throw new ConflictStatusException(
+      throw new IllegalStateException(
           "Resources can only be removed from negotiations in DRAFT state");
     }
-
-    // Find the resource
+    if (negotiation.getResources().size() <= 1) {
+      throw new IllegalArgumentException("Cannot remove the last resource from a negotiation");
+    }
     Resource resource =
         negotiation.getResources().stream()
             .filter(r -> r.getId().equals(resourceId))
@@ -401,16 +397,12 @@ public class NegotiationServiceImpl implements NegotiationService {
                     new EntityNotFoundException(
                         "Resource with id %s not found in negotiation %s"
                             .formatted(resourceId, negotiationId)));
-
-    // Remove the resource
     boolean removed = negotiation.removeResource(resource);
     if (!removed) {
       throw new EntityNotFoundException(
           "Failed to remove resource with id %s from negotiation %s"
               .formatted(resourceId, negotiationId));
     }
-
-    // Save the negotiation
     negotiationRepository.save(negotiation);
   }
 }
