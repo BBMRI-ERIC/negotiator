@@ -8,7 +8,7 @@
           {{ numberOfResources }} {{ $t('negotiationPage.resources', numberOfResources) }}
         </p>
       </div>
-      <div v-if="activeDiscoveryServices.length > 0" class="dropdown">
+      <div v-if="showAddResources && activeDiscoveryServices.length > 0" class="dropdown">
         <PrimaryButton
           size="sm"
           :backgroundColor="primaryColor"
@@ -98,6 +98,10 @@ const props = defineProps({
   resources: {
     type: Array[Object],
     default: [],
+  },
+  showAddResources: {
+    type: Boolean,
+    default: false,
   },
 })
 
