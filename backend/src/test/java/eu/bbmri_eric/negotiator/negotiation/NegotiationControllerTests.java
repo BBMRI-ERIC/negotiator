@@ -1608,9 +1608,57 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void removeResource_draftStatus_multipleResources_userCanRemoveResource() throws Exception {
+    // negotiation-5 belongs to TheResearcher and has 2 resources (ids 5 and 7)
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiationRepository.saveAndFlush(negotiation);
+
+    int initialResourceCount = negotiation.getResources().size();
+    Assertions.assertTrue(initialResourceCount > 1, "Negotiation should have more than 1 resource");
+
+    Long resourceIdToRemove = negotiation.getResources().iterator().next().getId();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                "%s/%s/resources/%s"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID, resourceIdToRemove)))
+        .andExpect(status().isNoContent());
+
+    Negotiation updatedNegotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    assertEquals(
+        initialResourceCount - 1,
+        updatedNegotiation.getResources().size(),
+        "Resource should be removed from the negotiation");
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void removeResource_draftStatus_onlyOneResourceLeft_throwsBadRequest() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiationRepository.saveAndFlush(negotiation);
+    Long resourceIdToRemove = negotiation.getResources().iterator().next().getId();
+    mockMvc.perform(
+        MockMvcRequestBuilders.delete(
+            "%s/%s/resources/%s"
+                .formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID, resourceIdToRemove)));
+    resourceIdToRemove = negotiation.getResources().iterator().next().getId();
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                "%s/%s/resources/%s"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID, resourceIdToRemove)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   @WithUserDetails("admin")
   void getLifecycleEvents() throws Exception {
-    // negotiation-1 status is IN_PROGRESS
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/negotiation-1/lifecycle".formatted(NEGOTIATIONS_URL)))
