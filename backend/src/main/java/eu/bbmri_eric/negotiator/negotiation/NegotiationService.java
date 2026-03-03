@@ -130,7 +130,8 @@ public interface NegotiationService {
    * Checks whether the currently authenticated user is creator of negotiation
    *
    * @param negotiationId the id of the negotiaton to check
-   * @return true if the authenticated user is the creator of the negotiation, false otherwise
+   * @return {@code true} if the currently authenticated user is authorized to access the
+   *     negotiation
    */
   boolean isNegotiationCreator(String negotiationId);
 
