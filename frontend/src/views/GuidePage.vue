@@ -60,7 +60,7 @@
 
 <script setup>
 import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user.js'
 import { useVueTourStore } from '../store/vueTour'
@@ -88,47 +88,52 @@ const isAdmin = computed(() => {
   return userStore.userInfo.roles?.includes(ROLES.ADMINISTRATOR)
 })
 
-function startNavTour() {
+async function startNavTour() {
   showNotification(
     'Starting the Navigation Tour! Follow the prompts to learn about the navigation features.',
     'info',
   )
   disableOtherTours()
+  await nextTick()
   vueTourStore.isNavTourActive = true
 }
-function startFilterSortTour() {
+async function startFilterSortTour() {
   showNotification(
     'Starting the Filter and Sort Tour! Follow the prompts to learn about filtering and sorting features.',
     'info',
   )
   disableOtherTours()
+  await nextTick()
   vueTourStore.isFilterSortTourActive = true
   vueTourStore.isFilterSortVisible = false
   router.push('/')
 }
 
-function startNegotiationTour() {
+async function startNegotiationTour() {
   showNotification(
     'Starting the Negotiation Tour! Please select a negotiation from the list to begin the tour.',
     'info',
   )
   disableOtherTours()
+  await nextTick()
   vueTourStore.isNegotiationTourActive = true
   vueTourStore.isNegotiationVisible = false
 
   router.push('/')
 }
 
-function startGovernanceTour() {
+async function startGovernanceTour() {
   showNotification('Starting the Governance Tour!', 'info')
   disableOtherTours()
+  await nextTick()
   vueTourStore.isGovernanceTourActive = true
   router.push('/governance')
 }
 
-function startAdminSettingsTour() {
+async function startAdminSettingsTour() {
   showNotification('Starting the Settings Tour!', 'info')
   disableOtherTours()
+  await nextTick()
   vueTourStore.isAdminSettingsTourActive = true
   vueTourStore.isSettingsVisible = false
   router.push('/settings')

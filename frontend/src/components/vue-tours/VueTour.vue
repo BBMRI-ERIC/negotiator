@@ -1,11 +1,11 @@
 <template>
-  <v-tour name="myTour" :steps="steps" :callbacks="myCallbacks" :options="{ debug: true }" />
+  <v-tour :name="tourName" :steps="steps" :callbacks="myCallbacks" :options="{ debug: true }" />
 </template>
 
 <script>
 export default {
   mounted: function () {
-    this.$tours.myTour.start()
+    this.$tours[this.tourName].start()
   },
 }
 </script>
