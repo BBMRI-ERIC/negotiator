@@ -3,13 +3,11 @@
 **Release Date:** March 2026  
 **Full Changelog:** [v3.19.0...v3.20.0](https://github.com/BBMRI-ERIC/negotiator/compare/v3.19.0...v3.20.0)
 
----
-
 ## What's New
 
 ### Interactive Guided Tours
 
-![Interactive Guided Tour](/docs/release-notes/3.20.0_interactive_guided_tour.gif)
+![Interactive Guided Tour](/public/v3.20.0-interactive_guided_tour.gif)
 
 We've introduced **interactive guided tours** to help you get started with the Negotiator more easily! These step-by-step tutorials walk you through key features of the platform, including:
 
@@ -21,11 +19,9 @@ We've introduced **interactive guided tours** to help you get started with the N
 
 The tours appear automatically for new users and can be restarted anytime from the help menu.
 
----
-
 ### Custom Negotiation Display ID
 
-![Negotiation ID and Search for title text](/docs/release-notes/v3.20.0-Filter_and_Negotiation_ID.gif)
+![Negotiation ID and Search for title text](/public/v3.20.0-filter_and_negotiation_id.gif)
 
 Negotiations now support a **customizable Display ID** that can be viewed and edited. This allows your organization to use your own reference numbers alongside the system-generated IDs, making it easier to track negotiations in your internal systems.
 
@@ -41,14 +37,10 @@ Emails related to the same negotiation are now **grouped together** in your inbo
 
 When you are added as a representative to a resource, you will now receive a **welcome email notification** with links to all relevant negotiations. This ensures you never miss important access requests that need your attention.
 
----
-
 ### Better Network Experience
 
 - **Draft negotiations** are now excluded from network listings and statistics, giving you a cleaner view of active negotiations
 - Fixed an issue where resource representatives weren't displaying correctly for network organizations
-
----
 
 ## User Interface Improvements
 
@@ -65,8 +57,6 @@ We've refreshed the interface with a more consistent look and feel:
 
 - Representative search has been split into **two separate fields** for name and email, making it easier to find the right person
 - Better handling when no search results are found
-
----
 
 ## For Administrators
 
@@ -93,8 +83,6 @@ We've refreshed the interface with a more consistent look and feel:
 - Better cookie consent banner handling
 - Fixed issues with local storage access when disabled
 
----
-
 ## Bug Fixes
 
 - **PDF Generation**: Fixed an issue where form fields appeared in the wrong order in generated PDF documents
@@ -103,13 +91,9 @@ We've refreshed the interface with a more consistent look and feel:
 - **Login Page**: Improved error handling and display name fallbacks
 - **Filter Tables**: Fixed an error when filtering negotiations with null values
 
----
-
 ## Dependency Updates
 
 We've updated various components to their latest versions for improved security and performance, including Bootstrap 5.3.8, Vue 3.5, and multiple security patches.
-
----
 
 *Thank you to all contributors who made this release possible!*
 
