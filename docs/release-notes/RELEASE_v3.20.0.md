@@ -1,4 +1,4 @@
-# Negotiator v3.20.0 Release Notes
+# Negotiator v3.20.0
 
 **Release Date:** March 2026  
 **Full Changelog:** [v3.19.0...v3.20.0](https://github.com/BBMRI-ERIC/negotiator/compare/v3.19.0...v3.20.0)
@@ -23,19 +23,23 @@ The tours appear automatically for new users and can be restarted anytime from t
 
 ---
 
-### Improved Email Notifications
+### Custom Negotiation Display ID
 
-#### Email Threading
-Emails related to the same negotiation are now **grouped together** in your inbox. This makes it much easier to follow conversations and track the history of a negotiation without searching through scattered messages.
+![Negotiation ID and Search for title text](/docs/release-notes/v3.20.0-Filter_and_Negotiation_ID.gif)
 
-#### New Representative Notifications
-When you are added as a representative to a resource, you will now receive a **welcome email notification** with links to all relevant negotiations. This ensures you never miss important access requests that need your attention.
+Negotiations now support a **customizable Display ID** that can be viewed and edited. This allows your organization to use your own reference numbers alongside the system-generated IDs, making it easier to track negotiations in your internal systems.
 
 ---
 
-### Custom Negotiation Display ID
+### Improved Email Notifications
 
-Negotiations now support a **customizable Display ID** that can be viewed and edited. This allows your organization to use your own reference numbers alongside the system-generated IDs, making it easier to track negotiations in your internal systems.
+#### Email Threading
+
+Emails related to the same negotiation are now **grouped together** in your inbox. This makes it much easier to follow conversations and track the history of a negotiation without searching through scattered messages.
+
+#### New Representative Notifications
+
+When you are added as a representative to a resource, you will now receive a **welcome email notification** with links to all relevant negotiations. This ensures you never miss important access requests that need your attention.
 
 ---
 
@@ -49,17 +53,16 @@ Negotiations now support a **customizable Display ID** that can be viewed and ed
 ## User Interface Improvements
 
 ### Consistent Design
+
 We've refreshed the interface with a more consistent look and feel:
+
 - Unified button styles across all pages
 - Improved badge components for status indicators
 - Better timestamp displays
 - Cleaner table layouts with improved accessibility
 
-### Customizable Appearance
-- **Custom favicon**: Administrators can now set a custom browser tab icon through the UI settings
-- **Open Sans font**: The interface now uses the Open Sans font for improved readability
-
 ### Search Improvements
+
 - Representative search has been split into **two separate fields** for name and email, making it easier to find the right person
 - Better handling when no search results are found
 
@@ -67,16 +70,25 @@ We've refreshed the interface with a more consistent look and feel:
 
 ## For Administrators
 
+### Customizable Appearance
+
+- **Custom favicon**: Administrators can now set a custom browser tab icon through the UI settings
+
+- **Open Sans font**: The interface now uses the Open Sans font for improved readability
+
 ### Email Configuration
+
 - **Rate limiting**: New configurable parameters to control email sending frequency, helping prevent delivery issues with mail servers that have strict limits
 - **Configurable delay**: Added delay between sending emails to improve deliverability
 
 ### Deployment Updates
+
 - Updated Traefik configuration for improved routing
 - HTTP request logging now available for better troubleshooting
 - Updated Docker images to Node.js LTS 24.11.0
 
 ### Analytics
+
 - Improved Matomo analytics integration
 - Better cookie consent banner handling
 - Fixed issues with local storage access when disabled
@@ -96,35 +108,6 @@ We've refreshed the interface with a more consistent look and feel:
 ## Dependency Updates
 
 We've updated various components to their latest versions for improved security and performance, including Bootstrap 5.3.8, Vue 3.5, and multiple security patches.
-
----
-
-## Getting Started
-
-### New Installation
-```bash
-git clone https://github.com/BBMRI-ERIC/negotiator.git
-cd negotiator
-git checkout v3.20.0
-docker compose up -d
-```
-
-### Upgrading
-If you're upgrading from a previous version, database migrations will run automatically. We recommend backing up your database before upgrading.
-
----
-
-## Documentation
-
-For detailed documentation, visit: https://bbmri-eric.github.io/negotiator
-
----
-
-## Feedback & Support
-
-We value your feedback! If you encounter any issues or have suggestions:
-- Open an issue on [GitHub](https://github.com/BBMRI-ERIC/negotiator/issues)
-- Check our [documentation](https://bbmri-eric.github.io/negotiator) for help
 
 ---
 
