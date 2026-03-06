@@ -2,15 +2,9 @@
   <v-tour :name="tourName" :steps="steps" :callbacks="myCallbacks" :options="{ debug: true }" />
 </template>
 
-<script>
-export default {
-  mounted: function () {
-    this.$tours[this.tourName].start()
-  },
-}
-</script>
-
 <script setup>
+import { onMounted, getCurrentInstance } from 'vue'
+
 const props = defineProps({
   tourName: {
     type: String,
@@ -41,6 +35,35 @@ const myCallbacks = {
     }
   },
 }
+
+onMounted(() => {
+  // Only start the tour if not stored in localStorage (when isStoreToLocalStorage is true)
+  if (props.isStoreToLocalStorage) {
+    if (!localStorage.getItem(props.tourName)) {
+      // Access $tours from the globalProperties
+      const instance = getCurrentInstance()
+      if (
+        instance &&
+        instance.proxy &&
+        instance.proxy.$tours &&
+        instance.proxy.$tours[props.tourName]
+      ) {
+        instance.proxy.$tours[props.tourName].start()
+      }
+    }
+  } else {
+    // Always start the tour if not using localStorage
+    const instance = getCurrentInstance()
+    if (
+      instance &&
+      instance.proxy &&
+      instance.proxy.$tours &&
+      instance.proxy.$tours[props.tourName]
+    ) {
+      instance.proxy.$tours[props.tourName].start()
+    }
+  }
+})
 </script>
 
 <style lang="scss">
