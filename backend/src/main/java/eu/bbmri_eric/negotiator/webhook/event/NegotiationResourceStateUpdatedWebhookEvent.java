@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 
 /**
@@ -9,9 +10,11 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
  * @param resourceId identifier of the affected resource
  * @param fromState previous resource state
  * @param toState new resource state
+ * @param event resource-state-machine event that triggered the transition
  */
 record NegotiationResourceStateUpdatedWebhookEvent(
     String negotiationId,
     String resourceId,
     NegotiationResourceState fromState,
-    NegotiationResourceState toState) {}
+    NegotiationResourceState toState,
+    NegotiationResourceEvent event) {}

@@ -14,6 +14,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
+import org.springframework.statemachine.trigger.Trigger;
 import org.springframework.stereotype.Service;
 
 /** Listener for changes to the Resource State Machine. */
@@ -41,7 +42,7 @@ public class ResourcePersistStateChangeListener
     String negotiationId = parseNegotiationIdFromMessage(message);
     String resourceId = parseResourceIdFromMessage(message);
     Optional<Negotiation> negotiation = getNegotiation(negotiationId);
-    negotiation.ifPresent(value -> updateStateForResource(state, value, resourceId));
+    negotiation.ifPresent(value -> updateStateForResource(state, transition, value, resourceId));
   }
 
   @Nullable
@@ -56,12 +57,22 @@ public class ResourcePersistStateChangeListener
 
   @NonNull
   private Optional<Negotiation> updateStateForResource(
-      State<String, String> state, Negotiation negotiation, String resourceId) {
+      State<String, String> state,
+      Transition<String, String> transition,
+      Negotiation negotiation,
+      String resourceId) {
     NegotiationResourceState fromState = negotiation.getCurrentStateForResource(resourceId);
     negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
     NegotiationResourceState toState = negotiation.getCurrentStateForResource(resourceId);
+    NegotiationResourceEvent resourceEvent =
+        Optional.ofNullable(transition)
+            .map(Transition::getTrigger)
+            .map(Trigger::getEvent)
+            .map(NegotiationResourceEvent::valueOf)
+            .orElse(null);
     eventPublisher.publishEvent(
-        new ResourceStateChangeEvent(this, negotiation.getId(), resourceId, fromState, toState));
+        new ResourceStateChangeEvent(
+            this, negotiation.getId(), resourceId, fromState, toState, resourceEvent));
     return Optional.of(negotiationRepository.save(negotiation));
   }
 

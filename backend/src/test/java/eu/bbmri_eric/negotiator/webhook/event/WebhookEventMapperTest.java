@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
@@ -52,7 +53,11 @@ class WebhookEventMapperTest {
   void map_whenNegotiationStateChangeEvent_returnsStableEventTypeAndData() {
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, "negotiation-2", NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "post");
+            this,
+            "negotiation-2",
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT);
 
     Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
 
@@ -62,7 +67,10 @@ class WebhookEventMapperTest {
     assertThat(mapped.get().data())
         .isEqualTo(
             new NegotiationStateUpdatedWebhookEvent(
-                "negotiation-2", NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "post"));
+                "negotiation-2",
+                NegotiationState.DRAFT,
+                NegotiationState.SUBMITTED,
+                NegotiationEvent.SUBMIT));
   }
 
   @Test
@@ -111,7 +119,8 @@ class WebhookEventMapperTest {
             "negotiation-5",
             "resource-1",
             NegotiationResourceState.SUBMITTED,
-            NegotiationResourceState.RESOURCE_AVAILABLE);
+            NegotiationResourceState.RESOURCE_AVAILABLE,
+            NegotiationResourceEvent.MARK_AS_AVAILABLE);
 
     Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
 
@@ -125,6 +134,7 @@ class WebhookEventMapperTest {
                 "negotiation-5",
                 "resource-1",
                 NegotiationResourceState.SUBMITTED,
-                NegotiationResourceState.RESOURCE_AVAILABLE));
+                NegotiationResourceState.RESOURCE_AVAILABLE,
+                NegotiationResourceEvent.MARK_AS_AVAILABLE));
   }
 }
