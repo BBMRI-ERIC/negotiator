@@ -1,5 +1,5 @@
 <template>
-  <v-tour :name="tourName" :steps="steps" :callbacks="myCallbacks" :options="{ debug: true }" />
+  <v-tour :name="tourName" :steps="steps" :callbacks="myCallbacks" :options="tourOptions" />
 </template>
 
 <script setup>
@@ -22,6 +22,10 @@ const props = defineProps({
     default: false,
   },
 })
+
+const tourOptions = {
+  debug: import.meta.env.DEV,
+}
 
 const myCallbacks = {
   onSkip: () => {
