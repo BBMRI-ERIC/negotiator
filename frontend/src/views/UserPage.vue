@@ -1,18 +1,25 @@
 <template>
   <FilterSort
-    v-if="!loading"
+    v-if="!loading && !isHomePage"
     v-model:filtersSortData="filtersSortData"
     :user-role="userRole"
     :filters-status="filtersStatus"
     @filters-sort-data="retrieveNegotiationsBySortAndFilter"
   />
   <NegotiationList
-    :negotiations="negotiations"
+    :isHomePage="isHomePage"
+    :negotiations="returnNegotiations"
     :pagination="pagination"
     :user-role="userRole"
     v-model:filtersSortData="filtersSortData"
     @filters-sort-data="retrieveNegotiationsBySortAndFilter"
   />
+  <div
+    v-if="!loading && isHomePage && returnNegotiations.length > 0"
+    class="d-flex justify-content-center mt-2"
+  >
+    <PrimaryButton @click="navigateToNegotiationPage()">  Show more... </PrimaryButton>
+  </div>
   <NegotiationPagination
     :negotiations="negotiations"
     :pagination="pagination"
@@ -30,6 +37,7 @@ import { ROLES } from '@/config/consts.js'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
 import { useNegotiationsStore } from '../store/negotiations'
+import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 const userStore = useUserStore()
 const negotiationsStore = useNegotiationsStore()
@@ -37,6 +45,16 @@ const router = useRouter()
 const route = useRoute()
 
 const props = defineProps({
+  isHomePage: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  totalNegotiationsCount: {
+    type: Number,
+    required: false,
+    default: 5,
+  },
   userRole: {
     type: String,
     required: true,
@@ -62,6 +80,13 @@ const filtersSortData = ref({
 
 const loading = computed(() => {
   return negotiations.value === undefined
+})
+
+const returnNegotiations = computed(() => {
+  if (props.isHomePage && Array.isArray(negotiations.value)) {
+    return negotiations.value?.slice(0, props.totalNegotiationsCount)
+  }
+  return negotiations.value
 })
 
 onMounted(async () => {
@@ -169,6 +194,16 @@ function increaseDateEndIfSame() {
     filtersSortData.value.dateEnd = moment(filtersSortData.value.dateEnd)
       .add(1, 'days')
       .format('YYYY-MM-DD')
+  }
+}
+
+function navigateToNegotiationPage() {
+  if (props.userRole === ROLES.ADMINISTRATOR) {
+    router.push('/admin')
+  } else if (props.userRole === ROLES.RESEARCHER) {
+    router.push('/researcher')
+  } else if (props.userRole === ROLES.REPRESENTATIVE) {
+    router.push('/biobanker')
   }
 }
 </script>

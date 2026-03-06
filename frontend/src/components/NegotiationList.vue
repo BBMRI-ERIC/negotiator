@@ -1,8 +1,8 @@
 <template>
   <div v-if="!loading" class="container">
-    <NewRequestButton v-if="!networkActivated" />
+    <NewRequestButton v-if="!networkActivated && !isHomePage" />
     <div class="pt-1">
-      <div class="row mt-5 pt-3">
+      <div v-if="!isHomePage" class="row mt-5 pt-3">
         <div class="col-12 mb-3">
           <div class="input-group">
             <span class="input-group-text">
@@ -26,7 +26,7 @@
           </div>
         </div>
       </div>
-      <div class="row row-cols-2 d-grid-row">
+      <div v-if="!isHomePage" class="row row-cols-2 d-grid-row">
         <p>
           <span
             class="negotiations-search-results"
@@ -241,6 +241,11 @@ const searchQuery = ref('')
 let searchTimeout = null
 
 const props = defineProps({
+  isHomePage: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   negotiations: {
     type: Array,
     default: undefined,
@@ -320,6 +325,9 @@ const loading = computed(() => {
 })
 
 const savedNegotiationsView = computed(() => {
+  if (props.isHomePage) {
+    return 'Card-one-column'
+  }
   return negotiationsViewStore.savedNegotiationsView
 })
 
