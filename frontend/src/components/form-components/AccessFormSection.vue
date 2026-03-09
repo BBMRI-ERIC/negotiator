@@ -14,7 +14,7 @@
       :class="
         element.required === true &&
         focusElementId === element.id &&
-        validationErrorHighlight && validationErrorHighlight && validationErrorHighlight.includes(element.id)
+        validationErrorHighlight && validationErrorHighlight.includes(element.id)
           ? 'border border-danger rounded p-3'
           : focusElementId === element.id
             ? 'border border-border-color rounded p-3'
@@ -195,7 +195,7 @@
         />
 
         <div
-          v-if="validationErrorHighlight && validationErrorHighlight && validationErrorHighlight && validationErrorHighlight.includes(element.id)"
+          v-if="validationErrorHighlight && validationErrorHighlight.includes(element.id)"
           class="invalid-text"
         >
           {{ transformMessage(element.type) }}
