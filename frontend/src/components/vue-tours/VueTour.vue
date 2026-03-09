@@ -30,12 +30,12 @@ const tourOptions = {
 const myCallbacks = {
   onSkip: () => {
     if (props.isStoreToLocalStorage) {
-      localStorage.setItem(props.tourName, true)
+      localStorage.setItem(props.tourName, 'true')
     }
   },
   onFinish: () => {
     if (props.isStoreToLocalStorage) {
-      localStorage.setItem(props.tourName, true)
+      localStorage.setItem(props.tourName, 'true')
     }
   },
 }
