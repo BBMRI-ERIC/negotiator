@@ -24,6 +24,14 @@ export default defineConfig({
     plugins: [
         vue()
     ],
+    build: {
+        rollupOptions: {
+            input: {
+                index: fileURLToPath(new URL('./index.html', import.meta.url)),
+                silentRenew: fileURLToPath(new URL('./silent-renew-oidc.html', import.meta.url)),
+            },
+        },
+    },
     resolve: {
         alias: {
             "@": fileURLToPath(new URL("./src", import.meta.url))
