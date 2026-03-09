@@ -115,9 +115,7 @@
                         :value="value"
                         :required="criteria.required"
                         class="form-check-input"
-                        :class="
-                          validationColorHighlight && validationColorHighlight && validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
-                        "
+                        :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                         type="checkbox"
                       />
                       <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
@@ -148,9 +146,7 @@
                         :value="value"
                         :required="criteria.required"
                         class="form-check-input"
-                        :class="
-                          validationColorHighlight && validationColorHighlight && validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
-                        "
+                        :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                         type="radio"
                         @click="uncheckRadioButton(value, section.name, criteria.name)"
                       />
