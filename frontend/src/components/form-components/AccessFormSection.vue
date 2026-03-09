@@ -80,7 +80,11 @@
             <span class="text-muted">Loading options...</span>
           </div>
           <div v-else>
-            <div class="form-check form-check-inline" v-for="(value, index) in negotiationValueSets[element.id]?.availableValues">
+            <div
+              class="form-check form-check-inline"
+              v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
+              :key="`${element.id}-${value}`"
+            >
               <input
                 :id="`inlineCheckbox-${element.id}-${index}`"
                 v-model="element.value"
@@ -109,7 +113,11 @@
             <span class="text-muted">Loading options...</span>
           </div>
           <div v-else>
-            <div class="form-check form-check-inline" v-for="(value, index) in negotiationValueSets[element.id]?.availableValues">
+            <div
+              class="form-check form-check-inline"
+              v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
+              :key="`${element.id}-${value}`"
+            >
               <input
                 :id="`inlineRadio-${element.id}-${index}`"
                 v-model="element.value"
@@ -207,7 +215,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useNegotiationFormStore } from '../../store/negotiationForm'
 import { useNotificationsStore } from '../../store/notifications'
 
@@ -244,9 +252,17 @@ const props = defineProps({
 })
 
 // --- Robust value set loading pattern ---
-import { watch } from 'vue'
 const negotiationValueSets = ref({})
 const valueSetsLoading = ref(false)
+
+// Computed property to track choice element IDs for targeted watching
+const choiceElementIds = computed(() => {
+  const elements = accessFormWithPayloadSection.value?.elements || []
+  return elements
+    .filter(e => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
+    .map(e => e.id)
+    .join(',')
+})
 
 function loadValueSets() {
   valueSetsLoading.value = true
@@ -254,26 +270,28 @@ function loadValueSets() {
   const promises = elements
     .filter(e => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
     .map(e =>
-      negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(e.id).then(res => {
-        negotiationValueSets.value[e.id] = res
-      })
+      negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(e.id)
+        .then(res => {
+          negotiationValueSets.value[e.id] = res
+        })
+        .catch(() => {
+          // Fallback to empty values on error
+          negotiationValueSets.value[e.id] = { availableValues: [] }
+        })
     )
-  Promise.all(promises).finally(() => {
+  Promise.allSettled(promises).finally(() => {
     valueSetsLoading.value = false
   })
 }
 
 onMounted(loadValueSets)
 
-watch(
-  () => accessFormWithPayloadSection.value?.elements,
-  (newElements, oldElements) => {
-    if (newElements !== oldElements) {
-      loadValueSets()
-    }
-  },
-  { deep: true }
-)
+// Watch only the element IDs to avoid triggering on user input changes
+watch(choiceElementIds, (newIds, oldIds) => {
+  if (newIds !== oldIds) {
+    loadValueSets()
+  }
+})
 
 function handleFileUpload(event, indexOfElement) {
   if (
