@@ -46,28 +46,25 @@ onMounted(() => {
     if (!localStorage.getItem(props.tourName)) {
       // Access $tours from the globalProperties
       const instance = getCurrentInstance()
-      if (
-        instance &&
-        instance.proxy &&
-        instance.proxy.$tours &&
-        instance.proxy.$tours[props.tourName]
-      ) {
-        instance.proxy.$tours[props.tourName].start()
-      }
+      startTour(instance)
     }
   } else {
     // Always start the tour if not using localStorage
     const instance = getCurrentInstance()
-    if (
-      instance &&
-      instance.proxy &&
-      instance.proxy.$tours &&
-      instance.proxy.$tours[props.tourName]
-    ) {
-      instance.proxy.$tours[props.tourName].start()
-    }
+    startTour(instance)
   }
 })
+
+function startTour(instance) {
+  if (
+    instance &&
+    instance.proxy &&
+    instance.proxy.$tours &&
+    instance.proxy.$tours[props.tourName]
+  ) {
+    instance.proxy.$tours[props.tourName].start()
+  }
+}
 </script>
 
 <style lang="scss">
