@@ -2,7 +2,7 @@
 
 echo "Replacing env constants in JS"
 
-for file in assets/index*.js;
+for file in assets/*.js;
  do
   echo "Processing $file ..."
 
