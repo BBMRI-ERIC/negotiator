@@ -1,165 +1,119 @@
 <template>
-  <div
-    v-if="!oidcIsAuthenticated || isUiConfigActive"
-    class="container-fluid d-flex justify-content-center align-items-center vh-100"
-    :class="isUiConfigActive ? '' : 'mt-5'"
-  >
-    <div class="row">
-      <div class="col-1" />
-      <div class="col-sm-10">
-        <div class="card py-5 p-3">
-          <div class="col-10 col-md-4 align-self-center">
-            <img
-              :src="returnLogoSrc"
-              class="img-fluid mt-4 mb-2"
-              style="min-width: 50px"
-              alt="home-page-logo"
-            />
-          </div>
-          <h1 class="text-center card-title fw-bold mb-5 text-login-tittle-text">
-            <b>NEGOTIATOR</b>
-          </h1>
-          <div class="card-body">
-            <h4 class="card-subtitle text-center fw-bold pb-2 text-primary-text">
-              Choose how to log in
-            </h4>
-            <div class="d-grid mx-3 mb-5">
-              <button class="btn btn-outline-light" @click.stop.prevent="authenticateOidc">
-                <img
-                  width="28"
-                  height="23"
-                  class="float-center mb-1 pe-2"
-                  src="../assets/images/ls-aai-logo.png"
-                  alt="icon"
-                />
-                <span class="align-self-center pe-4 text-primary-link-color">
-                  Life Science Login</span
-                >
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="text-center mt-2 mb-2 text-primary-text">
-          Not familiar with LS Login? Visit their
-          <a
-            class="text-primary-link-color"
-            target="_blank"
-            href="https://lifescience-ri.eu/ls-login.html"
-            >Website</a
-          >.
-        </div>
-        <div class="text-center col mb-2">
-          <i class="bi bi-github me-1" />
-          <a href="https://github.com/BBMRI-ERIC/negotiator" class="text-primary-link-color"
-            >View Source Code</a
-          >
-        </div>
-        <div class="text-center mt-2 mb-2">
-          <a href="/api/swagger-ui/index.html" class="text-primary-link-color">
-            <i class="bi bi-braces-asterisk text-primary-text" />
-            API
-          </a>
-          <a href="https://status.bbmri-eric.eu/" class="ps-2 text-primary-link-color">
-            <i class="bi bi-check-circle text-primary-text" />
-            BBMRI-ERIC Status page
-          </a>
-        </div>
-        <div class="text-center mb-2 text-secondary-text">
-          Need help?
-          <a class="text-primary-link-color" href="mailto:negotiator@helpdesk.bbmri-eric.eu"
-            >Contact us</a
-          >.
-        </div>
-        <div class="text-center">
-          <span class="text-secondary-text" style="opacity: 0.5"
-            >This application was created using the
-          </span>
-          <a href="https://github.com/BBMRI-ERIC/negotiator" class="text-primary-link-color"
-            >BBMRI-ERIC Negotiator</a
-          >
-          <span class="text-secondary-text" style="opacity: 0.5"> open source software </span>
-          <a
-            href="https://github.com/BBMRI-ERIC/negotiator/blob/master/LICENSE"
-            class="text-primary-link-color"
-            >(license: AGPLv3)</a
-          >
-        </div>
-        <div class="text-center version-class text-secondary-text" style="opacity: 0.5">
-          UI version: <span class="pe-2">{{ gitTag }}</span
-          >Server version: <span>{{ backendVersion }}</span>
-        </div>
-        <div class="text-center mb-5 text-secondary-text">
-          <CopyrightText />
-        </div>
+  <div class="home-page">
+    <p class="app-name-text my-0 fw-bold">NEGOTIATOR</p>
+    <p>
+      The BBMRI-ERIC Negotiator is a service that provides an efficient communication platform for
+      biobankers and researchers requesting samples and/or data.
+      <br />
+
+      The Negotiator is connected to the already established BBMRI-ERIC Directory, the biggest
+      biobanking catalogue on the globe.
+    </p>
+
+    <div class="navigation-panel d-flex flex-row flex-wrap my-4">
+      <BigButton
+        :buttonIcon="'bi-building'"
+        :buttonText="'Documentation'"
+        @click="openDocumentation()"
+      />
+      <BigButton
+        :buttonIcon="'bi-people'"
+        :buttonText="$t('navbar.FAQ')"
+        @click="$router.push('/FAQ')"
+      />
+      <BigButton
+        :buttonIcon="'bi-play-circle'"
+        :buttonText="'Take a Tour'"
+        @click="$router.push('/guide')"
+      />
+    </div>
+  </div>
+  <div class="row">
+    <div v-if="userRoles.includes(ROLES.ADMINISTRATOR)" class="mb-5 col-12 col-md-6">
+      <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.admin') }}</h2>
+      <UserPage
+        :userRole="ROLES.ADMINISTRATOR"
+        :isHomePage="true"
+        :totalNegotiationsCount="totalNegotiationsCount"
+      />
+    </div>
+    <div v-if="userRoles.includes(ROLES.RESEARCHER)" class="mb-5 col-12 col-md-6">
+      <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.researcher') }}</h2>
+      <UserPage
+        :userRole="ROLES.RESEARCHER"
+        :isHomePage="true"
+        :totalNegotiationsCount="totalNegotiationsCount"
+      />
+    </div>
+    <div v-if="userRoles.includes(ROLES.REPRESENTATIVE)" class="mb-5 col-12 col-md-6">
+      <h2 class="my-0 fw-bold mb-3 text-uppercase">{{ $t('navbar.biobanker') }}</h2>
+      <UserPage
+        :userRole="ROLES.REPRESENTATIVE"
+        :isHomePage="true"
+        :totalNegotiationsCount="totalNegotiationsCount"
+      />
+    </div>
+  </div>
+  <div class="discovery-services mb-5">
+    <h2 class="my-0 fw-bold mb-3">Discovery Services</h2>
+    <div class="d-flex flex-row flex-wrap">
+      <div v-for="(service, index) in allDiscoveryServices" :key="index">
+        <BigButton
+          :buttonIcon="'bi-database'"
+          :buttonText="`${service.name}`"
+          @click="openService(service.url)"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue'
-import bbmriLogo from '../assets/images/bbmri/home-bbmri.png'
-import eucaimLogo from '../assets/images/eucaim/home-eucaim.png'
-import canservLogo from '../assets/images/canserv/home-canserv.png'
-import { useRouter } from 'vue-router'
-import { useActuatorInfoStore } from '../store/actuatorInfo.js'
-import { useOidcStore } from '../store/oidc.js'
-import { useUiConfiguration } from '../store/uiConfiguration.js'
-import CopyrightText from '../components/CopyrightText.vue'
+import { onMounted, ref } from 'vue'
+import UserPage from './UserPage.vue'
+import { useUserStore } from '../store/user.js'
+import { ROLES } from '@/config/consts.js'
+import BigButton from '@/components/ui/buttons/BigButton.vue'
+import { useDiscoveryServicesStore } from '../store/discoveryServices.js'
 
-const props = defineProps({
-  isUiConfigActive: {
-    type: Boolean,
-    default: false,
-  },
-})
+const userStore = useUserStore()
+const discoveryServices = useDiscoveryServicesStore()
+const userRoles = ref([])
 
-const viteGitTag = import.meta.env.VITE_GIT_TAG
+const allDiscoveryServices = ref([])
+const INITIAL_TOTAL_NEGOTIATIONS_COUNT = 3
+const totalNegotiationsCount = ref(INITIAL_TOTAL_NEGOTIATIONS_COUNT)
 
-const uiConfigurationStore = useUiConfiguration()
-const actuatorInfoStore = useActuatorInfoStore()
-
-const router = useRouter()
-
-const gitTag = ref(viteGitTag)
-const backendVersion = ref('')
-const oidcStore = useOidcStore()
-
-const uiConfigurationLogin = computed(() => {
-  return uiConfigurationStore.uiConfiguration?.login
-})
-
-const oidcIsAuthenticated = computed(() => {
-  return oidcStore.oidcIsAuthenticated
-})
-
-const returnLogoSrc = computed(() => {
-  if (uiConfigurationLogin.value?.loginLogoUrl === 'bbmri') {
-    return bbmriLogo
-  } else if (uiConfigurationLogin.value?.loginLogoUrl === 'canserv') {
-    return canservLogo
-  } else if (uiConfigurationLogin.value?.loginLogoUrl === 'eucaim') {
-    return eucaimLogo
+onMounted(async () => {
+  if (Object.keys(userStore.userInfo).length === 0) {
+    await userStore.retrieveUser()
   }
-  return uiConfigurationLogin.value?.loginLogoUrl
+  userRoles.value = userStore.userInfo.roles
+
+  allDiscoveryServices.value = await discoveryServices.retrieveDiscoveryServices()
 })
 
-onBeforeMount(() => {
-  if (oidcIsAuthenticated.value && !props.isUiConfigActive) {
-    router.push('/researcher')
-  }
-  actuatorInfoStore.retrieveBackendActuatorInfo().then(() => {
-    backendVersion.value = actuatorInfoStore.actuatorInfoBuildVersion
-  })
-})
+function openDocumentation() {
+  window.open('https://bbmri-eric.github.io/negotiator/requester', '_blank', 'noopener')
+}
 
-function authenticateOidc() {
-  oidcStore.authenticateOidc()
+function openService(service) {
+  window.open(service, '_blank', 'noopener')
 }
 </script>
 
 <style scoped>
-h1 {
-  font-size: 3.5rem;
+.home-page {
+  margin-top: -20px;
+}
+
+.app-name-text {
+  font-size: 4rem;
+}
+
+@media only screen and (min-width: 768px) {
+  .app-name-text {
+    font-size: 6rem;
+  }
 }
 </style>
