@@ -78,7 +78,31 @@ app.use(VueDOMPurifyHTML, {
   },
 })
 
-router.beforeEach(piniaOidcCreateRouterMiddleware(useOidcStore()))
+const oidcStore = useOidcStore()
+
+oidcStore.addOidcEventListener({
+  eventName: 'tokenExpired',
+  eventListener: async () => {
+    console.log('OIDC: Access token has expired')
+
+    // Check if we are not on the home page
+    if (router.currentRoute.value.name !== 'home') {
+      await router.replace({
+        name: 'home',
+        query: { logged_out_reason: 'token_expired' },
+      })
+    }
+  },
+})
+
+oidcStore.addOidcEventListener({
+  eventName: 'silentRenewError',
+  eventListener: async ({ detail: error }) => {
+    console.error('OIDC: Access token could not be renewed:', error)
+  },
+})
+
+router.beforeEach(piniaOidcCreateRouterMiddleware(oidcStore))
 
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 
