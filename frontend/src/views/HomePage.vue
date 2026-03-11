@@ -1,8 +1,8 @@
 <template>
   <div
     v-if="!oidcIsAuthenticated || isUiConfigActive"
-    class="container-fluid d-flex justify-content-center align-items-center vh-100"
-    :class="isUiConfigActive ? '' : 'mt-5'"
+    class="container-fluid d-flex justify-content-center align-items-start align-items-md-center min-vh-100 overflow-auto py-3"
+    :class="isUiConfigActive ? '' : 'pt-md-3'"
   >
     <div class="row">
       <div class="col-1" />
