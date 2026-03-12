@@ -119,9 +119,15 @@
           <a
             class="me-5 link"
             :style="{ color: uiConfiguration?.footerTextColor }"
-            :href="uiConfiguration?.footerPrivacyPolicyLink"
+            :href="
+              uiConfiguration?.footerPrivacyPolicyLink ||
+              uiConfigurationNavbar?.navbarPrivacyPolicyLink
+            "
           >
-            {{ uiConfiguration?.footerPrivacyPolicyText }}
+            {{
+              uiConfiguration?.footerPrivacyPolicyText ||
+              uiConfigurationNavbar?.navbarPrivacyPolicyText
+            }}
           </a>
         </div>
       </div>
@@ -203,6 +209,10 @@ onBeforeMount(() => {
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.footer
+})
+
+const uiConfigurationNavbar = computed(() => {
+  return uiConfigurationStore.uiConfiguration?.navbar
 })
 
 const returnLogoSrc = computed(() => {
