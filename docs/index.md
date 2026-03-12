@@ -20,6 +20,9 @@ hero:
       text: User documentation
       link: /representative
     - theme: alt
+      text: Release information
+      link: /release-information
+    - theme: alt
       text: How to contribute
       link: /contributing
 features:
