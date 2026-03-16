@@ -28,7 +28,7 @@
         <commons-csv.version>1.14.0</commons-csv.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-validator.version>1.7</commons-validator.version>
-        <docx4j.version>11.5.3</docx4j.version>
+        <docx4j.version>11.5.9</docx4j.version>
         <flying-saucer.version>9.5.1</flying-saucer.version>
         <gson.version>2.12.1</gson.version>
         <httpcomponents.version>5.5.1</httpcomponents.version>
