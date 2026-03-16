@@ -11,6 +11,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
@@ -374,5 +375,40 @@ public class NegotiationServiceImpl implements NegotiationService {
       throw new ConflictStatusException("Cannot delete a Negotiation that is not in DRAFT state");
     }
     negotiationRepository.delete(negotiation);
+  }
+
+  @Override
+  public void removeResourceFromNegotiation(String negotiationId, Long resourceId) {
+    Negotiation negotiation = findEntityById(negotiationId, false);
+    verifyRemoveResourcePreconditions(negotiationId, negotiation);
+    Resource resource = findResourceInNegotiation(negotiationId, resourceId, negotiation);
+    negotiation.removeResource(resource);
+    negotiationRepository.save(negotiation);
+  }
+
+  private void verifyRemoveResourcePreconditions(String negotiationId, Negotiation negotiation) {
+    if (!isNegotiationCreator(negotiationId)) {
+      throw new ForbiddenRequestException(
+          "Only the negotiation author can remove resources from a draft negotiation");
+    }
+    if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
+      throw new IllegalStateException(
+          "Resources can only be removed from negotiations in DRAFT state");
+    }
+    if (negotiation.getResources().size() <= 1) {
+      throw new IllegalArgumentException("Cannot remove the last resource from a negotiation");
+    }
+  }
+
+  private Resource findResourceInNegotiation(
+      String negotiationId, Long resourceId, Negotiation negotiation) {
+    return negotiation.getResources().stream()
+        .filter(r -> r.getId().equals(resourceId))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new EntityNotFoundException(
+                    "Resource with id %s not found in negotiation %s"
+                        .formatted(resourceId, negotiationId)));
   }
 }

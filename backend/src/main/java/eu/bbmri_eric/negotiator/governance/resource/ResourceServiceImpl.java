@@ -81,6 +81,32 @@ public class ResourceServiceImpl implements ResourceService {
     this.negotiationAccessManager = negotiationAccessManager;
   }
 
+  private static boolean isStateMachineInitialized(NegotiationResourceState state) {
+    return state != NegotiationResourceState.SUBMITTED;
+  }
+
+  private static boolean isUninitialized(
+      NegotiationResourceState state, NegotiationResourceState before) {
+    return state == NegotiationResourceState.SUBMITTED && before == null;
+  }
+
+  private static void addAnyNewResourcesToNegotiation(
+      Set<Resource> resourcesToUpdate, Negotiation negotiation) {
+    if (!negotiation.getResources().containsAll(resourcesToUpdate)) {
+      if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+          && !(negotiation
+                  .getCreatedBy()
+                  .getId()
+                  .equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
+              && negotiation.getCurrentState().equals(NegotiationState.DRAFT))) {
+        throw new ForbiddenRequestException("You are not allowed to perform this action");
+      }
+      Set<Resource> newNegotiationResources = new HashSet<>(negotiation.getResources());
+      newNegotiationResources.addAll(resourcesToUpdate);
+      negotiation.setResources(newNegotiationResources);
+    }
+  }
+
   @Override
   public ResourceResponseModel findById(Long id) {
     return modelMapper.map(
@@ -130,7 +156,9 @@ public class ResourceServiceImpl implements ResourceService {
     Negotiation negotiation = fetchNegotiationFromDB(negotiationId);
     Set<Resource> resourcesToUpdate = fetchResourcesFromDB(updateResourcesDTO.getResourceIds());
     addAnyNewResourcesToNegotiation(resourcesToUpdate, negotiation);
-    setStatusForUpdatedResources(negotiation, resourcesToUpdate, updateResourcesDTO.getState());
+    if (!negotiation.getCurrentState().equals(NegotiationState.DRAFT)) {
+      setStatusForUpdatedResources(negotiation, resourcesToUpdate, updateResourcesDTO.getState());
+    }
     negotiationRepository.saveAndFlush(negotiation);
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
@@ -158,15 +186,6 @@ public class ResourceServiceImpl implements ResourceService {
     }
   }
 
-  private static boolean isStateMachineInitialized(NegotiationResourceState state) {
-    return state != NegotiationResourceState.SUBMITTED;
-  }
-
-  private static boolean isUninitialized(
-      NegotiationResourceState state, NegotiationResourceState before) {
-    return state == NegotiationResourceState.SUBMITTED && before == null;
-  }
-
   private void verifyAuthForStatusUpdate(Set<Resource> resourcesToUpdate) {
     Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     Person representative =
@@ -174,19 +193,6 @@ public class ResourceServiceImpl implements ResourceService {
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !representative.getResources().containsAll(resourcesToUpdate)) {
       throw new ForbiddenRequestException("You do not have permission to update these resources");
-    }
-  }
-
-  private static void addAnyNewResourcesToNegotiation(
-      Set<Resource> resourcesToUpdate, Negotiation negotiation) {
-    if (!negotiation.getResources().containsAll(resourcesToUpdate)) {
-      if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
-        throw new ForbiddenRequestException(
-            "You do not have permission to add resources to this negotiation");
-      }
-      Set<Resource> newNegotiationResources = new HashSet<>(negotiation.getResources());
-      newNegotiationResources.addAll(resourcesToUpdate);
-      negotiation.setResources(newNegotiationResources);
     }
   }
 
