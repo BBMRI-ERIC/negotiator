@@ -2,17 +2,14 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
+import { OrganizationServiceFactory } from './governance-api-clients'
 
 export const useOrganizationsStore = defineStore('organizations', () => {
   const notifications = useNotificationsStore()
+  const serviceClient = OrganizationServiceFactory.getClient()
 
-  function getOrganizationById(id, expand = null) {
-    const url = expand
-      ? `${apiPaths.BASE_API_PATH}/organizations/${id}?expand=${expand}`
-      : `${apiPaths.BASE_API_PATH}/organizations/${id}`
-
-    return axios
-      .get(url, { headers: getBearerHeaders() })
+  function getOrganizationById(organization, expand = null) {
+    return serviceClient.getOrganizationByd(organization, expand)
       .then((response) => {
         return response.data
       })
@@ -37,13 +34,8 @@ export const useOrganizationsStore = defineStore('organizations', () => {
   }
 
   function getAllOrganizations(filters = null) {
-    const params = filters ? new URLSearchParams(filters).toString() : ''
-    const url = params
-      ? `${apiPaths.BASE_API_PATH}/organizations?${params}`
-      : `${apiPaths.BASE_API_PATH}/organizations`
-
-    return axios
-      .get(url, { headers: getBearerHeaders() })
+    return serviceClient
+      .getAllOrganizations(filters)
       .then((response) => {
         return response.data
       })
