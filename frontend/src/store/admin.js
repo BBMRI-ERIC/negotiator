@@ -2,9 +2,11 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
+import { OrganizationServiceFactory } from './governance-api-clients'
 
 export const useAdminStore = defineStore('admin', () => {
   const notifications = useNotificationsStore()
+  const organizationClient = OrganizationServiceFactory.getClient()
 
   function retrieveResourceAllEvents() {
     return axios
@@ -225,25 +227,8 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   function retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
-    let url = `${apiPaths.BASE_API_PATH}/organizations?page=${page}&size=${size}`
-
-    // Add name filter if provided
-    if (filters.name && filters.name.trim()) {
-      url += `&name=${encodeURIComponent(filters.name.trim())}`
-    }
-
-    // Add externalId filter if provided
-    if (filters.externalId && filters.externalId.trim()) {
-      url += `&externalId=${encodeURIComponent(filters.externalId.trim())}`
-    }
-
-    // Add withdrawn filter if provided
-    if (typeof filters.withdrawn === 'boolean') {
-      url += `&withdrawn=${filters.withdrawn}`
-    }
-
-    return axios
-      .get(url, { headers: getBearerHeaders() })
+    return organizationClient
+      .retrieveOrganizationsPaginated(page, size, filters)
       .then((response) => {
         return response.data
       })
