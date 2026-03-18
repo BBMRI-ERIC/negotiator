@@ -57,12 +57,12 @@ export function useOrganizations() {
     return buildNoResultsMsg(loading.value, hasSearchFilters, filters.value.statusFilter)
   }
 
-  const toggleOrganization = async (organizationId) => {
-    if (expandedOrganizations.value.has(organizationId)) {
-      expandedOrganizations.value.delete(organizationId)
+  const toggleOrganization = async (organization) => {
+    if (expandedOrganizations.value.has(organization.id)) {
+      expandedOrganizations.value.delete(organization.id)
     } else {
-      expandedOrganizations.value.add(organizationId)
-      await loadResourcesForOrganization(organizationId)
+      expandedOrganizations.value.add(organization.id)
+      await loadResourcesForOrganization(organization)
     }
   }
 
@@ -77,33 +77,33 @@ export function useOrganizations() {
     }
   }
 
-  const loadResourcesForOrganization = async (organizationId) => {
-    if (organizationResources.value[organizationId]) {
+  const loadResourcesForOrganization = async (organization) => {
+    if (organizationResources.value[organization.id]) {
       return
     }
 
-    loadingResources.value.add(organizationId)
+    loadingResources.value.add(organization.id)
 
     try {
       if (isAdmin.value) {
         const organizationWithResources = await organizationsStore.getOrganizationById(
-          organizationId,
+          organization,
           'resources',
         )
 
-        organizationResources.value[organizationId] =
+        organizationResources.value[organization.id] =
           organizationWithResources.resources ||
           organizationWithResources._embedded?.resources ||
           []
       } else {
-        organizationResources.value[organizationId] =
-          organizations.value.find((org) => org.id === organizationId)?.resources || []
+        organizationResources.value[organization.id] =
+          organizations.value.find((org) => org.id === organization.id)?.resources || []
       }
     } catch (error) {
-      console.error('Failed to load resources for organization:', organizationId, error)
-      organizationResources.value[organizationId] = []
+      console.error('Failed to load resources for organization:', organization.id, error)
+      organizationResources.value[organization.id] = []
     } finally {
-      loadingResources.value.delete(organizationId)
+      loadingResources.value.delete(organization.id)
     }
   }
 
