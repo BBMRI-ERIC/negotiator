@@ -7,6 +7,7 @@ const devSettings = {
   post_logout_redirect_uri: 'http://localhost:8080',
   response_type: 'code',
   automaticSilentRenew: true,
+  silentRedirectUri: 'http://localhost:8080/silent-renew-oidc.html',
 }
 
 const prodSettings = {
@@ -18,6 +19,7 @@ const prodSettings = {
   post_logout_redirect_uri: 'LOGOUT_URI_PLACEHOLDER',
   response_type: 'code',
   automaticSilentRenew: true,
+  silentRedirectUri: 'SILENT_REDIRECT_URI_PLACEHOLDER',
 }
 
 let oidcSettings

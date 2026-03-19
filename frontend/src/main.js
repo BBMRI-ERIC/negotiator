@@ -71,6 +71,23 @@ const i18n = createI18n(i18nConfig)
 app.use(i18n)
 app.use(router)
 app.use(pinia)
+
+const oidcStore = useOidcStore()
+
+// Here we are working around pinia-oidc not automatically updating the user info in the store after a successful silent renew.
+// By calling oidcCheckAccess the oidc store will update the user info internally
+oidcStore.addOidcEventListener({
+  eventName: 'userLoaded',
+  eventListener: async () => {
+    const route = router.currentRoute.value
+    await oidcStore.oidcCheckAccess({
+      path: route.path,
+      fullPath: route.fullPath,
+      meta: route.meta ?? {},
+    })
+  },
+})
+
 app.use(Vue3Tour)
 app.use(VueDOMPurifyHTML, {
   default: {
@@ -78,7 +95,29 @@ app.use(VueDOMPurifyHTML, {
   },
 })
 
-router.beforeEach(piniaOidcCreateRouterMiddleware(useOidcStore()))
+oidcStore.addOidcEventListener({
+  eventName: 'tokenExpired',
+  eventListener: async () => {
+    console.log('OIDC: Access token has expired')
+
+    // Check if we are not on the home page
+    if (router.currentRoute.value.name !== 'home') {
+      await router.replace({
+        name: 'home',
+        query: { logged_out_reason: 'token_expired' },
+      })
+    }
+  },
+})
+
+oidcStore.addOidcEventListener({
+  eventName: 'silentRenewError',
+  eventListener: async ({ detail: error }) => {
+    console.error('OIDC: Access token could not be renewed:', error)
+  },
+})
+
+router.beforeEach(piniaOidcCreateRouterMiddleware(oidcStore))
 
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 

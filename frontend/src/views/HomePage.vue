@@ -1,12 +1,16 @@
 <template>
   <div
     v-if="!oidcIsAuthenticated || isUiConfigActive"
-    class="container-fluid d-flex justify-content-center align-items-center vh-100"
-    :class="isUiConfigActive ? '' : 'mt-5'"
+    class="container-fluid d-flex justify-content-center align-items-start align-items-md-center min-vh-100 overflow-auto py-3"
+    :class="isUiConfigActive ? '' : 'pt-md-3'"
   >
     <div class="row">
       <div class="col-1" />
       <div class="col-sm-10">
+        <div v-if="loggedOutMessage" class="alert alert-info text-center" role="status">
+          <i class="bi bi-info-circle me-2"></i>
+          {{ loggedOutMessage }}
+        </div>
         <div class="card py-5 p-3">
           <div class="col-10 col-md-4 align-self-center">
             <img
@@ -101,7 +105,7 @@ import { ref, onBeforeMount, computed } from 'vue'
 import bbmriLogo from '../assets/images/bbmri/home-bbmri.png'
 import eucaimLogo from '../assets/images/eucaim/home-eucaim.png'
 import canservLogo from '../assets/images/canserv/home-canserv.png'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useActuatorInfoStore } from '../store/actuatorInfo.js'
 import { useOidcStore } from '../store/oidc.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
@@ -120,6 +124,7 @@ const uiConfigurationStore = useUiConfiguration()
 const actuatorInfoStore = useActuatorInfoStore()
 
 const router = useRouter()
+const route = useRoute()
 
 const gitTag = ref(viteGitTag)
 const backendVersion = ref('')
@@ -131,6 +136,12 @@ const uiConfigurationLogin = computed(() => {
 
 const oidcIsAuthenticated = computed(() => {
   return oidcStore.oidcIsAuthenticated
+})
+
+const loggedOutMessage = computed(() => {
+  return route.query.logged_out_reason?.toLowerCase() === 'token_expired'
+    ? 'Your session has expired. Please log in again'
+    : null
 })
 
 const returnLogoSrc = computed(() => {

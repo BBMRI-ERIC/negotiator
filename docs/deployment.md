@@ -109,6 +109,7 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `REDIRECT_URI`               | **(Required)** OAuth2 Redirect URI                                                                                     | `default_redirect_uri` |
 | `SCOPES`                     | **(Required)** OAuth2 Scopes                                                                                           | `default_scopes`       |
 | `LOGOUT_URI`                 | **(Required)** OAuth2 Logout Redirect URI                                                                              | `default_logout_uri`   |
+| `SILENT_REDIRECT_URI`        | **(Required)** OAuth2 Silent Renew Redirect URI                                                                        | `default_silent_redirect_uri` |
 | `API_RESOURCES`              | **(Required)** OAuth2 Resource Audience(s); see [aud claim](https://datatracker.ietf.org/doc/html/rfc8693#section-3.1) | `default_resources`    |
 | `MATOMO_HOST`                | Matomo analytics host                                                                                                  | `default_matomo_host`  |
 | `MATOMO_SITE_ID`             | Matomo site ID                                                                                                         | `default_site_id`      |
