@@ -19,6 +19,7 @@ const perunApiPaths = {
   GET_GROUPS: `${BASE_PERUN_URL}/groupsManager/getAllRichGroupsWithAttributesByNames`,
   GET_SUBGROUPS: `${BASE_PERUN_URL}/groupsManager/getRichSubGroupsWithAttributesByNames`,
   GET_MEMBERS: `${BASE_PERUN_URL}/membersManager/getMembersPage`,
+  ADD_MEMBER_TO_GROUP: `${BASE_PERUN_URL}/groupsManager/addMember`,
 }
 
 function getBearerHeaders() {
