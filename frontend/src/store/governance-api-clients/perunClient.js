@@ -44,9 +44,7 @@ export class PerunClient {
   }
 
   getUserEmail(user) {
-    const attribute = user.userAttributes.find(
-      (attr) => attr.baseFriendlyName === 'preferredMail',
-    )
+    const attribute = user.userAttributes.find((attr) => attr.baseFriendlyName === 'preferredMail')
     return attribute ? attribute.value.trim() : undefined
   }
 
@@ -69,10 +67,12 @@ export class PerunClient {
         const orgId = this.getOrganizationIdFromGroup(group)
         if (orgId) {
           const org = await this.negotiatorClient.getOrganizationByExternalId(orgId)
-          return {
-            ...org,
-            perunGroupId: group.id,
-          }
+          org.id = group.id
+          return org
+          // return {
+          //   ...org,
+          //   perunGroupId: group.id,
+          // }
         }
       }),
     )
@@ -94,12 +94,12 @@ export class PerunClient {
     }
   }
 
-  async getOrganizationByd(organization) {
+  async getOrganizationByd(organizationId) {
     const params = {
-      group: organization.perunGroupId,
+      group: organizationId,
       attrNames: [`${this.GROUP_ATTR_DEF}${this.COLLECTION_ID_ATTR}`],
     }
-
+    console.log(organizationId)
     const url = perunApiPaths.GET_SUBGROUPS
     const perunGroups = await axios.get(url, { params, headers: getBearerHeaders() })
     const resourcesFromNegotiator = await Promise.all(
@@ -107,11 +107,12 @@ export class PerunClient {
         const resourceId = this.getResourceIdFromGroup(group)
         if (resourceId) {
           const resource = await this.negotiatorClient.getResourceBySourceId(resourceId)
-
-          return {
-            ...resource,
-            perunGroupId: group.id,
-          }
+          resource.id = group.id
+          return resource
+          // return {
+          //   ...resource,
+          //   perunGroupId: group.id,
+          // }
         }
       }),
     )
@@ -141,21 +142,21 @@ export class PerunClient {
 
     const data = {
       vo: this.VIRTUAL_ORGANIZATION_ID,
-      attrNames: [
-        "urn:perun:user:attribute-def:def:preferredMail",
-      ],
+      attrNames: ['urn:perun:user:attribute-def:def:preferredMail'],
       query: {
         pageSize: 5,
         offset: page * size,
-        order: "ASCENDING",
-        sortColumn: "NAME",
+        order: 'ASCENDING',
+        sortColumn: 'NAME',
         searchString: filters.name,
         statuses: [],
         groupId: null,
-      }
+      },
     }
 
-    const response = await axios.post(`${perunApiPaths.GET_MEMBERS}`, data, { headers: getBearerHeaders() })
+    const response = await axios.post(`${perunApiPaths.GET_MEMBERS}`, data, {
+      headers: getBearerHeaders(),
+    })
 
     return {
       data: {
@@ -168,13 +169,24 @@ export class PerunClient {
         _embedded: {
           users: response.data.data.map((perunUser) => {
             return {
-              id: `${perunUser.user.id}`,
+              id: `${perunUser.id}`,
               name: `${perunUser.user.firstName} ${perunUser.user.lastName}`,
-              email: this.getUserEmail(perunUser)
+              email: this.getUserEmail(perunUser),
             }
-          })
-        }
-      }
+          }),
+        },
+      },
     }
+  }
+
+  async addRepresentativeToResource(userId, resource) {
+    const data = {
+      member: parseInt(userId),
+      group: resource.id,
+    }
+    const response = await axios.post(`${perunApiPaths.ADD_MEMBER_TO_GROUP}`, data, {
+      headers: getBearerHeaders(),
+    })
+    return response
   }
 }

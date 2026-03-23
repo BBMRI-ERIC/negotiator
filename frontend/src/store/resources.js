@@ -79,8 +79,9 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function addRepresentativeToResource(userId, resourceId, silent = false) {
-    return governanceClient.addRepresentativeToResource(userId, resourceId)
+  function addRepresentativeToResource(userId, resource, silent = false) {
+    return governanceClient
+      .addRepresentativeToResource(userId, resource)
       .then((response) => {
         if (!silent) {
           notifications.setNotification('Representative added successfully', 'success')
