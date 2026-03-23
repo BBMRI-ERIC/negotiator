@@ -275,12 +275,12 @@ const searchUsers = async () => {
 }
 
 const isCurrentRepresentative = (userId) => {
-  console.log(currentRepresentatives.value)
   return currentRepresentatives.value.some((rep) => rep.id === userId)
 }
 
 const isMarkedForAddition = (userId) => {
-  return representativesToAdd.value.some((rep) => rep.id === userId)
+  const res = representativesToAdd.value.some((rep) => rep.id === userId)
+  return res
 }
 
 const isMarkedForRemoval = (userId) => {
@@ -288,7 +288,6 @@ const isMarkedForRemoval = (userId) => {
 }
 
 const getAddButtonText = (userId) => {
-
   if (isCurrentRepresentative(userId)) return 'Already Added'
   if (isMarkedForAddition(userId)) return 'Staged'
   return 'Add'
@@ -359,10 +358,9 @@ const handleSave = async () => {
         true,
       )
     }
-
     for (const representative of representativesToAdd.value) {
       currentOperation.value++
-      await resourcesStore.addRepresentativeToResource(representative.id, props.resource.id, true)
+      await resourcesStore.addRepresentativeToResource(representative.id, props.resource, true)
     }
 
     representativesToAdd.value = []
@@ -372,7 +370,7 @@ const handleSave = async () => {
     ]
 
     notifications.setNotification('Representatives updated successfully', 'success')
-
+    console.log(props.resource)
     emit('representativesUpdated', {
       resourceId: props.resource.id,
       representatives: originalRepresentatives.value,

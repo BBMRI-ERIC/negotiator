@@ -180,6 +180,7 @@ const handleResourceUpdate = (updatedResourceData) => {
 }
 
 const handleRepresentativesUpdated = (eventData) => {
+  console.log(eventData)
   const { resourceId } = eventData
   if (resourceId) {
     const resource = Object.values(organizationResources.value)
@@ -190,7 +191,8 @@ const handleRepresentativesUpdated = (eventData) => {
       const organizationId = organizationsList.value.find((org) =>
         organizationResources.value[org.id]?.some((r) => r.id === resourceId),
       )?.id
-
+      console.log(resourceId)
+      console.log(organizationId)
       if (organizationId) {
         reloadResourcesForOrganization(organizationId)
       }
