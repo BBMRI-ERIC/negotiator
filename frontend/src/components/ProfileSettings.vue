@@ -81,24 +81,36 @@
       <li>
         <hr class="dropdown-divider" />
       </li>
-      <li>
+      <li
+        v-if="
+          (uiConfiguration?.navbarPrivacyPolicyText && uiConfiguration?.navbarPrivacyPolicyLink) ||
+          (uiConfigurationFooter?.footerPrivacyPolicyText &&
+            uiConfigurationFooter?.footerPrivacyPolicyLink)
+        "
+      >
         <a
-          href="https://www.bbmri-eric.eu/wp-content/uploads/AoM_10_8_Access-Policy_FINAL_EU.pdfl"
+          :href="
+            uiConfiguration?.navbarPrivacyPolicyLink ||
+            uiConfigurationFooter?.footerPrivacyPolicyLink
+          "
           class="dropdown-item"
           :style="{ color: uiConfiguration?.navbarTextColor }"
         >
           <i class="bi bi-shield-lock" />
-          Privacy Policy
+          {{
+            uiConfiguration?.navbarPrivacyPolicyText ||
+            uiConfigurationFooter?.footerPrivacyPolicyText
+          }}
         </a>
       </li>
-      <li>
+      <li v-if="uiConfiguration?.navbarAccessPolicyText && uiConfiguration?.navbarAccessPolicyLink">
         <a
-          href="https://www.bbmri-eric.eu/services/access-policies/"
+          :href="uiConfiguration?.navbarAccessPolicyLink"
           class="dropdown-item"
           :style="{ color: uiConfiguration?.navbarTextColor }"
         >
           <i class="bi bi-clipboard-check" />
-          Access Policy
+          {{ uiConfiguration?.navbarAccessPolicyText }}
         </a>
       </li>
       <li>
@@ -147,6 +159,11 @@ const uiConfigurationStore = useUiConfiguration()
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.navbar
 })
+
+const uiConfigurationFooter = computed(() => {
+  return uiConfigurationStore.uiConfiguration?.footer
+})
+
 const returnAcronymOfName = computed(() => {
   const name = props.user?.name || ''
   const words = name.trim().split(/\s+/).filter(Boolean)
