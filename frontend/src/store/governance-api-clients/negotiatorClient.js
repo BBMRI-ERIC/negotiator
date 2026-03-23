@@ -36,7 +36,7 @@ export class NegotiatorClient {
     return axios.get(url, { params, headers: getBearerHeaders() })
   }
 
-  async getOrganizationByd(organizationId, expand = null) {
+  async getOrganizationById(organizationId, expand = null) {
     const url = expand
       ? `${apiPaths.BASE_API_PATH}/organizations/${organizationId}?expand=${expand}`
       : `${apiPaths.BASE_API_PATH}/organizations/${organizationId}`
