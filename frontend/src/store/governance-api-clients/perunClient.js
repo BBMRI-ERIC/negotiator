@@ -94,25 +94,30 @@ export class PerunClient {
     }
   }
 
-  async getOrganizationByd(organizationId) {
+  async getOrganizationById(organizationId) {
     const params = {
       group: organizationId,
       attrNames: [`${this.GROUP_ATTR_DEF}${this.COLLECTION_ID_ATTR}`],
     }
-    console.log(organizationId)
-    const url = perunApiPaths.GET_SUBGROUPS
-    const perunGroups = await axios.get(url, { params, headers: getBearerHeaders() })
+    const perunGroups = await axios.get(perunApiPaths.GET_SUBGROUPS, { params, headers: getBearerHeaders() })
     const resourcesFromNegotiator = await Promise.all(
       perunGroups.data.map(async (group) => {
         const resourceId = this.getResourceIdFromGroup(group)
         if (resourceId) {
           const resource = await this.negotiatorClient.getResourceBySourceId(resourceId)
           resource.id = group.id
+
+          const params = { group: resource.id }
+          const members = await axios.get(perunApiPaths.GET_RICH_MEMBERS, { params, headers: getBearerHeaders() })
+          resource.representatives = members.data.map((member) => {
+            return  {
+              id: member.id,
+              name: `${member.user.firstName} ${member.user.lastName}`,
+              email: this.getUserEmail(member)
+            }
+          })
+          
           return resource
-          // return {
-          //   ...resource,
-          //   perunGroupId: group.id,
-          // }
         }
       }),
     )
