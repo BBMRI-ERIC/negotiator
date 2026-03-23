@@ -10,7 +10,7 @@ export const useOrganizationsStore = defineStore('organizations', () => {
 
   function getOrganizationById(organization, expand = null) {
     return governanceClient
-      .getOrganizationByd(organization, expand)
+      .getOrganizationById(organization, expand)
       .then((response) => {
         return response.data
       })
