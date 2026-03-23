@@ -140,8 +140,9 @@ export const useAdminStore = defineStore('admin', () => {
     )
     params.page = page
     params.size = size
-    
-    return governanceClient.retrieveUsers(page, size, filtersSortData)
+
+    return governanceClient
+      .retrieveUsers(page, size, filtersSortData)
       .then((response) => {
         return {
           users: response.data.page.totalElements > 0 ? response.data._embedded.users : [],

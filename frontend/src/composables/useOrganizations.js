@@ -62,7 +62,7 @@ export function useOrganizations() {
       expandedOrganizations.value.delete(organization.id)
     } else {
       expandedOrganizations.value.add(organization.id)
-      await loadResourcesForOrganization(organization)
+      await loadResourcesForOrganization(organization.id)
     }
   }
 
@@ -77,33 +77,33 @@ export function useOrganizations() {
     }
   }
 
-  const loadResourcesForOrganization = async (organization) => {
-    if (organizationResources.value[organization.id]) {
+  const loadResourcesForOrganization = async (organizationId) => {
+    if (organizationResources.value[organizationId]) {
       return
     }
 
-    loadingResources.value.add(organization.id)
+    loadingResources.value.add(organizationId)
 
     try {
       if (isAdmin.value) {
         const organizationWithResources = await organizationsStore.getOrganizationById(
-          organization,
+          organizationId,
           'resources',
         )
 
-        organizationResources.value[organization.id] =
+        organizationResources.value[organizationId] =
           organizationWithResources.resources ||
           organizationWithResources._embedded?.resources ||
           []
       } else {
-        organizationResources.value[organization.id] =
-          organizations.value.find((org) => org.id === organization.id)?.resources || []
+        organizationResources.value[organizationId] =
+          organizations.value.find((org) => org.id === organizationId)?.resources || []
       }
     } catch (error) {
-      console.error('Failed to load resources for organization:', organization.id, error)
-      organizationResources.value[organization.id] = []
+      console.error('Failed to load resources for organization:', organizationId, error)
+      organizationResources.value[organizationId] = []
     } finally {
-      loadingResources.value.delete(organization.id)
+      loadingResources.value.delete(organizationId)
     }
   }
 
