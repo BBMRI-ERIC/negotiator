@@ -25,13 +25,12 @@ import org.springframework.web.client.RestTemplate;
 @Configuration(proxyBeanMethods = false)
 class WebhookRestTemplateConfig {
   private final RestTemplateBuilder restTemplateBuilder;
-  private final WebhookTimeoutProperties webhookHttpClientProperties;
+  private final WebhookTimeoutProperties webhookTimeoutProperties;
 
   WebhookRestTemplateConfig(
-      RestTemplateBuilder restTemplateBuilder,
-      WebhookTimeoutProperties webhookHttpClientProperties) {
+      RestTemplateBuilder restTemplateBuilder, WebhookTimeoutProperties webhookTimeoutProperties) {
     this.restTemplateBuilder = restTemplateBuilder;
-    this.webhookHttpClientProperties = webhookHttpClientProperties;
+    this.webhookTimeoutProperties = webhookTimeoutProperties;
   }
 
   @Bean
@@ -88,13 +87,13 @@ class WebhookRestTemplateConfig {
 
   private RequestConfig requestConfig() {
     return RequestConfig.custom()
-        .setResponseTimeout(Timeout.of(webhookHttpClientProperties.getRead()))
+        .setResponseTimeout(Timeout.of(webhookTimeoutProperties.getRead()))
         .build();
   }
 
   private ConnectionConfig connectionConfig() {
     return ConnectionConfig.custom()
-        .setConnectTimeout(Timeout.of(webhookHttpClientProperties.getConnect()))
+        .setConnectTimeout(Timeout.of(webhookTimeoutProperties.getConnect()))
         .build();
   }
 
