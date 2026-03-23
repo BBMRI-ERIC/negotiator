@@ -2,9 +2,11 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
+import { GovernanceServiceFactory } from './governance-api-clients'
 
 export const useResourcesStore = defineStore('resources', () => {
   const notifications = useNotificationsStore()
+  const governanceClient = GovernanceServiceFactory.getClient()
 
   function getResourceById(id) {
     return axios
@@ -78,12 +80,7 @@ export const useResourcesStore = defineStore('resources', () => {
   }
 
   function addRepresentativeToResource(userId, resourceId, silent = false) {
-    return axios
-      .patch(
-        `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
-        { id: resourceId },
-        { headers: getBearerHeaders() },
-      )
+    return governanceClient.addRepresentativeToResource(userId, resourceId)
       .then((response) => {
         if (!silent) {
           notifications.setNotification('Representative added successfully', 'success')

@@ -43,6 +43,13 @@ export class PerunClient {
     return attribute ? attribute.value.trim() : undefined
   }
 
+  getUserEmail(user) {
+    const attribute = user.userAttributes.find(
+      (attr) => attr.baseFriendlyName === 'preferredMail',
+    )
+    return attribute ? attribute.value.trim() : undefined
+  }
+
   async retrieveOrganizationsPaginated() {
     let url = perunApiPaths.GET_GROUPS
     const params = {
@@ -122,6 +129,52 @@ export class PerunClient {
           // number: 0,
         },
       },
+    }
+  }
+
+  async retrieveUsers(page = 0, size = 10, filtersSortData) {
+    // add filtersSortData in case they are valued
+    const filters = Object.fromEntries(
+      // eslint-disable-next-line
+      Object.entries(filtersSortData).filter(([_, value]) => value !== ''),
+    )
+
+    const data = {
+      vo: this.VIRTUAL_ORGANIZATION_ID,
+      attrNames: [
+        "urn:perun:user:attribute-def:def:preferredMail",
+      ],
+      query: {
+        pageSize: 5,
+        offset: page * size,
+        order: "ASCENDING",
+        sortColumn: "NAME",
+        searchString: filters.name,
+        statuses: [],
+        groupId: null,
+      }
+    }
+
+    const response = await axios.post(`${perunApiPaths.GET_MEMBERS}`, data, { headers: getBearerHeaders() })
+
+    return {
+      data: {
+        page: {
+          size: response.data.pageSize,
+          totalElements: response.data.totalCount,
+          totalPages: Math.ceil(response.data.totalCount / response.data.pageSize),
+          number: response.data.offset,
+        },
+        _embedded: {
+          users: response.data.data.map((perunUser) => {
+            return {
+              id: `${perunUser.user.id}`,
+              name: `${perunUser.user.firstName} ${perunUser.user.lastName}`,
+              email: this.getUserEmail(perunUser)
+            }
+          })
+        }
+      }
     }
   }
 }
