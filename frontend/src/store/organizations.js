@@ -2,14 +2,14 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
-import { OrganizationServiceFactory } from './governance-api-clients'
+import { GovernanceServiceFactory } from './governance-api-clients'
 
 export const useOrganizationsStore = defineStore('organizations', () => {
   const notifications = useNotificationsStore()
-  const serviceClient = OrganizationServiceFactory.getClient()
+  const governanceClient = GovernanceServiceFactory.getClient()
 
   function getOrganizationById(organization, expand = null) {
-    return serviceClient
+    return governanceClient
       .getOrganizationByd(organization, expand)
       .then((response) => {
         return response.data
@@ -35,7 +35,7 @@ export const useOrganizationsStore = defineStore('organizations', () => {
   }
 
   function getAllOrganizations(filters = null) {
-    return serviceClient
+    return governanceClient
       .getAllOrganizations(filters)
       .then((response) => {
         return response.data

@@ -2,11 +2,11 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
-import { OrganizationServiceFactory } from './governance-api-clients'
+import { GovernanceServiceFactory } from './governance-api-clients'
 
 export const useAdminStore = defineStore('admin', () => {
   const notifications = useNotificationsStore()
-  const organizationClient = OrganizationServiceFactory.getClient()
+  const governanceClient = GovernanceServiceFactory.getClient()
 
   function retrieveResourceAllEvents() {
     return axios
@@ -140,11 +140,8 @@ export const useAdminStore = defineStore('admin', () => {
     )
     params.page = page
     params.size = size
-    return axios
-      .get(`${apiPaths.BASE_API_PATH}/users`, {
-        headers: getBearerHeaders(),
-        params: params,
-      })
+    
+    return governanceClient.retrieveUsers(page, size, filtersSortData)
       .then((response) => {
         return {
           users: response.data.page.totalElements > 0 ? response.data._embedded.users : [],
@@ -227,7 +224,7 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   function retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
-    return organizationClient
+    return governanceClient
       .retrieveOrganizationsPaginated(page, size, filters)
       .then((response) => {
         return response.data

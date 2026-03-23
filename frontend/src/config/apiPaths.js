@@ -1,7 +1,6 @@
 import { useOidcStore } from '../store/oidc'
 const BASE_API_PATH = '/api/v3'
 const BASE_PERUN_URL = import.meta.env.VITE_PERUN_API_URL
-const PERUN_VO_ID = import.meta.env.VITE_PERUN_VO_ID
 
 const apiPaths = {
   BASE_API_PATH: `${BASE_API_PATH}`,
@@ -19,7 +18,7 @@ const apiPaths = {
 const perunApiPaths = {
   GET_GROUPS: `${BASE_PERUN_URL}/groupsManager/getAllRichGroupsWithAttributesByNames`,
   GET_SUBGROUPS: `${BASE_PERUN_URL}/groupsManager/getRichSubGroupsWithAttributesByNames`,
-  GET_MEMBERS: `${BASE_PERUN_URL}/membersManager/getRichMembers?vo=${PERUN_VO_ID}`,
+  GET_MEMBERS: `${BASE_PERUN_URL}/membersManager/getMembersPage`,
 }
 
 function getBearerHeaders() {
