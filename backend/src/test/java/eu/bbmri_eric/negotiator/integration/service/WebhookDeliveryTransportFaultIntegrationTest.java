@@ -77,4 +77,19 @@ class WebhookDeliveryTransportFaultIntegrationTest {
     assertTrue(StringUtils.isNotBlank(delivery.getErrorMessage()));
     assertTrue(StringUtils.isNotBlank(delivery.getId()));
   }
+
+  @Test
+  void deliver_withUnexpectedRuntimeException_setsNullStatusAndErrorMessage() {
+    // Simulate an unexpected runtime exception by providing an invalid URL that causes the HTTP
+    // client to throw an exception
+    Webhook webhook = webhookRepository.save(new Webhook("", true, true));
+
+    String payload = "{\"data\":\"runtime\"}";
+
+    DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
+
+    assertNull(delivery.getHttpStatusCode());
+    assertTrue(StringUtils.isNotBlank(delivery.getErrorMessage()));
+    assertTrue(StringUtils.isNotBlank(delivery.getId()));
+  }
 }
