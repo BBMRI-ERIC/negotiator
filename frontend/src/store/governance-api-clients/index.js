@@ -1,7 +1,7 @@
 import { NegotiatorClient } from './negotiatorClient'
 import { PerunClient } from './perunClient'
 
-export class OrganizationServiceFactory {
+export class GovernanceServiceFactory {
   static getClient() {
     switch (import.meta.env.VITE_GOVERNANCE_CLIENT) {
       case 'NEGOTIATOR':
