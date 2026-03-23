@@ -36,10 +36,10 @@ export class NegotiatorClient {
     return axios.get(url, { params, headers: getBearerHeaders() })
   }
 
-  async getOrganizationByd(organization, expand = null) {
+  async getOrganizationByd(organizationId, expand = null) {
     const url = expand
-      ? `${apiPaths.BASE_API_PATH}/organizations/${organization.id}?expand=${expand}`
-      : `${apiPaths.BASE_API_PATH}/organizations/${organization.id}`
+      ? `${apiPaths.BASE_API_PATH}/organizations/${organizationId}?expand=${expand}`
+      : `${apiPaths.BASE_API_PATH}/organizations/${organizationId}`
 
     return axios.get(url, { headers: getBearerHeaders() })
   }
@@ -79,19 +79,17 @@ export class NegotiatorClient {
     )
     params.page = page
     params.size = size
-    return axios
-      .get(`${apiPaths.BASE_API_PATH}/users`, {
-        headers: getBearerHeaders(),
-        params: params,
-      })
+    return axios.get(`${apiPaths.BASE_API_PATH}/users`, {
+      headers: getBearerHeaders(),
+      params: params,
+    })
   }
 
-  addRepresentativeToResource(userId, resourceId) {
-    return axios
-      .patch(
-        `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
-        { id: resourceId },
-        { headers: getBearerHeaders() },
-      )
+  addRepresentativeToResource(userId, resource) {
+    return axios.patch(
+      `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
+      { id: resource.id },
+      { headers: getBearerHeaders() },
+    )
   }
 }
