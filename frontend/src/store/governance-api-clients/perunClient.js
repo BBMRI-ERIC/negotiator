@@ -10,10 +10,10 @@ export class PerunClient {
   GROUP_ATTR_DEF = import.meta.env.VITE_PERUN_GROUP_ATTR_DEF
   REPRESENTATIVES_GROUP_INDEX = 3
   REPRESENTATIVES_GROUP_NAME = import.meta.env.VITE_PERUN_REPRESENTATIVE_GROUP_NAME
-  
+
   negotiatorClient = new NegotiatorClient()
 
-  async getAllOrganizations(filters = null) {
+  async getAllOrganizations() {
     const url = perunApiPaths.GET_NATIONAL_NODES
     const params = {
       parentGroup: 46015,
@@ -36,6 +36,13 @@ export class PerunClient {
     return attribute ? attribute.value.trim() : undefined
   }
 
+  getResourceIdFromGroup(group) {
+    const attribute = group.attributes.find(
+      (attr) => attr.baseFriendlyName === this.COLLECTION_ID_ATTR,
+    )
+    return attribute ? attribute.value.trim() : undefined
+  }
+
   async retrieveOrganizationsPaginated() {
     let url = perunApiPaths.GET_GROUPS
     const params = {
@@ -52,19 +59,17 @@ export class PerunClient {
     })
     const orgsFromNegotiator = await Promise.all(
       orgsGroups.map(async (group) => {
-        console.log(group)
         const orgId = this.getOrganizationIdFromGroup(group)
         if (orgId) {
           const org = await this.negotiatorClient.getOrganizationByExternalId(orgId)
           return {
             ...org,
-            perunGroupId: group.id
+            perunGroupId: group.id,
           }
         }
-      })
+      }),
     )
-    console.log(orgsGroups)
-    console.log(orgsFromNegotiator)
+
     return {
       data: {
         _embedded: {
@@ -72,6 +77,7 @@ export class PerunClient {
         },
         _links: {},
         page: {
+          // TODO: create the pagination
           size: 20,
           totalElements: orgsFromNegotiator.length,
           totalPages: 1,
@@ -86,10 +92,36 @@ export class PerunClient {
       group: organization.perunGroupId,
       attrNames: [`${this.GROUP_ATTR_DEF}${this.COLLECTION_ID_ATTR}`],
     }
-    
+
     const url = perunApiPaths.GET_SUBGROUPS
     const perunGroups = await axios.get(url, { params, headers: getBearerHeaders() })
-    perunGroups.forEach(await axios.get())
-    
+    const resourcesFromNegotiator = await Promise.all(
+      perunGroups.data.map(async (group) => {
+        const resourceId = this.getResourceIdFromGroup(group)
+        if (resourceId) {
+          const resource = await this.negotiatorClient.getResourceBySourceId(resourceId)
+
+          return {
+            ...resource,
+            perunGroupId: group.id,
+          }
+        }
+      }),
+    )
+    return {
+      data: {
+        _embedded: {
+          resources: resourcesFromNegotiator,
+        },
+        _links: {},
+        page: {
+          // TODO: Check whether this is necessary
+          // size: 20,
+          // totalElements: orgsFromNegotiator.length,
+          // totalPages: 1,
+          // number: 0,
+        },
+      },
+    }
   }
 }
