@@ -275,6 +275,7 @@ const searchUsers = async () => {
 }
 
 const isCurrentRepresentative = (userId) => {
+  console.log(currentRepresentatives.value)
   return currentRepresentatives.value.some((rep) => rep.id === userId)
 }
 
@@ -287,6 +288,7 @@ const isMarkedForRemoval = (userId) => {
 }
 
 const getAddButtonText = (userId) => {
+
   if (isCurrentRepresentative(userId)) return 'Already Added'
   if (isMarkedForAddition(userId)) return 'Staged'
   return 'Add'
