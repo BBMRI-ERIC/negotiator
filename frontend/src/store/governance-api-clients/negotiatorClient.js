@@ -70,4 +70,28 @@ export class NegotiatorClient {
     }
     return response.data._embedded.resources[0]
   }
+
+  retrieveUsers(page = 0, size = 10, filtersSortData) {
+    // add filtersSortData in case they are valued
+    const params = Object.fromEntries(
+      // eslint-disable-next-line
+      Object.entries(filtersSortData).filter(([_, value]) => value !== ''),
+    )
+    params.page = page
+    params.size = size
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/users`, {
+        headers: getBearerHeaders(),
+        params: params,
+      })
+  }
+
+  addRepresentativeToResource(userId, resourceId) {
+    return axios
+      .patch(
+        `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
+        { id: resourceId },
+        { headers: getBearerHeaders() },
+      )
+  }
 }
