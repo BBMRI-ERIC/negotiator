@@ -41,8 +41,7 @@ export class NegotiatorClient {
       ? `${apiPaths.BASE_API_PATH}/organizations/${organization.id}?expand=${expand}`
       : `${apiPaths.BASE_API_PATH}/organizations/${organization.id}`
 
-    return axios
-      .get(url, { headers: getBearerHeaders() })
+    return axios.get(url, { headers: getBearerHeaders() })
   }
 
   async getOrganizationByExternalId(externalId) {
@@ -52,16 +51,23 @@ export class NegotiatorClient {
     const url = `${apiPaths.BASE_API_PATH}/organizations`
 
     const response = await axios.get(url, { params, headers: getBearerHeaders() })
+
     if (response.data.page.totalElements > 1) {
-        console.log("This is a problem")
+      console.log('This is a problem')
     }
     return response.data._embedded.organizations[0]
   }
-  
-  async getResourceByExternalId(externalId) {
-    const url = `${apiPaths.BASE_API_PATH}/resources/${externalId}`
 
-    return axios
-      .get(url, { headers: getBearerHeaders() })
+  async getResourceBySourceId(sourceId) {
+    const params = {
+      sourceId: sourceId,
+    }
+    const url = `${apiPaths.BASE_API_PATH}/resources`
+    const response = await axios.get(url, { params, headers: getBearerHeaders() })
+
+    if (response.data.page.totalElements > 1) {
+      console.log('This is a problem')
+    }
+    return response.data._embedded.resources[0]
   }
 }

@@ -9,7 +9,8 @@ export const useOrganizationsStore = defineStore('organizations', () => {
   const serviceClient = OrganizationServiceFactory.getClient()
 
   function getOrganizationById(organization, expand = null) {
-    return serviceClient.getOrganizationByd(organization, expand)
+    return serviceClient
+      .getOrganizationByd(organization, expand)
       .then((response) => {
         return response.data
       })
