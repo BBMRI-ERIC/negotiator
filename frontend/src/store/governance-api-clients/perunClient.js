@@ -8,32 +8,16 @@ export class PerunClient {
   BIOBANK_ID_ATTR = import.meta.env.VITE_PERUN_BIOBANK_ID_ATTR
   COLLECTION_ID_ATTR = import.meta.env.VITE_PERUN_COLLECTION_ID_ATTR
   GROUP_ATTR_DEF = import.meta.env.VITE_PERUN_GROUP_ATTR_DEF
-  REPRESENTATIVES_GROUP_INDEX = 3
-  REPRESENTATIVES_GROUP_NAME = import.meta.env.VITE_PERUN_REPRESENTATIVE_GROUP_NAME
 
   negotiatorClient = new NegotiatorClient()
 
-  async getAllOrganizations() {
-    const url = perunApiPaths.GET_NATIONAL_NODES
-    const params = {
-      parentGroup: 46015,
-    }
-    return axios.get(url, { params, headers: getBearerHeaders() }).then((organizations) => {
-      return organizations.filter((org) => {
-        const parts = org.name.split(':')
-        return (
-          parts.length >= 3 &&
-          parts[parts.length - this.REPRESENTATIVES_GROUP_INDEX] === this.REPRESENTATIVES_GROUP_NAME
-        )
-      })
-    })
-  }
+  organizationCache = []
 
   getOrganizationIdFromGroup(group) {
     const attribute = group.attributes.find(
       (attr) => attr.baseFriendlyName === this.BIOBANK_ID_ATTR,
     )
-    return attribute ? attribute.value.trim() : undefined
+    return attribute && attribute.value ? attribute.value.trim() : undefined
   }
 
   getResourceIdFromGroup(group) {
@@ -48,50 +32,57 @@ export class PerunClient {
     return attribute ? attribute.value.trim() : undefined
   }
 
-  async retrieveOrganizationsPaginated() {
-    let url = perunApiPaths.GET_GROUPS
-    const params = {
-      vo: this.VIRTUAL_ORGANIZATION_ID,
-      attrNames: [`${this.GROUP_ATTR_DEF}${this.BIOBANK_ID_ATTR}`],
-    }
-    const perunGroups = await axios.get(url, { params: params, headers: getBearerHeaders() })
-    const orgsGroups = perunGroups.data.filter((org) => {
-      const parts = org.name.split(':')
-      return (
-        parts.length == 3 &&
-        parts[parts.length - this.REPRESENTATIVES_GROUP_INDEX] === this.REPRESENTATIVES_GROUP_NAME
-      )
+  filterOrganizationGroups(groups) {
+    return groups.data.filter((group) => {
+      return this.getOrganizationIdFromGroup(group) != undefined
     })
-    const orgsFromNegotiator = await Promise.all(
-      orgsGroups.map(async (group) => {
-        const orgId = this.getOrganizationIdFromGroup(group)
-        if (orgId) {
-          const org = await this.negotiatorClient.getOrganizationByExternalId(orgId)
-          org.id = group.id
-          return org
-          // return {
-          //   ...org,
-          //   perunGroupId: group.id,
-          // }
-        }
-      }),
-    )
+  }
 
-    return {
+  async getAllOrganizations() {
+    if (this.organizationCache.length == 0) {
+      const params = {
+        vo: this.VIRTUAL_ORGANIZATION_ID,
+        attrNames: [`${this.GROUP_ATTR_DEF}${this.BIOBANK_ID_ATTR}`],
+      }
+      const perunGroups = await axios.get(perunApiPaths.GET_GROUPS, {
+        params: params,
+        headers: getBearerHeaders(),
+      })
+      const allOrgsGroups = this.filterOrganizationGroups(perunGroups)
+      const orgsFromNegotiator = await Promise.all(
+        allOrgsGroups.map(async (group) => {
+          const orgId = this.getOrganizationIdFromGroup(group)
+          if (orgId) {
+            const org = await this.negotiatorClient.getOrganizationByExternalId(orgId)
+            org.id = group.id
+            return group
+          }
+        }),
+      )
+      this.organizationCache = orgsFromNegotiator
+    }
+    return this.organizationCache
+  }
+
+  async retrieveOrganizationsPaginated(page = 0, size = 20) {
+    const orgsInPage = this.getAllOrganizations().slice(page * size, page * size + size)
+
+    const response = {
       data: {
         _embedded: {
-          organizations: orgsFromNegotiator,
+          organizations: orgsInPage,
         },
         _links: {},
         page: {
-          // TODO: create the pagination
-          size: 20,
-          totalElements: orgsFromNegotiator.length,
-          totalPages: 1,
-          number: 0,
+          size: size,
+          totalElements: this.organizationCache.length,
+          totalPages: Math.ceil(this.organizationCache.length / size),
+          number: page,
         },
       },
     }
+
+    return response
   }
 
   async getOrganizationById(organizationId) {
