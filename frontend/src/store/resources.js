@@ -79,9 +79,9 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function addRepresentativeToResource(userId, resource, silent = false) {
+  function addRepresentativeToResource(userId, resourceId, silent = false) {
     return governanceClient
-      .addRepresentativeToResource(userId, resource)
+      .addRepresentativeToResource(userId, resourceId)
       .then((response) => {
         if (!silent) {
           notifications.setNotification('Representative added successfully', 'success')
@@ -97,10 +97,8 @@ export const useResourcesStore = defineStore('resources', () => {
   }
 
   function removeRepresentativeFromResource(userId, resourceId, silent = false) {
-    return axios
-      .delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resourceId}`, {
-        headers: getBearerHeaders(),
-      })
+    return governanceClient
+      .removeRepresentativeFromResource(userId, resourceId)
       .then((response) => {
         if (!silent) {
           notifications.setNotification('Representative removed successfully', 'success')
