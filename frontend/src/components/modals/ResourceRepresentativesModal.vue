@@ -360,7 +360,7 @@ const handleSave = async () => {
     }
     for (const representative of representativesToAdd.value) {
       currentOperation.value++
-      await resourcesStore.addRepresentativeToResource(representative.id, props.resource, true)
+      await resourcesStore.addRepresentativeToResource(representative.id, props.resource.id, true)
     }
 
     representativesToAdd.value = []
