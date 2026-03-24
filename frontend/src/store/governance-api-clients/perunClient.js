@@ -8,6 +8,8 @@ export class PerunClient {
   BIOBANK_ID_ATTR = import.meta.env.VITE_PERUN_BIOBANK_ID_ATTR
   COLLECTION_ID_ATTR = import.meta.env.VITE_PERUN_COLLECTION_ID_ATTR
   GROUP_ATTR_DEF = import.meta.env.VITE_PERUN_GROUP_ATTR_DEF
+  USER_ATTR_DEF = import.meta.env.VITE_PERUN_USER_ATTR_DEF
+  EMAIL_ATTR_ID = import.meta.env.VITE_PERUN_EMAIL_ATTR
 
   negotiatorClient = new NegotiatorClient()
 
@@ -55,7 +57,7 @@ export class PerunClient {
           if (orgId) {
             const org = await this.negotiatorClient.getOrganizationByExternalId(orgId)
             org.id = group.id
-            return group
+            return org
           }
         }),
       )
@@ -65,24 +67,22 @@ export class PerunClient {
   }
 
   async retrieveOrganizationsPaginated(page = 0, size = 20) {
-    const orgsInPage = this.getAllOrganizations().slice(page * size, page * size + size)
+    const allOrganizations = await this.getAllOrganizations()
 
-    const response = {
+    return {
       data: {
         _embedded: {
-          organizations: orgsInPage,
+          organizations: allOrganizations.slice(page * size, page * size + size),
         },
         _links: {},
         page: {
           size: size,
-          totalElements: this.organizationCache.length,
-          totalPages: Math.ceil(this.organizationCache.length / size),
+          totalElements: allOrganizations.length,
+          totalPages: Math.ceil(allOrganizations.length / size),
           number: page,
         },
       },
     }
-
-    return response
   }
 
   async getOrganizationById(organizationId) {
@@ -90,29 +90,17 @@ export class PerunClient {
       group: organizationId,
       attrNames: [`${this.GROUP_ATTR_DEF}${this.COLLECTION_ID_ATTR}`],
     }
-    const perunGroups = await axios.get(perunApiPaths.GET_SUBGROUPS, {
+    const perunResoucesGroups = await axios.get(perunApiPaths.GET_SUBGROUPS, {
       params,
       headers: getBearerHeaders(),
     })
     const resourcesFromNegotiator = await Promise.all(
-      perunGroups.data.map(async (group) => {
+      perunResoucesGroups.data.map(async (group) => {
         const resourceId = this.getResourceIdFromGroup(group)
         if (resourceId) {
           const resource = await this.negotiatorClient.getResourceBySourceId(resourceId)
           resource.id = group.id
-
-          const params = { group: resource.id }
-          const members = await axios.get(perunApiPaths.GET_RICH_MEMBERS, {
-            params,
-            headers: getBearerHeaders(),
-          })
-          resource.representatives = members.data.map((member) => {
-            return {
-              id: member.id,
-              name: `${member.user.firstName} ${member.user.lastName}`,
-              email: this.getUserEmail(member),
-            }
-          })
+          resource.representatives = await this.getRepresentativesOfResource(group.id)
 
           return resource
         }
@@ -124,13 +112,7 @@ export class PerunClient {
           resources: resourcesFromNegotiator,
         },
         _links: {},
-        page: {
-          // TODO: Check whether this is necessary
-          // size: 20,
-          // totalElements: orgsFromNegotiator.length,
-          // totalPages: 1,
-          // number: 0,
-        },
+        page: {},
       },
     }
   }
@@ -144,7 +126,7 @@ export class PerunClient {
 
     const data = {
       vo: this.VIRTUAL_ORGANIZATION_ID,
-      attrNames: ['urn:perun:user:attribute-def:def:preferredMail'],
+      attrNames: [`${this.USER_ATTR_DEF}${this.EMAIL_ATTR_ID}`],
       query: {
         pageSize: 5,
         offset: page * size,
@@ -179,6 +161,21 @@ export class PerunClient {
         },
       },
     }
+  }
+
+  async getRepresentativesOfResource(perunResourceGroupId) {
+    const params = { group: perunResourceGroupId }
+    const members = await axios.get(perunApiPaths.GET_RICH_MEMBERS, {
+      params,
+      headers: getBearerHeaders(),
+    })
+    return members.data.map((member) => {
+      return {
+        id: member.id,
+        name: `${member.user.firstName} ${member.user.lastName}`,
+        email: this.getUserEmail(member),
+      }
+    })
   }
 
   async addRepresentativeToResource(userId, resourceId) {
