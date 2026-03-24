@@ -56,12 +56,13 @@
     "@vitejs/plugin-vue": "^6.0.4",
     "@vue/eslint-config-prettier": "^10.2.0",
     "cypress": "^15.9.0",
-    "eslint": "^9.34.0",
+    "eslint": "^10.1.0",
     "eslint-plugin-cypress": "^5.2.0",
-    "eslint-plugin-vue": "^9.33.0",
+    "eslint-plugin-vue": "^10.8.0",
     "prettier": "^3.7.3",
     "sass": "1.97.1",
-    "vite": "^6.4.1"
+    "vite": "^6.4.1",
+    "vue-eslint-parser": "^10.4.0"
   },
   "browserslist": [
     "> 1%",
