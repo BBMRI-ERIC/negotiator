@@ -99,7 +99,10 @@ export class PerunClient {
       group: organizationId,
       attrNames: [`${this.GROUP_ATTR_DEF}${this.COLLECTION_ID_ATTR}`],
     }
-    const perunGroups = await axios.get(perunApiPaths.GET_SUBGROUPS, { params, headers: getBearerHeaders() })
+    const perunGroups = await axios.get(perunApiPaths.GET_SUBGROUPS, {
+      params,
+      headers: getBearerHeaders(),
+    })
     const resourcesFromNegotiator = await Promise.all(
       perunGroups.data.map(async (group) => {
         const resourceId = this.getResourceIdFromGroup(group)
@@ -108,15 +111,18 @@ export class PerunClient {
           resource.id = group.id
 
           const params = { group: resource.id }
-          const members = await axios.get(perunApiPaths.GET_RICH_MEMBERS, { params, headers: getBearerHeaders() })
+          const members = await axios.get(perunApiPaths.GET_RICH_MEMBERS, {
+            params,
+            headers: getBearerHeaders(),
+          })
           resource.representatives = members.data.map((member) => {
-            return  {
+            return {
               id: member.id,
               name: `${member.user.firstName} ${member.user.lastName}`,
-              email: this.getUserEmail(member)
+              email: this.getUserEmail(member),
             }
           })
-          
+
           return resource
         }
       }),
@@ -184,12 +190,23 @@ export class PerunClient {
     }
   }
 
-  async addRepresentativeToResource(userId, resource) {
+  async addRepresentativeToResource(userId, resourceId) {
     const data = {
       member: parseInt(userId),
-      group: resource.id,
+      group: resourceId,
     }
     const response = await axios.post(`${perunApiPaths.ADD_MEMBER_TO_GROUP}`, data, {
+      headers: getBearerHeaders(),
+    })
+    return response
+  }
+
+  async removeRepresentativeFromResource(userId, resourceId) {
+    const data = {
+      member: parseInt(userId),
+      group: resourceId,
+    }
+    const response = await axios.post(`${perunApiPaths.REMOVE_MEMBER_TO_GROUP}`, data, {
       headers: getBearerHeaders(),
     })
     return response
