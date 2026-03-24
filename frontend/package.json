@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --mode negotiator.development",
+    "dev": "vite --mode development",
     "dev:perun": "vite --mode perun.development",
     "build": "vite build",
     "preview": "vite preview --port 4173",
