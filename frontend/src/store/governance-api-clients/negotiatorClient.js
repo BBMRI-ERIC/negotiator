@@ -93,7 +93,7 @@ export class NegotiatorClient {
     )
   }
 
-  deleteRepresentativeFromResource(userId, resourceId) {
+  removeRepresentativeFromResource(userId, resourceId) {
     return axios.delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resourceId}`, {
       headers: getBearerHeaders(),
     })
