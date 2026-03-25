@@ -169,10 +169,6 @@ public class WebhookServiceImpl implements WebhookService {
         .value();
   }
 
-  private static @NotNull HttpEntity<String> buildHttpEntity(String jsonPayload, String eventType) {
-    return buildHttpEntity(jsonPayload, eventType, null);
-  }
-
   private static @NotNull HttpEntity<String> buildHttpEntity(
       String jsonPayload, String eventType, Instant occurredAt) {
     HttpHeaders headers = new HttpHeaders();
