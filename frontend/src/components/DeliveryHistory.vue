@@ -17,6 +17,13 @@
             {{ expandedPayloads[delivery.id] ? 'Hide' : 'Show' }} Payload
           </button>
 
+          <button
+            class="btn btn-sm btn-outline-secondary ms-1"
+            @click="$emit('redeliver', delivery.id)"
+          >
+            Redeliver
+          </button>
+
           <div v-if="expandedPayloads[delivery.id]" class="mt-2">
             <pre class="p-2 bg-light rounded"><code>{{ formatJson(delivery.content) }}</code></pre>
           </div>
@@ -48,11 +55,17 @@
 import { ref } from 'vue'
 
 defineProps({
+  webhookId: {
+    type: String,
+    required: true,
+  },
   deliveries: {
     type: Array,
     required: true,
   },
 })
+
+defineEmits(['redeliver'])
 
 const expandedPayloads = ref({})
 
