@@ -62,7 +62,10 @@
                 role="tabpanel"
                 aria-labelledby="deliveries-tab"
               >
-                <DeliveryHistory :deliveries="webhook.deliveries" />
+                <DeliveryHistory
+                  :deliveries="webhook.deliveries"
+                  @redeliver="$emit('redeliver', { webhookId: webhook.id, deliveryId: $event })"
+                />
               </div>
             </div>
           </div>
@@ -98,7 +101,7 @@ const props = defineProps({
   id: { type: String, default: 'editWebhookModal' },
   fade: { type: Boolean, default: true },
 })
-const emit = defineEmits(['update', 'create'])
+const emit = defineEmits(['update', 'create', 'redeliver'])
 
 // Initialize a reactive form object using the webhook prop.
 const form = reactive({

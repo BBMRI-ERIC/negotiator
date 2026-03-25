@@ -130,6 +130,24 @@ export const useAdminStore = defineStore('admin', () => {
       .then((response) => response.data)
   }
 
+  function redeliverWebhookDelivery(webhookId, deliveryId) {
+    return axios
+      .post(
+        `${apiPaths.BASE_API_PATH}/webhooks/${webhookId}/deliveries/${deliveryId}/redeliver`,
+        null,
+        {
+          headers: getBearerHeaders(),
+        },
+      )
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        notifications.setNotification('Failed to redeliver webhook delivery', 'error')
+        throw error
+      })
+  }
+
   function retrieveUsers(page = 0, size = 10, filtersSortData) {
     // add filtersSortData in case they are valued
     const params = Object.fromEntries(
@@ -300,6 +318,7 @@ export const useAdminStore = defineStore('admin', () => {
     deleteWebhook,
     testWebhook,
     getWebhook,
+    redeliverWebhookDelivery,
     retrieveUsers,
     retrieveResources,
     retrieveResourcesPaginated,
