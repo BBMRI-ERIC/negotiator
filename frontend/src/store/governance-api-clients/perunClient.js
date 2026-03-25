@@ -66,19 +66,35 @@ export class PerunClient {
     return this.organizationCache
   }
 
-  async retrieveOrganizationsPaginated(page = 0, size = 20) {
-    const allOrganizations = await this.getAllOrganizations()
+  filterOrganizations(items, filters) {
+    if (Object.keys(filters).length == 0) return items;
+
+    return items.filter(item => {
+      const nameMatch = filters.name === undefined ||
+      item.name.toLowerCase().includes(filters.name.toLowerCase()) ||
+      item.externalId.toLowerCase().includes(filters.name.toLowerCase());
+
+      const withdrawnMatch = filters.withdrawn === undefined ||
+        item.withdrawn === filters.withdrawn;
+
+      return nameMatch && withdrawnMatch;
+    }
+    );
+  }
+
+  async retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
+    const organizations = this.filterOrganizations(await this.getAllOrganizations(), filters)
 
     return {
       data: {
         _embedded: {
-          organizations: allOrganizations.slice(page * size, page * size + size),
+          organizations: organizations.slice(page * size, page * size + size),
         },
         _links: {},
         page: {
           size: size,
-          totalElements: allOrganizations.length,
-          totalPages: Math.ceil(allOrganizations.length / size),
+          totalElements: organizations.length,
+          totalPages: Math.ceil(organizations.length / size),
           number: page,
         },
       },
@@ -101,7 +117,6 @@ export class PerunClient {
           const resource = await this.negotiatorClient.getResourceBySourceId(resourceId)
           resource.id = group.id
           resource.representatives = await this.getRepresentativesOfResource(group.id)
-
           return resource
         }
       }),
