@@ -67,19 +67,18 @@ export class PerunClient {
   }
 
   filterOrganizations(items, filters) {
-    if (Object.keys(filters).length == 0) return items;
+    if (Object.keys(filters).length == 0) return items
 
-    return items.filter(item => {
-      const nameMatch = filters.name === undefined ||
-      item.name.toLowerCase().includes(filters.name.toLowerCase()) ||
-      item.externalId.toLowerCase().includes(filters.name.toLowerCase());
+    return items.filter((item) => {
+      const nameMatch =
+        filters.name === undefined ||
+        item.name.toLowerCase().includes(filters.name.toLowerCase()) ||
+        item.externalId.toLowerCase().includes(filters.name.toLowerCase())
 
-      const withdrawnMatch = filters.withdrawn === undefined ||
-        item.withdrawn === filters.withdrawn;
+      const withdrawnMatch = filters.withdrawn === undefined || item.withdrawn === filters.withdrawn
 
-      return nameMatch && withdrawnMatch;
-    }
-    );
+      return nameMatch && withdrawnMatch
+    })
   }
 
   async retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
