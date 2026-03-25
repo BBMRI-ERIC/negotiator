@@ -5,14 +5,6 @@
         <i :class="getStatusIcon(webhook)" class="me-3"></i>
         <div>
           <h5 class="card-title mb-0">{{ webhook.url }}</h5>
-          <small class="text-muted">
-            <span v-if="webhook.testInProgress">
-              <i class="bi bi-arrow-repeat spin"></i> Testing...
-            </span>
-            <span v-else>
-              {{ getLastDeliveryStatus(webhook) }}
-            </span>
-          </small>
         </div>
       </div>
       <div>
@@ -41,6 +33,9 @@ defineProps({
 })
 
 const getStatusIcon = (webhook) => {
+  if (webhook.testInProgress) {
+    return 'bi bi-arrow-repeat spin'
+  }
   if (!webhook.active) {
     return 'bi bi-dash-circle text-secondary'
   }
@@ -51,14 +46,6 @@ const getStatusIcon = (webhook) => {
       : 'bi bi-exclamation-triangle text-danger'
   }
   return 'bi bi-question-circle text-secondary'
-}
-
-const getLastDeliveryStatus = (webhook) => {
-  if (webhook.deliveries && webhook.deliveries.length > 0) {
-    const latest = webhook.deliveries[0]
-    return latest.httpStatusCode === 200 ? '200 OK' : `${latest.httpStatusCode} Error`
-  }
-  return 'No deliveries'
 }
 </script>
 
