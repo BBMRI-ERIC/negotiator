@@ -32,6 +32,7 @@
       :webhook="selectedWebhook"
       @update="handleWebhookUpdate"
       @create="handleNewWebhook"
+      @redeliver="handleWebhookRedelivery"
     />
     <confirmation-modal
       id="delete-webhookmodal"
@@ -189,6 +190,20 @@ const handleNewWebhook = async (updatedConfig) => {
   }
 }
 
+const handleWebhookRedelivery = async ({ webhookId, deliveryId }) => {
+  try {
+    isLoading.value = true
+    await adminStore.redeliverWebhookDelivery(webhookId, deliveryId)
+    selectedWebhook.value = await updateWebhookInList(webhookId)
+    notifications.setNotification('Webhook redelivery completed', 'success')
+  } catch (error) {
+    console.error('Error redelivering webhook delivery:', error)
+    notifications.setNotification('Webhook redelivery failed', 'error')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const testWebhook = async (webhook) => {
   const index = webhooks.value.findIndex((w) => w.id === webhook.id)
   if (index === -1) return
@@ -208,6 +223,17 @@ const testWebhook = async (webhook) => {
       testInProgress: false,
     }
   }
+}
+
+const updateWebhookInList = async (webhookId) => {
+  const updatedWebhook = await adminStore.getWebhook(webhookId)
+
+  const index = webhooks.value.findIndex((w) => w.id === webhookId)
+  if (index !== -1) {
+    webhooks.value[index] = updatedWebhook
+  }
+
+  return updatedWebhook
 }
 
 const viewEmailDetails = (email) => {
