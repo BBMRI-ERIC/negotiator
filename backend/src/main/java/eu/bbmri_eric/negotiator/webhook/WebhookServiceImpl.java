@@ -3,12 +3,12 @@ package eu.bbmri_eric.negotiator.webhook;
 import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
-import jakarta.validation.constraints.NotNull;
 import java.net.SocketTimeoutException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import javax.net.ssl.SSLException;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hc.client5.http.ConnectTimeoutException;
@@ -148,7 +148,7 @@ public class WebhookServiceImpl implements WebhookService {
     }
   }
 
-  private @NotNull Webhook getWebhook(Long webhookId) {
+  private @NonNull Webhook getWebhook(Long webhookId) {
     Webhook webhook =
         webhookRepository
             .findById(webhookId)
@@ -205,8 +205,8 @@ public class WebhookServiceImpl implements WebhookService {
         .value();
   }
 
-  private static @NotNull HttpEntity<String> buildHttpEntity(
-      String jsonPayload, @NotNull WebhookEventType eventType, @NotNull Instant occurredAt) {
+  private static @NonNull HttpEntity<String> buildHttpEntity(
+      String jsonPayload, @NonNull WebhookEventType eventType, @NonNull Instant occurredAt) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.add(WebhookHeaders.EVENT_TYPE, eventType.value());
