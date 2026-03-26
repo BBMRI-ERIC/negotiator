@@ -58,16 +58,16 @@ export class NegotiatorClient {
     })
   }
 
-  addRepresentativeToResource(userId, resourceId) {
+  addRepresentativeToResource(userId, resource) {
     return axios.patch(
       `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
-      { id: resourceId },
+      { id: resource.id },
       { headers: getBearerHeaders() },
     )
   }
 
-  removeRepresentativeFromResource(userId, resourceId) {
-    return axios.delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resourceId}`, {
+  removeRepresentativeFromResource(userId, resource) {
+    return axios.delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resource.id}`, {
       headers: getBearerHeaders(),
     })
   }

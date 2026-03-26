@@ -79,9 +79,9 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function addRepresentativeToResource(userId, resourceId, silent = false) {
+  function addRepresentativeToResource(userId, resource, silent = false) {
     return governanceClient
-      .addRepresentativeToResource(userId, resourceId)
+      .addRepresentativeToResource(userId, resource)
       .then((response) => {
         if (!silent) {
           notifications.setNotification('Representative added successfully', 'success')
@@ -96,9 +96,9 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function removeRepresentativeFromResource(userId, resourceId, silent = false) {
+  function removeRepresentativeFromResource(userId, resource, silent = false) {
     return governanceClient
-      .removeRepresentativeFromResource(userId, resourceId)
+      .removeRepresentativeFromResource(userId, resource)
       .then((response) => {
         if (!silent) {
           notifications.setNotification('Representative removed successfully', 'success')
