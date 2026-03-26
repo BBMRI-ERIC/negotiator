@@ -15,6 +15,7 @@ import eu.bbmri_eric.negotiator.webhook.DeliveryDTO;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import eu.bbmri_eric.negotiator.webhook.WebhookService;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,8 @@ class WebhookDeliveryTransportFaultIntegrationTest {
 
     String payload = "{\"data\":\"success\"}";
 
-    DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
+    DeliveryDTO delivery =
+        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
 
     assertNull(delivery.getHttpStatusCode());
     assertEquals("Request timeout", delivery.getErrorMessage());
@@ -71,7 +73,8 @@ class WebhookDeliveryTransportFaultIntegrationTest {
 
     String payload = "{\"data\":\"fault\"}";
 
-    DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
+    DeliveryDTO delivery =
+        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
 
     assertTrue(delivery.getHttpStatusCode() == null || delivery.getHttpStatusCode() >= 500);
     assertTrue(StringUtils.isNotBlank(delivery.getErrorMessage()));
@@ -86,7 +89,8 @@ class WebhookDeliveryTransportFaultIntegrationTest {
 
     String payload = "{\"data\":\"runtime\"}";
 
-    DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
+    DeliveryDTO delivery =
+        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
 
     assertNull(delivery.getHttpStatusCode());
     assertTrue(StringUtils.isNotBlank(delivery.getErrorMessage()));

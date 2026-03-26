@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import java.time.Instant;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public interface WebhookService {
    * @param jsonPayload the JSON content for the delivery
    * @return a DTO representing the newly created delivery
    */
-  DeliveryDTO deliver(String jsonPayload, Long webhookId);
+  DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId);
 
   /**
    * Creates a new delivery for all active webhooks with an event type header.
@@ -58,5 +59,5 @@ public interface WebhookService {
    * @param eventType the event type to send as a header
    * @param occurredAt the event timestamp to send as a header
    */
-  void deliverToActiveWebhooks(String jsonPayload, String eventType, Instant occurredAt);
+  void deliverToActiveWebhooks(String jsonPayload, WebhookEventType eventType, Instant occurredAt);
 }

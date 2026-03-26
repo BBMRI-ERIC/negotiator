@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -85,7 +86,7 @@ public class WebhookController {
               example = "{\"test\":\"yes\"}",
               type = "object")
           String content) {
-    DeliveryDTO dto = webhookService.deliver(content, id);
+    DeliveryDTO dto = webhookService.deliver(content, WebhookEventType.CUSTOM, id);
     return EntityModel.of(dto);
   }
 }

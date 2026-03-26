@@ -82,10 +82,10 @@ public class WebhookEventMapper {
   }
 
   private record WebhookEventDefinition<S extends ApplicationEvent, T>(
-      Class<S> sourceType, Class<T> dataType, String eventType) {
+      Class<S> sourceType, Class<T> dataType, WebhookEventType eventType) {
 
     private static <S extends ApplicationEvent, T> WebhookEventDefinition<S, T> of(
-        Class<S> sourceType, Class<T> dataType, String eventType) {
+        Class<S> sourceType, Class<T> dataType, WebhookEventType eventType) {
       return new WebhookEventDefinition<>(sourceType, dataType, eventType);
     }
 

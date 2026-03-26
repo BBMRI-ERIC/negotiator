@@ -1,14 +1,27 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
-/** Defines external webhook event type names. */
-public final class WebhookEventType {
-  public static final String NEGOTIATION_ADDED = "negotiation.added";
-  public static final String NEGOTIATION_STATE_UPDATED = "negotiation.state.updated";
-  public static final String NEGOTIATION_INFO_UPDATED = "negotiation.info.updated";
-  public static final String NEGOTIATION_RESOURCE_ADDED = "negotiation.resource.added";
-  public static final String NEGOTIATION_RESOURCE_STATE_UPDATED =
-      "negotiation.resource.state.updated";
-  public static final String NEGOTIATION_POST_ADDED = "negotiation.post.added";
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 
-  private WebhookEventType() {}
+/** Defines external webhook event type names. */
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public enum WebhookEventType {
+  CUSTOM("custom"),
+  NEGOTIATION_ADDED("negotiation.added"),
+  NEGOTIATION_STATE_UPDATED("negotiation.state.updated"),
+  NEGOTIATION_INFO_UPDATED("negotiation.info.updated"),
+  NEGOTIATION_RESOURCE_ADDED("negotiation.resource.added"),
+  NEGOTIATION_RESOURCE_STATE_UPDATED("negotiation.resource.state.updated"),
+  NEGOTIATION_POST_ADDED("negotiation.post.added");
+
+  private final String value;
+
+  public String value() {
+    return value;
+  }
+
+  @Override
+  public String toString() {
+    return value;
+  }
 }

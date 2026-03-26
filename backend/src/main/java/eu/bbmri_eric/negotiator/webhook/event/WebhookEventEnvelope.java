@@ -9,4 +9,4 @@ import java.time.Instant;
  * @param occurredAt UTC timestamp describing when the source application event happened
  * @param data event-specific payload DTO
  */
-public record WebhookEventEnvelope<T>(String eventType, Instant occurredAt, T data) {}
+public record WebhookEventEnvelope<T>(WebhookEventType eventType, Instant occurredAt, T data) {}

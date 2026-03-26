@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.webhook;
 
 import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import java.net.SocketTimeoutException;
@@ -86,19 +87,21 @@ public class WebhookServiceImpl implements WebhookService {
 
   @Override
   @Transactional
-  public DeliveryDTO deliver(String jsonPayload, Long webhookId) {
+  public DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId) {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
     }
+
     Webhook webhook = getWebhook(webhookId);
     RestTemplate restTemplate =
         webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-    return deliverWebhook(jsonPayload, restTemplate, webhook, null, null);
+    return deliverWebhook(jsonPayload, restTemplate, webhook, eventType, Instant.now());
   }
 
   @Override
   @Transactional
-  public void deliverToActiveWebhooks(String jsonPayload, String eventType, Instant occurredAt) {
+  public void deliverToActiveWebhooks(
+      String jsonPayload, WebhookEventType eventType, Instant occurredAt) {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
     }
@@ -126,7 +129,7 @@ public class WebhookServiceImpl implements WebhookService {
       String jsonPayload,
       RestTemplate restTemplate,
       Webhook webhook,
-      String eventType,
+      WebhookEventType eventType,
       Instant occurredAt) {
     Delivery delivery;
     try {
@@ -170,15 +173,12 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   private static @NotNull HttpEntity<String> buildHttpEntity(
-      String jsonPayload, String eventType, Instant occurredAt) {
+      String jsonPayload, @NotNull WebhookEventType eventType, @NotNull Instant occurredAt) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    if (eventType != null && !eventType.isBlank()) {
-      headers.add(WebhookHeaders.EVENT_TYPE, eventType);
-    }
-    if (occurredAt != null) {
-      headers.add(WebhookHeaders.OCCURRED_AT, occurredAt.toString());
-    }
+    headers.add(WebhookHeaders.EVENT_TYPE, eventType.value());
+    headers.add(WebhookHeaders.OCCURRED_AT, occurredAt.toString());
+
     return new HttpEntity<>(jsonPayload, headers);
   }
 

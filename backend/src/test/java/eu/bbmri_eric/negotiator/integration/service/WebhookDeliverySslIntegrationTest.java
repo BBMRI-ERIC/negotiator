@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.webhook.DeliveryDTO;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import eu.bbmri_eric.negotiator.webhook.WebhookService;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -71,7 +72,8 @@ public class WebhookDeliverySslIntegrationTest {
 
     String payload = "{\"data\":\"success\"}";
 
-    DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
+    DeliveryDTO delivery =
+        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
 
     assertEquals(200, delivery.getHttpStatusCode());
     trustedHttpsServer.verify(
@@ -96,7 +98,8 @@ public class WebhookDeliverySslIntegrationTest {
 
     String payload = "{\"data\":\"success\"}";
 
-    DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
+    DeliveryDTO delivery =
+        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
 
     assertNull(delivery.getHttpStatusCode());
     assertEquals("SSL certificate validation failed", delivery.getErrorMessage());
@@ -118,7 +121,8 @@ public class WebhookDeliverySslIntegrationTest {
 
     String payload = "{\"data\":\"success\"}";
 
-    DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
+    DeliveryDTO delivery =
+        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
 
     assertEquals(200, delivery.getHttpStatusCode());
     trustedHttpsServer.verify(
@@ -143,7 +147,8 @@ public class WebhookDeliverySslIntegrationTest {
 
     String payload = "{\"data\":\"success\"}";
 
-    DeliveryDTO delivery = webhookService.deliver(payload, webhook.getId());
+    DeliveryDTO delivery =
+        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
 
     assertEquals(200, delivery.getHttpStatusCode());
     untrustedHttpsServer.verify(
