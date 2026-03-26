@@ -91,6 +91,7 @@ export function PerunGroupsManager(negotiatorClient) {
         if (negotiatorOrg) {
           organization.negotiatorOrg = negotiatorOrg
           organization.negotiatorOrg.id = perunGroup.id
+          organization.negotiatorOrg.perunGroupId = perunGroup.id
         }
       }),
     )
