@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.webhook;
 import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import java.net.SocketTimeoutException;
 import java.time.Instant;
@@ -19,6 +18,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,6 +32,7 @@ public class WebhookServiceImpl implements WebhookService {
   private final WebhookRepository webhookRepository;
   private final DeliveryRepository deliveryRepository;
   private final ModelMapper modelMapper;
+  private final WebhookDeliveryPersister webhookDeliveryPersister;
   private final RestTemplate secureRestTemplate;
   private final RestTemplate insecureRestTemplate;
 
@@ -39,11 +40,13 @@ public class WebhookServiceImpl implements WebhookService {
       WebhookRepository webhookRepository,
       DeliveryRepository deliveryRepository,
       ModelMapper modelMapper,
+      WebhookDeliveryPersister webhookDeliveryPersister,
       @Qualifier("secureWebhookRestTemplate") RestTemplate secureRestTemplate,
       @Qualifier("insecureWebhookRestTemplate") RestTemplate insecureRestTemplate) {
     this.webhookRepository = webhookRepository;
     this.deliveryRepository = deliveryRepository;
     this.modelMapper = modelMapper;
+    this.webhookDeliveryPersister = webhookDeliveryPersister;
     this.secureRestTemplate = secureRestTemplate;
     this.insecureRestTemplate = insecureRestTemplate;
   }
@@ -56,7 +59,7 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
-  @Transactional
+  @Transactional(readOnly = true)
   public WebhookResponseDTO getWebhookById(Long id) {
     Webhook webhook =
         webhookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -64,7 +67,7 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
-  @Transactional
+  @Transactional(readOnly = true)
   public List<WebhookResponseDTO> getAllWebhooks() {
     List<Webhook> webhooks = webhookRepository.findAll();
     return webhooks.stream()
@@ -90,7 +93,6 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
-  @Transactional
   public DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId) {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
@@ -133,7 +135,6 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
-  @Transactional
   public void deliverToActiveWebhooks(
       String jsonPayload, WebhookEventType eventType, Instant occurredAt) {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
@@ -180,7 +181,7 @@ public class WebhookServiceImpl implements WebhookService {
       delivery = new Delivery(jsonPayload, null, parseErrorMessage(ex), eventType);
     }
     delivery.setRedeliveryOfDeliveryId(redeliveryOfDeliveryId);
-    return persistDelivery(webhook, delivery);
+    return webhookDeliveryPersister.persist(webhook.getId(), delivery);
   }
 
   private Delivery mapTransportException(
@@ -194,12 +195,6 @@ public class WebhookServiceImpl implements WebhookService {
       return new Delivery(jsonPayload, null, SSL_VALIDATION_ERROR_MESSAGE, eventType);
     }
     return new Delivery(jsonPayload, null, parseErrorMessage(ex), eventType);
-  }
-
-  private DeliveryDTO persistDelivery(Webhook webhook, Delivery delivery) {
-    webhook.addDelivery(delivery);
-    webhook = webhookRepository.saveAndFlush(webhook);
-    return modelMapper.map(webhook.getDeliveries().get(0), DeliveryDTO.class);
   }
 
   private static int postWebhook(
