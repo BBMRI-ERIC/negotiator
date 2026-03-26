@@ -11,7 +11,7 @@ export class NegotiatorClient {
     return axios.get(url, { headers: getBearerHeaders() })
   }
 
-  async retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
+  retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
     let url = `${apiPaths.BASE_API_PATH}/organizations`
     const params = {
       page: page,
@@ -36,39 +36,12 @@ export class NegotiatorClient {
     return axios.get(url, { params, headers: getBearerHeaders() })
   }
 
-  async getOrganizationById(organizationId, expand = null) {
+  getOrganizationById(organizationId, expand = null) {
     const url = expand
       ? `${apiPaths.BASE_API_PATH}/organizations/${organizationId}?expand=${expand}`
       : `${apiPaths.BASE_API_PATH}/organizations/${organizationId}`
 
     return axios.get(url, { headers: getBearerHeaders() })
-  }
-
-  async getOrganizationByExternalId(externalId) {
-    const params = {
-      externalId: externalId,
-    }
-    const url = `${apiPaths.BASE_API_PATH}/organizations`
-
-    const response = await axios.get(url, { params, headers: getBearerHeaders() })
-
-    if (response.data.page.totalElements > 1) {
-      console.log('This is a problem')
-    }
-    return response.data._embedded.organizations[0]
-  }
-
-  async getResourceBySourceId(sourceId) {
-    const params = {
-      sourceId: sourceId,
-    }
-    const url = `${apiPaths.BASE_API_PATH}/resources`
-    const response = await axios.get(url, { params, headers: getBearerHeaders() })
-
-    if (response.data.page.totalElements > 1) {
-      console.log('This is a problem')
-    }
-    return response.data._embedded.resources[0]
   }
 
   retrieveUsers(page = 0, size = 10, filtersSortData) {
@@ -97,5 +70,43 @@ export class NegotiatorClient {
     return axios.delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resourceId}`, {
       headers: getBearerHeaders(),
     })
+  }
+
+  getRepresentedResources(userId, filters = {}) {
+    let url = `${apiPaths.BASE_API_PATH}/users/${userId}/organizations?expand=resources`
+
+    if (filters.name && filters.name.trim()) {
+      url += `&name=${encodeURIComponent(filters.name.trim())}`
+    }
+
+    if (typeof filters.withdrawn === 'boolean') {
+      url += `&withdrawn=${filters.withdrawn}`
+    }
+
+    return axios.get(url, {
+      headers: getBearerHeaders(),
+    })
+  }
+
+  async getOrganizationByExternalId(externalId) {
+    const params = {
+      externalId: externalId,
+    }
+    const response = await axios.get(`${apiPaths.BASE_API_PATH}/organizations`, {
+      params,
+      headers: getBearerHeaders(),
+    })
+    return response.data.page.totalElements == 1 ? response.data._embedded.organizations[0] : null
+  }
+
+  async getResourceBySourceId(sourceId) {
+    const params = {
+      sourceId: sourceId,
+    }
+    const response = await axios.get(`${apiPaths.BASE_API_PATH}/resources`, {
+      params,
+      headers: getBearerHeaders(),
+    })
+    return response.data.page.totalElements == 1 ? response.data._embedded.resources[0] : null
   }
 }
