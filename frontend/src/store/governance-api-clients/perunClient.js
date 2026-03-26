@@ -5,8 +5,10 @@ import { NegotiatorClient } from './negotiatorClient'
 export class PerunClient {
   VIRTUAL_ORGANIZATION_ID = import.meta.env.VITE_PERUN_VO_ID
   BASE_URL = import.meta.env.VITE_PERUN_API_URL
-  BIOBANK_ID_ATTR = import.meta.env.VITE_PERUN_BIOBANK_ID_ATTR
-  COLLECTION_ID_ATTR = import.meta.env.VITE_PERUN_COLLECTION_ID_ATTR
+  ORGANIZATION_ID_ATTR = import.meta.env.VITE_PERUN_ORGANIZATION_ID_ATTR
+  RESOURCE_ID_ATTR = import.meta.env.VITE_PERUN_RESOURCE_ID_ATTR
+  ADMIN_ORGANIZATION_ID_ATTR = import.meta.env.VITE_PERUN_ADMIN_ORGANIZATION_ID_ATTR
+  ADMIN_RESOURCE_ID_ATTR = import.meta.env.VITE_PERUN_ADMIN_RESOURCE_ID_ATTR
   GROUP_ATTR_DEF = import.meta.env.VITE_PERUN_GROUP_ATTR_DEF
   USER_ATTR_DEF = import.meta.env.VITE_PERUN_USER_ATTR_DEF
   EMAIL_ATTR_ID = import.meta.env.VITE_PERUN_EMAIL_ATTR
@@ -14,56 +16,61 @@ export class PerunClient {
   negotiatorClient = new NegotiatorClient()
 
   organizationCache = []
+  organizationsResourcesHierarchy = {}
+  managerGroupMappings = {}
+
+  getValueForAttribute(group, attributeName) {
+    const attribute = group.attributes.find((attr) => attr.baseFriendlyName === attributeName)
+    return attribute && attribute.value ? attribute.value.trim() : null
+  }
+
+  isValueForAttributeNotEmpty(group, attributeName) {
+    return this.getValueForAttribute(group, attributeName) != null
+  }
+
+  isOrganizationGroup(group) {
+    return this.isValueForAttributeNotEmpty(group, this.ORGANIZATION_ID_ATTR)
+  }
+
+  isResourceGroup(group) {
+    return this.isValueForAttributeNotEmpty(group, this.RESOURCE_ID_ATTR)
+  }
+
+  isOrganizationManagerGroup(group) {
+    return this.isValueForAttributeNotEmpty(group, this.ADMIN_ORGANIZATION_ID_ATTR)
+  }
+
+  isResourceManagerGroup(group) {
+    return this.isValueForAttributeNotEmpty(group, this.ADMIN_RESOURCE_ID_ATTR)
+  }
 
   getOrganizationIdFromGroup(group) {
-    const attribute = group.attributes.find(
-      (attr) => attr.baseFriendlyName === this.BIOBANK_ID_ATTR,
-    )
-    return attribute && attribute.value ? attribute.value.trim() : undefined
+    return this.getValueForAttribute(group, this.ORGANIZATION_ID_ATTR)
   }
 
   getResourceIdFromGroup(group) {
-    const attribute = group.attributes.find(
-      (attr) => attr.baseFriendlyName === this.COLLECTION_ID_ATTR,
-    )
-    return attribute ? attribute.value.trim() : undefined
+    return this.getValueForAttribute(group, this.RESOURCE_ID_ATTR)
+  }
+
+  getOrganizationIdFromManagerGroup(group) {
+    return this.getValueForAttribute(group, this.ADMIN_ORGANIZATION_ID_ATTR)
+  }
+
+  getResourceIdFromManagerGroup(group) {
+    return this.getValueForAttribute(group, this.ADMIN_RESOURCE_ID_ATTR)
   }
 
   getUserEmail(user) {
-    const attribute = user.userAttributes.find((attr) => attr.baseFriendlyName === 'preferredMail')
-    return attribute ? attribute.value.trim() : undefined
+    const attribute = user.userAttributes.find(
+      (attr) => attr.baseFriendlyName === this.EMAIL_ATTR_ID,
+    )
+    return attribute ? attribute.value.trim() : null
   }
 
   filterOrganizationGroups(groups) {
     return groups.data.filter((group) => {
-      return this.getOrganizationIdFromGroup(group) != undefined
+      return this.getOrganizationIdFromGroup(group) != null
     })
-  }
-
-  async getAllOrganizations() {
-    if (this.organizationCache.length == 0) {
-      const params = {
-        vo: this.VIRTUAL_ORGANIZATION_ID,
-        attrNames: [`${this.GROUP_ATTR_DEF}${this.BIOBANK_ID_ATTR}`],
-      }
-      const perunGroups = await axios.get(perunApiPaths.GET_GROUPS, {
-        params: params,
-        headers: getBearerHeaders(),
-      })
-      const allOrgsGroups = this.filterOrganizationGroups(perunGroups)
-      const orgsFromNegotiator = await Promise.all(
-        allOrgsGroups.map(async (group) => {
-          const orgId = this.getOrganizationIdFromGroup(group)
-          if (orgId) {
-            const org = await this.negotiatorClient.getOrganizationByExternalId(orgId)
-            org.id = group.id
-            return org
-          }
-        }),
-      )
-      this.organizationCache = orgsFromNegotiator
-    }
-    return this.organizationCache
   }
 
   filterOrganizations(items, filters) {
@@ -81,9 +88,72 @@ export class PerunClient {
     })
   }
 
+  createGroupsHierarchyAndMapping(perunGroups) {
+    perunGroups.data.forEach((group) => {
+      if (this.isOrganizationGroup(group)) {
+        const orgId = this.getOrganizationIdFromGroup(group)
+        if (!(group.id in this.organizationsResourcesHierarchy)) {
+          this.organizationsResourcesHierarchy[group.id] = {
+            id: group.id,
+            resources: [],
+          }
+        }
+        this.organizationsResourcesHierarchy[group.id].directoryId = orgId
+      } else if (this.isResourceGroup(group)) {
+        if (!(group.parentGroupId in this.organizationsResourcesHierarchy)) {
+          this.organizationsResourcesHierarchy[group.parentGroupId] = {
+            id: group.parentGroupId,
+            resources: [],
+          }
+        }
+        this.organizationsResourcesHierarchy[group.parentGroupId].resources.push({
+          id: group.id,
+          parentId: group.parentGroupId,
+          directoryId: this.getResourceIdFromGroup(group),
+        })
+      } else if (this.isOrganizationManagerGroup(group)) {
+        this.managerGroupMappings[this.getOrganizationIdFromManagerGroup(group)] = group.id
+      } else if (this.isResourceManagerGroup(group)) {
+        this.managerGroupMappings[this.getResourceIdFromManagerGroup(group)] = group.id
+      }
+    })
+  }
+
+  async getAuthorizedPerunGroups() {
+    const params = {
+      vo: this.VIRTUAL_ORGANIZATION_ID,
+      attrNames: [
+        `${this.GROUP_ATTR_DEF}${this.ORGANIZATION_ID_ATTR}`,
+        `${this.GROUP_ATTR_DEF}${this.RESOURCE_ID_ATTR}`,
+        `${this.GROUP_ATTR_DEF}${this.ADMIN_ORGANIZATION_ID_ATTR}`,
+        `${this.GROUP_ATTR_DEF}${this.ADMIN_RESOURCE_ID_ATTR}`,
+      ],
+    }
+    return await axios.get(perunApiPaths.GET_GROUPS, {
+      params: params,
+      headers: getBearerHeaders(),
+    })
+  }
+
+  async getAllOrganizations() {
+    if (Object.keys(this.organizationsResourcesHierarchy).length == 0) {
+      const perunGroups = await this.getAuthorizedPerunGroups()
+      await this.createGroupsHierarchyAndMapping(perunGroups)
+      for (const [groupId, group] of Object.entries(this.organizationsResourcesHierarchy)) {
+        const negotiatorOrg = await this.negotiatorClient.getOrganizationByExternalId(
+          group.directoryId,
+        )
+        if (negotiatorOrg) {
+          group.negotiatorOrg = negotiatorOrg
+          group.negotiatorOrg.id = groupId
+        }
+      }
+    }
+    return Object.values(this.organizationsResourcesHierarchy).map((org) => org.negotiatorOrg)
+  }
+
   async retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
     const organizations = this.filterOrganizations(await this.getAllOrganizations(), filters)
-
     return {
       data: {
         _embedded: {
@@ -101,23 +171,15 @@ export class PerunClient {
   }
 
   async getOrganizationById(organizationId) {
-    const params = {
-      group: organizationId,
-      attrNames: [`${this.GROUP_ATTR_DEF}${this.COLLECTION_ID_ATTR}`],
-    }
-    const perunResoucesGroups = await axios.get(perunApiPaths.GET_SUBGROUPS, {
-      params,
-      headers: getBearerHeaders(),
-    })
+    console.log(this.organizationsResourcesHierarchy)
     const resourcesFromNegotiator = await Promise.all(
-      perunResoucesGroups.data.map(async (group) => {
-        const resourceId = this.getResourceIdFromGroup(group)
-        if (resourceId) {
-          const resource = await this.negotiatorClient.getResourceBySourceId(resourceId)
-          resource.id = group.id
-          resource.representatives = await this.getRepresentativesOfResource(group.id)
-          return resource
-        }
+      this.organizationsResourcesHierarchy[organizationId].resources.map(async (resource) => {
+        const negotiatorResource = await this.negotiatorClient.getResourceBySourceId(
+          resource.directoryId,
+        )
+        negotiatorResource.id = resource.id
+        negotiatorResource.representatives = await this.getRepresentativesOfResource(resource.id)
+        return negotiatorResource
       }),
     )
     return {
@@ -129,6 +191,10 @@ export class PerunClient {
         page: {},
       },
     }
+  }
+
+  getRepresentedResources(userId, filters = {}) {
+    return this.negotiatorClient.getRepresentedResources(userId, filters)
   }
 
   async retrieveUsers(page = 0, size = 10, filtersSortData) {
