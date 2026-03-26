@@ -92,7 +92,7 @@ export class PerunClient {
         const negotiatorResource = await this.negotiatorClient.getResourceBySourceId(
           resource.directoryId,
         )
-        negotiatorResource.id = resource.id
+        negotiatorResource.perunGroupId = resource.id
         negotiatorResource.representatives = await this.getRepresentativesOfResource(resource.id)
         return negotiatorResource
       }),
