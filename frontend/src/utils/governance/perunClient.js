@@ -13,6 +13,12 @@ export function PerunClient() {
   const GROUP_ATTR_DEF = governanceSettings.group_attr_def
   const USER_ATTR_DEF = governanceSettings.user_attr_def
   const EMAIL_ATTR_ID = governanceSettings.email_attr_id
+  const REPRESENTATIVE_ACTIONS = {
+    ADD: 'A',
+    REMOVE: 'R'
+  }
+
+  
 
   const negotiatorClient = new NegotiatorClient()
   const perunGroupsManager = PerunGroupsManager(negotiatorClient)
@@ -85,6 +91,7 @@ export function PerunClient() {
           resource.directoryId,
         )
         negotiatorResource.perunGroupId = resource.id
+        negotiatorResource.perunParentGroupId = resource.parentId
         negotiatorResource.representatives = await getRepresentativesOfResource(resource.id)
         return negotiatorResource
       }),
@@ -165,32 +172,31 @@ export function PerunClient() {
     })
   }
 
-  const addRepresentativeToResource = async (userId, resource) => {
+  const addOrRemoveRepresentativeToResource = async (userId, resource, action) => {
+    const url = action == REPRESENTATIVE_ACTIONS.ADD ? perunApiPaths.ADD_MEMBER_TO_GROUP : perunApiPaths.REMOVE_MEMBER_TO_GROUP
+
+    const resourceGroupId = perunGroupsManager.getResourceGroupIdFromResource(resource)
+    const organizationGroupId = perunGroupsManager.getOrganizationGroupIdFromResource(resource)
     const managerGroupId = perunGroupsManager.getManagerGroupIdFromResource(resource)
-    for (const groupId of [resource.perunGroupId, managerGroupId]) {
+
+    for (const groupId of [resourceGroupId, organizationGroupId, managerGroupId]) {
       const data = {
         member: parseInt(userId),
         group: groupId,
       }
-      await axios.post(`${perunApiPaths.ADD_MEMBER_TO_GROUP}`, data, {
+      await axios.post(url, data, {
         headers: getBearerHeaders(),
       })
     }
     return { data: null }
   }
 
+  const addRepresentativeToResource = async (userId, resource) => {
+    return await addOrRemoveRepresentativeToResource(userId, resource, REPRESENTATIVE_ACTIONS.ADD)
+  }
+
   const removeRepresentativeFromResource = async (userId, resource) => {
-    const managerGroupId = perunGroupsManager.getManagerGroupIdFromResource(resource)
-    for (const groupId of [resource.perunGroupId, managerGroupId]) {
-      const data = {
-        member: parseInt(userId),
-        group: groupId,
-      }
-      await axios.post(`${perunApiPaths.REMOVE_MEMBER_TO_GROUP}`, data, {
-        headers: getBearerHeaders(),
-      })
-    }
-    return { data: null }
+    return await addOrRemoveRepresentativeToResource(userId, resource, REPRESENTATIVE_ACTIONS.REMOVE)
   }
 
   return {
