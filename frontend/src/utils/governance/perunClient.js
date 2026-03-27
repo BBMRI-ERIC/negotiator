@@ -2,16 +2,17 @@ import axios from 'axios'
 import { perunApiPaths, getBearerHeaders } from '../../config/apiPaths'
 import { NegotiatorClient } from './negotiatorClient'
 import { PerunGroupsManager } from './groupsManager'
+import governanceSettings from '@/config/governanceSettings'
 
 export function PerunClient() {
-  const VIRTUAL_ORGANIZATION_ID = import.meta.env.VITE_PERUN_VO_ID
-  const ORGANIZATION_ID_ATTR = import.meta.env.VITE_PERUN_ORGANIZATION_ID_ATTR
-  const RESOURCE_ID_ATTR = import.meta.env.VITE_PERUN_RESOURCE_ID_ATTR
-  const ADMIN_ORGANIZATION_ID_ATTR = import.meta.env.VITE_PERUN_ADMIN_ORGANIZATION_ID_ATTR
-  const ADMIN_RESOURCE_ID_ATTR = import.meta.env.VITE_PERUN_ADMIN_RESOURCE_ID_ATTR
-  const GROUP_ATTR_DEF = import.meta.env.VITE_PERUN_GROUP_ATTR_DEF
-  const USER_ATTR_DEF = import.meta.env.VITE_PERUN_USER_ATTR_DEF
-  const EMAIL_ATTR_ID = import.meta.env.VITE_PERUN_EMAIL_ATTR
+  const VIRTUAL_ORGANIZATION_ID = governanceSettings.virtual_organization_id
+  const ORGANIZATION_ID_ATTR = governanceSettings.organization_id_attr
+  const RESOURCE_ID_ATTR = governanceSettings.resource_id_attr
+  const ADMIN_ORGANIZATION_ID_ATTR = governanceSettings.admin_organization_id_attr
+  const ADMIN_RESOURCE_ID_ATTR = governanceSettings.admin_resource_id_attr
+  const GROUP_ATTR_DEF = governanceSettings.group_attr_def
+  const USER_ATTR_DEF = governanceSettings.user_attr_def
+  const EMAIL_ATTR_ID = governanceSettings.email_attr_id
 
   const negotiatorClient = new NegotiatorClient()
   const perunGroupsManager = PerunGroupsManager(negotiatorClient)
