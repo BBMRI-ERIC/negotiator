@@ -57,12 +57,12 @@ export function useOrganizations() {
     return buildNoResultsMsg(loading.value, hasSearchFilters, filters.value.statusFilter)
   }
 
-  const toggleOrganization = async (organizationId) => {
-    if (expandedOrganizations.value.has(organizationId)) {
-      expandedOrganizations.value.delete(organizationId)
+  const toggleOrganization = async (organization) => {
+    if (expandedOrganizations.value.has(organization.id)) {
+      expandedOrganizations.value.delete(organization.id)
     } else {
-      expandedOrganizations.value.add(organizationId)
-      await loadResourcesForOrganization(organizationId)
+      expandedOrganizations.value.add(organization.id)
+      await loadResourcesForOrganization(organization.id)
     }
   }
 

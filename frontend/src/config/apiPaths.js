@@ -1,5 +1,7 @@
 import { useOidcStore } from '../store/oidc'
+import governanceSettings from './governanceSettings'
 const BASE_API_PATH = '/api/v3'
+const BASE_PERUN_URL = governanceSettings.api_url
 
 const apiPaths = {
   BASE_API_PATH: `${BASE_API_PATH}`,
@@ -14,9 +16,18 @@ const apiPaths = {
   VALUE_SETS: `${BASE_API_PATH}/value-sets`,
 }
 
+const perunApiPaths = {
+  GET_GROUPS: `${BASE_PERUN_URL}/groupsManager/getAllRichGroupsWithAttributesByNames`,
+  GET_SUBGROUPS: `${BASE_PERUN_URL}/groupsManager/getRichSubGroupsWithAttributesByNames`,
+  GET_RICH_MEMBERS: `${BASE_PERUN_URL}/groupsManager/getGroupRichMembersWithAttributes`,
+  GET_MEMBERS: `${BASE_PERUN_URL}/membersManager/getMembersPage`,
+  ADD_MEMBER_TO_GROUP: `${BASE_PERUN_URL}/groupsManager/addMember`,
+  REMOVE_MEMBER_TO_GROUP: `${BASE_PERUN_URL}/groupsManager/removeMember`,
+}
+
 function getBearerHeaders() {
   const oidcStore = useOidcStore()
   return { Authorization: `Bearer ${oidcStore.access_token}` }
 }
 
-export { apiPaths, getBearerHeaders }
+export { apiPaths, perunApiPaths, getBearerHeaders }

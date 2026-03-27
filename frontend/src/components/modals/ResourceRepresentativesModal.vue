@@ -351,16 +351,11 @@ const handleSave = async () => {
   try {
     for (const representative of representativesToRemove.value) {
       currentOperation.value++
-      await resourcesStore.removeRepresentativeFromResource(
-        representative.id,
-        props.resource.id,
-        true,
-      )
+      await resourcesStore.removeRepresentativeFromResource(representative.id, props.resource, true)
     }
-
     for (const representative of representativesToAdd.value) {
       currentOperation.value++
-      await resourcesStore.addRepresentativeToResource(representative.id, props.resource.id, true)
+      await resourcesStore.addRepresentativeToResource(representative.id, props.resource, true)
     }
 
     representativesToAdd.value = []
