@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../../config/apiPaths'
 
-export class NegotiatorClient {
-  async getAllOrganizations(filters = null) {
+export function NegotiatorClient() {
+  const getAllOrganizations = async (filters = null) => {
     const params = filters ? new URLSearchParams(filters).toString() : ''
     const url = params
       ? `${apiPaths.BASE_API_PATH}/organizations?${params}`
@@ -11,7 +11,7 @@ export class NegotiatorClient {
     return axios.get(url, { headers: getBearerHeaders() })
   }
 
-  retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
+  const retrieveOrganizationsPaginated = async (page = 0, size = 20, filters = {}) => {
     let url = `${apiPaths.BASE_API_PATH}/organizations`
     const params = {
       page: page,
@@ -36,7 +36,7 @@ export class NegotiatorClient {
     return axios.get(url, { params, headers: getBearerHeaders() })
   }
 
-  getOrganizationById(organizationId, expand = null) {
+  const getOrganizationById = (organizationId, expand = null) => {
     const url = expand
       ? `${apiPaths.BASE_API_PATH}/organizations/${organizationId}?expand=${expand}`
       : `${apiPaths.BASE_API_PATH}/organizations/${organizationId}`
@@ -44,7 +44,7 @@ export class NegotiatorClient {
     return axios.get(url, { headers: getBearerHeaders() })
   }
 
-  retrieveUsers(page = 0, size = 10, filtersSortData) {
+  const retrieveUsers = (page = 0, size = 10, filtersSortData) => {
     // add filtersSortData in case they are valued
     const params = Object.fromEntries(
       // eslint-disable-next-line
@@ -58,7 +58,7 @@ export class NegotiatorClient {
     })
   }
 
-  addRepresentativeToResource(userId, resource) {
+  const addRepresentativeToResource = (userId, resource) => {
     return axios.patch(
       `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
       { id: resource.id },
@@ -66,13 +66,13 @@ export class NegotiatorClient {
     )
   }
 
-  removeRepresentativeFromResource(userId, resource) {
+  const removeRepresentativeFromResource = (userId, resource) => {
     return axios.delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resource.id}`, {
       headers: getBearerHeaders(),
     })
   }
 
-  getRepresentedResources(userId, filters = {}) {
+  const getRepresentedResources = (userId, filters = {}) => {
     let url = `${apiPaths.BASE_API_PATH}/users/${userId}/organizations?expand=resources`
 
     if (filters.name && filters.name.trim()) {
@@ -88,7 +88,7 @@ export class NegotiatorClient {
     })
   }
 
-  async getOrganizationByExternalId(externalId) {
+  const getOrganizationByExternalId = async (externalId) => {
     const params = {
       externalId: externalId,
     }
@@ -99,7 +99,7 @@ export class NegotiatorClient {
     return response.data.page.totalElements == 1 ? response.data._embedded.organizations[0] : null
   }
 
-  async getResourceBySourceId(sourceId) {
+  const getResourceBySourceId = async (sourceId) => {
     const params = {
       sourceId: sourceId,
     }
@@ -108,5 +108,17 @@ export class NegotiatorClient {
       headers: getBearerHeaders(),
     })
     return response.data.page.totalElements == 1 ? response.data._embedded.resources[0] : null
+  }
+
+  return {
+    getAllOrganizations,
+    getOrganizationById,
+    retrieveOrganizationsPaginated,
+    retrieveUsers,
+    addRepresentativeToResource,
+    removeRepresentativeFromResource,
+    getRepresentedResources,
+    getOrganizationByExternalId,
+    getResourceBySourceId,
   }
 }

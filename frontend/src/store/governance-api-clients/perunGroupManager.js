@@ -1,13 +1,8 @@
 export function PerunGroupsManager(negotiatorClient) {
-  // const VIRTUAL_ORGANIZATION_ID = import.meta.env.VITE_PERUN_VO_ID
-  // const BASE_URL = import.meta.env.VITE_PERUN_API_URL
   const ORGANIZATION_ID_ATTR = import.meta.env.VITE_PERUN_ORGANIZATION_ID_ATTR
   const RESOURCE_ID_ATTR = import.meta.env.VITE_PERUN_RESOURCE_ID_ATTR
   const ADMIN_ORGANIZATION_ID_ATTR = import.meta.env.VITE_PERUN_ADMIN_ORGANIZATION_ID_ATTR
   const ADMIN_RESOURCE_ID_ATTR = import.meta.env.VITE_PERUN_ADMIN_RESOURCE_ID_ATTR
-  // const GROUP_ATTR_DEF = import.meta.env.VITE_PERUN_GROUP_ATTR_DEF
-  // const USER_ATTR_DEF = import.meta.env.VITE_PERUN_USER_ATTR_DEF
-  // const EMAIL_ATTR_ID = import.meta.env.VITE_PERUN_EMAIL_ATTR
 
   const organizationsTree = {}
   const managerGroupMappings = {}
@@ -105,10 +100,6 @@ export function PerunGroupsManager(negotiatorClient) {
     return Object.values(organizationsTree).map((org) => org.directoryId)
   }
 
-  const getOrganizations = () => {
-    return Object.entries(organizationsTree)
-  }
-
   const getResourcesInOrganization = (organizationId) => {
     return organizationsTree[organizationId].resources
   }
@@ -124,7 +115,6 @@ export function PerunGroupsManager(negotiatorClient) {
   return {
     isInitialized,
     init,
-    getOrganizations,
     getOrganizationIdsInNegotiator,
     getResourcesInOrganization,
     getManagerGroupIdFromResource,
