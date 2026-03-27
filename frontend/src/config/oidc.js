@@ -7,7 +7,7 @@ const devSettings = {
   post_logout_redirect_uri: import.meta.env.VITE_OIDC_POST_LOGOUT_REDIRECT_URI,
   response_type: import.meta.env.VITE_OIDC_RESPONSE_TYPE,
   automaticSilentRenew: import.meta.env.VITE_OIDC_AUTOMATIC_SILENT_RENEW,
-  silentRedirectUri: 'http://localhost:8080/silent-renew-oidc.html',
+  silentRedirectUri: import.meta.env.VITE_OIDC_SILENT_REDIRECT_URI,
 }
 
 const prodSettings = {
