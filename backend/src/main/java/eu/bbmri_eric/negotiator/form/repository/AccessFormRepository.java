@@ -42,4 +42,16 @@ public interface AccessFormRepository extends JpaRepository<AccessForm, Long> {
               + ")",
       nativeQuery = true)
   boolean isElementPartOfSectionOfAccessForm(Long accessFormId, Long sectionId, Long elementId);
+
+  @Query(
+      value =
+          "SELECT a.* "
+              + "FROM resource r "
+              + "    INNER JOIN access_form a on a.id = r.access_form_id "
+              + "WHERE r.organization_id = :organizationId "
+              + "GROUP BY a.id "
+              + "ORDER BY COUNT(r.id) DESC "
+              + "LIMIT 1",
+      nativeQuery = true)
+  Optional<AccessForm> findFirstMostCommonAccessFormByOrganization(Long organizationId);
 }

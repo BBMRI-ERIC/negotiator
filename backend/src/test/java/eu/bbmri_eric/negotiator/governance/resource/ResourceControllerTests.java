@@ -55,6 +55,10 @@ public class ResourceControllerTests {
 
   private static final String RESOURCES_ENDPOINT = "/v3/resources";
 
+  private static final long DEFAULT_ACCESS_FORM_ID = 1L;
+
+  private static final long DEFAULT_DISCOVERY_SERVICE_ID = 1L;
+
   @Autowired private WebApplicationContext context;
   @Autowired private ResourceRepository repository;
   @Autowired private OrganizationRepository organizationRepository;
@@ -69,6 +73,36 @@ public class ResourceControllerTests {
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+  }
+
+  private Organization createOrganization(String suffix) {
+    return Organization.builder()
+        .name("Organization " + suffix)
+        .description("Organization " + suffix)
+        .externalId("test_organization_" + suffix)
+        .build();
+  }
+
+  private ResourceCreateDTO createResource(
+      String name, String sourceId, Long organizationId, Long accessFormId) {
+    return ResourceCreateDTO.builder()
+        .name(name)
+        .description(name)
+        .contactEmail(name.toLowerCase().replace(" ", "") + "@test.org")
+        .uri("https://" + name.toLowerCase().replace(" ", "") + ".test.org")
+        .sourceId(sourceId)
+        .organizationId(organizationId)
+        .accessFormId(accessFormId)
+        .discoveryServiceId(DEFAULT_DISCOVERY_SERVICE_ID)
+        .build();
+  }
+
+  private DiscoveryService createDiscoveryService() {
+    return DiscoveryService.builder()
+        .name("test_discovery_service")
+        .id(1L)
+        .url("http://discoveryservice.net")
+        .build();
   }
 
   @Test
@@ -425,6 +459,126 @@ public class ResourceControllerTests {
     assertEquals(resourceDTO2.getDescription(), resource2.get().getDescription());
     assertEquals(resourceDTO2.getContactEmail(), resource2.get().getContactEmail());
     assertEquals(resourceDTO2.getUri(), resource2.get().getUri());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void addResource_noAccessFormSelected_ok() throws Exception {
+    Organization org1 = createOrganization("3");
+    organizationRepository.save(org1);
+    Long org1Id = organizationRepository.findByExternalId("test_organization_3").get().getId();
+
+    ResourceCreateDTO resourceDTO1 = createResource("Resource 1", "resource_1", org1Id, null);
+
+    DiscoveryService discoveryService = createDiscoveryService();
+    discoveryServiceRepository.save(discoveryService);
+
+    String requestBody = TestUtils.jsonFromRequest(Arrays.asList(resourceDTO1));
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(RESOURCES_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$._embedded.resources[0].name", is(resourceDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].sourceId", is(resourceDTO1.getSourceId())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].description", is(resourceDTO1.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.resources[0].contactEmail", is(resourceDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.resources[0].uri", is(resourceDTO1.getUri())))
+            .andReturn();
+
+    String id1 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.resources[0].sourceId");
+    Optional<Resource> resource1 = repository.findBySourceId(id1);
+    assert resource1.isPresent();
+    assertEquals(resourceDTO1.getName(), resource1.get().getName());
+    assertEquals(resourceDTO1.getDescription(), resource1.get().getDescription());
+    assertEquals(resourceDTO1.getContactEmail(), resource1.get().getContactEmail());
+    assertEquals(resourceDTO1.getUri(), resource1.get().getUri());
+    assertEquals(DEFAULT_ACCESS_FORM_ID, resource1.get().getAccessForm().getId());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void addResource_useOrganizationDefaultAccessForm_ok() throws Exception {
+    Organization org1 = createOrganization("3");
+    ;
+    organizationRepository.save(org1);
+    Long org1Id = organizationRepository.findByExternalId("test_organization_3").get().getId();
+
+    ResourceCreateDTO resourceDTO1 = createResource("Resource 1", "resource_1", org1Id, 2L);
+    ResourceCreateDTO resourceDTO2 = createResource("Resource 2", "resource_2", org1Id, null);
+
+    DiscoveryService discoveryService = createDiscoveryService();
+    discoveryServiceRepository.save(discoveryService);
+
+    String requestBody1 = TestUtils.jsonFromRequest(Arrays.asList(resourceDTO1));
+    MvcResult result1 =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(RESOURCES_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody1))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$._embedded.resources[0].name", is(resourceDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].sourceId", is(resourceDTO1.getSourceId())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].description", is(resourceDTO1.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.resources[0].contactEmail", is(resourceDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.resources[0].uri", is(resourceDTO1.getUri())))
+            .andReturn();
+
+    String requestBody2 = TestUtils.jsonFromRequest(Arrays.asList(resourceDTO2));
+    MvcResult result2 =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(RESOURCES_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody2))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$._embedded.resources[0].name", is(resourceDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].sourceId", is(resourceDTO2.getSourceId())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].description", is(resourceDTO2.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.resources[0].contactEmail", is(resourceDTO2.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.resources[0].uri", is(resourceDTO2.getUri())))
+            .andReturn();
+
+    String id1 =
+        JsonPath.parse(result1.getResponse().getContentAsString())
+            .read("$._embedded.resources[0].sourceId");
+    Optional<Resource> resource1 = repository.findBySourceId(id1);
+    assert resource1.isPresent();
+    assertEquals(resourceDTO1.getName(), resource1.get().getName());
+    assertEquals(resourceDTO1.getDescription(), resource1.get().getDescription());
+    assertEquals(resourceDTO1.getContactEmail(), resource1.get().getContactEmail());
+    assertEquals(resourceDTO1.getUri(), resource1.get().getUri());
+
+    Long id2 =
+        JsonPath.parse(result2.getResponse().getContentAsString())
+            .read("$._embedded.resources[0].id", Long.class);
+    Optional<Resource> resource2 = repository.findById(id2);
+    assert resource2.isPresent();
+    assertEquals(resourceDTO2.getName(), resource2.get().getName());
+    assertEquals(resourceDTO2.getDescription(), resource2.get().getDescription());
+    assertEquals(resourceDTO2.getContactEmail(), resource2.get().getContactEmail());
+    assertEquals(resourceDTO2.getUri(), resource2.get().getUri());
+    assertEquals(2L, resource2.get().getAccessForm().getId());
   }
 
   @Test
