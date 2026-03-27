@@ -2,11 +2,11 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
-import { GovernanceServiceFactory } from './governance-api-clients'
+import { getGovernanceClient } from './governance-api-clients'
 
 export const useAdminStore = defineStore('admin', () => {
   const notifications = useNotificationsStore()
-  const governanceClient = GovernanceServiceFactory.getClient()
+  const governanceClient = getGovernanceClient()
 
   function retrieveResourceAllEvents() {
     return axios
