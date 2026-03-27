@@ -76,7 +76,7 @@ export function PerunGroupsManager(negotiatorClient) {
         managerGroupMappings[getResourceIdFromManagerGroup(perunGroup)] = perunGroup.id
       }
     }
-
+    console.log(organizationsTree)
     await Promise.all(
       perunGroups.data.filter(isOrganizationGroup).map(async (perunGroup) => {
         const organization = initOrGetOrganization(perunGroup.id)
@@ -104,6 +104,15 @@ export function PerunGroupsManager(negotiatorClient) {
     return organizationsTree[organizationId].resources
   }
 
+  const getOrganizationGroupIdFromResource = (resource) => {
+    const organizationGroup = organizationsTree[resource.perunParentGroupId]
+    return managerGroupMappings[organizationGroup.directoryId]
+  }
+
+  const getResourceGroupIdFromResource = (resource) => {
+    return resource.perunGroupId
+  }
+
   const getManagerGroupIdFromResource = (resource) => {
     return managerGroupMappings[resource.sourceId]
   }
@@ -117,6 +126,8 @@ export function PerunGroupsManager(negotiatorClient) {
     init,
     getOrganizationIdsInNegotiator,
     getResourcesInOrganization,
+    getOrganizationGroupIdFromResource,
+    getResourceGroupIdFromResource,
     getManagerGroupIdFromResource,
     getNegotiatorOrganizations,
   }
