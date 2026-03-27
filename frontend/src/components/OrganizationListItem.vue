@@ -180,6 +180,19 @@
                   </span>
                 </small>
               </div>
+
+              <!-- Access Form -->
+              <div class="access-form">
+                <small class="text-muted">
+                  <strong>Access Form: </strong>
+                  <span v-if="resource.accessForm">
+                    {{ resource.accessForm.name }}
+                  </span>
+                  <span v-else class="text-warning">
+                    None assigned
+                  </span>
+                </small>
+              </div>
             </div>
 
             <!-- Resource Status Icon -->
