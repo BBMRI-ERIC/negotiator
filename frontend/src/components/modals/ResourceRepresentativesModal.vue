@@ -279,8 +279,7 @@ const isCurrentRepresentative = (userId) => {
 }
 
 const isMarkedForAddition = (userId) => {
-  const res = representativesToAdd.value.some((rep) => rep.id === userId)
-  return res
+  return representativesToAdd.value.some((rep) => rep.id === userId)
 }
 
 const isMarkedForRemoval = (userId) => {
@@ -366,7 +365,7 @@ const handleSave = async () => {
     ]
 
     notifications.setNotification('Representatives updated successfully', 'success')
-    console.log(props.resource)
+
     emit('representativesUpdated', {
       resourceId: props.resource.id,
       representatives: originalRepresentatives.value,
