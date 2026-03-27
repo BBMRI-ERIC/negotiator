@@ -464,11 +464,11 @@ public class ResourceControllerTests {
   @Test
   @WithUserDetails("admin")
   void addResource_noAccessFormSelected_ok() throws Exception {
-    Organization org1 = createOrganization("3");
+    Organization org1 = createOrganization("10");
     organizationRepository.save(org1);
-    Long org1Id = organizationRepository.findByExternalId("test_organization_3").get().getId();
+    Long org1Id = organizationRepository.findByExternalId("test_organization_10").get().getId();
 
-    ResourceCreateDTO resourceDTO1 = createResource("Resource 1", "resource_1", org1Id, null);
+    ResourceCreateDTO resourceDTO1 = createResource("Resource 10", "resource_10", org1Id, null);
 
     DiscoveryService discoveryService = createDiscoveryService();
     discoveryServiceRepository.save(discoveryService);
@@ -508,13 +508,12 @@ public class ResourceControllerTests {
   @Test
   @WithUserDetails("admin")
   void addResource_useOrganizationDefaultAccessForm_ok() throws Exception {
-    Organization org1 = createOrganization("3");
-    ;
+    Organization org1 = createOrganization("11");
     organizationRepository.save(org1);
-    Long org1Id = organizationRepository.findByExternalId("test_organization_3").get().getId();
+    Long org1Id = organizationRepository.findByExternalId("test_organization_11").get().getId();
 
-    ResourceCreateDTO resourceDTO1 = createResource("Resource 1", "resource_1", org1Id, 2L);
-    ResourceCreateDTO resourceDTO2 = createResource("Resource 2", "resource_2", org1Id, null);
+    ResourceCreateDTO resourceDTO1 = createResource("Resource 11", "resource_11", org1Id, 2L);
+    ResourceCreateDTO resourceDTO2 = createResource("Resource 12", "resource_12", org1Id, null);
 
     DiscoveryService discoveryService = createDiscoveryService();
     discoveryServiceRepository.save(discoveryService);
