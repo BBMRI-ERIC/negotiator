@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ class WebhookDeliveryPersisterTest {
     Long webhookId = 1L;
     Webhook webhook = new Webhook("https://example.com/webhook", true, true);
     webhook.setId(webhookId);
-    Delivery delivery = new Delivery("{\"test\":\"ok\"}", 200);
+    Delivery delivery = new Delivery("{\"test\":\"ok\"}", 200, WebhookEventType.CUSTOM);
     DeliveryDTO expected = new DeliveryDTO();
 
     when(webhookRepository.findById(webhookId)).thenReturn(Optional.of(webhook));
@@ -55,7 +56,8 @@ class WebhookDeliveryPersisterTest {
   @Test
   void persist_whenWebhookDoesNotExist_throwsEntityNotFoundException() {
     Long webhookId = 99L;
-    Delivery delivery = new Delivery("{\"test\":\"not-found\"}", 500, "error");
+    Delivery delivery =
+        new Delivery("{\"test\":\"not-found\"}", 500, "error", WebhookEventType.CUSTOM);
 
     when(webhookRepository.findById(webhookId)).thenReturn(Optional.empty());
 

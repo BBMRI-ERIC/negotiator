@@ -45,9 +45,12 @@ public interface WebhookService {
   void deleteWebhook(Long id);
 
   /**
-   * Creates a new delivery for a given webhook.
+   * Creates a new delivery for a given webhook, using the current time as the occurred-at
+   * timestamp.
    *
    * @param jsonPayload the JSON content for the delivery
+   * @param eventType the event type header for the delivery
+   * @param webhookId the id of the target webhook
    * @return a DTO representing the newly created delivery
    */
   DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId);
@@ -62,11 +65,21 @@ public interface WebhookService {
   DeliveryDTO redeliver(Long webhookId, String deliveryId);
 
   /**
-   * Creates a new delivery for all active webhooks with an event type header.
+   * Creates a new delivery for a given webhook with an explicit occurred-at timestamp.
    *
    * @param jsonPayload the JSON content for the delivery
-   * @param eventType the event type to send as a header
-   * @param occurredAt the event timestamp to send as a header
+   * @param eventType the event type header for the delivery
+   * @param webhookId the id of the target webhook
+   * @param occurredAt the event timestamp to include as a header
+   * @return a DTO representing the newly created delivery
    */
-  void deliverToActiveWebhooks(String jsonPayload, WebhookEventType eventType, Instant occurredAt);
+  DeliveryDTO deliver(
+      String jsonPayload, WebhookEventType eventType, Long webhookId, Instant occurredAt);
+
+  /**
+   * Returns the ids of all currently active webhooks.
+   *
+   * @return a list of active webhook ids
+   */
+  List<Long> getActiveWebhookIds();
 }
