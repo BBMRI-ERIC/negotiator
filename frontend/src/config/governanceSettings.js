@@ -2,14 +2,13 @@ const devSettings = {
   client: import.meta.env.VITE_GOVERNANCE_CLIENT,
   api_url: import.meta.env.VITE_PERUN_API_URL,
   virtual_organization_id: import.meta.env.VITE_PERUN_VO_ID,
-  organization_id_attr:  import.meta.env.VITE_PERUN_ORGANIZATION_ID_ATTR,
-  resource_id_attr:  import.meta.env.VITE_PERUN_RESOURCE_ID_ATTR,
-  admin_organization_id_attr:  import.meta.env.VITE_PERUN_ADMIN_ORGANIZATION_ID_ATTR,
-  admin_resource_id_attr:  import.meta.env.VITE_PERUN_ADMIN_RESOURCE_ID_ATTR,
-  group_attr_def:  import.meta.env.VITE_PERUN_GROUP_ATTR_DEF,
-  user_attr_def:  import.meta.env.VITE_PERUN_USER_ATTR_DEF,
-  email_attr_id:  import.meta.env.VITE_PERUN_EMAIL_ATTR,
-
+  organization_id_attr: import.meta.env.VITE_PERUN_ORGANIZATION_ID_ATTR,
+  resource_id_attr: import.meta.env.VITE_PERUN_RESOURCE_ID_ATTR,
+  admin_organization_id_attr: import.meta.env.VITE_PERUN_ADMIN_ORGANIZATION_ID_ATTR,
+  admin_resource_id_attr: import.meta.env.VITE_PERUN_ADMIN_RESOURCE_ID_ATTR,
+  group_attr_def: import.meta.env.VITE_PERUN_GROUP_ATTR_DEF,
+  user_attr_def: import.meta.env.VITE_PERUN_USER_ATTR_DEF,
+  email_attr_id: import.meta.env.VITE_PERUN_EMAIL_ATTR,
 }
 
 const prodSettings = {
