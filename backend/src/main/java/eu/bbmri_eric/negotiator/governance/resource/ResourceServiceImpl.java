@@ -216,10 +216,21 @@ public class ResourceServiceImpl implements ResourceService {
               .findById(resDTO.getDiscoveryServiceId())
               .orElseThrow(
                   () -> new DiscoveryServiceNotFoundException(resDTO.getDiscoveryServiceId()));
-      AccessForm accessForm =
-          accessFormRepository
-              .findById(resDTO.getAccessFormId())
-              .orElseThrow(() -> new AccessFormNotFoundException(resDTO.getAccessFormId()));
+      AccessForm accessForm;
+      if (resDTO.getAccessFormId() == null || resDTO.getAccessFormId() == 0) {
+        accessForm =
+            accessFormRepository
+                .findFirstMostCommonAccessFormByOrganization(resDTO.getOrganizationId())
+                .orElse(
+                    accessFormRepository
+                        .findById(1L)
+                        .orElseThrow(() -> new AccessFormNotFoundException(1L)));
+      } else {
+        accessForm =
+            accessFormRepository
+                .findById(resDTO.getAccessFormId())
+                .orElseThrow(() -> new AccessFormNotFoundException(resDTO.getAccessFormId()));
+      }
       Organization organization =
           organizationRepository
               .findById(resDTO.getOrganizationId())
