@@ -11,6 +11,7 @@ import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
 import CustomizeForm from '@/views/CustomizeForm.vue'
+import StateMachineDesignerPage from '@/views/StateMachineDesignerPage.vue'
 import GuidePage from '@/views/GuidePage.vue'
 import { ROLES } from '@/config/consts'
 import { useUserStore } from '../store/user.js'
@@ -164,6 +165,13 @@ const router = createRouter({
       name: 'guide',
       component: GuidePage,
       meta: { isPublic: false },
+    },
+    {
+      path: '/state-machine-designer',
+      name: 'state-machine-designer',
+      component: StateMachineDesignerPage,
+      meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },
     {
       path: '/:pathMatch(.*)*',
