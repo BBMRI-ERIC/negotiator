@@ -1,22 +1,18 @@
 import { NegotiatorClient } from './negotiatorClient'
 import { PerunClient } from './perunClient'
 
-export class GovernanceServiceFactory {
-  client = null
-
-  static getClient() {
-    if (this.client == null) {
-      switch (import.meta.env.VITE_GOVERNANCE_CLIENT) {
-        case 'NEGOTIATOR':
-          this.client = new NegotiatorClient()
-          break
-        case 'PERUN':
-          this.client = new PerunClient()
-          break
-        default:
-          throw new Error(`Unknown provider type: ${import.meta.env.VITE_GOVERNANCE_CLIENT}`)
-      }
+export function getGovernanceClient() {
+  if (getGovernanceClient.client == null) {
+    switch (import.meta.env.VITE_GOVERNANCE_CLIENT) {
+      case 'NEGOTIATOR':
+        getGovernanceClient.client = NegotiatorClient()
+        break
+      case 'PERUN':
+        getGovernanceClient.client = PerunClient()
+        break
+      default:
+        throw new Error(`Unknown provider type: ${import.meta.env.VITE_GOVERNANCE_CLIENT}`)
     }
-    return this.client
   }
+  return getGovernanceClient.client
 }
