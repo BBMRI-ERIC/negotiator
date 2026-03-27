@@ -94,14 +94,7 @@ public class WebhookServiceImpl implements WebhookService {
 
   @Override
   public DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId) {
-    if (!JSONUtils.isJSONValid(jsonPayload)) {
-      throw new IllegalArgumentException("Content is not a valid JSON");
-    }
-
-    Webhook webhook = getWebhook(webhookId);
-    RestTemplate restTemplate =
-        webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-    return deliverWebhook(jsonPayload, restTemplate, webhook, eventType, Instant.now(), null);
+    return deliver(jsonPayload, eventType, webhookId, Instant.now());
   }
 
   @Override
@@ -135,17 +128,21 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
-  public void deliverToActiveWebhooks(
-      String jsonPayload, WebhookEventType eventType, Instant occurredAt) {
+  public DeliveryDTO deliver(
+      String jsonPayload, WebhookEventType eventType, Long webhookId, Instant occurredAt) {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
     }
-    List<Webhook> webhooks = webhookRepository.findByActiveTrue();
-    for (Webhook webhook : webhooks) {
-      RestTemplate restTemplate =
-          webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-      deliverWebhook(jsonPayload, restTemplate, webhook, eventType, occurredAt, null);
-    }
+    Webhook webhook = getWebhook(webhookId);
+    RestTemplate restTemplate =
+        webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
+    return deliverWebhook(jsonPayload, restTemplate, webhook, eventType, occurredAt, null);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Long> getActiveWebhookIds() {
+    return webhookRepository.findByActiveTrue().stream().map(Webhook::getId).toList();
   }
 
   private @NonNull Webhook getWebhook(Long webhookId) {
