@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { perunApiPaths, getBearerHeaders } from '../../config/apiPaths'
 import { NegotiatorClient } from './negotiatorClient'
-import { PerunGroupsManager } from './perunGroupManager'
+import { PerunGroupsManager } from './groupsManager'
 
 export function PerunClient() {
   const VIRTUAL_ORGANIZATION_ID = import.meta.env.VITE_PERUN_VO_ID
