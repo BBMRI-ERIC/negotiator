@@ -154,7 +154,7 @@ const confirmDeleteWebhook = async () => {
     notifications.setNotification('Webhook deleted successfully')
   } catch (error) {
     console.error('Error deleting webhook:', error)
-    notifications.setNotification('Error deleting webhook', 'error')
+    notifications.setNotification('Error deleting webhook', 'danger')
   } finally {
     isLoading.value = false
     webhookToDelete.value = null
@@ -198,7 +198,7 @@ const handleWebhookRedelivery = async ({ webhookId, deliveryId }) => {
     notifications.setNotification('Webhook redelivery completed', 'success')
   } catch (error) {
     console.error('Error redelivering webhook delivery:', error)
-    notifications.setNotification('Webhook redelivery failed', 'error')
+    notifications.setNotification('Webhook redelivery failed', 'danger')
   } finally {
     isLoading.value = false
   }
