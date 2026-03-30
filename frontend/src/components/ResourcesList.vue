@@ -1,7 +1,7 @@
 <template>
-  <div class="shopping-cart-container">
-    <!-- Cart Header -->
-    <div class="cart-header mb-5 d-flex align-items-center justify-content-between">
+  <div class="resources-list-container">
+    <!-- Resources List Header -->
+    <div class="resources-list-header mb-5 d-flex align-items-center justify-content-between">
       <div>
         <h2 class="fw-bold mb-0">Selected {{ $t('negotiationPage.resources', 2) }}</h2>
         <p class="mb-0 mt-2 text-muted">
@@ -22,12 +22,7 @@
         </PrimaryButton>
         <ul class="dropdown-menu dropdown-menu-end">
           <li v-for="service in activeDiscoveryServices" :key="service.id">
-            <a
-              class="dropdown-item"
-              :href="service.url"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a class="dropdown-item" :href="service.url" target="_blank" rel="noopener noreferrer">
               <i class="bi bi-box-arrow-up-right me-2"></i>{{ service.name }}
             </a>
           </li>
@@ -35,9 +30,9 @@
       </div>
     </div>
 
-    <!-- Cart Items -->
-    <div class="cart-items-container">
-      <div v-for="resource in props.resources" :key="resource.id" class="cart-item">
+    <!-- Resources List Items -->
+    <div class="resources-list-items-container">
+      <div v-for="resource in props.resources" :key="resource.id" class="resources-list-item">
         <div class="item-details">
           <div class="item-icon" :style="iconStyle">
             <i class="bi bi-database-fill"></i>
@@ -80,9 +75,10 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="numberOfResources === 0" class="empty-cart">
+      <div v-if="numberOfResources === 0" class="empty-resources">
         <i class="bi bi-cart-x empty-icon"></i>
         <p class="empty-text">No resources selected</p>
+        a
       </div>
     </div>
   </div>
@@ -136,7 +132,7 @@ const iconStyle = computed(() => ({
 </script>
 
 <style scoped>
-.shopping-cart-container {
+.resources-list-container {
   background-color: transparent;
   border-radius: 0;
   box-shadow: none;
@@ -144,26 +140,26 @@ const iconStyle = computed(() => ({
   min-height: auto;
 }
 
-.cart-header {
+.resources-list-header {
   padding: 0;
   background: transparent;
   border-bottom: none;
   margin-bottom: 0;
 }
 
-.cart-header h2 {
+.resources-list-header h2 {
   font-size: 1.5rem;
   font-weight: 700;
   color: #212529;
 }
 
-.cart-header p {
+.resources-list-header p {
   font-size: 1rem;
   color: #6c757d;
   line-height: 1.5;
 }
 
-.cart-items-container {
+.resources-list-items-container {
   overflow-y: visible;
   padding: 0;
   display: flex;
@@ -171,11 +167,11 @@ const iconStyle = computed(() => ({
   gap: 0.75rem;
 }
 
-.cart-items-container::-webkit-scrollbar {
+.resources-list-items-container::-webkit-scrollbar {
   display: none;
 }
 
-.cart-item {
+.resources-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -187,11 +183,11 @@ const iconStyle = computed(() => ({
   transition: box-shadow 0.2s ease;
 }
 
-.cart-item:hover {
+.resources-list-item:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.cart-item:last-child {
+.resources-list-item:last-child {
   border-bottom: 1px solid #e8ecef;
 }
 
@@ -325,23 +321,23 @@ const iconStyle = computed(() => ({
 }
 
 @media (max-width: 768px) {
-  .shopping-cart-container {
+  .resources-list-container {
     min-height: auto;
   }
 
-  .cart-header h2 {
+  .resources-list-header h2 {
     font-size: 1.25rem;
   }
 
-  .cart-header p {
+  .resources-list-header p {
     font-size: 0.9rem;
   }
 
-  .cart-items-container {
+  .resources-list-items-container {
     padding: 0;
   }
 
-  .cart-item {
+  .resources-list-item {
     padding: 0.875rem 0 0.875rem 1.5rem;
   }
 
