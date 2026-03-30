@@ -72,7 +72,7 @@ export function NegotiatorClient() {
     })
   }
 
-  const getRepresentedResources = (userId, filters = {}) => {
+  const getRepresentedResources = (userId, page = 0, size = 20, filters = {}) => {
     let url = `${apiPaths.BASE_API_PATH}/users/${userId}/organizations?expand=resources`
 
     if (filters.name && filters.name.trim()) {
