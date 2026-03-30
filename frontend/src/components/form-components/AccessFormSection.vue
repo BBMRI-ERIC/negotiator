@@ -14,7 +14,8 @@
       :class="
         element.required === true &&
         focusElementId === element.id &&
-        validationErrorHighlight && validationErrorHighlight.includes(element.id)
+        validationErrorHighlight &&
+        validationErrorHighlight.includes(element.id)
           ? 'border border-danger rounded p-3'
           : focusElementId === element.id
             ? 'border border-border-color rounded p-3'
@@ -259,8 +260,8 @@ const valueSetsLoading = ref(false)
 const choiceElementIds = computed(() => {
   const elements = accessFormWithPayloadSection.value?.elements || []
   return elements
-    .filter(e => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
-    .map(e => e.id)
+    .filter((e) => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
+    .map((e) => e.id)
     .join(',')
 })
 
@@ -268,16 +269,17 @@ function loadValueSets() {
   valueSetsLoading.value = true
   const elements = accessFormWithPayloadSection.value?.elements || []
   const promises = elements
-    .filter(e => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
-    .map(e =>
-      negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(e.id)
-        .then(res => {
+    .filter((e) => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
+    .map((e) =>
+      negotiationFormStore
+        .retrieveDynamicAccessFormsValueSetByID(e.id)
+        .then((res) => {
           negotiationValueSets.value[e.id] = res
         })
         .catch(() => {
           // Fallback to empty values on error
           negotiationValueSets.value[e.id] = { availableValues: [] }
-        })
+        }),
     )
   Promise.allSettled(promises).finally(() => {
     valueSetsLoading.value = false

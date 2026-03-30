@@ -74,4 +74,3 @@ function previousTab() {
   activeNavItemIndex.value -= 1
 }
 </script>
-

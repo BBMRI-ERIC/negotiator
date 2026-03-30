@@ -44,7 +44,10 @@ const notificationsStore = useNotificationsStore()
 
 async function handleRemoveResource(resource) {
   if (!props.negotiationId) {
-    notificationsStore.setNotification('Cannot remove resource: negotiation ID not provided', 'danger')
+    notificationsStore.setNotification(
+      'Cannot remove resource: negotiation ID not provided',
+      'danger',
+    )
     return
   }
 
@@ -72,7 +75,11 @@ function onScroll() {
 }
 
 onMounted(() => nextTick(checkScrollable))
-watch(() => props.requestSummary?.resources, () => nextTick(checkScrollable), { deep: true })
+watch(
+  () => props.requestSummary?.resources,
+  () => nextTick(checkScrollable),
+  { deep: true },
+)
 </script>
 
 <style scoped>
