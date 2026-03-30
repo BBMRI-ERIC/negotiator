@@ -339,7 +339,7 @@ const handleSubmit = async () => {
         description: formData.value.description.trim(),
         sourceId: formData.value.sourceId.trim(),
         organizationId: formData.value.organizationId,
-        accessFormId: Number(formData.value.accessFormId),
+        accessFormId: formData.value.accessFormId !== '' ? Number(formData.value.accessFormId) : null,
         discoveryServiceId: Number(formData.value.discoveryServiceId),
         contactEmail: formData.value.contactEmail?.trim() || null,
         uri: formData.value.uri?.trim() || null,
