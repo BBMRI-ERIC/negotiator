@@ -8,8 +8,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,6 +25,7 @@ import org.hibernate.type.SqlTypes;
 @Getter
 @Setter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@EqualsAndHashCode
 @Entity
 public class Delivery {
 
@@ -79,24 +80,5 @@ public class Delivery {
     if (id == null || id.isEmpty()) {
       id = UUID.randomUUID().toString();
     }
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
-    Delivery delivery = (Delivery) o;
-    return Objects.equals(id, delivery.id)
-        && Objects.equals(webhookId, delivery.webhookId)
-        && Objects.equals(content, delivery.content)
-        && Objects.equals(at, delivery.at)
-        && Objects.equals(httpStatusCode, delivery.httpStatusCode)
-        && Objects.equals(errorMessage, delivery.errorMessage)
-        && Objects.equals(redeliveryOfDeliveryId, delivery.redeliveryOfDeliveryId);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        id, webhookId, content, at, httpStatusCode, errorMessage, redeliveryOfDeliveryId);
   }
 }
