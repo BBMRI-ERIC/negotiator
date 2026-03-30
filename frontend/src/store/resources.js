@@ -113,9 +113,9 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function getRepresentedResources(userId, silent = false, filters = {}) {
+  function getRepresentedResources(userId, silent = false, page = 0, size = 20, filters = {}) {
     return governanceClient
-      .getRepresentedResources(userId, filters)
+      .getRepresentedResources(userId, page, size, filters)
       .then((response) => {
         return response.data
       })
