@@ -99,7 +99,7 @@ export const useAdminStore = defineStore('admin', () => {
         notifications.setNotification('Webhook deleted successfully')
       })
       .catch((error) => {
-        notifications.setNotification('Error deleting webhook', 'error')
+        notifications.setNotification('Error deleting webhook', 'danger')
         throw error
       })
   }
@@ -117,7 +117,7 @@ export const useAdminStore = defineStore('admin', () => {
         return response.data
       })
       .catch((error) => {
-        notifications.setNotification('Failed to send test delivery', 'error')
+        notifications.setNotification('Failed to send test delivery', 'danger')
         throw error
       })
   }
@@ -143,7 +143,7 @@ export const useAdminStore = defineStore('admin', () => {
         return response.data
       })
       .catch((error) => {
-        notifications.setNotification('Failed to redeliver webhook delivery', 'error')
+        notifications.setNotification('Failed to redeliver webhook delivery', 'danger')
         throw error
       })
   }
@@ -237,7 +237,7 @@ export const useAdminStore = defineStore('admin', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error updating resource', 'error')
+        notifications.setNotification('Error updating resource', 'danger')
         throw new Error('Failed to update resource')
       })
   }
@@ -283,7 +283,7 @@ export const useAdminStore = defineStore('admin', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error updating organization', 'error')
+        notifications.setNotification('Error updating organization', 'danger')
         throw new Error('Failed to update organization')
       })
   }
@@ -302,7 +302,7 @@ export const useAdminStore = defineStore('admin', () => {
         return response.data._embedded?.organizations?.[0] || response.data
       })
       .catch((error) => {
-        notifications.setNotification('Error creating organization', 'error')
+        notifications.setNotification('Error creating organization', 'danger')
         throw error
       })
   }
