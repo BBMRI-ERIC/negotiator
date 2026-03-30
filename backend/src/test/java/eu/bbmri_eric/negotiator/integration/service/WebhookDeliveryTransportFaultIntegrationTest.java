@@ -83,9 +83,10 @@ class WebhookDeliveryTransportFaultIntegrationTest {
 
   @Test
   void deliver_withUnexpectedRuntimeException_setsNullStatusAndErrorMessage() {
-    // Simulate an unexpected runtime exception by providing an invalid URL that causes the HTTP
-    // client to throw an exception
-    Webhook webhook = webhookRepository.save(new Webhook("", true, true));
+    // Simulate an unexpected internal runtime exception (not a transport failure).
+    // RestTemplate will fail URI template expansion with IllegalArgumentException.
+    Webhook webhook =
+        webhookRepository.save(new Webhook("http://localhost/{missingVar}", true, true));
 
     String payload = "{\"data\":\"runtime\"}";
 
