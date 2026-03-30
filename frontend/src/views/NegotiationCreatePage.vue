@@ -36,57 +36,59 @@
         <p class="mt-4 loading-text">Loading your request...</p>
       </div>
       <template v-else>
-      <FormNavigation
-        :navItems="returnNavItems"
-        v-model:activeNavItemIndex="activeNavItemIndex"
-        :validationErrorHighlight="validationErrorHighlight"
-      />
-      <div class="access-form d-flex flex-column align-middle mx-auto">
-        <RequestSummary
-          v-if="requestSummary && activeNavItemIndex === 0"
-          :requestSummary="requestSummary"
-          :negotiationId="requestId"
-          :createdToday="isNegotiationCreatedToday"
-          @resource-removed="handleResourceRemoved"
+        <FormNavigation
+          :navItems="returnNavItems"
+          v-model:activeNavItemIndex="activeNavItemIndex"
+          :validationErrorHighlight="validationErrorHighlight"
         />
-        <AccessFormOverview
-          v-else-if="activeNavItemIndex == returnNavItems?.length + 1"
-          :accessFormWithPayload="accessFormWithPayload"
-          :isDraftStatus="isDraftStatus"
-          @emitErrorElementIndex="showSectionAndScrollToElement"
-        />
-        <div v-else>
-          <AccessFormSection
-            v-if="accessFormWithPayload"
-            :validationErrorHighlight="
-              validationErrorHighlight[accessFormWithPayload.sections[activeNavItemIndex - 1].name]
-            "
-            :existingAttachments="
-              existingAttachments[accessFormWithPayload.sections[activeNavItemIndex - 1].name]
-            "
-            :negotiationAttachments="negotiationAttachments"
-            v-model:accessFormWithPayloadSection="
-              accessFormWithPayload.sections[activeNavItemIndex - 1]
-            "
-            :focusElementId="focusElementId"
-            v-model:negotiationReplacedAttachmentsID="negotiationReplacedAttachmentsID"
-            @element-focus-out-event="isDraftStatus ? updateSaveNegotiation(true) : undefined"
-            @element-focus-out-event-validation="validateInput"
-            @element-focus-in-event="saveDraftDisabled = false"
+        <div class="access-form d-flex flex-column align-middle mx-auto">
+          <RequestSummary
+            v-if="requestSummary && activeNavItemIndex === 0"
+            :requestSummary="requestSummary"
+            :negotiationId="requestId"
+            :createdToday="isNegotiationCreatedToday"
+            @resource-removed="handleResourceRemoved"
+          />
+          <AccessFormOverview
+            v-else-if="activeNavItemIndex == returnNavItems?.length + 1"
+            :accessFormWithPayload="accessFormWithPayload"
+            :isDraftStatus="isDraftStatus"
+            @emitErrorElementIndex="showSectionAndScrollToElement"
+          />
+          <div v-else>
+            <AccessFormSection
+              v-if="accessFormWithPayload"
+              :validationErrorHighlight="
+                validationErrorHighlight[
+                  accessFormWithPayload.sections[activeNavItemIndex - 1].name
+                ]
+              "
+              :existingAttachments="
+                existingAttachments[accessFormWithPayload.sections[activeNavItemIndex - 1].name]
+              "
+              :negotiationAttachments="negotiationAttachments"
+              v-model:accessFormWithPayloadSection="
+                accessFormWithPayload.sections[activeNavItemIndex - 1]
+              "
+              :focusElementId="focusElementId"
+              v-model:negotiationReplacedAttachmentsID="negotiationReplacedAttachmentsID"
+              @element-focus-out-event="isDraftStatus ? updateSaveNegotiation(true) : undefined"
+              @element-focus-out-event-validation="validateInput"
+              @element-focus-in-event="saveDraftDisabled = false"
+            />
+          </div>
+          <FormNavigationButtons
+            v-model:activeNavItemIndex="activeNavItemIndex"
+            :navItemsLength="returnNavItems?.length"
+            :requestId="requestId"
+            :validationErrorHighlight="validationErrorHighlight"
+            :saveDraftDisabled="saveDraftDisabled"
+            :isDraftStatus="isDraftStatus"
+            @openSaveNegotiationModal="openSaveNegotiationModal()"
+            @saveDraft="openSaveNegotiationModal(true)"
+            @deleteDraft="openDeleteDraftModalHandler()"
           />
         </div>
-        <FormNavigationButtons
-          v-model:activeNavItemIndex="activeNavItemIndex"
-          :navItemsLength="returnNavItems?.length"
-          :requestId="requestId"
-          :validationErrorHighlight="validationErrorHighlight"
-          :saveDraftDisabled="saveDraftDisabled"
-          :isDraftStatus="isDraftStatus"
-          @openSaveNegotiationModal="openSaveNegotiationModal()"
-          @saveDraft="openSaveNegotiationModal(true)"
-          @deleteDraft="openDeleteDraftModalHandler()"
-        />
-      </div>
       </template>
     </div>
   </div>
@@ -124,7 +126,9 @@ const negotiationsStore = useNegotiationsStore()
 
 const route = useRoute()
 const uiConfigurationStore = useUiConfiguration()
-const spinnerColor = computed(() => uiConfigurationStore.uiConfiguration?.theme?.primaryColor || '#26336B')
+const spinnerColor = computed(
+  () => uiConfigurationStore.uiConfiguration?.theme?.primaryColor || '#26336B',
+)
 const requestId = ref(route.params.requestId)
 
 const requestSummary = ref(null)
@@ -188,7 +192,7 @@ onMounted(async () => {
   if (!props.isEditForm) {
     await createNegotiation()
   }
-  if (recentDraftNegotiation.value){
+  if (recentDraftNegotiation.value) {
     handleMergeWithDraft(recentDraftNegotiation.value)
   }
   isLoading.value = false
@@ -487,7 +491,11 @@ async function handleMergeWithDraft(draftNegotiation) {
     }
 
     // Call the API to add resources to the draft negotiation
-    const result = await negotiationPageStore.addResources({ resourceIds }, draftNegotiation.id, true)
+    const result = await negotiationPageStore.addResources(
+      { resourceIds },
+      draftNegotiation.id,
+      true,
+    )
 
     // Check if the API call was successful (returned data)
     if (result) {
@@ -515,7 +523,7 @@ async function handleMergeWithDraft(draftNegotiation) {
   width: 4rem;
   height: 4rem;
   border-width: 0.35rem;
-  color: #26336B;
+  color: #26336b;
 }
 
 .loading-text {
