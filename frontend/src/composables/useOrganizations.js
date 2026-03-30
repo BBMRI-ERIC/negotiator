@@ -137,6 +137,8 @@ export function useOrganizations() {
         response = await resourceStore.getRepresentedResources(
           userStore.userInfo?.id,
           false,
+          pageNumber.value,
+          pageSize.value,
           apiFilters,
         )
       }
