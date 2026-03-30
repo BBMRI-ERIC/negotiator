@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { perunApiPaths, getBearerHeaders } from '../../config/apiPaths'
 import { NegotiatorClient } from './negotiatorClient'
-import { PerunGroupsManager } from './groupsManager'
+import { PerunGroupsManager, NegotiatorOrganization, NegotiatorResource } from './groupsManager'
 import governanceSettings from '@/config/governanceSettings'
 
 export function PerunClient() {
@@ -19,6 +19,7 @@ export function PerunClient() {
   }
 
   const negotiatorClient = new NegotiatorClient()
+
   const perunGroupsManager = PerunGroupsManager(negotiatorClient)
 
   const getUserEmail = (user) => {
@@ -59,7 +60,20 @@ export function PerunClient() {
 
   const getAllOrganizations = async () => {
     if (!perunGroupsManager.isInitialized()) {
-      await perunGroupsManager.init(await getGroupsFromPerun())
+      perunGroupsManager.init(await getGroupsFromPerun())
+
+      const orgReprGroups = perunGroupsManager.getOrganizationsRepresentativesGroups()
+      await Promise.all(
+        orgReprGroups.map(async (orgReprGroup) => {
+          const negotiatorOrgData = await negotiatorClient.getOrganizationByExternalId(
+            orgReprGroup.getNegotiatorId(),
+          )
+          if (negotiatorOrgData) {
+            const negotiatorOrg = NegotiatorOrganization(orgReprGroup, negotiatorOrgData)
+            orgReprGroup.setNegotiatorOrganization(negotiatorOrg)
+          }
+        }),
+      )
     }
     return perunGroupsManager.getNegotiatorOrganizations()
   }
@@ -84,17 +98,15 @@ export function PerunClient() {
 
   const getOrganizationById = async (organizationId) => {
     const negotiatorResources = await Promise.all(
-      perunGroupsManager.getResourcesInOrganization(organizationId).map(async (resource) => {
-        const negotiatorResource = await negotiatorClient.getResourceBySourceId(
-          resource.getNegotiatorId(),
-        )
-        negotiatorResource.perunGroupId = resource.getPerunId()
-        negotiatorResource.perunParentGroupId = resource.getParentId()
-        negotiatorResource.representatives = await getRepresentativesOfResource(
-          resource.getPerunId(),
-        )
-        return negotiatorResource
-      }),
+      perunGroupsManager
+        .getResourcesRepresentativesGroupsForOrganization(organizationId)
+        .map(async (resourceGroup) => {
+          const negotiatorData = await negotiatorClient.getResourceBySourceId(
+            resourceGroup.getNegotiatorId(),
+          )
+          const representatives = await getRepresentativesOfResource(resourceGroup.getPerunId())
+          return NegotiatorResource(resourceGroup, negotiatorData, representatives)
+        }),
     )
     return {
       data: {
@@ -109,9 +121,13 @@ export function PerunClient() {
 
   const getRepresentedResources = async (userId, page, size, filters = {}) => {
     const organizations = await retrieveOrganizationsPaginated(page, size, filters)
-    organizations.data._embedded.organizations.forEach(async (organization) => {
-      organization.resources = (await getOrganizationById(organization.id)).data._embedded.resources
-    })
+    await Promise.all(
+      organizations.data._embedded.organizations.map(async (organization) => {
+        organization.resources = (
+          await getOrganizationById(organization.id)
+        ).data._embedded.resources
+      }),
+    )
     return organizations
   }
 
@@ -182,12 +198,9 @@ export function PerunClient() {
         ? perunApiPaths.ADD_MEMBER_TO_GROUP
         : perunApiPaths.REMOVE_MEMBER_TO_GROUP
 
-    console.log(resource)
-    const resourceGroupId = perunGroupsManager.getResourceGroupIdFromResource(resource)
-    const organizationGroupId = perunGroupsManager.getOrganizationGroupIdFromResource(resource)
-    console.log(organizationGroupId)
-    const managerGroupId = perunGroupsManager.getManagerGroupIdFromResource(resource)
-    console.log(managerGroupId)
+    const resourceGroupId = resource.getResourceGroupId()
+    const organizationGroupId = resource.getOrganizationGroupId()
+    const managerGroupId = resource.getManagerGroupId()
 
     for (const groupId of [resourceGroupId, organizationGroupId, managerGroupId]) {
       const data = {
