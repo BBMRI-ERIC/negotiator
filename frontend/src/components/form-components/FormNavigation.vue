@@ -172,7 +172,7 @@ function returnAvatarColor(validationErrorHighlightItem) {
 }
 
 .avatar i {
-  font-size: 2.25rem;
+  font-size: 2rem;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -261,7 +261,6 @@ function returnAvatarColor(validationErrorHighlightItem) {
   transform: translateX(2px);
 }
 
-
 .form-navigation-item-text {
   padding-right: 1rem;
 }
@@ -269,22 +268,16 @@ function returnAvatarColor(validationErrorHighlightItem) {
 .form-navigation-item-text p:first-child {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #212529;
+  color: #6c757d;
   line-height: 1.4;
   margin-bottom: 0.25rem;
   transition: color 0.2s ease;
 }
 
 .form-navigation-item-text p:last-child {
-  font-size: 1rem;
   color: #6c757d;
   line-height: 1.4;
-  margin-top: 0.25rem;
   transition: color 0.2s ease;
-}
-
-.form-navigation-item:hover .form-navigation-item-text p:first-child {
-  color: #0d6efd;
 }
 
 .form-navigation-item-avatar {
@@ -309,7 +302,7 @@ function returnAvatarColor(validationErrorHighlightItem) {
   }
 
   .form-navigation-item-text p:last-child {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   /* Reduce animations on mobile for performance */
