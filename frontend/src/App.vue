@@ -104,7 +104,9 @@ header {
 }
 
 .body {
-  min-height: calc(100vh - 391px);
+  min-height: calc(
+    100vh - (234px + 56px + 4.5rem)
+  ); /* (footer-234px, nav-56px, pt-1.5rem, mb-1.5rem) */
 }
 
 @media (min-width: 1024px) {
@@ -115,7 +117,9 @@ header {
   }
 
   .body {
-    min-height: calc(100vh - 263px);
+    min-height: calc(
+      100vh - (234px + 56px + 4.5rem)
+    ); /* (footer-234px, nav-56px, pt-1.5rem, mb-1.5rem) */
   }
 
   header .wrapper {
