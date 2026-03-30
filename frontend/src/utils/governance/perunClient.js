@@ -15,10 +15,8 @@ export function PerunClient() {
   const EMAIL_ATTR_ID = governanceSettings.email_attr_id
   const REPRESENTATIVE_ACTIONS = {
     ADD: 'A',
-    REMOVE: 'R'
+    REMOVE: 'R',
   }
-
-  
 
   const negotiatorClient = new NegotiatorClient()
   const perunGroupsManager = PerunGroupsManager(negotiatorClient)
@@ -88,11 +86,13 @@ export function PerunClient() {
     const negotiatorResources = await Promise.all(
       perunGroupsManager.getResourcesInOrganization(organizationId).map(async (resource) => {
         const negotiatorResource = await negotiatorClient.getResourceBySourceId(
-          resource.directoryId,
+          resource.getNegotiatorId(),
         )
-        negotiatorResource.perunGroupId = resource.id
-        negotiatorResource.perunParentGroupId = resource.parentId
-        negotiatorResource.representatives = await getRepresentativesOfResource(resource.id)
+        negotiatorResource.perunGroupId = resource.getPerunId()
+        negotiatorResource.perunParentGroupId = resource.getParentId()
+        negotiatorResource.representatives = await getRepresentativesOfResource(
+          resource.getPerunId(),
+        )
         return negotiatorResource
       }),
     )
@@ -107,8 +107,12 @@ export function PerunClient() {
     }
   }
 
-  const getRepresentedResources = (userId, filters = {}) => {
-    return negotiatorClient.getRepresentedResources(userId, filters)
+  const getRepresentedResources = async (userId, page, size, filters = {}) => {
+    const organizations = await retrieveOrganizationsPaginated(page, size, filters)
+    organizations.data._embedded.organizations.forEach(async (organization) => {
+      organization.resources = (await getOrganizationById(organization.id)).data._embedded.resources
+    })
+    return organizations
   }
 
   const retrieveUsers = async (page = 0, size = 10, filtersSortData) => {
@@ -173,11 +177,17 @@ export function PerunClient() {
   }
 
   const addOrRemoveRepresentativeToResource = async (userId, resource, action) => {
-    const url = action == REPRESENTATIVE_ACTIONS.ADD ? perunApiPaths.ADD_MEMBER_TO_GROUP : perunApiPaths.REMOVE_MEMBER_TO_GROUP
+    const url =
+      action == REPRESENTATIVE_ACTIONS.ADD
+        ? perunApiPaths.ADD_MEMBER_TO_GROUP
+        : perunApiPaths.REMOVE_MEMBER_TO_GROUP
 
+    console.log(resource)
     const resourceGroupId = perunGroupsManager.getResourceGroupIdFromResource(resource)
     const organizationGroupId = perunGroupsManager.getOrganizationGroupIdFromResource(resource)
+    console.log(organizationGroupId)
     const managerGroupId = perunGroupsManager.getManagerGroupIdFromResource(resource)
+    console.log(managerGroupId)
 
     for (const groupId of [resourceGroupId, organizationGroupId, managerGroupId]) {
       const data = {
@@ -196,7 +206,11 @@ export function PerunClient() {
   }
 
   const removeRepresentativeFromResource = async (userId, resource) => {
-    return await addOrRemoveRepresentativeToResource(userId, resource, REPRESENTATIVE_ACTIONS.REMOVE)
+    return await addOrRemoveRepresentativeToResource(
+      userId,
+      resource,
+      REPRESENTATIVE_ACTIONS.REMOVE,
+    )
   }
 
   return {
