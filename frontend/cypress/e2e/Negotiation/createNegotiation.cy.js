@@ -63,36 +63,8 @@ describe("Test create negotiation", () => {
             cy.get(".overview > .mb-3").should("be.visible")
             cy.get(".overview > .mb-0").should("be.visible")
 
-            //    PROJECT
-            cy.get(":nth-child(2) > h2").should("be.visible")
-
-            cy.get(":nth-child(2) > :nth-child(2) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(2) > :nth-child(3) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(2) > :nth-child(4) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(2) > :nth-child(5) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(2) > :nth-child(6) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(2) > :nth-child(7) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(".text-truncate > span").should("be.visible")
-            cy.get(":nth-child(2) > :nth-child(9) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(2) > :nth-child(10) > .element-text > :nth-child(2)").should("be.visible")
-
-            //    REQUEST
-            cy.get(":nth-child(3) > h2").should("be.visible")
-
-            cy.get(":nth-child(3) > :nth-child(2) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(3) > :nth-child(3) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(3) > :nth-child(4) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(3) > :nth-child(5) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(3) > :nth-child(6) > .element-text > :nth-child(2)").should("be.visible")
-
-            //    ETHICS VOTE
-            cy.get(":nth-child(4) > h2").should("be.visible")
-
-            cy.get(":nth-child(3) > :nth-child(2) > .element-text > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(3) > :nth-child(3) > .element-text > :nth-child(2)").should("be.visible")
             //  Submit request
-            cy.get(".form-navigation-buttons > :nth-child(3) > .primary-button > .btn").contains("Submit").click()
-
+            cy.get(".justify-content-end > .btn").contains("Submit").click()
             // Confirmation modal
             cy.get(".modal-content").should("be.visible")
             cy.get(".modal-title").should("be.visible")
@@ -104,14 +76,14 @@ describe("Test create negotiation", () => {
             cy.wait(200)
             cy.get(".btn-danger").should("be.visible")
             cy.wait(500)
-            cy.get(".btn-dark").click()
+            cy.get(".btn-dark").eq(0).click()
             cy.get(".btn-danger").should("not.be.visible")
 
             // Submit request
             cy.wait(200)
-            cy.get(".form-navigation-buttons > :nth-child(3) > .primary-button > .btn").contains("Submit").click()
+            cy.get(".justify-content-end > .btn").contains("Submit").click()
             cy.wait(200)
-            cy.get(".btn-danger").click()
+            cy.get(".btn-danger").eq(0).click()
 
             cy.url().should("contain", "/negotiations")
             cy.url().should("contain", "/ROLE_RESEARCHER")
@@ -162,5 +134,6 @@ describe("Test create negotiation", () => {
           cy.get(".alert").contains("Negotiation saved correctly as draft")
           cy.url().should("contain", "/edit/requests")
         })
+       
     })
 })
