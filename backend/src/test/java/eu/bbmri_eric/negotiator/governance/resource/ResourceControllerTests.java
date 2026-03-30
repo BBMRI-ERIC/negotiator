@@ -97,10 +97,10 @@ public class ResourceControllerTests {
         .build();
   }
 
-  private DiscoveryService createDiscoveryService() {
+  private DiscoveryService createDiscoveryService(long id) {
     return DiscoveryService.builder()
         .name("test_discovery_service")
-        .id(1L)
+        .id(id)
         .url("http://discoveryservice.net")
         .build();
   }
@@ -470,8 +470,12 @@ public class ResourceControllerTests {
 
     ResourceCreateDTO resourceDTO1 = createResource("Resource 10", "resource_10", org1Id, null);
 
-    DiscoveryService discoveryService = createDiscoveryService();
-    discoveryServiceRepository.save(discoveryService);
+    discoveryServiceRepository
+        .findById(DEFAULT_DISCOVERY_SERVICE_ID)
+        .orElseGet(
+            () ->
+                discoveryServiceRepository.save(
+                    createDiscoveryService(DEFAULT_DISCOVERY_SERVICE_ID)));
 
     String requestBody = TestUtils.jsonFromRequest(Arrays.asList(resourceDTO1));
     MvcResult result =
@@ -515,8 +519,12 @@ public class ResourceControllerTests {
     ResourceCreateDTO resourceDTO1 = createResource("Resource 11", "resource_11", org1Id, 2L);
     ResourceCreateDTO resourceDTO2 = createResource("Resource 12", "resource_12", org1Id, null);
 
-    DiscoveryService discoveryService = createDiscoveryService();
-    discoveryServiceRepository.save(discoveryService);
+    discoveryServiceRepository
+        .findById(DEFAULT_DISCOVERY_SERVICE_ID)
+        .orElseGet(
+            () ->
+                discoveryServiceRepository.save(
+                    createDiscoveryService(DEFAULT_DISCOVERY_SERVICE_ID)));
 
     String requestBody1 = TestUtils.jsonFromRequest(Arrays.asList(resourceDTO1));
     MvcResult result1 =
