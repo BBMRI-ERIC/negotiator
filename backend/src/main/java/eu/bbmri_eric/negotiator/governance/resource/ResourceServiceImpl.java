@@ -59,6 +59,8 @@ public class ResourceServiceImpl implements ResourceService {
   private final OrganizationRepository organizationRepository;
   private final NegotiationAccessManager negotiationAccessManager;
 
+  private static final long DEFAULT_ACCESS_FORM_ID = 1L;
+
   public ResourceServiceImpl(
       NetworkRepository networkRepository,
       ResourceRepository repository,
@@ -217,14 +219,15 @@ public class ResourceServiceImpl implements ResourceService {
               .orElseThrow(
                   () -> new DiscoveryServiceNotFoundException(resDTO.getDiscoveryServiceId()));
       AccessForm accessForm;
-      if (resDTO.getAccessFormId() == null || resDTO.getAccessFormId() == 0) {
+      if (resDTO.getAccessFormId() == null) {
         accessForm =
             accessFormRepository
                 .findFirstMostCommonAccessFormByOrganization(resDTO.getOrganizationId())
                 .orElse(
                     accessFormRepository
-                        .findById(1L)
-                        .orElseThrow(() -> new AccessFormNotFoundException(1L)));
+                        .findById(DEFAULT_ACCESS_FORM_ID)
+                        .orElseThrow(
+                            () -> new AccessFormNotFoundException(DEFAULT_ACCESS_FORM_ID)));
       } else {
         accessForm =
             accessFormRepository
