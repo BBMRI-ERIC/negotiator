@@ -199,10 +199,9 @@ export function PerunClient() {
         : perunApiPaths.REMOVE_MEMBER_TO_GROUP
 
     const resourceGroupId = resource.getResourceGroupId()
-    const organizationGroupId = resource.getOrganizationGroupId()
     const managerGroupId = resource.getManagerGroupId()
 
-    for (const groupId of [resourceGroupId, organizationGroupId, managerGroupId]) {
+    for (const groupId of [resourceGroupId, managerGroupId]) {
       const data = {
         member: parseInt(userId),
         group: groupId,
