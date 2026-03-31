@@ -4,6 +4,7 @@
       :loading="organizationsLoading || operationsLoading"
       :all-expanded="allExpanded"
       :is-admin="props.isAdmin"
+      :is-network-manager="props.isNetworkManager"
       @create-organization="modals.openCreateModal"
     />
 
@@ -25,6 +26,7 @@
       :no-results-message="getNoResultsMessage()"
       :sorted-resources-for-organization="sortedResourcesForOrganization"
       :is-admin="props.isAdmin"
+      :is-network-manager="props.isNetworkManager"
       @toggle-organization="toggleOrganization"
       @edit-organization="modals.openEditModal"
       @edit-resource="modals.openEditResourceModal"
@@ -102,6 +104,10 @@ const operations = useOrganizationOperations()
 
 const props = defineProps({
   isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  isNetworkManager: {
     type: Boolean,
     default: false,
   },

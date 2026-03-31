@@ -52,6 +52,7 @@
       :resources="resources"
       :loading="resourcesLoading"
       :is-admin="isAdmin"
+      :is-network-manager="isNetworkManager"
       @edit-resource="$emit('editResource', $event)"
       @add-resources="$emit('addResources')"
       @representatives-updated="$emit('representativesUpdated', $event)"
@@ -64,6 +65,10 @@ import ResourcesList from './ResourcesList.vue'
 
 defineProps({
   isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  isNetworkManager: {
     type: Boolean,
     default: false,
   },
