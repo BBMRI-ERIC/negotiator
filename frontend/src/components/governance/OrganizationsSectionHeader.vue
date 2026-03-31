@@ -20,6 +20,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isNetworkManager: {
+    type: Boolean,
+    default: false,
+  },
   loading: {
     type: Boolean,
     required: true,
