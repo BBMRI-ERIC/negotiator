@@ -78,39 +78,27 @@
           Admin UI Configuration
         </router-link>
       </li>
-      <li>
+      <li v-if="showLegalLinksSection">
         <hr class="dropdown-divider" />
       </li>
-      <li
-        v-if="
-          (uiConfiguration?.navbarPrivacyPolicyText && uiConfiguration?.navbarPrivacyPolicyLink) ||
-          (uiConfigurationFooter?.footerPrivacyPolicyText &&
-            uiConfigurationFooter?.footerPrivacyPolicyLink)
-        "
-      >
+      <li v-if="showPrivacyPolicyLink">
         <a
-          :href="
-            uiConfiguration?.navbarPrivacyPolicyLink ||
-            uiConfigurationFooter?.footerPrivacyPolicyLink
-          "
+          :href="privacyPolicyLink"
           class="dropdown-item"
           :style="{ color: uiConfiguration?.navbarTextColor }"
         >
           <i class="bi bi-shield-lock" />
-          {{
-            uiConfiguration?.navbarPrivacyPolicyText ||
-            uiConfigurationFooter?.footerPrivacyPolicyText
-          }}
+          {{ privacyPolicyText }}
         </a>
       </li>
-      <li v-if="uiConfiguration?.navbarAccessPolicyText && uiConfiguration?.navbarAccessPolicyLink">
+      <li v-if="showAccessPolicyLink">
         <a
-          :href="uiConfiguration?.navbarAccessPolicyLink"
+          :href="accessPolicyLink"
           class="dropdown-item"
           :style="{ color: uiConfiguration?.navbarTextColor }"
         >
           <i class="bi bi-clipboard-check" />
-          {{ uiConfiguration?.navbarAccessPolicyText }}
+          {{ accessPolicyText }}
         </a>
       </li>
       <li>
@@ -176,6 +164,40 @@ const returnAcronymOfName = computed(() => {
     initials = words[0][0].toUpperCase() + ' ' + words[words.length - 1][0].toUpperCase()
   }
   return initials
+})
+
+const privacyPolicyLink = computed(() => {
+  return (
+    uiConfiguration.value?.navbarPrivacyPolicyLink ||
+    uiConfigurationFooter.value?.footerPrivacyPolicyLink
+  )
+})
+
+const privacyPolicyText = computed(() => {
+  return (
+    uiConfiguration.value?.navbarPrivacyPolicyText ||
+    uiConfigurationFooter.value?.footerPrivacyPolicyText
+  )
+})
+
+const showPrivacyPolicyLink = computed(() => {
+  return Boolean(privacyPolicyLink.value && privacyPolicyText.value)
+})
+
+const accessPolicyLink = computed(() => {
+  return uiConfiguration.value?.navbarAccessPolicyLink
+})
+
+const accessPolicyText = computed(() => {
+  return uiConfiguration.value?.navbarAccessPolicyText
+})
+
+const showAccessPolicyLink = computed(() => {
+  return Boolean(accessPolicyLink.value && accessPolicyText.value)
+})
+
+const showLegalLinksSection = computed(() => {
+  return showPrivacyPolicyLink.value || showAccessPolicyLink.value
 })
 
 function signOutOidc() {
