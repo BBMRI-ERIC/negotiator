@@ -47,7 +47,7 @@
           role="tabpanel"
           aria-labelledby="organizations-tab"
         >
-          <OrganizationsSection :is-admin="isAdmin" />
+          <OrganizationsSection :is-admin="isAdmin" :is-network-manager="isNetworkManager"/>
         </div>
 
         <!-- Networks Tab -->
@@ -91,6 +91,10 @@ const router = useRouter()
 const isAdmin = computed(() => {
   return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
 })
+
+const isNetworkManager = computed(() => {
+  return userStore.userInfo.roles.includes(ROLES.NETWORK_MANAGER)
+}) 
 
 const activeTab = ref('organizations')
 

@@ -97,7 +97,7 @@ const router = createRouter({
       name: 'governance',
       component: GovernancePage,
       meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess([ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR]),
+      beforeEnter: checkAccess([ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR, ROLES.NETWORK_MANAGER]),
     },
     {
       path: '/admin',
