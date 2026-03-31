@@ -55,10 +55,6 @@
 import { ref } from 'vue'
 
 defineProps({
-  webhookId: {
-    type: String,
-    required: true,
-  },
   deliveries: {
     type: Array,
     required: true,
