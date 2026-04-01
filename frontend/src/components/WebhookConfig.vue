@@ -54,6 +54,56 @@
         Active - Toggle to enable or disable webhook notifications.
       </label>
     </div>
+
+    <div class="mt-4">
+      <label class="form-label" :for="showConfiguredSecretBanner ? null : secretInputId">
+        Secret
+      </label>
+
+      <div
+        v-if="showConfiguredSecretBanner"
+        class="alert alert-info align-items-center mb-0 d-flex gap-2"
+      >
+        <i class="bi bi-info-circle"></i>
+        <div
+          class="d-flex flex-grow-1 flex-column align-items-center justify-content-start justify-content-lg-between flex-lg-row gap-2"
+        >
+          <span>
+            This webhook already has a secret configured. If you change it,
+            update all connected systems to keep delivery verification working.
+          </span>
+          <button type="button" class="btn btn-outline-primary btn-sm" @click="emitStartSecretChange">
+            Change secret
+          </button>
+        </div>
+      </div>
+
+      <template v-else>
+        <div class="d-flex gap-2 align-items-start">
+          <input
+            :id="secretInputId"
+            type="text"
+            class="form-control"
+            :class="{ 'is-invalid': showSecretValidationError }"
+            :value="secretInput"
+            :placeholder="changeSecretMode ? 'Keep empty to clear the existing secret' : ''"
+            autocomplete="off"
+            @input="onSecretInput"
+          />
+          <button
+            v-if="isConfiguredWebhookWithSecret && changeSecretMode"
+            type="button"
+            class="btn btn-outline-secondary"
+            @click="emitCancelSecretChange"
+          >
+            Cancel
+          </button>
+        </div>
+        <div v-if="showSecretValidationError" class="invalid-feedback d-block">
+          {{ secretValidationMessage }}
+        </div>
+      </template>
+    </div>
   </form>
 </template>
 
@@ -63,8 +113,21 @@ import { reactive, watch } from 'vue'
 const props = defineProps({
   form: { type: Object, required: true },
   urlIsValid: { type: Boolean, required: true },
+  showConfiguredSecretBanner: { type: Boolean, default: false },
+  isConfiguredWebhookWithSecret: { type: Boolean, default: false },
+  changeSecretMode: { type: Boolean, default: false },
+  showSecretValidationError: { type: Boolean, default: false },
+  secretValidationMessage: { type: String, default: '' },
+  secretInput: { type: String, default: '' },
+  secretInputId: { type: String, default: 'webhookSecretInput' },
 })
-const emit = defineEmits(['updateForm', 'submit'])
+const emit = defineEmits([
+  'updateForm',
+  'submit',
+  'update:secretInput',
+  'startSecretChange',
+  'cancelSecretChange',
+])
 
 // Create a local reactive copy of the form prop
 const localForm = reactive({ ...props.form })
@@ -86,4 +149,16 @@ watch(
   },
   { deep: true },
 )
+
+const onSecretInput = (event) => {
+  emit('update:secretInput', event.target?.value ?? '')
+}
+
+const emitStartSecretChange = () => {
+  emit('startSecretChange')
+}
+
+const emitCancelSecretChange = () => {
+  emit('cancelSecretChange')
+}
 </script>

@@ -88,7 +88,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_STATE_UPDATED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-1\""))
                       .withRequestBody(containing("\"fromState\":\"DRAFT\""))
                       .withRequestBody(containing("\"toState\":\"SUBMITTED\""))
@@ -99,7 +99,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_STATE_UPDATED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-1\"")));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/negotiation-inactive")));
             });
@@ -134,7 +134,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-2\""))
                       .withRequestBody(containing("\"resourceId\":\"resource-1\""))
                       .withRequestBody(containing("\"fromState\":\"SUBMITTED\""))
@@ -146,7 +146,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"resourceId\":\"resource-1\"")));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/resource-inactive")));
             });
@@ -174,7 +174,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_POST_ADDED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"postId\":\"post-1\""))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-1\""))
                       .withRequestBody(containing("\"userId\":10000"))
@@ -185,7 +185,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_POST_ADDED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"postId\":\"post-1\"")));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/post-inactive")));
             });
@@ -213,7 +213,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_ADDED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-4\"")));
               wireMockServer.verify(
                   1,
@@ -221,7 +221,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_ADDED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-4\"")));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/new-negotiation-inactive")));
             });
@@ -249,7 +249,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-6\"")));
               wireMockServer.verify(
                   1,
@@ -257,7 +257,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-6\"")));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/resource-added-inactive")));
             });
@@ -285,7 +285,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_INFO_UPDATED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-3\"")));
               wireMockServer.verify(
                   1,
@@ -293,7 +293,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(
                           WebhookHeaders.EVENT_TYPE,
                           equalTo(WebhookEventType.NEGOTIATION_INFO_UPDATED.value()))
-                      .withHeader(WebhookHeaders.OCCURRED_AT, matching(".+"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(containing("\"negotiationId\":\"negotiation-3\"")));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/info-inactive")));
             });

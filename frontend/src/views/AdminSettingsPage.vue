@@ -121,6 +121,7 @@ const addWebhook = () => {
     url: '',
     sslVerification: true,
     active: true,
+    secretId: null,
     deliveries: [],
   }
   editModal.value = new Modal(document.querySelector('#webhookmodal'))
