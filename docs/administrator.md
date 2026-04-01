@@ -77,6 +77,18 @@ There, you can add a new webhook by providing the following information:
   recommended to keep it enabled for security reasons.
 - **Active**: Whether the webhook is active or not. You can disable a webhook if you want to temporarily stop receiving
   notifications without deleting it.
+- **Webhook Secret (optional)**: Secret values must use the format `whsec_<base64>`. The encoded part must decode to
+  24-64 bytes. Only standard base64 accepted.
+  You can generate a suitable value with:
+
+  ```bash
+  openssl rand -base64 32
+  ```
+
+  Then prefix the generated value with `whsec_` before saving it (for example, `whsec_<generated_value>`).
+
+> [!NOTE]
+> Webhook secrets are write-only and stored encrypted at rest. The plaintext value is never returned by the API or UI.
 
 > [!WARNING]  
 > We currently do not support authentication for webhooks. This means that anyone who knows the webhook URL can send

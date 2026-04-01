@@ -31,6 +31,8 @@ public class Webhook {
 
   private boolean active;
 
+  private String secretId;
+
   protected Webhook() {}
 
   public Webhook(String url, boolean sslVerification, boolean active) {
