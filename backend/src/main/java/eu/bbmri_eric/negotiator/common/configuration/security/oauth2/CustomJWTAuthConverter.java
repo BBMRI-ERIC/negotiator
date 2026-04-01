@@ -77,6 +77,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     if (!person.getResources().isEmpty()) {
       authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE"));
     }
+    if (!person.getNetworks().isEmpty()) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_NETWORK_MANAGER"));
+    }
     authorities.add(new SimpleGrantedAuthority("ROLE_RESEARCHER"));
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities);
   }
