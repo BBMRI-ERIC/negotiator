@@ -3,7 +3,6 @@ import { ref } from 'vue'
 
 const ORGANIZATION_ID_ATTR = governanceSettings.organizationIdAttr
 const RESOURCE_ID_ATTR = governanceSettings.resourceIdAttr
-const ADMIN_RESOURCE_ID_ATTR = governanceSettings.adminResourceIdAttr
 
 const isValueForAttributeNotEmpty = (group, attributeName) => {
   return getValueForAttribute(group, attributeName) != undefined
@@ -17,10 +16,6 @@ const isResourceRepresentativesGroup = (group) => {
   return isValueForAttributeNotEmpty(group, RESOURCE_ID_ATTR)
 }
 
-const isResourceManagersGroup = (group) => {
-  return isValueForAttributeNotEmpty(group, ADMIN_RESOURCE_ID_ATTR)
-}
-
 const getValueForAttribute = (group, attributeName) => {
   const attribute = group.attributes.find((attr) => attr.baseFriendlyName === attributeName)
   return attribute?.value?.trim()
@@ -32,10 +27,6 @@ const getNegotiatorResourceIdFromRepresentativeGroup = (group) => {
 
 const getNegotiatorOrganizationIdFromRepresentativeGroup = (group) => {
   return getValueForAttribute(group, ORGANIZATION_ID_ATTR).replaceAll('.', ':')
-}
-
-const getNegoatiatorResourceIdFromManagerGroup = (group) => {
-  return getValueForAttribute(group, ADMIN_RESOURCE_ID_ATTR).replaceAll('.', ':')
 }
 
 function OrganizationRepresentativeGroup(perunGroupId) {
