@@ -28,7 +28,6 @@
       :resources="sortedResourcesForOrganization(organization.id)"
       :resources-loading="loadingResources.has(organization.id)"
       :is-admin="isAdmin"
-      :is-network-manager="isNetworkManager"
       @toggle-expanded="$emit('toggleOrganization', organization)"
       @edit-organization="$emit('editOrganization', organization)"
       @edit-resource="$emit('editResource', $event)"
@@ -43,10 +42,6 @@ import OrganizationCard from './OrganizationCard.vue'
 
 defineProps({
   isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  isNetworkManager: {
     type: Boolean,
     default: false,
   },
