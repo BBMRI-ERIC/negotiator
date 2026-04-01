@@ -6,12 +6,14 @@ import { useUserStore } from '@/store/user.js'
 import { sortOrganizations, sortResources } from '@/utils/sort'
 import { getNoResultsMessage as buildNoResultsMsg } from '@/utils/messages'
 import { ROLES } from '@/config/consts.js'
+import { getGovernanceClient } from '@/utils/governance'
 
 export function useOrganizations() {
   const adminStore = useAdminStore()
   const organizationsStore = useOrganizationsStore()
   const resourceStore = useResourcesStore()
   const userStore = useUserStore()
+  const governanceClient = getGovernanceClient()
 
   const organizations = ref([])
   const organizationResources = ref({})
@@ -33,9 +35,7 @@ export function useOrganizations() {
 
   let searchTimeout = null
 
-  const isAdmin = computed(() => {
-    return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
-  })
+  const isGovernanceManager = computed(() => governanceClient.isManager())
 
   const allExpanded = computed(() => {
     return (
@@ -85,7 +85,7 @@ export function useOrganizations() {
     loadingResources.value.add(organizationId)
 
     try {
-      if (isAdmin.value) {
+      if (isGovernanceManager.value) {
         const organizationWithResources = await organizationsStore.getOrganizationById(
           organizationId,
           'resources',
@@ -127,7 +127,7 @@ export function useOrganizations() {
       }
 
       let response = null
-      if (isAdmin.value) {
+      if (isGovernanceManager.value) {
         response = await adminStore.retrieveOrganizationsPaginated(
           pageNumber.value,
           pageSize.value,
