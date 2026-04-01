@@ -6,7 +6,7 @@ const RESOURCE_ID_ATTR = governanceSettings.resourceIdAttr
 const ADMIN_RESOURCE_ID_ATTR = governanceSettings.adminResourceIdAttr
 
 const isValueForAttributeNotEmpty = (group, attributeName) => {
-  return getValueForAttribute(group, attributeName) != null
+  return getValueForAttribute(group, attributeName) != undefined
 }
 
 const isOrganizationRepresentativesGroup = (group) => {
@@ -23,7 +23,7 @@ const isResourceManagersGroup = (group) => {
 
 const getValueForAttribute = (group, attributeName) => {
   const attribute = group.attributes.find((attr) => attr.baseFriendlyName === attributeName)
-  return attribute && attribute.value ? attribute.value.trim() : null
+  return attribute?.value?.trim()
 }
 
 const getNegotiatorResourceIdFromRepresentativeGroup = (group) => {
@@ -187,7 +187,6 @@ function PerunGroupsManager() {
 
   const init = (perunGroups) => {
     if (!isInitialized()) {
-      const managerGroupResources = {}
       for (const perunGroup of perunGroups.data) {
         if (isOrganizationRepresentativesGroup(perunGroup)) {
           const organizationGroup = getOrCreateOrganizationGroup(perunGroup.id)
@@ -198,18 +197,6 @@ function PerunGroupsManager() {
           const organizationGroup = getOrCreateOrganizationGroup(perunGroup.parentGroupId)
           const resourceGroup = ResourceRepresentativeGroup(perunGroup)
           organizationGroup.addResourceGroup(resourceGroup)
-          if (resourceGroup.getNegotiatorId() in managerGroupResources) {
-            resourceGroup.setManagerGroupId(managerGroupResources[resourceGroup.getNegotiatorId()])
-          } else {
-            managerGroupResources[resourceGroup.getNegotiatorId()] = resourceGroup
-          }
-        } else if (isResourceManagersGroup(perunGroup)) {
-          const resourceId = getNegoatiatorResourceIdFromManagerGroup(perunGroup)
-          if (resourceId in managerGroupResources) {
-            managerGroupResources[resourceId].setManagerGroupId(perunGroup.id)
-          } else {
-            managerGroupResources[resourceId] = perunGroup.id
-          }
         }
       }
     }
