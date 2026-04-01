@@ -52,14 +52,13 @@ export function NegotiatorClient() {
     return axios.get(url, { headers: getBearerHeaders() })
   }
 
-  const retrieveUsers = (page = 0, size = 10, filtersSortData) => {
+  const retrieveUsers = (filtersSortData, page = 0, size = 10) => {
     // add filtersSortData in case they are valued
-    const params = Object.fromEntries(
-      // eslint-disable-next-line
-      Object.entries(filtersSortData).filter(([_, value]) => value !== ''),
-    )
-    params.page = page
-    params.size = size
+    const params = {
+      ...filtersSortData,
+      page,
+      size
+    }
     return axios.get(`${apiPaths.BASE_API_PATH}/users`, {
       headers: getBearerHeaders(),
       params: params,
