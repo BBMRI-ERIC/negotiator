@@ -41,7 +41,7 @@
               {{ $t('navbar.biobanker') }}
             </router-link>
           </li>
-          <li v-if="isRepresentative || isAdmin" class="nav-item v-step-13">
+          <li v-if="isRepresentative || isGovernanceManager" class="nav-item v-step-13">
             <router-link
               :class="['nav-link nav-option', { active: isGovernanceActive }]"
               :style="navLinkStyle(isGovernanceActive)"
@@ -161,12 +161,14 @@ import { useUserStore } from '../store/user'
 import { useOidcStore } from '../store/oidc'
 import { useNetworksPageStore } from '../store/networksPage'
 import { useRoute, useRouter } from 'vue-router'
+import { getGovernanceClient } from '@/utils/governance'
 
 const uiConfigurationStore = useUiConfiguration()
 const actuatorInfoStore = useActuatorInfoStore()
 const userStore = useUserStore()
 const oidcStore = useOidcStore()
 const networksPageStore = useNetworksPageStore()
+const governanceClient = getGovernanceClient()
 const dropdownVisible = ref(false)
 const menuNavbarRef = ref(null)
 const togglerRef = ref(null)
@@ -193,6 +195,10 @@ const oidcUser = computed(() => {
 })
 const isAdmin = computed(() => {
   return roles.value.includes(ROLES.ADMINISTRATOR)
+})
+const isGovernanceManager = computed(() => {
+  console.log(governanceClient.isManager())
+  return governanceClient.isManager()
 })
 const isResearcher = computed(() => {
   return roles.value.includes(ROLES.RESEARCHER)
