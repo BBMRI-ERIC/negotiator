@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
@@ -27,6 +28,7 @@ import org.hibernate.type.SqlTypes;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EqualsAndHashCode
 @Entity
+@Table(name = "webhook_delivery")
 public class Delivery {
 
   @Id private String id;
