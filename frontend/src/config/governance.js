@@ -33,12 +33,6 @@ const prodSettings = {
   emailAttrId: 'EMAIL_ATTR_PLACEHOLDER',
 }
 
-let governanceSettings
-
-if (import.meta.env.DEV) {
-  governanceSettings = devSettings
-} else {
-  governanceSettings = prodSettings
-}
+const governanceSettings = import.meta.env.DEV ? devSettings : prodSettings
 
 export default governanceSettings
