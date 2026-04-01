@@ -5,7 +5,6 @@ import { useResourcesStore } from '@/store/resources'
 import { useUserStore } from '@/store/user.js'
 import { sortOrganizations, sortResources } from '@/utils/sort'
 import { getNoResultsMessage as buildNoResultsMsg } from '@/utils/messages'
-import { ROLES } from '@/config/consts.js'
 import { getGovernanceClient } from '@/utils/governance'
 
 export function useOrganizations() {
