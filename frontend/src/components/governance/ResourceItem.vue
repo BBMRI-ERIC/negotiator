@@ -9,7 +9,7 @@
     </div>
     <div class="resource-actions">
       <i
-        v-if="(props.isAdmin || props.isNetworkManager) && hasNoRepresentatives"
+        v-if="props.isAdmin && hasNoRepresentatives"
         class="bi bi-exclamation-triangle-fill warning-icon"
         title="No representatives assigned"
       ></i>
@@ -19,7 +19,7 @@
         :data-bs-target="`#resourceRepresentativesModal-${resource.id}`"
         title="Manage Representatives"
         @click="prepareModal"
-        v-if="props.isAdmin || props.isNetworkManager"
+        v-if="props.isAdmin"
       >
         <i class="bi bi-people"></i>
       </button>
@@ -48,10 +48,6 @@ import ResourceRepresentativesModal from '../modals/ResourceRepresentativesModal
 
 const props = defineProps({
   isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  isNetworkManager: {
     type: Boolean,
     default: false,
   },
