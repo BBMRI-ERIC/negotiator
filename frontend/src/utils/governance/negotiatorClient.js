@@ -20,23 +20,21 @@ export function NegotiatorClient() {
   }
 
   const retrieveOrganizationsPaginated = async (page = 0, size = 20, filters = {}) => {
-    let url = `${apiPaths.BASE_API_PATH}/organizations`
+    const url = `${apiPaths.BASE_API_PATH}/organizations`
+
     const params = {
       page: page,
       size: size,
     }
 
-    // Add name filter if provided
-    if (filters.name && filters.name.trim()) {
+    if (filters.name?.trim()) {
       params.name = filters.name.trim()
     }
 
-    // Add externalId filter if provided
-    if (filters.externalId && filters.externalId.trim()) {
-      params.externalId.filters.externalId.trim()
+    if (filters.externalId?.trim()) {
+      params.externalId = filters.externalId.trim()
     }
 
-    // Add withdrawn filter if provided
     if (typeof filters.withdrawn === 'boolean') {
       params.withdrawn = filters.withdrawn
     }
@@ -53,7 +51,6 @@ export function NegotiatorClient() {
   }
 
   const retrieveUsers = (filtersSortData, page = 0, size = 10) => {
-    // add filtersSortData in case they are valued
     const params = {
       ...filtersSortData,
       page,
@@ -79,18 +76,21 @@ export function NegotiatorClient() {
     })
   }
 
-  const getRepresentedResources = (userId, filters = {}) => {
-    let url = `${apiPaths.BASE_API_PATH}/users/${userId}/organizations?expand=resources`
+  // eslint-disable-next-line no-unused-vars
+  const getRepresentedResources = (userId, page = 0, size = 20, filters = {}) => {
+    const url = `${apiPaths.BASE_API_PATH}/users/${userId}/organizations?expand=resources`
 
-    if (filters.name && filters.name.trim()) {
-      url += `&name=${encodeURIComponent(filters.name.trim())}`
+    const params = {}
+    if (filters.name?.trim()) {
+      params.name = filters.name.trim()
     }
 
     if (typeof filters.withdrawn === 'boolean') {
-      url += `&withdrawn=${filters.withdrawn}`
+      params.withdrawn = filters.withdrawn
     }
 
     return axios.get(url, {
+      params,
       headers: getBearerHeaders(),
     })
   }
