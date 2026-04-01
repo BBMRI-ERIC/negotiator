@@ -57,7 +57,7 @@ export function NegotiatorClient() {
     const params = {
       ...filtersSortData,
       page,
-      size
+      size,
     }
     return axios.get(`${apiPaths.BASE_API_PATH}/users`, {
       headers: getBearerHeaders(),
