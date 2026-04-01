@@ -22,6 +22,11 @@ public class WebhookResponseDTO {
   @Schema(description = "Flag indicating if the webhook is active", example = "true")
   private boolean active;
 
+  @Schema(
+      description = "Optional identifier of the associated secret",
+      example = "e3429e49-9237-46b0-a122-d11657379f5a")
+  private String secretId;
+
   private List<DeliveryDTO> deliveries;
 
   public WebhookResponseDTO() {}

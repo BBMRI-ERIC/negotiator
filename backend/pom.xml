@@ -38,6 +38,7 @@
         <jakarta-validation.version>3.1.1</jakarta-validation.version>
         <jaxb.version>2.3.1</jaxb.version>
         <json.version>20241224</json.version>
+        <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
         <jsoup.version>1.17.2</jsoup.version>
         <loki-logback.version>1.6.0</loki-logback.version>
         <lombok.version>1.18.30</lombok.version>
@@ -261,6 +262,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>${jackson-databind-nullable.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

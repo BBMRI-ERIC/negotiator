@@ -107,6 +107,8 @@ negotiator:
     timeout:
       connect: "2s"
       read: "8s"
+    secret-encryption:
+      enabled: true
   email:
     frequency-cron-expression: "0 0 * * * *"
 logging:

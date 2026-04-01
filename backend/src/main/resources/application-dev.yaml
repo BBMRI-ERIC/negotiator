@@ -51,6 +51,9 @@ springdoc:
         }
 negotiator:
   frontend-url: "http://localhost:8080"
+  webhook:
+    secret-encryption:
+      enabled: false
   authorization:
     admin-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:admins#perun.bbmri-eric.eu"
   notification:

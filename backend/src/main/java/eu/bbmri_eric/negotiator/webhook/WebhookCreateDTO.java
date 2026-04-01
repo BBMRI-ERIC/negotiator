@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 @Getter
 @Setter
@@ -35,6 +36,9 @@ public class WebhookCreateDTO {
       defaultValue = "true")
   private boolean active = true;
 
+  @Schema(description = "Optional plaintext secret. Null removes the current secret.")
+  private JsonNullable<String> secret = JsonNullable.undefined();
+
   public WebhookCreateDTO(String url) {
     this.url = url;
   }
@@ -42,5 +46,11 @@ public class WebhookCreateDTO {
   public WebhookCreateDTO(String url, boolean sslVerification) {
     this.url = url;
     this.sslVerification = sslVerification;
+  }
+
+  public WebhookCreateDTO(String url, boolean sslVerification, boolean active) {
+    this.url = url;
+    this.sslVerification = sslVerification;
+    this.active = active;
   }
 }
