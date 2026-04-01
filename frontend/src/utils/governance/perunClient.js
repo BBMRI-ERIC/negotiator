@@ -142,13 +142,7 @@ export function PerunClient() {
     return organizations
   }
 
-  const retrieveUsers = async (page = 0, size = 10, filtersSortData) => {
-    // add filtersSortData in case they are valued
-    const filters = Object.fromEntries(
-      // eslint-disable-next-line
-      Object.entries(filtersSortData).filter(([_, value]) => value !== ''),
-    )
-
+  const retrieveUsers = async (filtersSortData, page = 0, size = 10) => {
     const data = {
       vo: VIRTUAL_ORGANIZATION_ID,
       attrNames: [`${USER_ATTR_DEF}${EMAIL_ATTR_ID}`],
@@ -157,7 +151,7 @@ export function PerunClient() {
         offset: page * size,
         order: 'ASCENDING',
         sortColumn: 'NAME',
-        searchString: filters.name,
+        searchString: filtersSortData.name,
         statuses: [],
         groupId: null,
       },
@@ -212,7 +206,7 @@ export function PerunClient() {
     const resourceGroupId = resource.getResourceGroupId()
 
     const data = {
-      member: parseInt(userId),
+      member: Number.parseInt(userId),
       group: resourceGroupId,
     }
     await axios.post(url, data, {

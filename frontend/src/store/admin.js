@@ -150,17 +150,13 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
-  function retrieveUsers(page = 0, size = 10, filtersSortData) {
-    // add filtersSortData in case they are valued
-    const params = Object.fromEntries(
-      // eslint-disable-next-line
-      Object.entries(filtersSortData).filter(([_, value]) => value !== ''),
+  function retrieveUsers(filtersSortData, page = 0, size = 10) {
+    const filterSortDataWirhValues = Object.fromEntries(
+      Object.entries(filtersSortData).filter(([, value]) => value !== ''),
     )
-    params.page = page
-    params.size = size
 
     return governanceClient
-      .retrieveUsers(page, size, filtersSortData)
+      .retrieveUsers(filterSortDataWirhValues, page, size)
       .then((response) => {
         return {
           users: response.data.page.totalElements > 0 ? response.data._embedded.users : [],
