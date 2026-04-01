@@ -263,7 +263,7 @@ const searchUsers = async () => {
         email: representativesFilterData.value.email,
       }
 
-      const result = await adminStore.retrieveUsers(0, 20, filtersSortData)
+      const result = await adminStore.retrieveUsers(filtersSortData, 0, 20)
       searchResults.value = result.users || []
     } catch {
       notifications.setNotification('Error searching users')
@@ -351,16 +351,11 @@ const handleSave = async () => {
   try {
     for (const representative of representativesToRemove.value) {
       currentOperation.value++
-      await resourcesStore.removeRepresentativeFromResource(
-        representative.id,
-        props.resource.id,
-        true,
-      )
+      await resourcesStore.removeRepresentativeFromResource(representative.id, props.resource, true)
     }
-
     for (const representative of representativesToAdd.value) {
       currentOperation.value++
-      await resourcesStore.addRepresentativeToResource(representative.id, props.resource.id, true)
+      await resourcesStore.addRepresentativeToResource(representative.id, props.resource, true)
     }
 
     representativesToAdd.value = []
