@@ -25,10 +25,10 @@ for file in assets/*.js;
          -e "s|GOVERNANCE_CLIENT_PLACEHOLDER|${GOVERNANCE_CLIENT:-default-governance_client}|g" \
          -e "s|OIDC_API_PLACEHOLDER|${OIDC_API:-default-oidc_api}|g" \
          -e "s|VIRTUAL_ORGANIZATION_PLACEHOLDER|${VIRTUAL_ORGANIZATION:-default-virtual_organization}|g" \
-         -e "s|ORGANIZATION_ID_ATTR_PLACEHOLDER|${ORGANIZATION_ID_ATTR:-default-organization_id_attr}|g" \
-         -e "s|RESOURCE_ID_ATTR_PLACEHOLDER|${RESOURCE_ID_ATTR:-default-resource_id_attr}|g" \
-         -e "s|ADMIN_ORGANIZATION_ID_ATTR_PLACEHOLDER|${ADMIN_ORGANIZATION_ID_ATTR:-default-admin_organization_id_attr}|g" \
-         -e "s|ADMIN_RESOURCE_ID_ATTR_PLACEHOLDER|${ADMIN_RESOURCE_ID_ATTR:-default-admin_resource_id_attr}|g" \
+         -e "s|ORGANIZATION_ID_ATTR_PLACEHOLDER|${ORGANIZATION_ID_ATTR:-default-organizationIdAttr}|g" \
+         -e "s|RESOURCE_ID_ATTR_PLACEHOLDER|${RESOURCE_ID_ATTR:-default-resourceIdAttr}|g" \
+         -e "s|ADMIN_ORGANIZATION_ID_ATTR_PLACEHOLDER|${ADMIN_ORGANIZATION_ID_ATTR:-default-adminOrganizationIdAttr}|g" \
+         -e "s|ADMIN_RESOURCE_ID_ATTR_PLACEHOLDER|${ADMIN_RESOURCE_ID_ATTR:-default-adminResourceIdAttr}|g" \
          -e "s|GROUP_ATTR_BASE_PLACEHOLDER|${GROUP_ATTR_BASE:-default-group_attr_base}|g" \
          -e "s|USER_ATTR_BASE_PLACEHOLDER|${USER_ATTR_BASE:-default-user_attr_base}|g" \
          -e "s|EMAIL_ATTR_PLACEHOLDER|${EMAIL_ATTR:-default-email_attr}|g" "$file"
