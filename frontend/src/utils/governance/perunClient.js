@@ -2,17 +2,19 @@ import axios from 'axios'
 import { perunApiPaths, getBearerHeaders } from '../../config/apiPaths'
 import { NegotiatorClient } from './negotiatorClient'
 import { PerunGroupsManager, NegotiatorOrganization, NegotiatorResource } from './groupsManager'
-import governanceSettings from '@/config/governanceSettings'
+import governanceSettings from '@/config/governance'
+import { useUserStore } from '@/store/user'
+import { ROLES } from '@/config/consts.js'
 
 export function PerunClient() {
-  const VIRTUAL_ORGANIZATION_ID = governanceSettings.virtual_organization_id
-  const ORGANIZATION_ID_ATTR = governanceSettings.organization_id_attr
-  const RESOURCE_ID_ATTR = governanceSettings.resource_id_attr
-  const ADMIN_ORGANIZATION_ID_ATTR = governanceSettings.admin_organization_id_attr
-  const ADMIN_RESOURCE_ID_ATTR = governanceSettings.admin_resource_id_attr
-  const GROUP_ATTR_DEF = governanceSettings.group_attr_def
-  const USER_ATTR_DEF = governanceSettings.user_attr_def
-  const EMAIL_ATTR_ID = governanceSettings.email_attr_id
+  const VIRTUAL_ORGANIZATION_ID = governanceSettings.virtualOrganizationId
+  const ORGANIZATION_ID_ATTR = governanceSettings.organizationIdAttr
+  const RESOURCE_ID_ATTR = governanceSettings.resourceIdAttr
+  const ADMIN_ORGANIZATION_ID_ATTR = governanceSettings.adminOrganizationIdAttr
+  const ADMIN_RESOURCE_ID_ATTR = governanceSettings.adminResourceIdAttr
+  const GROUP_ATTR_DEF = governanceSettings.groupAttrDef
+  const USER_ATTR_DEF = governanceSettings.userAttrDef
+  const EMAIL_ATTR_ID = governanceSettings.emailAttrId
   const REPRESENTATIVE_ACTIONS = {
     ADD: 'A',
     REMOVE: 'R',
@@ -21,6 +23,15 @@ export function PerunClient() {
   const negotiatorClient = new NegotiatorClient()
 
   const perunGroupsManager = PerunGroupsManager(negotiatorClient)
+
+  const userStore = useUserStore()
+
+  const isManager = () => {
+    return (
+      userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR) ||
+      userStore.userInfo.roles.includes(ROLES.NETWORK_MANAGER)
+    )
+  }
 
   const getUserEmail = (user) => {
     const attribute = user.userAttributes.find((attr) => attr.baseFriendlyName === EMAIL_ATTR_ID)
@@ -199,17 +210,15 @@ export function PerunClient() {
         : perunApiPaths.REMOVE_MEMBER_TO_GROUP
 
     const resourceGroupId = resource.getResourceGroupId()
-    const managerGroupId = resource.getManagerGroupId()
 
-    for (const groupId of [resourceGroupId, managerGroupId]) {
-      const data = {
-        member: parseInt(userId),
-        group: groupId,
-      }
-      await axios.post(url, data, {
-        headers: getBearerHeaders(),
-      })
+    const data = {
+      member: parseInt(userId),
+      group: resourceGroupId,
     }
+    await axios.post(url, data, {
+      headers: getBearerHeaders(),
+    })
+
     return { data: null }
   }
 
@@ -226,6 +235,7 @@ export function PerunClient() {
   }
 
   return {
+    isManager,
     getAllOrganizations,
     retrieveOrganizationsPaginated,
     getOrganizationById,

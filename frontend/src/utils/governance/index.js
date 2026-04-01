@@ -1,4 +1,4 @@
-import governanceSettings from '@/config/governanceSettings'
+import governanceSettings from '@/config/governance'
 import { NegotiatorClient } from './negotiatorClient'
 import { PerunClient } from './perunClient'
 
