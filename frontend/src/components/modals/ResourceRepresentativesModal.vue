@@ -263,7 +263,7 @@ const searchUsers = async () => {
         email: representativesFilterData.value.email,
       }
 
-      const result = await adminStore.retrieveUsers(0, 20, filtersSortData)
+      const result = await adminStore.retrieveUsers(filtersSortData, 0, 20)
       searchResults.value = result.users || []
     } catch {
       notifications.setNotification('Error searching users')

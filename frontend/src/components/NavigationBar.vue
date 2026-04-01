@@ -197,7 +197,6 @@ const isAdmin = computed(() => {
   return roles.value.includes(ROLES.ADMINISTRATOR)
 })
 const isGovernanceManager = computed(() => {
-  console.log(governanceClient.isManager())
   return governanceClient.isManager()
 })
 const isResearcher = computed(() => {
