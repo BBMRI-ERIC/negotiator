@@ -1,7 +1,15 @@
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../../config/apiPaths'
+import { useUserStore } from '@/store/user'
+import { ROLES } from '@/config/consts.js'
 
 export function NegotiatorClient() {
+  const userStore = useUserStore()
+
+  const isManager = () => {
+    return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
+  }
+
   const getAllOrganizations = async (filters = null) => {
     const params = filters ? new URLSearchParams(filters).toString() : ''
     const url = params
@@ -72,7 +80,7 @@ export function NegotiatorClient() {
     })
   }
 
-  const getRepresentedResources = (userId, page = 0, size = 20, filters = {}) => {
+  const getRepresentedResources = (userId, filters = {}) => {
     let url = `${apiPaths.BASE_API_PATH}/users/${userId}/organizations?expand=resources`
 
     if (filters.name && filters.name.trim()) {
@@ -111,6 +119,7 @@ export function NegotiatorClient() {
   }
 
   return {
+    isManager,
     getAllOrganizations,
     getOrganizationById,
     retrieveOrganizationsPaginated,

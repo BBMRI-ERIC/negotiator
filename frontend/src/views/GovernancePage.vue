@@ -47,7 +47,7 @@
           role="tabpanel"
           aria-labelledby="organizations-tab"
         >
-          <OrganizationsSection :is-admin="isAdmin" :is-network-manager="isNetworkManager"/>
+          <OrganizationsSection :is-admin="isManager" />
         </div>
 
         <!-- Networks Tab -->
@@ -83,18 +83,20 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user.js'
 import OrganizationsSection from '@/components/governance/OrganizationsSection.vue'
 import { ROLES } from '@/config/consts.js'
+import { getGovernanceClient } from '@/utils/governance'
 
 const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
+const governanceClient = getGovernanceClient()
+
+const isManager = computed(() => {
+  return governanceClient.isManager()
+})
 
 const isAdmin = computed(() => {
   return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
 })
-
-const isNetworkManager = computed(() => {
-  return userStore.userInfo.roles.includes(ROLES.NETWORK_MANAGER)
-}) 
 
 const activeTab = ref('organizations')
 

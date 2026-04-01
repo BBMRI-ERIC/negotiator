@@ -1,9 +1,9 @@
-import governanceSettings from '@/config/governanceSettings'
+import governanceSettings from '@/config/governance'
 import { ref } from 'vue'
 
-const ORGANIZATION_ID_ATTR = governanceSettings.organization_id_attr
-const RESOURCE_ID_ATTR = governanceSettings.resource_id_attr
-const ADMIN_RESOURCE_ID_ATTR = governanceSettings.admin_resource_id_attr
+const ORGANIZATION_ID_ATTR = governanceSettings.organizationIdAttr
+const RESOURCE_ID_ATTR = governanceSettings.resourceIdAttr
+const ADMIN_RESOURCE_ID_ATTR = governanceSettings.adminResourceIdAttr
 
 const isValueForAttributeNotEmpty = (group, attributeName) => {
   return getValueForAttribute(group, attributeName) != null
