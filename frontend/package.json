@@ -59,7 +59,7 @@
     "eslint": "^10.1.0",
     "eslint-plugin-cypress": "^5.2.0",
     "eslint-plugin-vue": "^10.8.0",
-    "prettier": "^3.7.3",
+    "prettier": "^3.8.1",
     "sass": "1.97.1",
     "vite": "^6.4.1",
     "vue-eslint-parser": "^10.4.0"
