@@ -58,7 +58,7 @@ export default defineConfig({
             provider: 'local'
         },
         editLink: {
-            pattern: 'https://github.com/bbmri-eric/negotiator/edit/main/docs/:path',
+            pattern: 'https://github.com/bbmri-eric/negotiator/edit/master/docs/:path',
             text: 'Edit this page on GitHub'
         },
         sidebar: [
