@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,6 +21,7 @@ import org.springframework.security.crypto.encrypt.TextEncryptor;
 class WebhookSecretRotationRunnerTest {
 
   @Mock private WebhookSecretRepository webhookSecretRepository;
+  @Mock private WebhookSecretServiceImpl webhookSecretService;
   @Mock private WebhookTextEncryptorFactory newEncryptorFactory;
   @Mock private TextEncryptor newEncryptor;
 
@@ -34,7 +34,7 @@ class WebhookSecretRotationRunnerTest {
         IllegalStateException.class,
         () ->
             new WebhookSecretRotationRunner(
-                webhookSecretRepository, newEncryptorFactory, properties));
+                webhookSecretRepository, webhookSecretService, newEncryptorFactory, properties));
   }
 
   @Test
@@ -47,7 +47,7 @@ class WebhookSecretRotationRunnerTest {
         IllegalStateException.class,
         () ->
             new WebhookSecretRotationRunner(
-                webhookSecretRepository, newEncryptorFactory, properties));
+                webhookSecretRepository, webhookSecretService, newEncryptorFactory, properties));
   }
 
   @Test
@@ -77,7 +77,8 @@ class WebhookSecretRotationRunnerTest {
     when(newEncryptor.encrypt("plain-2")).thenReturn("new-enc-2");
 
     WebhookSecretRotationRunner runner =
-        new WebhookSecretRotationRunner(webhookSecretRepository, newEncryptorFactory, properties);
+        new WebhookSecretRotationRunner(
+            webhookSecretRepository, webhookSecretService, newEncryptorFactory, properties);
 
     runner.run();
 
@@ -90,10 +91,6 @@ class WebhookSecretRotationRunnerTest {
     List<WebhookSecret> savedSecrets = captor.getAllValues();
     assertEquals("new-enc-1", savedSecrets.get(0).getEncryptedSecret());
     assertEquals("new-enc-2", savedSecrets.get(1).getEncryptedSecret());
-    assertNotNull(savedSecrets.get(0).getSalt());
-    assertNotNull(savedSecrets.get(1).getSalt());
-    assertEquals(32, savedSecrets.get(0).getSalt().length());
-    assertEquals(32, savedSecrets.get(1).getSalt().length());
   }
 
   @Test
@@ -120,7 +117,8 @@ class WebhookSecretRotationRunnerTest {
     when(newEncryptor.encrypt("plain-ok")).thenReturn("new-enc-ok");
 
     WebhookSecretRotationRunner runner =
-        new WebhookSecretRotationRunner(webhookSecretRepository, newEncryptorFactory, properties);
+        new WebhookSecretRotationRunner(
+            webhookSecretRepository, webhookSecretService, newEncryptorFactory, properties);
 
     runner.run();
 

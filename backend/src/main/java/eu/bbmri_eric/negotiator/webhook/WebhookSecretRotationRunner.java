@@ -57,7 +57,7 @@ public class WebhookSecretRotationRunner implements CommandLineRunner {
         webhookSecretRepository.save(secret);
         rotated++;
       } catch (Exception e) {
-        log.error("Failed to rotate secret %d: %s".formatted(secret.getId(), e.getMessage()));
+        log.error("Failed to rotate secret %s: %s".formatted(secret.getId(), e.getMessage()));
       }
     }
     log.info("Secret rotation complete. Rotated %d/%d secrets".formatted(rotated, secrets.size()));
