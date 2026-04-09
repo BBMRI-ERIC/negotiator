@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-class WebhookSecretServiceImpl implements WebhookSecretService {
+public class WebhookSecretServiceImpl implements WebhookSecretService {
 
   private static final int SALT_LENGTH_BYTES = 16;
   private static final int MIN_SECRET_BYTES = 24;
