@@ -20,6 +20,17 @@ public enum WebhookEventType {
     return value;
   }
 
+  public static WebhookEventType fromValue(String value) {
+    for (WebhookEventType eventType : values()) {
+      if (eventType.value.equals(value)) {
+        return eventType;
+      }
+    }
+
+    throw new IllegalArgumentException(
+        "Unknown %s: %s".formatted(WebhookEventType.class.getName(), value));
+  }
+
   @Override
   public String toString() {
     return value;
