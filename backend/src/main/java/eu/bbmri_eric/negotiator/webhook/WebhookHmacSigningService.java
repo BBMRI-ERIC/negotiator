@@ -11,10 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-class WebhookHmacSigningService {
+class WebhookHmacSigningService implements WebhookSigningService {
 
   private static final String SECRET_PREFIX = "whsec_";
-  private static final String SIGNATURE_PREFIX = "v1,";
   private static final String HMAC_SHA_256 = "HmacSHA256";
 
   private final WebhookSecretService webhookSecretService;
@@ -23,7 +22,8 @@ class WebhookHmacSigningService {
     this.webhookSecretService = webhookSecretService;
   }
 
-  Optional<String> createSignature(
+  @Override
+  public Optional<WebhookSignature> createSignature(
       String webhookId, long webhookTimestamp, String payload, String secretId) {
     if (secretId == null) {
       return Optional.empty();
@@ -38,7 +38,7 @@ class WebhookHmacSigningService {
       mac.init(new SecretKeySpec(secretBytes, HMAC_SHA_256));
       byte[] digest = mac.doFinal(signedContent.getBytes(StandardCharsets.UTF_8));
       String encodedDigest = Base64.getEncoder().encodeToString(digest);
-      return Optional.of(SIGNATURE_PREFIX + encodedDigest);
+      return Optional.of(WebhookSignature.hmacSha256(encodedDigest));
     } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
       throw new IllegalStateException("Could not create webhook signature", ex);
     }

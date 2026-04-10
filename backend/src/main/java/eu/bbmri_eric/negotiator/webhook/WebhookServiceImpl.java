@@ -40,7 +40,7 @@ public class WebhookServiceImpl implements WebhookService {
   private final ObjectMapper objectMapper;
   private final WebhookDeliveryPersister webhookDeliveryPersister;
   private final WebhookSecretService webhookSecretService;
-  private final WebhookHmacSigningService webhookHmacSigningService;
+  private final WebhookSigningService webhookSigningService;
   private final RestTemplate secureRestTemplate;
   private final RestTemplate insecureRestTemplate;
 
@@ -51,7 +51,7 @@ public class WebhookServiceImpl implements WebhookService {
       ObjectMapper objectMapper,
       WebhookDeliveryPersister webhookDeliveryPersister,
       WebhookSecretService webhookSecretService,
-      WebhookHmacSigningService webhookHmacSigningService,
+      WebhookSigningService webhookSigningService,
       @Qualifier("secureWebhookRestTemplate") RestTemplate secureRestTemplate,
       @Qualifier("insecureWebhookRestTemplate") RestTemplate insecureRestTemplate) {
     this.webhookRepository = webhookRepository;
@@ -60,7 +60,7 @@ public class WebhookServiceImpl implements WebhookService {
     this.objectMapper = objectMapper;
     this.webhookDeliveryPersister = webhookDeliveryPersister;
     this.webhookSecretService = webhookSecretService;
-    this.webhookHmacSigningService = webhookHmacSigningService;
+    this.webhookSigningService = webhookSigningService;
     this.secureRestTemplate = secureRestTemplate;
     this.insecureRestTemplate = insecureRestTemplate;
   }
@@ -264,9 +264,9 @@ public class WebhookServiceImpl implements WebhookService {
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.add(WebhookHeaders.WEBHOOK_ID, webhookMessageId);
     headers.add(WebhookHeaders.TIMESTAMP, String.valueOf(webhookTimestamp));
-    webhookHmacSigningService
+    webhookSigningService
         .createSignature(webhookMessageId, webhookTimestamp, jsonPayload, webhook.getSecretId())
-        .ifPresent(signature -> headers.add(WebhookHeaders.SIGNATURE, signature));
+        .ifPresent(signature -> headers.add(WebhookHeaders.SIGNATURE, signature.toString()));
 
     return new HttpEntity<>(jsonPayload, headers);
   }

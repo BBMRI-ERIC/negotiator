@@ -45,8 +45,9 @@ class WebhookHmacSigningServiceTest {
         signingService.createSignature("msg_123", 1700000000L, "{\"k\":\"v\"}", "secret-id");
 
     assertTrue(signature.isPresent());
-    assertTrue(signature.get().startsWith("v1,"));
-    assertFalse(signature.get().substring(3).isBlank());
+    assertEquals("v1", signature.get().version().toString());
+    assertFalse(signature.get().digest().isBlank());
+    assertTrue(signature.get().toString().startsWith("v1,"));
     verify(webhookSecretService).decryptSecret("secret-id");
   }
 
@@ -55,11 +56,11 @@ class WebhookHmacSigningServiceTest {
     when(webhookSecretService.decryptSecret("secret-id"))
         .thenReturn(new DecryptedWebhookSecret("secret-id", webhookSecretForBytes(32)));
 
-    String first =
+    WebhookSignature first =
         signingService
             .createSignature("msg_123", 1700000000L, "{\"k\":\"v\"}", "secret-id")
             .orElseThrow();
-    String second =
+    WebhookSignature second =
         signingService
             .createSignature("msg_123", 1700000000L, "{\"k\":\"v\"}", "secret-id")
             .orElseThrow();
@@ -72,11 +73,11 @@ class WebhookHmacSigningServiceTest {
     when(webhookSecretService.decryptSecret("secret-id"))
         .thenReturn(new DecryptedWebhookSecret("secret-id", webhookSecretForBytes(32)));
 
-    String first =
+    WebhookSignature first =
         signingService
             .createSignature("msg_123", 1700000000L, "{\"k\":\"v\"}", "secret-id")
             .orElseThrow();
-    String second =
+    WebhookSignature second =
         signingService
             .createSignature("msg_123", 1700000000L, "{\"k\":\"other\"}", "secret-id")
             .orElseThrow();
