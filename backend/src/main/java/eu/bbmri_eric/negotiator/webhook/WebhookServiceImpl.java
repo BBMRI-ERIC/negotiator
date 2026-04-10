@@ -9,8 +9,8 @@ import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookPayloadEnvelope;
 import java.net.SocketTimeoutException;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 import javax.net.ssl.SSLException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +40,7 @@ public class WebhookServiceImpl implements WebhookService {
   private final ObjectMapper objectMapper;
   private final WebhookDeliveryPersister webhookDeliveryPersister;
   private final WebhookSecretService webhookSecretService;
+  private final WebhookSigningService webhookSigningService;
   private final RestTemplate secureRestTemplate;
   private final RestTemplate insecureRestTemplate;
 
@@ -50,6 +51,7 @@ public class WebhookServiceImpl implements WebhookService {
       ObjectMapper objectMapper,
       WebhookDeliveryPersister webhookDeliveryPersister,
       WebhookSecretService webhookSecretService,
+      WebhookSigningService webhookSigningService,
       @Qualifier("secureWebhookRestTemplate") RestTemplate secureRestTemplate,
       @Qualifier("insecureWebhookRestTemplate") RestTemplate insecureRestTemplate) {
     this.webhookRepository = webhookRepository;
@@ -58,6 +60,7 @@ public class WebhookServiceImpl implements WebhookService {
     this.objectMapper = objectMapper;
     this.webhookDeliveryPersister = webhookDeliveryPersister;
     this.webhookSecretService = webhookSecretService;
+    this.webhookSigningService = webhookSigningService;
     this.secureRestTemplate = secureRestTemplate;
     this.insecureRestTemplate = insecureRestTemplate;
   }
@@ -125,8 +128,6 @@ public class WebhookServiceImpl implements WebhookService {
     RestTemplate restTemplate =
         webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
 
-    Instant timestamp = Instant.from(sourceDelivery.getAt().atZone(ZoneId.systemDefault()));
-
     String rootDeliveryId =
         sourceDelivery.getRedeliveryOfDeliveryId() == null
             ? deliveryId
@@ -137,7 +138,7 @@ public class WebhookServiceImpl implements WebhookService {
         restTemplate,
         webhook,
         sourceDelivery.getEventType(),
-        timestamp,
+        rootDeliveryId,
         rootDeliveryId);
   }
 
@@ -151,7 +152,9 @@ public class WebhookServiceImpl implements WebhookService {
     Webhook webhook = getWebhook(webhookId);
     RestTemplate restTemplate =
         webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-    return deliverWebhook(payloadToDeliver, restTemplate, webhook, eventType, occurredAt, null);
+    String webhookMessageId = UUID.randomUUID().toString();
+    return deliverWebhook(
+        payloadToDeliver, restTemplate, webhook, eventType, null, webhookMessageId);
   }
 
   @Override
@@ -210,11 +213,15 @@ public class WebhookServiceImpl implements WebhookService {
       RestTemplate restTemplate,
       Webhook webhook,
       WebhookEventType eventType,
-      Instant occurredAt,
-      String redeliveryOfDeliveryId) {
+      String redeliveryOfDeliveryId,
+      String webhookMessageId) {
+    String deliveryId =
+        redeliveryOfDeliveryId == null ? webhookMessageId : UUID.randomUUID().toString();
     Delivery delivery;
     try {
-      HttpEntity<String> request = buildHttpEntity(jsonPayload, occurredAt);
+      long webhookTimestamp = Instant.now().getEpochSecond();
+      HttpEntity<String> request =
+          buildHttpEntity(jsonPayload, webhook, webhookMessageId, webhookTimestamp);
       int statusCode = postWebhook(restTemplate, webhook, request);
       delivery = new Delivery(jsonPayload, statusCode, eventType);
     } catch (HttpClientErrorException | HttpServerErrorException ex) {
@@ -225,6 +232,7 @@ public class WebhookServiceImpl implements WebhookService {
     } catch (Exception ex) {
       delivery = new Delivery(jsonPayload, null, parseErrorMessage(ex), eventType);
     }
+    delivery.setId(deliveryId);
     delivery.setRedeliveryOfDeliveryId(redeliveryOfDeliveryId);
     return webhookDeliveryPersister.persist(webhook.getId(), delivery);
   }
@@ -250,11 +258,15 @@ public class WebhookServiceImpl implements WebhookService {
         .value();
   }
 
-  private static @NonNull HttpEntity<String> buildHttpEntity(
-      String jsonPayload, @NonNull Instant occurredAt) {
+  private @NonNull HttpEntity<String> buildHttpEntity(
+      String jsonPayload, Webhook webhook, String webhookMessageId, long webhookTimestamp) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.add(WebhookHeaders.TIMESTAMP, occurredAt.toString());
+    headers.add(WebhookHeaders.WEBHOOK_ID, webhookMessageId);
+    headers.add(WebhookHeaders.TIMESTAMP, String.valueOf(webhookTimestamp));
+    webhookSigningService
+        .createSignature(webhookMessageId, webhookTimestamp, jsonPayload, webhook.getSecretId())
+        .ifPresent(signature -> headers.add(WebhookHeaders.SIGNATURE, signature.toString()));
 
     return new HttpEntity<>(jsonPayload, headers);
   }

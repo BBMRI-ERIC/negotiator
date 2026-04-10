@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.integration.api;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
@@ -29,6 +30,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
+import eu.bbmri_eric.negotiator.webhook.WebhookHeaders;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import eu.bbmri_eric.negotiator.webhook.WebhookSecretRepository;
 import eu.bbmri_eric.negotiator.webhook.WebhookSecretService;
@@ -323,6 +325,13 @@ public class WebhookControllerTest {
             .withRequestBody(matchingJsonPath("$.type", equalTo("custom")))
             .withRequestBody(matchingJsonPath("$.timestamp"))
             .withRequestBody(matchingJsonPath("$.data.data", equalTo("success"))));
+
+    var requests = findAll(postRequestedFor(urlEqualTo("/test-endpoint")));
+    assertEquals(1, requests.size());
+    var request = requests.get(0);
+    assertTrue(request.containsHeader(WebhookHeaders.WEBHOOK_ID));
+    assertTrue(request.getHeader(WebhookHeaders.TIMESTAMP).matches("\\d+"));
+    assertFalse(request.containsHeader(WebhookHeaders.SIGNATURE));
   }
 
   @Test

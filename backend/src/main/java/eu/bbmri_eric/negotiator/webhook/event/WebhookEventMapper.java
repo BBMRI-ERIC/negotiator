@@ -93,7 +93,7 @@ public class WebhookEventMapper {
         ApplicationEvent sourceEvent, ObjectMapper mapper) {
       S event = sourceType.cast(sourceEvent);
       T data = mapper.convertValue(event, dataType);
-      return WebhookPayloadEnvelope.from(
+      return new WebhookPayloadEnvelope<>(
           eventType, Instant.ofEpochMilli(event.getTimestamp()), data);
     }
   }

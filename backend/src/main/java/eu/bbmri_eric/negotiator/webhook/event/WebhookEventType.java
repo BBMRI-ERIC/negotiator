@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
@@ -16,19 +17,9 @@ public enum WebhookEventType {
 
   private final String value;
 
+  @JsonValue
   public String value() {
     return value;
-  }
-
-  public static WebhookEventType fromValue(String value) {
-    for (WebhookEventType eventType : values()) {
-      if (eventType.value.equals(value)) {
-        return eventType;
-      }
-    }
-
-    throw new IllegalArgumentException(
-        "Unknown %s: %s".formatted(WebhookEventType.class.getName(), value));
   }
 
   @Override

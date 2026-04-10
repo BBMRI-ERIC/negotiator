@@ -56,7 +56,7 @@ class WebhookEventListener {
     List<Long> webhookIds = webhookService.getActiveWebhookIds();
     for (Long webhookId : webhookIds) {
       webhookDeliveryDispatcher.scheduleDelivery(
-          webhookId, payload, payloadEnvelope.eventType(), payloadEnvelope.timestamp());
+          webhookId, payload, payloadEnvelope.type(), payloadEnvelope.timestamp());
     }
   }
 

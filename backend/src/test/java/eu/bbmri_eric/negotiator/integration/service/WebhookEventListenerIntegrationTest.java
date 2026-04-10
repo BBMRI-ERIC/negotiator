@@ -7,6 +7,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -328,6 +331,33 @@ class WebhookEventListenerIntegrationTest {
                       .withRequestBody(
                           matchingJsonPath("$.data.negotiationId", equalTo("negotiation-3"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/info-inactive")));
+            });
+  }
+
+  @Test
+  void publishInformationSubmissionEvent_withoutSecret_addsStandardHeadersAndOmitsSignature() {
+    String baseUrl = wireMockServer.getRuntimeInfo().getHttpBaseUrl();
+    createWebhook(baseUrl + "/header-check", true);
+    wireMockServer.stubFor(post(urlEqualTo("/header-check")));
+
+    eventPublisher.publishEvent(new InformationSubmissionEvent(this, "negotiation-headers"));
+
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              wireMockServer.verify(1, postRequestedFor(urlEqualTo("/header-check")));
+
+              var serveEvents =
+                  wireMockServer.getAllServeEvents().stream()
+                      .filter(event -> event.getRequest().getUrl().equals("/header-check"))
+                      .toList();
+
+              assertEquals(1, serveEvents.size());
+              var request = serveEvents.get(0).getRequest();
+              assertTrue(request.containsHeader(WebhookHeaders.WEBHOOK_ID));
+              assertTrue(request.getHeader(WebhookHeaders.TIMESTAMP).matches("\\d+"));
+              assertFalse(request.containsHeader(WebhookHeaders.SIGNATURE));
             });
   }
 

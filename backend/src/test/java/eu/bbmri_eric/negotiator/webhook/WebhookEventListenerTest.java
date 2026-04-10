@@ -56,7 +56,7 @@ class WebhookEventListenerTest {
       throws JsonProcessingException {
     InformationSubmissionEvent event = new InformationSubmissionEvent(this, "negotiation-1");
     WebhookPayloadEnvelope<Map<String, String>> envelope =
-        WebhookPayloadEnvelope.from(
+        new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_INFO_UPDATED,
             Instant.parse("2026-01-01T00:00:00Z"),
             Map.of("negotiationId", "negotiation-1"));
@@ -74,7 +74,7 @@ class WebhookEventListenerTest {
       throws JsonProcessingException {
     InformationSubmissionEvent event = new InformationSubmissionEvent(this, "negotiation-1");
     WebhookPayloadEnvelope<Map<String, String>> envelope =
-        WebhookPayloadEnvelope.from(
+        new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_INFO_UPDATED,
             Instant.parse("2026-01-01T00:00:00Z"),
             Map.of("negotiationId", "negotiation-1"));
@@ -104,7 +104,7 @@ class WebhookEventListenerTest {
   void onWebhookEvent_whenNoActiveWebhooks_schedulesNoDeliveries() throws JsonProcessingException {
     InformationSubmissionEvent event = new InformationSubmissionEvent(this, "negotiation-1");
     WebhookPayloadEnvelope<Map<String, String>> envelope =
-        WebhookPayloadEnvelope.from(
+        new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_INFO_UPDATED,
             Instant.parse("2026-01-01T00:00:00Z"),
             Map.of("negotiationId", "negotiation-1"));
