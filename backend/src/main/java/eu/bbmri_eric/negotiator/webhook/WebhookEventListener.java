@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.webhook;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri_eric.negotiator.webhook.event.WebhookEventEnvelope;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventMapper;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookPayloadEnvelope;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationEvent;
@@ -48,15 +48,15 @@ class WebhookEventListener {
     webhookEventMapper.map(event).ifPresent(this::dispatch);
   }
 
-  private void dispatch(WebhookEventEnvelope<?> eventEnvelope) {
-    String payload = serializePayload(eventEnvelope.data());
+  private void dispatch(WebhookPayloadEnvelope<?> payloadEnvelope) {
+    String payload = serializePayload(payloadEnvelope);
     if (payload == null) {
       return;
     }
     List<Long> webhookIds = webhookService.getActiveWebhookIds();
     for (Long webhookId : webhookIds) {
       webhookDeliveryDispatcher.scheduleDelivery(
-          webhookId, payload, eventEnvelope.eventType(), eventEnvelope.occurredAt());
+          webhookId, payload, payloadEnvelope.eventType(), payloadEnvelope.timestamp());
     }
   }
 
