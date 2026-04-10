@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.integration.api;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -320,7 +320,9 @@ public class WebhookControllerTest {
     verify(
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(equalToJson(payload)));
+            .withRequestBody(matchingJsonPath("$.type", equalTo("custom")))
+            .withRequestBody(matchingJsonPath("$.timestamp"))
+            .withRequestBody(matchingJsonPath("$.data.data", equalTo("success"))));
   }
 
   @Test
@@ -373,7 +375,9 @@ public class WebhookControllerTest {
         2,
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(equalToJson(payload)));
+            .withRequestBody(matchingJsonPath("$.type", equalTo("custom")))
+            .withRequestBody(matchingJsonPath("$.timestamp"))
+            .withRequestBody(matchingJsonPath("$.data.data", equalTo("redelivery"))));
   }
 
   @Test
@@ -502,7 +506,9 @@ public class WebhookControllerTest {
         3,
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(equalToJson(payload)));
+            .withRequestBody(matchingJsonPath("$.type", equalTo("custom")))
+            .withRequestBody(matchingJsonPath("$.timestamp"))
+            .withRequestBody(matchingJsonPath("$.data.data", equalTo("redelivery"))));
   }
 
   @Test
@@ -837,7 +843,7 @@ public class WebhookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.detail", is("Secret must start with whsec_.")));
+        .andExpect(jsonPath("$.detail", is("Secret must start with whsec_")));
 
     assertEquals(0L, webhookRepository.count());
     assertEquals(0L, webhookSecretRepository.count());
@@ -885,7 +891,7 @@ public class WebhookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.detail", is("Secret must start with whsec_.")));
+        .andExpect(jsonPath("$.detail", is("Secret must not be blank")));
 
     assertEquals(0L, webhookRepository.count());
     assertEquals(0L, webhookSecretRepository.count());
@@ -935,7 +941,7 @@ public class WebhookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatePayload))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.detail", is("Secret must start with whsec_.")));
+        .andExpect(jsonPath("$.detail", is("Secret must start with whsec_")));
 
     Webhook reloaded = webhookRepository.findById(webhookId).orElseThrow();
     assertEquals(firstSecretId, reloaded.getSecretId());
