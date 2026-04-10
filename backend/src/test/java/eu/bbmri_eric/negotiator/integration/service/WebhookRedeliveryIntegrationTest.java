@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.integration.service;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -72,6 +72,8 @@ public class WebhookRedeliveryIntegrationTest {
         3,
         postRequestedFor(urlEqualTo("/redeliver-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(equalToJson(payload)));
+            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.CUSTOM.value())))
+            .withRequestBody(matchingJsonPath("$.timestamp"))
+            .withRequestBody(matchingJsonPath("$.data.data", equalTo("redelivery"))));
   }
 }

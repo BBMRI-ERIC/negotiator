@@ -73,7 +73,7 @@ public class WebhookEventMapper {
    * @param event the application event to map
    * @return an envelope when the event type is supported, otherwise an empty optional
    */
-  public Optional<WebhookEventEnvelope<?>> map(ApplicationEvent event) {
+  public Optional<WebhookPayloadEnvelope<?>> map(ApplicationEvent event) {
     WebhookEventDefinition<?, ?> eventDefinition = eventDefinitions.get(event.getClass());
     if (eventDefinition == null) {
       return Optional.empty();
@@ -89,10 +89,11 @@ public class WebhookEventMapper {
       return new WebhookEventDefinition<>(sourceType, dataType, eventType);
     }
 
-    private WebhookEventEnvelope<T> toEnvelope(ApplicationEvent sourceEvent, ObjectMapper mapper) {
+    private WebhookPayloadEnvelope<T> toEnvelope(
+        ApplicationEvent sourceEvent, ObjectMapper mapper) {
       S event = sourceType.cast(sourceEvent);
       T data = mapper.convertValue(event, dataType);
-      return new WebhookEventEnvelope<>(
+      return WebhookPayloadEnvelope.from(
           eventType, Instant.ofEpochMilli(event.getTimestamp()), data);
     }
   }

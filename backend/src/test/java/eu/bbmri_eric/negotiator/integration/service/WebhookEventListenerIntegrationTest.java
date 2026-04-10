@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -85,22 +85,28 @@ class WebhookEventListenerIntegrationTest {
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/negotiation-one"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_STATE_UPDATED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-1\""))
-                      .withRequestBody(containing("\"fromState\":\"DRAFT\""))
-                      .withRequestBody(containing("\"toState\":\"SUBMITTED\""))
-                      .withRequestBody(containing("\"event\":\"SUBMIT\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type",
+                              equalTo(WebhookEventType.NEGOTIATION_STATE_UPDATED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1")))
+                      .withRequestBody(matchingJsonPath("$.data.fromState", equalTo("DRAFT")))
+                      .withRequestBody(matchingJsonPath("$.data.toState", equalTo("SUBMITTED")))
+                      .withRequestBody(matchingJsonPath("$.data.event", equalTo("SUBMIT"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/negotiation-two"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_STATE_UPDATED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-1\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type",
+                              equalTo(WebhookEventType.NEGOTIATION_STATE_UPDATED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/negotiation-inactive")));
             });
   }
@@ -131,23 +137,31 @@ class WebhookEventListenerIntegrationTest {
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/resource-one"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-2\""))
-                      .withRequestBody(containing("\"resourceId\":\"resource-1\""))
-                      .withRequestBody(containing("\"fromState\":\"SUBMITTED\""))
-                      .withRequestBody(containing("\"toState\":\"RESOURCE_AVAILABLE\""))
-                      .withRequestBody(containing("\"event\":\"MARK_AS_AVAILABLE\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type",
+                              equalTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-2")))
+                      .withRequestBody(matchingJsonPath("$.data.resourceId", equalTo("resource-1")))
+                      .withRequestBody(matchingJsonPath("$.data.fromState", equalTo("SUBMITTED")))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.toState", equalTo("RESOURCE_AVAILABLE")))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.event", equalTo("MARK_AS_AVAILABLE"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/resource-two"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"resourceId\":\"resource-1\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type",
+                              equalTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.resourceId", equalTo("resource-1"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/resource-inactive")));
             });
   }
@@ -171,22 +185,26 @@ class WebhookEventListenerIntegrationTest {
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/post-one"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_POST_ADDED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"postId\":\"post-1\""))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-1\""))
-                      .withRequestBody(containing("\"userId\":10000"))
-                      .withRequestBody(containing("\"organizationId\":20000")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_POST_ADDED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(matchingJsonPath("$.data.postId", equalTo("post-1")))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1")))
+                      .withRequestBody(matchingJsonPath("$.data.userId", equalTo("10000")))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.organizationId", equalTo("20000"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/post-two"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_POST_ADDED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"postId\":\"post-1\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_POST_ADDED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(matchingJsonPath("$.data.postId", equalTo("post-1"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/post-inactive")));
             });
   }
@@ -210,19 +228,23 @@ class WebhookEventListenerIntegrationTest {
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/new-negotiation-one"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_ADDED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-4\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_ADDED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-4"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/new-negotiation-two"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_ADDED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-4\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_ADDED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-4"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/new-negotiation-inactive")));
             });
   }
@@ -246,19 +268,25 @@ class WebhookEventListenerIntegrationTest {
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/resource-added-one"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-6\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type",
+                              equalTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-6"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/resource-added-two"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-6\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type",
+                              equalTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-6"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/resource-added-inactive")));
             });
   }
@@ -282,19 +310,23 @@ class WebhookEventListenerIntegrationTest {
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/info-one"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_INFO_UPDATED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-3\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_INFO_UPDATED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-3"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/info-two"))
-                      .withHeader(
-                          WebhookHeaders.EVENT_TYPE,
-                          equalTo(WebhookEventType.NEGOTIATION_INFO_UPDATED.value()))
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
-                      .withRequestBody(containing("\"negotiationId\":\"negotiation-3\"")));
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_INFO_UPDATED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-3"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/info-inactive")));
             });
   }
