@@ -78,7 +78,7 @@ We've updated various components to their latest versions for improved security 
 - core-js 3.47.0 → 3.48.0
 - Multiple security patches across npm and GitHub Actions dependencies
 
-*Thank you to all contributors who made this release possible: [@dependabot](https://github.com/dependabot), [@tmilost](https://github.com/tmilost), [@stetsche](https://github.com/stetsche), [@RadovanTomik](https://github.com/RadovanTomik), [@ChrisiSailer](https://github.com/ChrisiSailer), [@konradlang](https://github.com/konradlang)!*
+*Thank you to all contributors who made this release possible: [@tmilost](https://github.com/tmilost), [@stetsche](https://github.com/stetsche), [@RadovanTomik](https://github.com/RadovanTomik), [@ChrisiSailer](https://github.com/ChrisiSailer), [@konradlang](https://github.com/konradlang)!*
 
 **License:** GNU Affero General Public License v3.0  
 **Developed by:** [BBMRI-ERIC](https://bbmri-eric.eu)
