@@ -131,15 +131,7 @@ export function PerunClient() {
   }
 
   const getRepresentedResources = async (userId, page, size, filters = {}) => {
-    const organizations = await retrieveOrganizationsPaginated(page, size, filters)
-    await Promise.all(
-      organizations.data._embedded.organizations.map(async (organization) => {
-        organization.resources = (
-          await getOrganizationById(organization.id)
-        ).data._embedded.resources
-      }),
-    )
-    return organizations
+    return negotiatorClient.getRepresentedResources(userId, page, size, filters)
   }
 
   const retrieveUsers = async (filtersSortData, page = 0, size = 10) => {
