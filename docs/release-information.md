@@ -7,6 +7,8 @@
 
 ### Merge Drafted Requests
 
+![Merge Drafted Requests](/public/v3.21.0-merge_drafted_requests.gif)
+
 You can now **merge drafted negotiation requests** into existing negotiations. This allows you to combine related access requests, reducing duplication and streamlining your workflow. Draft negotiations also feature:
 
 - **Auto redirect to edit mode** when opening draft negotiations
@@ -14,13 +16,15 @@ You can now **merge drafted negotiation requests** into existing negotiations. T
 - **Draft deletion** support
 - Visibility controls for adding resources based on creation date
 
+### Discovery Services for Additional Resources
+
+![Available Discovery Services](/public/v3.21.0-available_discovery_services.gif)
+
+A new feature lists **available discovery services** when adding additional resources to a negotiation, making it easier to find and include the right resources from connected services.
+
 ### Privacy and Access Policy Configuration
 
 Administrators can now configure **Privacy Policy** and **Access Policy** links directly from the backend. These settings are stored in the database with a dedicated migration, providing a centralized way to manage legal and compliance links displayed to users.
-
-### Discovery Services for Additional Resources
-
-A new feature lists **available discovery services** when adding additional resources to a negotiation, making it easier to find and include the right resources from connected services.
 
 ## User Interface Improvements
 
