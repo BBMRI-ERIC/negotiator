@@ -190,7 +190,6 @@ const handleRepresentativesUpdated = (eventData) => {
       const organizationId = organizationsList.value.find((org) =>
         organizationResources.value[org.id]?.some((r) => r.id === resourceId),
       )?.id
-
       if (organizationId) {
         reloadResourcesForOrganization(organizationId)
       }

@@ -175,9 +175,9 @@ const fetchUsers = async () => {
 
   try {
     const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
+      data,
       currentPage.value - 1,
       pageSize.value,
-      data,
     )
     users.value = usersData || []
     totalUsers.value = totalCount || 0
