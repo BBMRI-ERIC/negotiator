@@ -1,3 +1,86 @@
+# Negotiator v3.21.0
+
+**Release Date:** April 2026  
+**Full Changelog:** [v3.20.0...v3.21.0](https://github.com/BBMRI-ERIC/negotiator/compare/v3.20.0...v3.21.0)
+
+## What's New
+
+### Merge Drafted Requests
+
+You can now **merge drafted negotiation requests** into existing negotiations. This allows you to combine related access requests, reducing duplication and streamlining your workflow. Draft negotiations also feature:
+
+- **Auto redirect to edit mode** when opening draft negotiations
+- **Resource removal** from draft negotiations
+- **Draft deletion** support
+- Visibility controls for adding resources based on creation date
+
+### Privacy and Access Policy Configuration
+
+Administrators can now configure **Privacy Policy** and **Access Policy** links directly from the backend. These settings are stored in the database with a dedicated migration, providing a centralized way to manage legal and compliance links displayed to users.
+
+### Discovery Services for Additional Resources
+
+A new feature lists **available discovery services** when adding additional resources to a negotiation, making it easier to find and include the right resources from connected services.
+
+## User Interface Improvements
+
+- Small UI style improvements across the platform
+- Fixed notification badge number sizing for better readability
+- Improved **avatar display**: acronym logic now correctly uses the first initial of the first and last word, and displays only two letters
+- Updated navigation and resource display for clarity and consistency
+- Vue Tour component rewritten from Options API to Composition API for better maintainability
+
+### Webhooks System
+
+A comprehensive **webhooks system** has been introduced, enabling external systems to receive real-time notifications about events in the Negotiator. Key capabilities include:
+
+- **Event-driven notifications**: Automatically trigger webhooks on negotiation state changes and resource events
+- **Structured payloads**: Well-defined data models with consistent event type, timestamp, and state transition fields
+- **Re-delivery support**: Failed webhook deliveries can be retried with a dedicated redeliver button
+- **Improved error handling**: Better handling of delivery failures with detailed status tracking
+- **Simplified management UI**: Cleaner webhook display for easier configuration
+
+## Bug Fixes
+
+- **SSL Verification**: Safer SSL verification bypass for test configurations
+- **Access Forms**: Fixed required and applicable fields; fixed initial load for option-only access forms
+- **Authentication**: Fixed expired access token handling and implemented silent token renewal callbacks
+- **Network Manager**: Fixed permissions for network managers to access negotiations in their network
+- **Login Page**: Fixed spacing and overflow issues
+- **Privacy Policy**: Fixed link migration and defaults; handle empty link configurations gracefully
+- **Notifications**: Fixed notification text and replaced incorrect alert type
+- **Headers**: Safe and robust header naming for legacy browsers
+- **Frontend Build**: Process placeholders for all JS chunk files; convert absolute URLs to relative paths
+
+## For Administrators
+
+### Deployment Updates
+
+- Updated Trivy action version for security scanning
+- Debug mode available in development environment
+- Test certificate error messages for easier SSL troubleshooting
+
+## Dependency Updates
+
+We've updated various components to their latest versions for improved security and performance:
+
+- Vue 3.5.22 → 3.5.27
+- Vue Router 4.5.0 → 5.0.1
+- oidc-client-ts 3.1.0 → 3.4.1
+- @vitejs/plugin-vue 5.2.1 → 6.0.3
+- @eslint/js 9.39.0 → 10.0.1
+- eslint-plugin-vue 9.32.0 → 9.33.0
+- axios 1.13.5 → 1.13.6
+- core-js 3.47.0 → 3.48.0
+- Multiple security patches across npm and GitHub Actions dependencies
+
+*Thank you to all contributors who made this release possible: [@dependabot](https://github.com/dependabot), [@tmilost](https://github.com/tmilost), [@stetsche](https://github.com/stetsche), [@RadovanTomik](https://github.com/RadovanTomik), [@ChrisiSailer](https://github.com/ChrisiSailer), [@konradlang](https://github.com/konradlang)!*
+
+**License:** GNU Affero General Public License v3.0  
+**Developed by:** [BBMRI-ERIC](https://bbmri-eric.eu)
+
+---
+
 # Negotiator v3.20.0
 
 **Release Date:** March 2026  
