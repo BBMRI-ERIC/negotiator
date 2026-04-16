@@ -106,9 +106,10 @@
             <plugin>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <groupId>org.jacoco</groupId>
-                <version>0.8.12</version>
+                <version>0.8.14</version>
                 <configuration>
                     <excludes>
+                        <exclude>io/swagger/v3/oas/annotations/**</exclude>
                         <exclude>eu/bbmri_eric/negotiator/common/**</exclude>
                         <exclude>eu/bbmri_eric/negotiator/NegotiatorApplication.class</exclude>
                     </excludes>
@@ -131,7 +132,7 @@
                             <goal>report</goal>
                         </goals>
                         <id>reportIntegration</id>
-                        <phase>verify</phase>
+                        <phase>test</phase>
                     </execution>
                 </executions>
             </plugin>
