@@ -20,16 +20,15 @@
 
       <div v-if="webhooks.length === 0" class="alert alert-light my-3">No webhooks configured.</div>
 
-      <div v-else class="container mt-4">
-        <WebhookCard
-          v-for="webhook in webhooks"
-          :key="webhook.id"
-          :webhook="webhook"
-          @edit="editWebhook"
-          @delete="deleteWebhook"
-          @test="testWebhook"
-        />
-      </div>
+      <WebhookCard
+        v-else
+        v-for="webhook in webhooks"
+        :key="webhook.id"
+        :webhook="webhook"
+        @edit="editWebhook"
+        @delete="deleteWebhook"
+        @test="testWebhook"
+      />
     </div>
 
     <LoadingIndicator v-else />
