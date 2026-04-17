@@ -220,7 +220,6 @@ const showSecretValidationError = computed(() => {
 })
 
 const decodeBase64KeyMaterial = (encodedKeyMaterial) => {
-
   if (!/^[A-Za-z0-9+/=]+$/.test(encodedKeyMaterial)) {
     throw new Error('Invalid base64 characters')
   }

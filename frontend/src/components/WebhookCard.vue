@@ -4,7 +4,13 @@
       <div class="d-flex align-items-center">
         <i :class="getStatusIcon(webhook)" class="me-3"></i>
         <div>
-          <h5 class="card-title mb-0">{{ webhook.url }}</h5>
+          <button
+            type="button"
+            class="url-link card-title mb-0"
+            @click.stop="$emit('edit', webhook)"
+          >
+            {{ webhook.url }}
+          </button>
         </div>
       </div>
       <div>
@@ -57,6 +63,19 @@ const getStatusIcon = (webhook) => {
 .btn:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+.url-link {
+  background: none;
+  border: 0;
+  color: var(--bs-link-color);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.url-link:hover {
+  color: var(--bs-link-hover-color);
 }
 
 .spin {
