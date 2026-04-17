@@ -3,20 +3,22 @@
     <AdminBreadcrumb :segments="breadcrumbSegments" />
 
     <div v-if="!isLoading" class="specific-area panel panel-default border-">
-      <div class="d-flex justify-content-between align-items-center mb-1">
-        <h1 class="text-left h2 mb-0">Webhooks</h1>
-        <button class="btn btn-success" @click="addWebhook">Add Webhook</button>
-      </div>
-      <div class="text-muted mb-3">
-        Webhooks allow external services to be notified when certain events happen. When the
-        specified events occur, we send a POST request to each URL provided. Learn more in our
-        <a
-          href="https://bbmri-eric.github.io/negotiator/administrator#webhooks"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Webhooks Documentation</a
-        >.
-      </div>
+      <AdminSettingsPageHeader title="Webhooks">
+        <template #actions>
+          <button class="btn btn-success" @click="addWebhook">Add Webhook</button>
+        </template>
+
+        <template #description>
+          Webhooks allow external services to be notified when certain events happen. When the
+          specified events occur, we send a POST request to each URL provided. Learn more in our
+          <a
+            href="https://bbmri-eric.github.io/negotiator/administrator#webhooks"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Webhooks Documentation</a
+          >.
+        </template>
+      </AdminSettingsPageHeader>
 
       <div v-if="webhooks.length === 0" class="alert alert-light my-3">No webhooks configured.</div>
 
@@ -50,6 +52,7 @@ import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/store/admin.js'
 import { useNotificationsStore } from '@/store/notifications.js'
 import AdminBreadcrumb from '@/components/AdminBreadcrumb.vue'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookCard from '@/components/WebhookCard.vue'
