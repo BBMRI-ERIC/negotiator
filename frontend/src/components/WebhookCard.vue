@@ -1,5 +1,5 @@
 <template>
-  <div class="card mb-3">
+  <div class="card">
     <div class="card-body d-flex justify-content-between align-items-center">
       <div class="d-flex align-items-center">
         <i :class="getStatusIcon(webhook)" class="me-3"></i>

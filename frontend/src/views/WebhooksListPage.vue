@@ -20,17 +20,18 @@
         </template>
       </AdminSettingsPageHeader>
 
-      <div v-if="webhooks.length === 0" class="alert alert-light my-3">No webhooks configured.</div>
+      <div v-if="webhooks.length === 0" class="alert alert-light">No webhooks configured.</div>
 
-      <WebhookCard
-        v-else
-        v-for="webhook in webhooks"
-        :key="webhook.id"
-        :webhook="webhook"
-        @edit="editWebhook"
-        @delete="deleteWebhook"
-        @test="testWebhook"
-      />
+      <div v-else class="d-flex flex-column gap-2">
+        <WebhookCard
+          v-for="webhook in webhooks"
+          :key="webhook.id"
+          :webhook="webhook"
+          @edit="editWebhook"
+          @delete="deleteWebhook"
+          @test="testWebhook"
+        />
+      </div>
     </div>
 
     <LoadingIndicator v-else />
