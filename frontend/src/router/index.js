@@ -6,6 +6,9 @@ import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
 import NetworksPage from '../views/NetworksPage.vue'
 import AdminSettingsPage from '../views/AdminSettingsPage.vue'
+import WebhooksListPage from '../views/WebhooksListPage.vue'
+import WebhookCreatePage from '../views/WebhookCreatePage.vue'
+import WebhookDetailPage from '../views/WebhookDetailPage.vue'
 import AdminUiConfigurationPage from '../views/AdminUiConfigurationPage.vue'
 import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
@@ -114,6 +117,28 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: AdminSettingsPage,
+      meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+    },
+    {
+      path: '/settings/webhooks',
+      name: 'webhooks',
+      component: WebhooksListPage,
+      meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+    },
+    {
+      path: '/settings/webhooks/new',
+      name: 'webhooks-create',
+      component: WebhookCreatePage,
+      meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+    },
+    {
+      path: '/settings/webhooks/:webhookId',
+      name: 'webhooks-detail',
+      component: WebhookDetailPage,
+      props: true,
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },
