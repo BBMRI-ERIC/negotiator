@@ -69,10 +69,14 @@
           class="d-flex flex-grow-1 flex-column align-items-center justify-content-start justify-content-lg-between flex-lg-row gap-2"
         >
           <span>
-            This webhook already has a secret configured. If you change it,
-            update all connected systems to keep delivery verification working.
+            This webhook already has a secret configured. If you change it, update all connected
+            systems to keep delivery verification working.
           </span>
-          <button type="button" class="btn btn-outline-primary btn-sm" @click="emitStartSecretChange">
+          <button
+            type="button"
+            class="btn btn-outline-primary btn-sm"
+            @click="emitStartSecretChange"
+          >
             Change secret
           </button>
         </div>

@@ -12,36 +12,13 @@
         @add-requirement="() => {}"
       />
       <hr />
-      <WebhooksSection
-        class="v-step-settings-2"
-        :webhooks="webhooks"
-        @add-webhook="addWebhook"
-        @edit-webhook="editWebhook"
-        @delete-webhook="deleteWebhook"
-        @test-webhook="testWebhook"
-      />
+      <WebhooksSection class="v-step-settings-2" />
       <hr />
       <EmailNotificationsSection class="v-step-settings-3" @view-email="viewEmailDetails" />
       <hr />
       <UserListSection class="v-step-settings-4" />
     </div>
     <LoadingIndicator v-else />
-    <WebhookModal
-      id="webhookmodal"
-      :shown="shown"
-      :webhook="selectedWebhook"
-      @update="handleWebhookUpdate"
-      @create="handleNewWebhook"
-      @redeliver="handleWebhookRedelivery"
-    />
-    <confirmation-modal
-      id="delete-webhookmodal"
-      title="Delete Webhook"
-      text="Are you sure you want to delete this webhook?"
-      :message-enabled="false"
-      @confirm="confirmDeleteWebhook"
-      ref="deleteModal"
-    />
     <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
     <hr />
     <email-template-section class="v-step-settings-5" />
@@ -65,9 +42,6 @@ import EmailNotificationsSection from '@/components/EmailNotificationsSection.vu
 import UserListSection from '@/components/UserListSection.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { Modal } from 'bootstrap'
-import { useNotificationsStore } from '@/store/notifications.js'
-import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
-import WebhookModal from '@/components/modals/WebhookModal.vue'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
@@ -78,16 +52,10 @@ const adminStore = useAdminStore()
 const formsStore = useFormsStore()
 const vueTourStore = useVueTourStore()
 
-const notifications = useNotificationsStore()
-
 const resourceAllEvents = ref({})
 const infoRequirements = ref([])
 const accessForms = ref([])
 const isLoading = ref(true)
-const editModal = ref(undefined)
-const selectedWebhook = ref({})
-const webhooks = ref([])
-const shown = ref(false)
 const selectedEmailId = ref(null)
 
 onMounted(async () => {
@@ -100,8 +68,6 @@ onMounted(async () => {
     resourceAllEvents.value = await adminStore.retrieveResourceAllEvents()
     infoRequirements.value = await adminStore.retrieveInfoRequirements()
     accessForms.value = await formsStore.retrieveAllAccessForms()
-    const freshWebhooks = await adminStore.retrieveWebhooks()
-    webhooks.value = freshWebhooks || []
   } catch (error) {
     console.error('Initialization error:', error)
   } finally {
@@ -113,128 +79,6 @@ onMounted(async () => {
 async function setInfoRequirements(data) {
   await adminStore.setInfoRequirements(data)
   infoRequirements.value = await adminStore.retrieveInfoRequirements()
-}
-
-const addWebhook = () => {
-  selectedWebhook.value = {
-    id: null,
-    url: '',
-    sslVerification: true,
-    active: true,
-    secretId: null,
-    deliveries: [],
-  }
-  editModal.value = new Modal(document.querySelector('#webhookmodal'))
-  shown.value = true
-  editModal.value.show()
-}
-
-const editWebhook = (webhook) => {
-  selectedWebhook.value = webhook
-  editModal.value = new Modal(document.querySelector('#webhookmodal'))
-  shown.value = true
-  editModal.value.show()
-}
-
-const deleteModal = ref(null)
-const webhookToDelete = ref(null)
-
-const deleteWebhook = (webhook) => {
-  webhookToDelete.value = webhook
-  deleteModal.value = new Modal(document.querySelector('#delete-webhookmodal'))
-  deleteModal.value.show()
-}
-
-const confirmDeleteWebhook = async () => {
-  if (!webhookToDelete.value) return
-
-  try {
-    isLoading.value = true
-    await adminStore.deleteWebhook(webhookToDelete.value.id)
-    webhooks.value = (await adminStore.retrieveWebhooks()) || []
-    notifications.setNotification('Webhook deleted successfully')
-  } catch (error) {
-    console.error('Error deleting webhook:', error)
-    notifications.setNotification('Error deleting webhook', 'danger')
-  } finally {
-    isLoading.value = false
-    webhookToDelete.value = null
-  }
-}
-
-const handleWebhookUpdate = async (updatedConfig) => {
-  try {
-    isLoading.value = true
-    await adminStore.updateWebhook(selectedWebhook.value.id, updatedConfig)
-    const freshWebhooks = await adminStore.retrieveWebhooks()
-    webhooks.value = freshWebhooks || []
-  } catch (error) {
-    console.error('Error updating webhook:', error)
-  } finally {
-    isLoading.value = false
-    editModal.value.hide()
-  }
-}
-
-const handleNewWebhook = async (updatedConfig) => {
-  try {
-    isLoading.value = true
-    await adminStore.createWebhook(updatedConfig)
-    const freshWebhooks = await adminStore.retrieveWebhooks()
-    webhooks.value = freshWebhooks || []
-  } catch (error) {
-    console.error('Error creating webhook:', error)
-    notifications.setNotification('Error creating webhook')
-  } finally {
-    isLoading.value = false
-    editModal.value.hide()
-  }
-}
-
-const handleWebhookRedelivery = async ({ webhookId, deliveryId }) => {
-  try {
-    isLoading.value = true
-    await adminStore.redeliverWebhookDelivery(webhookId, deliveryId)
-    selectedWebhook.value = await updateWebhookInList(webhookId)
-    notifications.setNotification('Webhook redelivery completed', 'success')
-  } catch (error) {
-    console.error('Error redelivering webhook delivery:', error)
-    notifications.setNotification('Webhook redelivery failed', 'danger')
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const testWebhook = async (webhook) => {
-  const index = webhooks.value.findIndex((w) => w.id === webhook.id)
-  if (index === -1) return
-
-  webhooks.value[index] = { ...webhooks.value[index], testInProgress: true }
-
-  try {
-    await adminStore.testWebhook(webhook.id)
-    const updatedWebhook = await adminStore.getWebhook(webhook.id)
-    webhooks.value[index] = {
-      ...updatedWebhook,
-      testInProgress: false,
-    }
-  } catch {
-    webhooks.value[index] = {
-      ...webhooks.value[index],
-      testInProgress: false,
-    }
-  }
-}
-
-const updateWebhookInList = async (webhookId) => {
-  const updatedWebhook = await adminStore.getWebhook(webhookId)
-
-  const index = webhooks.value.findIndex((w) => w.id === webhookId)
-  if (index !== -1) {
-    webhooks.value[index] = updatedWebhook
-  }
-
-  return updatedWebhook
 }
 
 const viewEmailDetails = (email) => {
