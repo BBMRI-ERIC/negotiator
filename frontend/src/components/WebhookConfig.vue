@@ -66,7 +66,7 @@
       >
         <i class="bi bi-info-circle"></i>
         <div
-          class="d-flex flex-grow-1 flex-column align-items-center justify-content-start justify-content-lg-between flex-lg-row gap-2"
+          class="d-flex flex-column gap-2 align-items-start"
         >
           <span>
             This webhook already has a secret configured. If you change it, update all connected
@@ -83,7 +83,7 @@
       </div>
 
       <template v-else>
-        <div class="d-flex gap-2 align-items-start">
+        <div class="d-flex flex-column gap-2 align-items-start">
           <input
             :id="secretInputId"
             type="text"
