@@ -1,8 +1,10 @@
 <template>
   <div class="card">
-    <div class="card-body d-flex justify-content-between align-items-center">
-      <div class="d-flex align-items-center">
-        <i :class="getStatusIcon(webhook)" class="me-3"></i>
+    <div
+      class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
+    >
+      <div class="d-flex align-items-center gap-3">
+        <i :class="getStatusIcon(webhook)"></i>
         <div>
           <button
             type="button"
@@ -13,17 +15,15 @@
           </button>
         </div>
       </div>
-      <div>
+      <div class="d-flex gap-2 align-items-center justify-content-end">
         <button
-          class="btn btn-outline-secondary btn-sm me-2"
+          class="btn btn-outline-secondary btn-sm"
           @click.stop="$emit('test', webhook)"
           :disabled="webhook.testInProgress"
         >
           Test
         </button>
-        <button class="btn btn-primary btn-sm me-2" @click.stop="$emit('edit', webhook)">
-          Edit
-        </button>
+        <button class="btn btn-primary btn-sm" @click.stop="$emit('edit', webhook)">Edit</button>
         <button class="btn btn-danger btn-sm" @click.stop="$emit('delete', webhook)">Delete</button>
       </div>
     </div>
