@@ -19,55 +19,15 @@
       </div>
     </div>
     <div class="mb-3">
-      <label class="form-label">SSL Verification</label>
-      <div>
-        <div class="form-check form-check-inline">
-          <input
-            class="form-check-input"
-            type="radio"
-            name="sslVerification"
-            id="sslEnabled"
-            :value="true"
-            v-model="localForm.sslVerification"
-          />
-          <label class="form-check-label" for="sslEnabled"> Enabled </label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input
-            class="form-check-input"
-            type="radio"
-            name="sslVerification"
-            id="sslDisabled"
-            :value="false"
-            v-model="localForm.sslVerification"
-          />
-          <label class="form-check-label" for="sslDisabled"> Disabled </label>
-        </div>
-      </div>
-      <small class="form-text text-warning" v-if="localForm.sslVerification === false">
-        Disabling SSL verification is not recommended.
-      </small>
-    </div>
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="active" v-model="localForm.active" />
-      <label class="form-check-label" for="active">
-        Active - Toggle to enable or disable webhook notifications.
-      </label>
-    </div>
-
-    <div class="mt-4">
       <label class="form-label" :for="showConfiguredSecretBanner ? null : secretInputId">
         Secret
       </label>
 
       <div
         v-if="showConfiguredSecretBanner"
-        class="alert alert-info align-items-center mb-0 d-flex gap-2"
+        class="alert alert-light align-items-center mb-0 d-flex gap-2"
       >
-        <i class="bi bi-info-circle"></i>
-        <div
-          class="d-flex flex-column gap-2 align-items-start"
-        >
+        <div class="d-flex flex-column gap-2 align-items-start">
           <span>
             This webhook already has a secret configured. If you change it, update all connected
             systems to keep delivery verification working.
@@ -107,6 +67,42 @@
           {{ secretValidationMessage }}
         </div>
       </template>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">SSL Verification</label>
+      <div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="sslVerification"
+            id="sslEnabled"
+            :value="true"
+            v-model="localForm.sslVerification"
+          />
+          <label class="form-check-label" for="sslEnabled"> Enabled </label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="sslVerification"
+            id="sslDisabled"
+            :value="false"
+            v-model="localForm.sslVerification"
+          />
+          <label class="form-check-label" for="sslDisabled"> Disabled </label>
+        </div>
+      </div>
+      <small class="form-text text-warning" v-if="localForm.sslVerification === false">
+        Disabling SSL verification is not recommended.
+      </small>
+    </div>
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="active" v-model="localForm.active" />
+      <label class="form-check-label" for="active">
+        Active - Toggle to enable or disable webhook notifications.
+      </label>
     </div>
   </form>
 </template>
