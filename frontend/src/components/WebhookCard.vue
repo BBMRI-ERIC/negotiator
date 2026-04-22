@@ -19,7 +19,7 @@
         <button
           class="btn btn-outline-secondary btn-sm"
           @click.stop="$emit('test', webhook)"
-          :disabled="webhook.testInProgress"
+          :disabled="webhook.testInProgress || !webhook.active"
         >
           Test
         </button>
@@ -43,7 +43,7 @@ const getStatusIcon = (webhook) => {
     return 'bi bi-arrow-repeat spin'
   }
   if (!webhook.active) {
-    return 'bi bi-dash-circle text-secondary'
+    return 'bi bi-slash-circle text-secondary'
   }
   if (webhook.deliveries && webhook.deliveries.length > 0) {
     const latest = webhook.deliveries[0]
