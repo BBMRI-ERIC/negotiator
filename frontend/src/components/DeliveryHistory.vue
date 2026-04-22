@@ -14,7 +14,7 @@
             <DeliveryStatus :delivery="delivery" />
             <DeliveryId :id="delivery.rootId" />
             <DeliveryEvent :event="delivery.content.type" />
-            <small class="ms-auto text-nowrap">{{ formatDate(delivery.at) }}</small>
+            <small class="ms-auto me-2 text-nowrap">{{ formatDate(delivery.at) }}</small>
           </button>
         </div>
 
