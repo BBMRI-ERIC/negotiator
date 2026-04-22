@@ -12,8 +12,8 @@
             :aria-controls="`delivery-history-collapse-${delivery.id}`"
           >
             <DeliveryStatus :delivery="delivery" />
-            <DeliveryId :id="delivery.rootId" />
-            <DeliveryEvent :event="delivery.content.type" />
+            <DeliveryId :id="delivery.rootId" class="selectable" />
+            <DeliveryEvent :event="delivery.content.type" class="selectable" />
             <small class="ms-auto me-2 text-nowrap">{{ formatDate(delivery.at) }}</small>
           </button>
         </div>
@@ -80,6 +80,10 @@
 */
 .accordion-button::after {
   margin-left: 0;
+}
+
+.selectable {
+  user-select: text;
 }
 </style>
 
