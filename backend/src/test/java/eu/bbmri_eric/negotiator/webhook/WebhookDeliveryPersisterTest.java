@@ -37,7 +37,7 @@ class WebhookDeliveryPersisterTest {
     Long webhookId = 1L;
     Webhook webhook = new Webhook("https://example.com/webhook", true, true);
     webhook.setId(webhookId);
-    Delivery delivery = new Delivery("{\"test\":\"ok\"}", 200, WebhookEventType.CUSTOM);
+    Delivery delivery = new Delivery("{\"test\":\"ok\"}", 200, WebhookEventType.PING);
     DeliveryDTO expected = new DeliveryDTO();
 
     when(webhookRepository.findById(webhookId)).thenReturn(Optional.of(webhook));
@@ -57,7 +57,7 @@ class WebhookDeliveryPersisterTest {
   void persist_whenWebhookDoesNotExist_throwsEntityNotFoundException() {
     Long webhookId = 99L;
     Delivery delivery =
-        new Delivery("{\"test\":\"not-found\"}", 500, "error", WebhookEventType.CUSTOM);
+        new Delivery("{\"test\":\"not-found\"}", 500, "error", WebhookEventType.PING);
 
     when(webhookRepository.findById(webhookId)).thenReturn(Optional.empty());
 

@@ -21,7 +21,6 @@ import eu.bbmri_eric.negotiator.webhook.WebhookHeaders;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import eu.bbmri_eric.negotiator.webhook.WebhookSecretService;
 import eu.bbmri_eric.negotiator.webhook.WebhookService;
-import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -65,8 +64,7 @@ class WebhookSignatureReferenceVerificationIntegrationTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    DeliveryDTO delivery =
-        webhookService.deliver("{\"data\":\"signed\"}", WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO delivery = webhookService.ping(webhook.getId());
 
     assertEquals(200, delivery.getHttpStatusCode());
     verify(1, postRequestedFor(urlEqualTo("/signed-endpoint")));

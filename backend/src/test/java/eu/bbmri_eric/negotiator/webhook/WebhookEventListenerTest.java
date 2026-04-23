@@ -48,7 +48,7 @@ class WebhookEventListenerTest {
     webhookEventListener.onWebhookEvent(unsupportedEvent);
 
     verify(objectMapper, never()).writeValueAsString(any());
-    verify(webhookDeliveryDispatcher, never()).scheduleDelivery(any(), any(), any(), any());
+    verify(webhookDeliveryDispatcher, never()).scheduleDelivery(any(), any(), any());
   }
 
   @Test
@@ -66,7 +66,7 @@ class WebhookEventListenerTest {
 
     webhookEventListener.onWebhookEvent(event);
 
-    verify(webhookDeliveryDispatcher, never()).scheduleDelivery(any(), any(), any(), any());
+    verify(webhookDeliveryDispatcher, never()).scheduleDelivery(any(), any(), any());
   }
 
   @Test
@@ -90,14 +90,12 @@ class WebhookEventListenerTest {
         .scheduleDelivery(
             1L,
             "{\"type\":\"negotiation.info.updated\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"data\":{\"negotiationId\":\"negotiation-1\"}}",
-            WebhookEventType.NEGOTIATION_INFO_UPDATED,
-            Instant.parse("2026-01-01T00:00:00Z"));
+            WebhookEventType.NEGOTIATION_INFO_UPDATED);
     verify(webhookDeliveryDispatcher)
         .scheduleDelivery(
             2L,
             "{\"type\":\"negotiation.info.updated\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"data\":{\"negotiationId\":\"negotiation-1\"}}",
-            WebhookEventType.NEGOTIATION_INFO_UPDATED,
-            Instant.parse("2026-01-01T00:00:00Z"));
+            WebhookEventType.NEGOTIATION_INFO_UPDATED);
   }
 
   @Test
@@ -116,6 +114,6 @@ class WebhookEventListenerTest {
 
     webhookEventListener.onWebhookEvent(event);
 
-    verify(webhookDeliveryDispatcher, never()).scheduleDelivery(any(), any(), any(), any());
+    verify(webhookDeliveryDispatcher, never()).scheduleDelivery(any(), any(), any());
   }
 }

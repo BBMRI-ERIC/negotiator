@@ -58,10 +58,7 @@ public class WebhookRedeliveryIntegrationTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    String payload = "{\"data\":\"redelivery\"}";
-
-    DeliveryDTO firstDelivery =
-        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO firstDelivery = webhookService.ping(webhook.getId());
 
     long firstAttemptTimestamp =
         getAllServeEvents().stream()
@@ -91,9 +88,8 @@ public class WebhookRedeliveryIntegrationTest {
         3,
         postRequestedFor(urlEqualTo("/redeliver-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.CUSTOM.value())))
-            .withRequestBody(matchingJsonPath("$.timestamp"))
-            .withRequestBody(matchingJsonPath("$.data.data", equalTo("redelivery"))));
+            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.PING.value())))
+            .withRequestBody(matchingJsonPath("$.timestamp")));
 
     var serveEvents =
         getAllServeEvents().stream()

@@ -11,8 +11,9 @@ import java.time.Instant;
  */
 public record WebhookPayloadEnvelope<T>(WebhookEventType type, Instant timestamp, T data) {
 
-  /** Creates a custom outbound payload envelope. */
-  public static <T> WebhookPayloadEnvelope<T> custom(Instant occurredAt, T data) {
-    return new WebhookPayloadEnvelope<>(WebhookEventType.CUSTOM, occurredAt, data);
+  /** Creates a ping outbound payload envelope. */
+  public static WebhookPayloadEnvelope<?> ping(Long webhookId, Instant occurredAt) {
+    return new WebhookPayloadEnvelope<>(
+        WebhookEventType.PING, occurredAt, new PingWebhookEvent(webhookId));
   }
 }

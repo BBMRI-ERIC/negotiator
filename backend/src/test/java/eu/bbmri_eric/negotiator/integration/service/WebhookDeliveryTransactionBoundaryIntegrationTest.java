@@ -18,7 +18,6 @@ import eu.bbmri_eric.negotiator.webhook.DeliveryDTO;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import eu.bbmri_eric.negotiator.webhook.WebhookService;
-import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,15 +60,9 @@ class WebhookDeliveryTransactionBoundaryIntegrationTest {
 
     try (ExecutorService executor = Executors.newFixedThreadPool(3)) {
       Future<DeliveryDTO> firstDeliveryFuture =
-          executor.submit(
-              () ->
-                  webhookService.deliver(
-                      "{\"delivery\":1}", WebhookEventType.CUSTOM, firstWebhook.getId()));
+          executor.submit(() -> webhookService.ping(firstWebhook.getId()));
       Future<DeliveryDTO> secondDeliveryFuture =
-          executor.submit(
-              () ->
-                  webhookService.deliver(
-                      "{\"delivery\":2}", WebhookEventType.CUSTOM, secondWebhook.getId()));
+          executor.submit(() -> webhookService.ping(secondWebhook.getId()));
 
       await("both delivery attempts")
           .atMost(Duration.ofSeconds(2))

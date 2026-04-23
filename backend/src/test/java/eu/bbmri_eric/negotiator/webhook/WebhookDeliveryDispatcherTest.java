@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.webhook;
 import static org.mockito.Mockito.verify;
 
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
-import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,12 +23,10 @@ class WebhookDeliveryDispatcherTest {
 
   @Test
   void scheduleDelivery_delegatesToWebhookService() {
-    Instant occurredAt = Instant.parse("2026-01-01T00:00:00Z");
-
     dispatcher.scheduleDelivery(
-        1L, "{\"key\":\"value\"}", WebhookEventType.NEGOTIATION_INFO_UPDATED, occurredAt);
+        1L, "{\"key\":\"value\"}", WebhookEventType.NEGOTIATION_INFO_UPDATED);
 
     verify(webhookService)
-        .deliver("{\"key\":\"value\"}", WebhookEventType.NEGOTIATION_INFO_UPDATED, 1L, occurredAt);
+        .deliver("{\"key\":\"value\"}", WebhookEventType.NEGOTIATION_INFO_UPDATED, 1L);
   }
 }

@@ -1,8 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
-import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -76,19 +74,11 @@ public class WebhookController {
   }
 
   @Operation(
-      summary = "Add a delivery to a webhook",
-      description = "Adds a new delivery to the specified webhook and returns the response")
-  @PostMapping(value = "/{id}/deliveries")
-  public EntityModel<DeliveryDTO> addDelivery(
-      @PathVariable Long id,
-      @Valid
-          @RequestBody
-          @Schema(
-              description = "Content to deliver",
-              example = "{\"test\":\"yes\"}",
-              type = "object")
-          String content) {
-    DeliveryDTO dto = webhookService.deliver(content, WebhookEventType.CUSTOM, id);
+      summary = "Send a ping delivery to a webhook",
+      description = "Sends a predefined ping payload to the specified webhook")
+  @PostMapping(value = "/{id}/ping")
+  public EntityModel<DeliveryDTO> ping(@PathVariable Long id) {
+    DeliveryDTO dto = webhookService.ping(id);
     return EntityModel.of(dto);
   }
 
