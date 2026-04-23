@@ -25,7 +25,7 @@ public class WebhookEntityTest {
   @Test
   void testAddSingleDeliveryWith200() {
     Delivery delivery =
-        new Delivery("{\"message\":\"Test delivery 1\"}", 200, WebhookEventType.CUSTOM);
+        new Delivery("{\"message\":\"Test delivery 1\"}", 200, WebhookEventType.PING);
     webhook.addDelivery(delivery);
     assertEquals(1, webhook.getDeliveries().size());
     assertEquals(webhook.getId(), delivery.getWebhookId());
@@ -36,7 +36,7 @@ public class WebhookEntityTest {
   void testAddMultipleDeliveriesWithinLimit() {
     for (int i = 1; i <= 5; i++) {
       Delivery delivery =
-          new Delivery("{\"message\":\"Delivery " + i + "\"}", 200, WebhookEventType.CUSTOM);
+          new Delivery("{\"message\":\"Delivery " + i + "\"}", 200, WebhookEventType.PING);
       webhook.addDelivery(delivery);
     }
     assertEquals(5, webhook.getDeliveries().size());
@@ -51,7 +51,7 @@ public class WebhookEntityTest {
   void testAddMoreThan100Deliveries() {
     for (int i = 1; i <= 105; i++) {
       Delivery delivery =
-          new Delivery("{\"message\":\"Delivery " + i + "\"}", 200, WebhookEventType.CUSTOM);
+          new Delivery("{\"message\":\"Delivery " + i + "\"}", 200, WebhookEventType.PING);
       webhook.addDelivery(delivery);
     }
     assertEquals(100, webhook.getDeliveries().size());
@@ -64,7 +64,7 @@ public class WebhookEntityTest {
     IllegalArgumentException exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> new Delivery("{\"message\":\"Error delivery\"}", 500, WebhookEventType.CUSTOM));
+            () -> new Delivery("{\"message\":\"Error delivery\"}", 500, WebhookEventType.PING));
     assertEquals("Non-200 HTTP status code requires an error message.", exception.getMessage());
   }
 
@@ -72,7 +72,7 @@ public class WebhookEntityTest {
   void testAddDeliveryNon200WithErrorMessage() {
     Delivery delivery =
         new Delivery(
-            "{\"message\":\"Error delivery\"}", 500, "Server error", WebhookEventType.CUSTOM);
+            "{\"message\":\"Error delivery\"}", 500, "Server error", WebhookEventType.PING);
     webhook.addDelivery(delivery);
     assertEquals(1, webhook.getDeliveries().size());
     assertEquals("Server error", delivery.getErrorMessage());
@@ -81,11 +81,11 @@ public class WebhookEntityTest {
 
   @Test
   void testDeliveriesOrderedByAtDescending() {
-    Delivery d1 = new Delivery("{\"message\":\"Oldest\"}", 200, WebhookEventType.CUSTOM);
+    Delivery d1 = new Delivery("{\"message\":\"Oldest\"}", 200, WebhookEventType.PING);
     d1.setAt(LocalDateTime.now().minusMinutes(10));
-    Delivery d2 = new Delivery("{\"message\":\"Middle\"}", 200, WebhookEventType.CUSTOM);
+    Delivery d2 = new Delivery("{\"message\":\"Middle\"}", 200, WebhookEventType.PING);
     d2.setAt(LocalDateTime.now().minusMinutes(5));
-    Delivery d3 = new Delivery("{\"message\":\"Newest\"}", 200, WebhookEventType.CUSTOM);
+    Delivery d3 = new Delivery("{\"message\":\"Newest\"}", 200, WebhookEventType.PING);
     d3.setAt(LocalDateTime.now());
     webhook.addDelivery(d1);
     webhook.addDelivery(d2);

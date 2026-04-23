@@ -15,7 +15,6 @@ import eu.bbmri_eric.negotiator.webhook.DeliveryDTO;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import eu.bbmri_eric.negotiator.webhook.WebhookService;
-import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,10 +51,7 @@ class WebhookDeliveryTransportFaultIntegrationTest {
     wireMockServer.stubFor(
         post(urlEqualTo("/slow-endpoint")).willReturn(ok().withFixedDelay(3000).withBody("ok")));
 
-    String payload = "{\"data\":\"success\"}";
-
-    DeliveryDTO delivery =
-        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO delivery = webhookService.ping(webhook.getId());
 
     assertNull(delivery.getHttpStatusCode());
     assertEquals("Request timeout", delivery.getErrorMessage());
@@ -71,10 +67,7 @@ class WebhookDeliveryTransportFaultIntegrationTest {
     wireMockServer.stubFor(
         post(urlEqualTo("/fault-endpoint")).willReturn(ok().withFault(fault).withBody("fault")));
 
-    String payload = "{\"data\":\"fault\"}";
-
-    DeliveryDTO delivery =
-        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO delivery = webhookService.ping(webhook.getId());
 
     assertTrue(delivery.getHttpStatusCode() == null || delivery.getHttpStatusCode() >= 500);
     assertTrue(StringUtils.isNotBlank(delivery.getErrorMessage()));
@@ -88,10 +81,7 @@ class WebhookDeliveryTransportFaultIntegrationTest {
     Webhook webhook =
         webhookRepository.save(new Webhook("http://localhost/{missingVar}", true, true));
 
-    String payload = "{\"data\":\"runtime\"}";
-
-    DeliveryDTO delivery =
-        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO delivery = webhookService.ping(webhook.getId());
 
     assertNull(delivery.getHttpStatusCode());
     assertTrue(StringUtils.isNotBlank(delivery.getErrorMessage()));

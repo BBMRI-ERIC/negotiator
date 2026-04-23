@@ -70,18 +70,14 @@ public class WebhookDeliverySslIntegrationTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    String payload = "{\"data\":\"success\"}";
-
-    DeliveryDTO delivery =
-        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO delivery = webhookService.ping(webhook.getId());
 
     assertEquals(200, delivery.getHttpStatusCode());
     trustedHttpsServer.verify(
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.CUSTOM.value())))
-            .withRequestBody(matchingJsonPath("$.timestamp"))
-            .withRequestBody(matchingJsonPath("$.data.data", equalTo("success"))));
+            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.PING.value())))
+            .withRequestBody(matchingJsonPath("$.timestamp")));
   }
 
   @Test
@@ -98,10 +94,7 @@ public class WebhookDeliverySslIntegrationTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    String payload = "{\"data\":\"success\"}";
-
-    DeliveryDTO delivery =
-        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO delivery = webhookService.ping(webhook.getId());
 
     assertNull(delivery.getHttpStatusCode());
     assertEquals("SSL certificate validation failed", delivery.getErrorMessage());
@@ -121,18 +114,14 @@ public class WebhookDeliverySslIntegrationTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    String payload = "{\"data\":\"success\"}";
-
-    DeliveryDTO delivery =
-        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO delivery = webhookService.ping(webhook.getId());
 
     assertEquals(200, delivery.getHttpStatusCode());
     trustedHttpsServer.verify(
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.CUSTOM.value())))
-            .withRequestBody(matchingJsonPath("$.timestamp"))
-            .withRequestBody(matchingJsonPath("$.data.data", equalTo("success"))));
+            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.PING.value())))
+            .withRequestBody(matchingJsonPath("$.timestamp")));
   }
 
   @Test
@@ -149,17 +138,13 @@ public class WebhookDeliverySslIntegrationTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    String payload = "{\"data\":\"success\"}";
-
-    DeliveryDTO delivery =
-        webhookService.deliver(payload, WebhookEventType.CUSTOM, webhook.getId());
+    DeliveryDTO delivery = webhookService.ping(webhook.getId());
 
     assertEquals(200, delivery.getHttpStatusCode());
     untrustedHttpsServer.verify(
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.CUSTOM.value())))
-            .withRequestBody(matchingJsonPath("$.timestamp"))
-            .withRequestBody(matchingJsonPath("$.data.data", equalTo("success"))));
+            .withRequestBody(matchingJsonPath("$.type", equalTo(WebhookEventType.PING.value())))
+            .withRequestBody(matchingJsonPath("$.timestamp")));
   }
 }

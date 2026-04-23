@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -23,11 +22,9 @@ class WebhookDeliveryDispatcher {
    * @param webhookId the id of the target webhook
    * @param payload the JSON payload to deliver
    * @param eventType the event type header for the delivery
-   * @param occurredAt the event timestamp to include as a header
    */
   @Async("webhookDeliveryExecutor")
-  void scheduleDelivery(
-      Long webhookId, String payload, WebhookEventType eventType, Instant occurredAt) {
-    webhookService.deliver(payload, eventType, webhookId, occurredAt);
+  void scheduleDelivery(Long webhookId, String payload, WebhookEventType eventType) {
+    webhookService.deliver(payload, eventType, webhookId);
   }
 }

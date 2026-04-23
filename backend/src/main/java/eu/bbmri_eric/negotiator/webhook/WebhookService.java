@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
-import java.time.Instant;
 import java.util.List;
 
 public interface WebhookService {
@@ -45,8 +44,7 @@ public interface WebhookService {
   void deleteWebhook(Long id);
 
   /**
-   * Creates a new delivery for a given webhook, using the current time as the occurred-at
-   * timestamp.
+   * Creates a new delivery for a given webhook.
    *
    * @param jsonPayload the JSON content for the delivery
    * @param eventType the event type header for the delivery
@@ -56,6 +54,14 @@ public interface WebhookService {
   DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId);
 
   /**
+   * Sends a standardized ping delivery for the given webhook.
+   *
+   * @param webhookId the id of the target webhook
+   * @return a DTO representing the newly created ping delivery
+   */
+  DeliveryDTO ping(Long webhookId);
+
+  /**
    * Creates a manual redelivery for a previously recorded delivery.
    *
    * @param webhookId the owning webhook id
@@ -63,18 +69,6 @@ public interface WebhookService {
    * @return a DTO representing the newly created delivery attempt
    */
   DeliveryDTO redeliver(Long webhookId, String deliveryId);
-
-  /**
-   * Creates a new delivery for a given webhook with an explicit occurred-at timestamp.
-   *
-   * @param jsonPayload the JSON content for the delivery
-   * @param eventType the event type header for the delivery
-   * @param webhookId the id of the target webhook
-   * @param occurredAt the event timestamp to include as a header
-   * @return a DTO representing the newly created delivery
-   */
-  DeliveryDTO deliver(
-      String jsonPayload, WebhookEventType eventType, Long webhookId, Instant occurredAt);
 
   /**
    * Returns the ids of all currently active webhooks.

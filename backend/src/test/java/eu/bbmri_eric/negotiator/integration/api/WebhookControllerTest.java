@@ -198,19 +198,16 @@ public class WebhookControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void testDeliverSuccess(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+  void testPingSuccess(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
     String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
     Webhook webhook = new Webhook(url, true, true);
     webhook = webhookRepository.save(webhook);
     stubFor(
         post(urlEqualTo("/test-endpoint")).willReturn(aResponse().withStatus(200).withBody("OK")));
-    String payload = objectMapper.writeValueAsString("{\"data\":\"fail\"}");
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload))
+            MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/ping", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andDo(print())
         .andExpect(jsonPath("$.httpStatusCode", is(200)))
@@ -219,46 +216,35 @@ public class WebhookControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void testDeliverInvalidJson(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+  void testDeliverEndpointRemoved_returnsClientError(WireMockRuntimeInfo wmRuntimeInfo)
+      throws Exception {
     String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
-    Webhook webhook = new Webhook(url, true, true);
-    webhook = webhookRepository.save(webhook);
-    String invalidPayload = "Not a JSON";
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(
-                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(invalidPayload))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.detail", is("Content is not a valid JSON")));
-    invalidPayload = "{\"data\"\"fail\"}";
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(
-                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(invalidPayload))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.detail", is("Content is not a valid JSON")));
-  }
+    Webhook webhook = webhookRepository.save(new Webhook(url, true, true));
+    String payload = "{\"data\":\"fail\"}";
 
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  void testDeliverExternalServerError(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
-    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
-    Webhook webhook = new Webhook(url, true, true);
-    webhook = webhookRepository.save(webhook);
-    stubFor(
-        post(urlEqualTo("/test-endpoint"))
-            .willReturn(aResponse().withStatus(500).withBody("Internal Server Error")));
-    String payload = objectMapper.writeValueAsString("{\"data\":\"fail\"}");
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
                     String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
+        .andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void testPingExternalServerError(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = new Webhook(url, true, true);
+    webhook = webhookRepository.save(webhook);
+    stubFor(
+        post(urlEqualTo("/test-endpoint"))
+            .willReturn(aResponse().withStatus(500).withBody("Internal Server Error")));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/ping", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andDo(print())
         .andExpect(jsonPath("$.httpStatusCode", is(500)))
@@ -267,20 +253,18 @@ public class WebhookControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void testDeliver_notActive_returns400(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+  void testPing_notActive_returns400(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
     String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
     Webhook webhook = new Webhook(url, true, false);
     webhook = webhookRepository.save(webhook);
     stubFor(
         post(urlEqualTo("/test-endpoint"))
             .willReturn(aResponse().withStatus(500).withBody("Internal Server Error")));
-    String payload = objectMapper.writeValueAsString("{\"data\":\"fail\"}");
+
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload))
+            MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/ping", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest())
         .andExpect(
             jsonPath(
@@ -289,7 +273,7 @@ public class WebhookControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void testDeliver_active_receivesWebhook(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+  void testPing_active_receivesWebhook(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
     // Build the URL for the WireMock stub endpoint.
     String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
 
@@ -306,25 +290,21 @@ public class WebhookControllerTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    // Prepare a JSON payload to send.
-    String payload = "{\"data\":\"success\"}";
-
-    // Perform the test delivery request via mockMvc.
+    // Perform the test ping request via mockMvc.
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload))
+            MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/ping", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     // Verify that the stub endpoint received a POST request with the expected JSON payload.
     verify(
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(matchingJsonPath("$.type", equalTo("custom")))
+            .withRequestBody(matchingJsonPath("$.type", equalTo("ping")))
             .withRequestBody(matchingJsonPath("$.timestamp"))
-            .withRequestBody(matchingJsonPath("$.data.data", equalTo("success"))));
+            .withRequestBody(
+                matchingJsonPath("$.data.webhookId", equalTo(String.valueOf(webhook.getId())))));
 
     var requests = findAll(postRequestedFor(urlEqualTo("/test-endpoint")));
     assertEquals(1, requests.size());
@@ -348,15 +328,11 @@ public class WebhookControllerTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    String payload = "{\"data\":\"redelivery\"}";
-
     MvcResult firstDeliveryResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post(
-                        String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(payload))
+                MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/ping", webhook.getId()))
+                    .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -384,9 +360,8 @@ public class WebhookControllerTest {
         2,
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(matchingJsonPath("$.type", equalTo("custom")))
-            .withRequestBody(matchingJsonPath("$.timestamp"))
-            .withRequestBody(matchingJsonPath("$.data.data", equalTo("redelivery"))));
+            .withRequestBody(matchingJsonPath("$.type", equalTo("ping")))
+            .withRequestBody(matchingJsonPath("$.timestamp")));
   }
 
   @Test
@@ -414,14 +389,11 @@ public class WebhookControllerTest {
     stubFor(
         post(urlEqualTo("/test-endpoint")).willReturn(aResponse().withStatus(200).withBody("OK")));
 
-    String payload = "{\"data\":\"redelivery\"}";
     MvcResult firstDeliveryResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post(
-                        String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(payload))
+                MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/ping", webhook.getId()))
+                    .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
     String sourceDeliveryId =
@@ -460,15 +432,11 @@ public class WebhookControllerTest {
                     .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                     .withBody("{\"status\":\"received\"}")));
 
-    String payload = "{\"data\":\"redelivery\"}";
-
     MvcResult sourceDeliveryResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post(
-                        String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(payload))
+                MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/ping", webhook.getId()))
+                    .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -515,9 +483,8 @@ public class WebhookControllerTest {
         3,
         postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(matchingJsonPath("$.type", equalTo("custom")))
-            .withRequestBody(matchingJsonPath("$.timestamp"))
-            .withRequestBody(matchingJsonPath("$.data.data", equalTo("redelivery"))));
+            .withRequestBody(matchingJsonPath("$.type", equalTo("ping")))
+            .withRequestBody(matchingJsonPath("$.timestamp")));
   }
 
   @Test

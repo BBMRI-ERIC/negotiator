@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
@@ -113,7 +112,22 @@ public class WebhookServiceImpl implements WebhookService {
 
   @Override
   public DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId) {
-    return deliver(jsonPayload, eventType, webhookId, Instant.now());
+    if (!JSONUtils.isJSONValid(jsonPayload)) {
+      throw new IllegalArgumentException("Content is not a valid JSON");
+    }
+    Webhook webhook = getWebhook(webhookId);
+    RestTemplate restTemplate =
+        webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
+    String webhookMessageId = UUID.randomUUID().toString();
+    return deliverWebhook(jsonPayload, restTemplate, webhook, eventType, null, webhookMessageId);
+  }
+
+  @Override
+  public DeliveryDTO ping(Long webhookId) {
+    Instant occurredAt = Instant.now();
+    var payloadEnvelope = WebhookPayloadEnvelope.ping(webhookId, occurredAt);
+    String payload = serializePayload(payloadEnvelope);
+    return deliver(payload, WebhookEventType.PING, webhookId);
   }
 
   @Override
@@ -140,21 +154,6 @@ public class WebhookServiceImpl implements WebhookService {
         sourceDelivery.getEventType(),
         rootDeliveryId,
         rootDeliveryId);
-  }
-
-  @Override
-  public DeliveryDTO deliver(
-      String jsonPayload, WebhookEventType eventType, Long webhookId, Instant occurredAt) {
-    String payloadToDeliver = toPayloadEnvelopeIfNeeded(jsonPayload, eventType, occurredAt);
-    if (!JSONUtils.isJSONValid(payloadToDeliver)) {
-      throw new IllegalArgumentException("Content is not a valid JSON");
-    }
-    Webhook webhook = getWebhook(webhookId);
-    RestTemplate restTemplate =
-        webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-    String webhookMessageId = UUID.randomUUID().toString();
-    return deliverWebhook(
-        payloadToDeliver, restTemplate, webhook, eventType, null, webhookMessageId);
   }
 
   @Override
@@ -271,17 +270,11 @@ public class WebhookServiceImpl implements WebhookService {
     return new HttpEntity<>(jsonPayload, headers);
   }
 
-  private String toPayloadEnvelopeIfNeeded(
-      String jsonPayload, @NonNull WebhookEventType eventType, @NonNull Instant occurredAt) {
-    if (eventType != WebhookEventType.CUSTOM) {
-      return jsonPayload;
-    }
-
+  private String serializePayload(Object payloadObject) {
     try {
-      JsonNode customData = objectMapper.readTree(jsonPayload);
-      return objectMapper.writeValueAsString(WebhookPayloadEnvelope.custom(occurredAt, customData));
+      return objectMapper.writeValueAsString(payloadObject);
     } catch (JsonProcessingException ex) {
-      throw new IllegalArgumentException("Content is not a valid JSON", ex);
+      throw new IllegalStateException("Could not serialize webhook payload", ex);
     }
   }
 
