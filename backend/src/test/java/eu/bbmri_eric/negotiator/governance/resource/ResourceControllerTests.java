@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.governance.resource;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -501,7 +502,7 @@ public class ResourceControllerTests {
         JsonPath.parse(result.getResponse().getContentAsString())
             .read("$._embedded.resources[0].sourceId");
     Optional<Resource> resource1 = repository.findBySourceId(id1);
-    assert resource1.isPresent();
+    assertTrue(resource1.isPresent());
     assertEquals(resourceDTO1.getName(), resource1.get().getName());
     assertEquals(resourceDTO1.getDescription(), resource1.get().getDescription());
     assertEquals(resourceDTO1.getContactEmail(), resource1.get().getContactEmail());
@@ -570,7 +571,7 @@ public class ResourceControllerTests {
         JsonPath.parse(result1.getResponse().getContentAsString())
             .read("$._embedded.resources[0].sourceId");
     Optional<Resource> resource1 = repository.findBySourceId(id1);
-    assert resource1.isPresent();
+    assertTrue(resource1.isPresent());
     assertEquals(resourceDTO1.getName(), resource1.get().getName());
     assertEquals(resourceDTO1.getDescription(), resource1.get().getDescription());
     assertEquals(resourceDTO1.getContactEmail(), resource1.get().getContactEmail());
@@ -580,7 +581,7 @@ public class ResourceControllerTests {
         JsonPath.parse(result2.getResponse().getContentAsString())
             .read("$._embedded.resources[0].id", Long.class);
     Optional<Resource> resource2 = repository.findById(id2);
-    assert resource2.isPresent();
+    assertTrue(resource2.isPresent());
     assertEquals(resourceDTO2.getName(), resource2.get().getName());
     assertEquals(resourceDTO2.getDescription(), resource2.get().getDescription());
     assertEquals(resourceDTO2.getContactEmail(), resource2.get().getContactEmail());

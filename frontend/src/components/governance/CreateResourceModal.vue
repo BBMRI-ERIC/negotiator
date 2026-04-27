@@ -73,13 +73,14 @@
 
             <div class="mb-3">
               <label for="accessForm" class="form-label">
-                Access Form
+                Access Form <span class="text-danger">*</span>
               </label>
               <select
                 id="accessForm"
                 v-model="formData.accessFormId"
                 class="form-select"
                 :class="{ 'is-invalid': errors.accessFormId }"
+                required
               >
                 <option value="">Select an access form</option>
                 <option v-for="form in accessForms" :key="form.id" :value="form.id">
@@ -231,12 +232,13 @@ const isFormValid = computed(() => {
   const hasName = formData.value.name?.trim().length > 0
   const hasDescription = formData.value.description?.trim().length > 0
   const hasSourceId = formData.value.sourceId?.trim().length > 0
+  const hasAccessForm = formData.value.accessFormId && formData.value.accessFormId !== ''
   const hasDiscoveryService =
     formData.value.discoveryServiceId &&
     formData.value.discoveryServiceId !== '' &&
     !isNaN(Number(formData.value.discoveryServiceId))
 
-  return hasName && hasDescription && hasSourceId && hasDiscoveryService
+  return hasName && hasDescription && hasSourceId && hasAccessForm && hasDiscoveryService
 })
 
 // Watch for organization ID changes
@@ -273,6 +275,10 @@ const validateForm = () => {
 
   if (!formData.value.sourceId?.trim()) {
     errors.value.sourceId = 'Source ID is required'
+  }
+
+  if (!formData.value.accessFormId) {
+    errors.value.accessFormId = 'Access form is required'
   }
 
   if (!formData.value.discoveryServiceId) {
@@ -339,7 +345,7 @@ const handleSubmit = async () => {
         description: formData.value.description.trim(),
         sourceId: formData.value.sourceId.trim(),
         organizationId: formData.value.organizationId,
-        accessFormId: formData.value.accessFormId !== '' ? Number(formData.value.accessFormId) : null,
+        accessFormId: Number(formData.value.accessFormId),
         discoveryServiceId: Number(formData.value.discoveryServiceId),
         contactEmail: formData.value.contactEmail?.trim() || null,
         uri: formData.value.uri?.trim() || null,
