@@ -30,10 +30,7 @@
                 :checked="isChecked(sort.value)"
                 @change="emitFilterSortData"
               />
-              <label
-                class="form-check-label"
-                :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-              >
+              <label class="form-check-label" :style="{ color: uiConfiguration?.primaryTextColor }">
                 {{ sort.label }}
               </label>
             </div>
@@ -81,7 +78,7 @@
           :options="field.options"
           :button-style="filtersSortData[field.name] !== '' ? buttonActiveStyle : buttonStyle"
           :clear-button-style="clearButtonStyle"
-          :label-style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+          :label-style="{ color: uiConfiguration?.primaryTextColor }"
           @change="emitFilterSortData"
           v-model:value="filtersSortData[field.name]"
         />
@@ -137,33 +134,33 @@ const props = defineProps({
 const emit = defineEmits(['filtersSortData'])
 
 const uiConfiguration = computed(() => {
-  return uiConfigurationStore.uiConfiguration?.filtersSort
+  return uiConfigurationStore.uiConfiguration?.theme
 })
 
 const buttonActiveStyle = computed(() => {
   return {
-    'border-color': uiConfiguration.value?.filtersSortButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortButtonColor,
-    'background-color': uiConfiguration.value?.filtersSortButtonColor,
+    'border-color': uiConfiguration.value?.buttonColor,
+    '--hovercolor': uiConfiguration.value?.buttonColor,
+    'background-color': uiConfiguration.value?.buttonColor,
     color: '#FFFFFF',
   }
 })
 
 const buttonStyle = computed(() => {
   return {
-    'border-color': uiConfiguration.value?.filtersSortButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortButtonColor,
+    'border-color': uiConfiguration.value?.buttonColor,
+    '--hovercolor': uiConfiguration.value?.buttonColor,
     'background-color': '#FFFFFF',
-    color: uiConfiguration.value?.filtersSortButtonColor,
+    color: uiConfiguration.value?.buttonColor,
   }
 })
 
 const clearButtonStyle = computed(() => {
   return {
-    'border-color': uiConfiguration.value?.filtersSortClearButtonColor,
-    '--hovercolor': uiConfiguration.value?.filtersSortClearButtonColor,
+    'border-color': '#dc3545',
+    '--hovercolor': '#dc3545',
     'background-color': '#FFFFFF',
-    color: uiConfiguration.value?.filtersSortClearButtonColor,
+    color: '#dc3545',
   }
 })
 
