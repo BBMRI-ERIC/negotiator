@@ -8,9 +8,9 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
-import eu.bbmri_eric.negotiator.webhook.event.WebhookEventEnvelope;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventMapper;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookPayloadEnvelope;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -55,13 +55,13 @@ class WebhookEventListenerTest {
   void onWebhookEvent_whenPayloadSerializationFails_shouldNotDeliverWebhook()
       throws JsonProcessingException {
     InformationSubmissionEvent event = new InformationSubmissionEvent(this, "negotiation-1");
-    WebhookEventEnvelope<Map<String, String>> envelope =
-        new WebhookEventEnvelope<>(
+    WebhookPayloadEnvelope<Map<String, String>> envelope =
+        new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_INFO_UPDATED,
             Instant.parse("2026-01-01T00:00:00Z"),
             Map.of("negotiationId", "negotiation-1"));
     when(webhookEventMapper.map(event)).thenReturn(Optional.of(envelope));
-    when(objectMapper.writeValueAsString(envelope.data()))
+    when(objectMapper.writeValueAsString(any(WebhookPayloadEnvelope.class)))
         .thenThrow(new JsonProcessingException("serialization failed") {});
 
     webhookEventListener.onWebhookEvent(event);
@@ -73,14 +73,15 @@ class WebhookEventListenerTest {
   void onWebhookEvent_whenEventIsDispatched_schedulesOneDeliveryPerActiveWebhook()
       throws JsonProcessingException {
     InformationSubmissionEvent event = new InformationSubmissionEvent(this, "negotiation-1");
-    WebhookEventEnvelope<Map<String, String>> envelope =
-        new WebhookEventEnvelope<>(
+    WebhookPayloadEnvelope<Map<String, String>> envelope =
+        new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_INFO_UPDATED,
             Instant.parse("2026-01-01T00:00:00Z"),
             Map.of("negotiationId", "negotiation-1"));
     when(webhookEventMapper.map(event)).thenReturn(Optional.of(envelope));
-    when(objectMapper.writeValueAsString(envelope.data()))
-        .thenReturn("{\"negotiationId\":\"negotiation-1\"}");
+    when(objectMapper.writeValueAsString(any(WebhookPayloadEnvelope.class)))
+        .thenReturn(
+            "{\"type\":\"negotiation.info.updated\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"data\":{\"negotiationId\":\"negotiation-1\"}}");
     when(webhookService.getActiveWebhookIds()).thenReturn(List.of(1L, 2L));
 
     webhookEventListener.onWebhookEvent(event);
@@ -88,13 +89,13 @@ class WebhookEventListenerTest {
     verify(webhookDeliveryDispatcher)
         .scheduleDelivery(
             1L,
-            "{\"negotiationId\":\"negotiation-1\"}",
+            "{\"type\":\"negotiation.info.updated\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"data\":{\"negotiationId\":\"negotiation-1\"}}",
             WebhookEventType.NEGOTIATION_INFO_UPDATED,
             Instant.parse("2026-01-01T00:00:00Z"));
     verify(webhookDeliveryDispatcher)
         .scheduleDelivery(
             2L,
-            "{\"negotiationId\":\"negotiation-1\"}",
+            "{\"type\":\"negotiation.info.updated\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"data\":{\"negotiationId\":\"negotiation-1\"}}",
             WebhookEventType.NEGOTIATION_INFO_UPDATED,
             Instant.parse("2026-01-01T00:00:00Z"));
   }
@@ -102,14 +103,15 @@ class WebhookEventListenerTest {
   @Test
   void onWebhookEvent_whenNoActiveWebhooks_schedulesNoDeliveries() throws JsonProcessingException {
     InformationSubmissionEvent event = new InformationSubmissionEvent(this, "negotiation-1");
-    WebhookEventEnvelope<Map<String, String>> envelope =
-        new WebhookEventEnvelope<>(
+    WebhookPayloadEnvelope<Map<String, String>> envelope =
+        new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_INFO_UPDATED,
             Instant.parse("2026-01-01T00:00:00Z"),
             Map.of("negotiationId", "negotiation-1"));
     when(webhookEventMapper.map(event)).thenReturn(Optional.of(envelope));
-    when(objectMapper.writeValueAsString(envelope.data()))
-        .thenReturn("{\"negotiationId\":\"negotiation-1\"}");
+    when(objectMapper.writeValueAsString(any(WebhookPayloadEnvelope.class)))
+        .thenReturn(
+            "{\"type\":\"negotiation.info.updated\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"data\":{\"negotiationId\":\"negotiation-1\"}}");
     when(webhookService.getActiveWebhookIds()).thenReturn(List.of());
 
     webhookEventListener.onWebhookEvent(event);

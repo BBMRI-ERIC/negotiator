@@ -90,6 +90,9 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `NEGOTIATOR_NOTIFICATION_REMINDERCRONEXPRESSION`      | Cron expression for reminder notifications.                                                             | `"0 0 6 * * *"`                                                              |
 | `NEGOTIATOR_EMAIL_FREQUENCYCRONEXPRESSION`            | Cron expression for email frequency.                                                                    | `"0 0 * * * *"`                                                              |
 | `NEGOTIATOR_EMAILADDRESS`                             | Email address from which emails are sent                                                                | "BBMRI-ERIC Negotiator <noreply@bbmri-eric.eu>"                              |
+| `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED`       | Enables encryption at rest for webhook secrets. If `true`, master key must be configured.                | `true`                                                                         |
+| `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY`    | Current webhook secret master key (mapped to `negotiator.webhook.secret-encryption.master-key`).       | `""`                                                                          |
+| `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_PREVIOUS_MASTER_KEY` | Previous webhook secret master key used only for key rotation (`rotate-secrets` profile).         | `""`                                                                          |
 | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES` | OAuth2 Resource Audience(s); see [aud claim](https://datatracker.ietf.org/doc/html/rfc8693#section-3.1) | "https://negotiator.bbmri-eric.eu,negotiator-api"                            |
 
 > [!NOTE]
@@ -97,6 +100,29 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 > and REPRESENTATIVE/NETWORK MANAGER roles are assigned inside the Negotiator. Previous variables like
 > `NEGOTIATOR_AUTHORIZATION_RESEARCHERCLAIMVALUE` and `NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE` are deprecated and
 > not used by current versions.
+
+### Webhook secret encryption behavior
+
+- Encryption fallback is disabled: when `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED=true`,
+  `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY` must be set.
+- A random salt is generated and stored per webhook secret, so no global salt variable is needed.
+- To run without encryption, set `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED=false` explicitly.
+- The `dev` and `test` Spring profiles default to `enabled=false` for local development and tests.
+- New or updated webhook secrets are validated as `whsec_<base64>` using standard base64 and must decode to 24-64 bytes.
+
+### Webhook master-key rotation
+
+Use the `rotate-secrets` profile to re-encrypt existing webhook secrets with a new key.
+
+1. Set the new key material:
+  - `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED=true`
+  - `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY=<new-key>`
+2. Set the old key material (used only during rotation):
+  - `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_PREVIOUS_MASTER_KEY=<old-key>`
+3. Start the backend once with profile `rotate-secrets` enabled (for example
+  `SPRING_PROFILES_ACTIVE=prod,rotate-secrets`).
+4. Verify logs contain `Secret rotation complete. Rotated X/Y secrets`.
+5. Remove previous key variables and restart normally without `rotate-secrets`.
 
 
 

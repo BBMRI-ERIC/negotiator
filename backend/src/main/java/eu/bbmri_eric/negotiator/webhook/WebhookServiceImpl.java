@@ -1,18 +1,23 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookPayloadEnvelope;
 import java.net.SocketTimeoutException;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 import javax.net.ssl.SSLException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.modelmapper.ModelMapper;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +37,10 @@ public class WebhookServiceImpl implements WebhookService {
   private final WebhookRepository webhookRepository;
   private final DeliveryRepository deliveryRepository;
   private final ModelMapper modelMapper;
+  private final ObjectMapper objectMapper;
   private final WebhookDeliveryPersister webhookDeliveryPersister;
+  private final WebhookSecretService webhookSecretService;
+  private final WebhookSigningService webhookSigningService;
   private final RestTemplate secureRestTemplate;
   private final RestTemplate insecureRestTemplate;
 
@@ -40,20 +48,28 @@ public class WebhookServiceImpl implements WebhookService {
       WebhookRepository webhookRepository,
       DeliveryRepository deliveryRepository,
       ModelMapper modelMapper,
+      ObjectMapper objectMapper,
       WebhookDeliveryPersister webhookDeliveryPersister,
+      WebhookSecretService webhookSecretService,
+      WebhookSigningService webhookSigningService,
       @Qualifier("secureWebhookRestTemplate") RestTemplate secureRestTemplate,
       @Qualifier("insecureWebhookRestTemplate") RestTemplate insecureRestTemplate) {
     this.webhookRepository = webhookRepository;
     this.deliveryRepository = deliveryRepository;
     this.modelMapper = modelMapper;
+    this.objectMapper = objectMapper;
     this.webhookDeliveryPersister = webhookDeliveryPersister;
+    this.webhookSecretService = webhookSecretService;
+    this.webhookSigningService = webhookSigningService;
     this.secureRestTemplate = secureRestTemplate;
     this.insecureRestTemplate = insecureRestTemplate;
   }
 
   @Override
+  @Transactional
   public WebhookResponseDTO createWebhook(WebhookCreateDTO dto) {
     Webhook webhook = modelMapper.map(dto, Webhook.class);
+    applySecretTransition(webhook, dto.getSecret());
     Webhook savedWebhook = webhookRepository.save(webhook);
     return modelMapper.map(savedWebhook, WebhookResponseDTO.class);
   }
@@ -76,19 +92,22 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
+  @Transactional
   public WebhookResponseDTO updateWebhook(Long id, WebhookCreateDTO dto) {
     Webhook existingWebhook =
         webhookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     modelMapper.map(dto, existingWebhook);
+    applySecretTransition(existingWebhook, dto.getSecret());
     Webhook updatedWebhook = webhookRepository.save(existingWebhook);
     return modelMapper.map(updatedWebhook, WebhookResponseDTO.class);
   }
 
   @Override
+  @Transactional
   public void deleteWebhook(Long id) {
-    if (!webhookRepository.existsById(id)) {
-      throw new EntityNotFoundException(id);
-    }
+    Webhook webhook =
+        webhookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    deleteAssociatedSecret(webhook);
     webhookRepository.deleteById(id);
   }
 
@@ -109,10 +128,6 @@ public class WebhookServiceImpl implements WebhookService {
     RestTemplate restTemplate =
         webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
 
-    Instant timestamp = Instant.from(sourceDelivery.getAt().atZone(ZoneId.systemDefault()));
-
-    // If this is a redelivery of a redelivery, we want to keep the original delivery id as
-    // reference
     String rootDeliveryId =
         sourceDelivery.getRedeliveryOfDeliveryId() == null
             ? deliveryId
@@ -123,26 +138,62 @@ public class WebhookServiceImpl implements WebhookService {
         restTemplate,
         webhook,
         sourceDelivery.getEventType(),
-        timestamp,
+        rootDeliveryId,
         rootDeliveryId);
   }
 
   @Override
   public DeliveryDTO deliver(
       String jsonPayload, WebhookEventType eventType, Long webhookId, Instant occurredAt) {
-    if (!JSONUtils.isJSONValid(jsonPayload)) {
+    String payloadToDeliver = toPayloadEnvelopeIfNeeded(jsonPayload, eventType, occurredAt);
+    if (!JSONUtils.isJSONValid(payloadToDeliver)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
     }
     Webhook webhook = getWebhook(webhookId);
     RestTemplate restTemplate =
         webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
-    return deliverWebhook(jsonPayload, restTemplate, webhook, eventType, occurredAt, null);
+    String webhookMessageId = UUID.randomUUID().toString();
+    return deliverWebhook(
+        payloadToDeliver, restTemplate, webhook, eventType, null, webhookMessageId);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Long> getActiveWebhookIds() {
     return webhookRepository.findByActiveTrue().stream().map(Webhook::getId).toList();
+  }
+
+  private void applySecretTransition(Webhook webhook, JsonNullable<String> secretPatch) {
+    if (secretPatch == null || !secretPatch.isPresent()) {
+      return;
+    }
+    String plainTextSecret = secretPatch.orElse(null);
+    if (plainTextSecret == null) {
+      deleteAssociatedSecret(webhook);
+      return;
+    }
+
+    if (plainTextSecret.isEmpty()) {
+      return;
+    }
+
+    webhookSecretService.validateSecret(plainTextSecret);
+    replaceAssociatedSecret(webhook, plainTextSecret);
+  }
+
+  private void replaceAssociatedSecret(Webhook webhook, String plainTextSecret) {
+    deleteAssociatedSecret(webhook);
+    DecryptedWebhookSecret createdSecret = webhookSecretService.createSecret(plainTextSecret);
+    webhook.setSecretId(createdSecret.id());
+  }
+
+  private void deleteAssociatedSecret(Webhook webhook) {
+    if (webhook.getSecretId() == null) {
+      return;
+    }
+    String currentSecretId = webhook.getSecretId();
+    webhook.setSecretId(null);
+    webhookSecretService.deleteSecret(currentSecretId);
   }
 
   private @NonNull Webhook getWebhook(Long webhookId) {
@@ -162,11 +213,15 @@ public class WebhookServiceImpl implements WebhookService {
       RestTemplate restTemplate,
       Webhook webhook,
       WebhookEventType eventType,
-      Instant occurredAt,
-      String redeliveryOfDeliveryId) {
+      String redeliveryOfDeliveryId,
+      String webhookMessageId) {
+    String deliveryId =
+        redeliveryOfDeliveryId == null ? webhookMessageId : UUID.randomUUID().toString();
     Delivery delivery;
     try {
-      HttpEntity<String> request = buildHttpEntity(jsonPayload, eventType, occurredAt);
+      long webhookTimestamp = Instant.now().getEpochSecond();
+      HttpEntity<String> request =
+          buildHttpEntity(jsonPayload, webhook, webhookMessageId, webhookTimestamp);
       int statusCode = postWebhook(restTemplate, webhook, request);
       delivery = new Delivery(jsonPayload, statusCode, eventType);
     } catch (HttpClientErrorException | HttpServerErrorException ex) {
@@ -177,6 +232,7 @@ public class WebhookServiceImpl implements WebhookService {
     } catch (Exception ex) {
       delivery = new Delivery(jsonPayload, null, parseErrorMessage(ex), eventType);
     }
+    delivery.setId(deliveryId);
     delivery.setRedeliveryOfDeliveryId(redeliveryOfDeliveryId);
     return webhookDeliveryPersister.persist(webhook.getId(), delivery);
   }
@@ -202,14 +258,31 @@ public class WebhookServiceImpl implements WebhookService {
         .value();
   }
 
-  private static @NonNull HttpEntity<String> buildHttpEntity(
-      String jsonPayload, @NonNull WebhookEventType eventType, @NonNull Instant occurredAt) {
+  private @NonNull HttpEntity<String> buildHttpEntity(
+      String jsonPayload, Webhook webhook, String webhookMessageId, long webhookTimestamp) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.add(WebhookHeaders.EVENT_TYPE, eventType.value());
-    headers.add(WebhookHeaders.OCCURRED_AT, occurredAt.toString());
+    headers.add(WebhookHeaders.WEBHOOK_ID, webhookMessageId);
+    headers.add(WebhookHeaders.TIMESTAMP, String.valueOf(webhookTimestamp));
+    webhookSigningService
+        .createSignature(webhookMessageId, webhookTimestamp, jsonPayload, webhook.getSecretId())
+        .ifPresent(signature -> headers.add(WebhookHeaders.SIGNATURE, signature.toString()));
 
     return new HttpEntity<>(jsonPayload, headers);
+  }
+
+  private String toPayloadEnvelopeIfNeeded(
+      String jsonPayload, @NonNull WebhookEventType eventType, @NonNull Instant occurredAt) {
+    if (eventType != WebhookEventType.CUSTOM) {
+      return jsonPayload;
+    }
+
+    try {
+      JsonNode customData = objectMapper.readTree(jsonPayload);
+      return objectMapper.writeValueAsString(WebhookPayloadEnvelope.custom(occurredAt, customData));
+    } catch (JsonProcessingException ex) {
+      throw new IllegalArgumentException("Content is not a valid JSON", ex);
+    }
   }
 
   private String parseErrorMessage(Exception ex) {

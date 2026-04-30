@@ -21,6 +21,9 @@ spring:
     prefix: "file:../config/templates/"
 negotiator:
   frontend-url: "http://localhost"
+  webhook:
+    secret-encryption:
+      enabled: false
   authorization:
     claim: "authz"
     admin-claim-value: "admin_group"

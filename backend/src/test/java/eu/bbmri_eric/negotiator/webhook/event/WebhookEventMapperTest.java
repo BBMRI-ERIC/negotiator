@@ -31,7 +31,7 @@ class WebhookEventMapperTest {
   void map_whenEventIsUnsupported_returnsEmpty() {
     ApplicationEvent unsupportedEvent = new ApplicationEvent(this) {};
 
-    Optional<WebhookEventEnvelope<?>> mapped = mapper.map(unsupportedEvent);
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(unsupportedEvent);
 
     assertThat(mapped).isEmpty();
   }
@@ -40,11 +40,11 @@ class WebhookEventMapperTest {
   void map_whenInformationSubmissionEvent_returnsStableEventTypeAndData() {
     InformationSubmissionEvent event = new InformationSubmissionEvent(this, "negotiation-1");
 
-    Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
     assertThat(mapped).isPresent();
-    assertThat(mapped.get().eventType()).isEqualTo(WebhookEventType.NEGOTIATION_INFO_UPDATED);
-    assertThat(mapped.get().occurredAt()).isNotNull();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_INFO_UPDATED);
+    assertThat(mapped.get().timestamp()).isNotNull();
     assertThat(mapped.get().data())
         .isEqualTo(new NegotiationInfoUpdatedWebhookEvent("negotiation-1"));
   }
@@ -59,11 +59,11 @@ class WebhookEventMapperTest {
             NegotiationState.SUBMITTED,
             NegotiationEvent.SUBMIT);
 
-    Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
     assertThat(mapped).isPresent();
-    assertThat(mapped.get().eventType()).isEqualTo(WebhookEventType.NEGOTIATION_STATE_UPDATED);
-    assertThat(mapped.get().occurredAt()).isNotNull();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_STATE_UPDATED);
+    assertThat(mapped.get().timestamp()).isNotNull();
     assertThat(mapped.get().data())
         .isEqualTo(
             new NegotiationStateUpdatedWebhookEvent(
@@ -77,11 +77,11 @@ class WebhookEventMapperTest {
   void map_whenNewNegotiationEvent_returnsStableEventTypeAndData() {
     NewNegotiationEvent event = new NewNegotiationEvent(this, "negotiation-3");
 
-    Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
     assertThat(mapped).isPresent();
-    assertThat(mapped.get().eventType()).isEqualTo(WebhookEventType.NEGOTIATION_ADDED);
-    assertThat(mapped.get().occurredAt()).isNotNull();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_ADDED);
+    assertThat(mapped.get().timestamp()).isNotNull();
     assertThat(mapped.get().data()).isEqualTo(new NegotiationAddedWebhookEvent("negotiation-3"));
   }
 
@@ -89,11 +89,11 @@ class WebhookEventMapperTest {
   void map_whenNewResourcesAddedEvent_returnsStableEventTypeAndData() {
     NewResourcesAddedEvent event = new NewResourcesAddedEvent(this, "negotiation-4");
 
-    Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
     assertThat(mapped).isPresent();
-    assertThat(mapped.get().eventType()).isEqualTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED);
-    assertThat(mapped.get().occurredAt()).isNotNull();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED);
+    assertThat(mapped.get().timestamp()).isNotNull();
     assertThat(mapped.get().data())
         .isEqualTo(new NegotiationResourceUpdatedWebhookEvent("negotiation-4"));
   }
@@ -102,11 +102,11 @@ class WebhookEventMapperTest {
   void map_whenNewPostEvent_returnsStableEventTypeAndData() {
     NewPostEvent event = new NewPostEvent(this, "post-1", "negotiation-5", 1000L, 2000L);
 
-    Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
     assertThat(mapped).isPresent();
-    assertThat(mapped.get().eventType()).isEqualTo(WebhookEventType.NEGOTIATION_POST_ADDED);
-    assertThat(mapped.get().occurredAt()).isNotNull();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_POST_ADDED);
+    assertThat(mapped.get().timestamp()).isNotNull();
     assertThat(mapped.get().data())
         .isEqualTo(new NegotiationPostAddedWebhookEvent("post-1", "negotiation-5", 1000L, 2000L));
   }
@@ -122,12 +122,11 @@ class WebhookEventMapperTest {
             NegotiationResourceState.RESOURCE_AVAILABLE,
             NegotiationResourceEvent.MARK_AS_AVAILABLE);
 
-    Optional<WebhookEventEnvelope<?>> mapped = mapper.map(event);
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
     assertThat(mapped).isPresent();
-    assertThat(mapped.get().eventType())
-        .isEqualTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED);
-    assertThat(mapped.get().occurredAt()).isNotNull();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED);
+    assertThat(mapped.get().timestamp()).isNotNull();
     assertThat(mapped.get().data())
         .isEqualTo(
             new NegotiationResourceStateUpdatedWebhookEvent(

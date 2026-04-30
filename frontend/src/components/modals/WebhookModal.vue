@@ -54,7 +54,20 @@
                 role="tabpanel"
                 aria-labelledby="config-tab"
               >
-                <WebhookConfig :form="form" :urlIsValid="urlIsValid" @updateForm="updateForm" />
+                <WebhookConfig
+                  :form="form"
+                  :urlIsValid="urlIsValid"
+                  :showConfiguredSecretBanner="showConfiguredSecretBanner"
+                  :isConfiguredWebhookWithSecret="isConfiguredWebhookWithSecret"
+                  :changeSecretMode="changeSecretMode"
+                  :showSecretValidationError="showSecretValidationError"
+                  :secretValidationMessage="secretValidationMessage"
+                  secretInputId="editWebhookSecretInput"
+                  v-model:secretInput="secretInput"
+                  @updateForm="updateForm"
+                  @startSecretChange="startSecretChange"
+                  @cancelSecretChange="cancelSecretChange"
+                />
               </div>
               <div
                 class="tab-pane fade"
@@ -71,7 +84,20 @@
           </div>
           <!-- For new webhooks, just show the configuration form -->
           <div v-else>
-            <WebhookConfig :form="form" :urlIsValid="urlIsValid" @updateForm="updateForm" />
+            <WebhookConfig
+              :form="form"
+              :urlIsValid="urlIsValid"
+              :showConfiguredSecretBanner="showConfiguredSecretBanner"
+              :isConfiguredWebhookWithSecret="isConfiguredWebhookWithSecret"
+              :changeSecretMode="changeSecretMode"
+              :showSecretValidationError="showSecretValidationError"
+              :secretValidationMessage="secretValidationMessage"
+              secretInputId="newWebhookSecretInput"
+              v-model:secretInput="secretInput"
+              @updateForm="updateForm"
+              @startSecretChange="startSecretChange"
+              @cancelSecretChange="cancelSecretChange"
+            />
           </div>
         </div>
         <div class="modal-footer justify-content-center">
@@ -79,7 +105,7 @@
             type="button"
             class="btn btn-primary me-2"
             @click="submitForm"
-            :disabled="!urlIsValid"
+            :disabled="!urlIsValid || !secretIsValid"
           >
             {{ isNew ? 'Create' : 'Update' }}
           </button>
@@ -91,7 +117,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import WebhookConfig from '../WebhookConfig.vue'
 import DeliveryHistory from '../DeliveryHistory.vue'
 
@@ -102,6 +128,8 @@ const props = defineProps({
   fade: { type: Boolean, default: true },
 })
 const emit = defineEmits(['update', 'create', 'redeliver'])
+const secretInput = ref('')
+const changeSecretMode = ref(false)
 
 // Initialize a reactive form object using the webhook prop.
 const form = reactive({
@@ -112,6 +140,14 @@ const form = reactive({
 
 // Determine if this is a new webhook (i.e. no ID exists)
 const isNew = computed(() => !props.webhook.id)
+const hasConfiguredSecret = computed(() => Boolean(props.webhook.secretId))
+const isConfiguredWebhookWithSecret = computed(() => !isNew.value && hasConfiguredSecret.value)
+const showConfiguredSecretBanner = computed(
+  () => isConfiguredWebhookWithSecret.value && !changeSecretMode.value,
+)
+const showSecretInput = computed(
+  () => isNew.value || !hasConfiguredSecret.value || changeSecretMode.value,
+)
 
 // Update the form when the webhook prop changes.
 watch(
@@ -120,6 +156,8 @@ watch(
     form.url = newWebhook.url
     form.sslVerification = newWebhook.sslVerification
     form.active = newWebhook.active
+    secretInput.value = ''
+    changeSecretMode.value = false
   },
   { deep: true },
 )
@@ -130,19 +168,109 @@ const urlIsValid = computed(() => {
   return pattern.test(form.url)
 })
 
+const secretIsValid = computed(() => {
+  return secretValidation.value.isValid
+})
+
+const secretValidation = computed(() => {
+  if (!showSecretInput.value) {
+    return { isValid: true, message: '' }
+  }
+
+  if (secretInput.value.length === 0) {
+    return { isValid: true, message: '' }
+  }
+
+  if (!secretInput.value.startsWith('whsec_')) {
+    return { isValid: false, message: 'Secret must start with whsec_' }
+  }
+
+  const encodedKeyMaterial = secretInput.value.slice('whsec_'.length)
+  if (encodedKeyMaterial.length === 0) {
+    return {
+      isValid: false,
+      message: 'Secret must include base64 key material after whsec_',
+    }
+  }
+
+  let decodedKeyMaterial
+  try {
+    decodedKeyMaterial = decodeBase64KeyMaterial(encodedKeyMaterial)
+  } catch {
+    return {
+      isValid: false,
+      message: 'Secret key material must be valid base64',
+    }
+  }
+
+  if (decodedKeyMaterial.length < 24 || decodedKeyMaterial.length > 64) {
+    return {
+      isValid: false,
+      message: 'Secret key material must decode to between 24 and 64 bytes',
+    }
+  }
+
+  return { isValid: true, message: '' }
+})
+
+const secretValidationMessage = computed(() => secretValidation.value.message)
+
+const showSecretValidationError = computed(() => {
+  return showSecretInput.value && secretValidationMessage.value.length > 0
+})
+
+const decodeBase64KeyMaterial = (encodedKeyMaterial) => {
+
+  if (!/^[A-Za-z0-9+/=]+$/.test(encodedKeyMaterial)) {
+    throw new Error('Invalid base64 characters')
+  }
+
+  const decodedBinary = atob(encodedKeyMaterial)
+  return Uint8Array.from(decodedBinary, (char) => char.charCodeAt(0))
+}
+
 // This handler is triggered when the child emits the updateForm event.
 const updateForm = (updatedForm) => {
   Object.assign(form, updatedForm)
 }
 
+const buildWebhookPayload = () => {
+  const payload = {
+    url: form.url,
+    sslVerification: form.sslVerification,
+    active: form.active,
+  }
+
+  if (secretInput.value.length > 0 && secretIsValid.value) {
+    payload.secret = secretInput.value
+  } else if (isConfiguredWebhookWithSecret.value && changeSecretMode.value) {
+    payload.secret = null
+  }
+
+  return payload
+}
+
+const startSecretChange = () => {
+  changeSecretMode.value = true
+  secretInput.value = ''
+}
+
+const cancelSecretChange = () => {
+  changeSecretMode.value = false
+  secretInput.value = ''
+}
+
 // Submit the form by emitting create/update events.
 const submitForm = () => {
-  if (urlIsValid.value) {
-    if (isNew.value) {
-      emit('create', form)
-    } else {
-      emit('update', form)
-    }
+  if (!urlIsValid.value || !secretIsValid.value) {
+    return
+  }
+
+  const payload = buildWebhookPayload()
+  if (isNew.value) {
+    emit('create', payload)
+  } else {
+    emit('update', payload)
   }
 }
 </script>

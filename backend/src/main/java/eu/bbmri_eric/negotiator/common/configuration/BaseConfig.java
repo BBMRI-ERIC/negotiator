@@ -2,7 +2,9 @@ package eu.bbmri_eric.negotiator.common.configuration;
 
 import eu.bbmri_eric.negotiator.user.Person;
 import org.modelmapper.ModelMapper;
+import org.openapitools.jackson.nullable.JsonNullableModule;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -34,5 +36,10 @@ public class BaseConfig {
   @Bean
   public AuditorAware<Person> auditorProvider() {
     return new AuditorAwareImpl();
+  }
+
+  @Bean
+  public Jackson2ObjectMapperBuilderCustomizer jsonNullableCustomizer() {
+    return builder -> builder.modulesToInstall(JsonNullableModule.class);
   }
 }
