@@ -91,7 +91,7 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `NEGOTIATOR_EMAIL_FREQUENCYCRONEXPRESSION`            | Cron expression for email frequency.                                                                    | `"0 0 * * * *"`                                                              |
 | `NEGOTIATOR_EMAILADDRESS`                             | Email address from which emails are sent                                                                | "BBMRI-ERIC Negotiator <noreply@bbmri-eric.eu>"                              |
 | `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED`       | Enables encryption at rest for webhook secrets. If `true`, master key must be configured.                | `true`                                                                         |
-| `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY`    | Current webhook secret master key (mapped to `negotiator.webhook.secret-encryption.master-key`).       | `""`                                                                          |
+| `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY`    | Current webhook secret master key (mapped to `negotiator.webhook.secret-encryption.master-key`). See [Generating a webhook master secret](#generating-a-webhook-master-secret). | `""`                                                                          |
 | `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_PREVIOUS_MASTER_KEY` | Previous webhook secret master key used only for key rotation (`rotate-secrets` profile).         | `""`                                                                          |
 | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES` | OAuth2 Resource Audience(s); see [aud claim](https://datatracker.ietf.org/doc/html/rfc8693#section-3.1) | "https://negotiator.bbmri-eric.eu,negotiator-api"                            |
 
@@ -100,6 +100,21 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 > and REPRESENTATIVE/NETWORK MANAGER roles are assigned inside the Negotiator. Previous variables like
 > `NEGOTIATOR_AUTHORIZATION_RESEARCHERCLAIMVALUE` and `NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE` are deprecated and
 > not used by current versions.
+
+### Generating a webhook master secret
+
+When webhook secret encryption is enabled, set
+`NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY` to a securely generated 32-byte value.
+
+Recommended generation command:
+
+```bash
+openssl rand -hex 32
+```
+
+This command returns 64 hex characters (32 bytes). Use that value directly as the environment variable value.
+
+Store this key in your secret manager and do not commit it to source control.
 
 ### Webhook secret encryption behavior
 

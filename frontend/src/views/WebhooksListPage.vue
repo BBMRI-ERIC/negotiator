@@ -12,7 +12,7 @@
           Webhooks allow external services to be notified when certain events happen. When the
           specified events occur, we send a POST request to each URL provided. Learn more in our
           <a
-            href="https://bbmri-eric.github.io/negotiator/administrator#webhooks"
+            href="https://bbmri-eric.github.io/negotiator/webhooks#managing-webhooks"
             target="_blank"
             rel="noopener noreferrer"
             >Webhooks Documentation</a
