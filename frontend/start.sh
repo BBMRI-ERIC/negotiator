@@ -6,12 +6,14 @@ for file in assets/*.js;
  do
   echo "Processing $file ..."
 
+  # Make sure that placeholders are not part of other placeholders to avoid accidental replacements.
+  # For example, ONE_PLACEHOLDER could affect ANOTHER_ONE_PLACEHOLDER
   sed -i -e "s|AUTH_URL_PLACEHOLDER|${AUTH_URL:-default_auth_url}|g" \
          -e "s|CLIENT_ID_PLACEHOLDER|${CLIENT_ID:-default_client_id}|g" \
          -e "s|REDIRECT_URI_PLACEHOLDER|${REDIRECT_URI:-default_redirect_uri}|g" \
          -e "s|SCOPES_PLACEHOLDER|${SCOPES:-default_scopes}|g" \
          -e "s|LOGOUT_URI_PLACEHOLDER|${LOGOUT_URI:-default_logout_uri}|g" \
-         -e "s|SILENT_REDIRECT_URI_PLACEHOLDER|${SILENT_REDIRECT_URI:-default_silent_redirect_uri}|g" \
+         -e "s|SILENT_REDIRECT_URL_PLACEHOLDER|${SILENT_REDIRECT_URI:-default_silent_redirect_uri}|g" \
          -e "s|RESOURCES_PLACEHOLDER|${API_RESOURCES:-default_resources}|g" \
          -e "s|MATOMO_HOST_PLACEHOLDER|${MATOMO_HOST:-default_matomo_host}|g" \
          -e "s|MATOMO_SITE_ID_PLACEHOLDER|${MATOMO_SITE_ID:-default_site_id}|g" \

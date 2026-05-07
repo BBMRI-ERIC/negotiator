@@ -19,7 +19,7 @@ const prodSettings = {
   post_logout_redirect_uri: 'LOGOUT_URI_PLACEHOLDER',
   response_type: 'code',
   automaticSilentRenew: true,
-  silentRedirectUri: 'SILENT_REDIRECT_URI_PLACEHOLDER',
+  silentRedirectUri: 'SILENT_REDIRECT_URL_PLACEHOLDER',
 }
 
 let oidcSettings
