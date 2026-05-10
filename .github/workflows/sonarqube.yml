@@ -8,8 +8,29 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
 jobs:
+  check-sonar-token:
+    name: Check SonarQube token
+    runs-on: ubuntu-latest
+    outputs:
+      has-sonarqube-token: ${{ steps.check-token.outputs.has-sonarqube-token }}
+    steps:
+      - name: Check SonarQube token
+        id: check-token
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -n "$SONAR_TOKEN" ]; then
+            echo "has-sonarqube-token=true" >> "$GITHUB_OUTPUT"
+            echo "SONAR_TOKEN secret is set."
+          else
+            echo "has-sonarqube-token=false" >> "$GITHUB_OUTPUT"
+            echo "SONAR_TOKEN secret is not set."
+          fi
+
   build:
     name: Build and analyze
+    needs: check-sonar-token
+    if: ${{ needs.check-sonar-token.outputs.has-sonarqube-token == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
