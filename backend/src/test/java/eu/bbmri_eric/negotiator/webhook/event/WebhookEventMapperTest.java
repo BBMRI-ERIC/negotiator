@@ -13,6 +13,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -135,5 +136,27 @@ class WebhookEventMapperTest {
                 NegotiationResourceState.SUBMITTED,
                 NegotiationResourceState.RESOURCE_AVAILABLE,
                 NegotiationResourceEvent.MARK_AS_AVAILABLE));
+  }
+
+  @Test
+  void documentedPayloadTypes_containsAllWebhookPayloads() {
+    Map<WebhookEventType, Class<?>> documentedPayloads = mapper.documentedPayloadTypes();
+
+    assertThat(documentedPayloads)
+        .containsEntry(
+            WebhookEventType.NEGOTIATION_INFO_UPDATED, NegotiationInfoUpdatedWebhookEvent.class)
+        .containsEntry(
+            WebhookEventType.NEGOTIATION_STATE_UPDATED, NegotiationStateUpdatedWebhookEvent.class)
+        .containsEntry(WebhookEventType.NEGOTIATION_ADDED, NegotiationAddedWebhookEvent.class)
+        .containsEntry(
+            WebhookEventType.NEGOTIATION_RESOURCE_ADDED,
+            NegotiationResourceUpdatedWebhookEvent.class)
+        .containsEntry(
+            WebhookEventType.NEGOTIATION_POST_ADDED, NegotiationPostAddedWebhookEvent.class)
+        .containsEntry(
+            WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED,
+            NegotiationResourceStateUpdatedWebhookEvent.class)
+        .containsEntry(WebhookEventType.PING, PingWebhookEvent.class)
+        .hasSize(7);
   }
 }

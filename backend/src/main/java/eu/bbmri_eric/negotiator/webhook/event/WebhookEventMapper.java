@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import java.time.Instant;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.context.ApplicationEvent;
@@ -79,6 +80,20 @@ public class WebhookEventMapper {
       return Optional.empty();
     }
     return Optional.of(eventDefinition.toEnvelope(event, objectMapper));
+  }
+
+  /**
+   * Lists all webhook event types and payload DTO classes that should be documented in OpenAPI.
+   *
+   * @return immutable map of webhook event type to payload DTO class
+   */
+  public Map<WebhookEventType, Class<?>> documentedPayloadTypes() {
+    Map<WebhookEventType, Class<?>> payloadTypes = new EnumMap<>(WebhookEventType.class);
+    for (WebhookEventDefinition<?, ?> definition : eventDefinitions.values()) {
+      payloadTypes.put(definition.eventType(), definition.dataType());
+    }
+    payloadTypes.put(WebhookEventType.PING, PingWebhookEvent.class);
+    return Map.copyOf(payloadTypes);
   }
 
   private record WebhookEventDefinition<S extends ApplicationEvent, T>(
