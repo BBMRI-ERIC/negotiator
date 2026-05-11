@@ -13,7 +13,7 @@
         @updateForm="updateForm"
       />
 
-      <div class="d-flex justify-content-center mt-4">
+      <div class="d-flex mt-4">
         <button
           type="button"
           class="btn btn-primary me-2"
@@ -21,14 +21,6 @@
           :disabled="!urlIsValid || !secretIsValid || isSaving"
         >
           Create
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          @click="goBack"
-          :disabled="isSaving"
-        >
-          Cancel
         </button>
       </div>
     </div>
@@ -101,9 +93,5 @@ const submitForm = async () => {
   } finally {
     isSaving.value = false
   }
-}
-
-const goBack = async () => {
-  await router.push('/settings/webhooks')
 }
 </script>
