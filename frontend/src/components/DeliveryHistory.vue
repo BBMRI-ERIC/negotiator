@@ -74,7 +74,7 @@
 
 <style scoped>
 /*
-  Override Bootstrap's auto margin on thearrow used to align the
+  Override Bootstrap's auto margin on the arrow used to align the
   arrow to the right, we set the auto margin on the timestamp to
   begin alignment to the right from there
 */
