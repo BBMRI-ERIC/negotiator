@@ -1,32 +1,61 @@
 <template>
-  <div class="admin-settings-page">
-    <div v-if="!isLoading">
-      <h1 class="mb-5 text-center v-step-settings-0">Administrator Console</h1>
-      <hr />
-      <InformationRequirementsSection
-        class="v-step-settings-1"
-        :resource-all-events="resourceAllEvents"
-        :info-requirements="infoRequirements"
-        :access-forms="accessForms"
-        @set-info-requirements="setInfoRequirements"
-        @add-requirement="() => {}"
-      />
-      <hr />
-      <WebhooksSection class="v-step-settings-2" />
-      <hr />
-      <EmailNotificationsSection class="v-step-settings-3" @view-email="viewEmailDetails" />
-      <hr />
-      <UserListSection class="v-step-settings-4" />
+  <div class="admin-settings-page container-fluid py-4">
+    <h1 class="mb-4 text-center v-step-settings-0">Administrator Console</h1>
+    <hr class="mb-4" />
+
+    <div class="row g-0">
+      <div class="col-auto">
+        <div
+          class="nav flex-column nav-pills me-3 border-end pe-3 h-100"
+          id="v-pills-tab"
+          role="tablist"
+          style="min-width: 200px"
+        >
+          <button
+            v-for="(item, index) in navItems"
+            :key="item.id"
+            class="nav-link text-start mb-1 rounded"
+            :class="{
+              'active bg-primary text-white': activeNavItemIndex === index,
+              'text-secondary': activeNavItemIndex !== index,
+            }"
+            data-bs-toggle="pill"
+            @click="activeNavItemIndex = index"
+          >
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
+      <div class="col">
+        <div class="tab-content ps-3" id="v-pills-tabContent">
+          <div class="tab-pane fade show active">
+            <div v-if="!isLoading">
+              <InformationRequirementsSection
+                v-if="activeNavItemIndex === 0"
+                :resource-all-events="resourceAllEvents"
+                :info-requirements="infoRequirements"
+                :access-forms="accessForms"
+                @set-info-requirements="setInfoRequirements"
+                @add-requirement="() => {}"
+              />
+              <WebhooksSection v-if="activeNavItemIndex === 1" />
+              <EmailNotificationsSection
+                v-if="activeNavItemIndex === 2"
+                @view-email="viewEmailDetails"
+              />
+              <UserListSection v-if="activeNavItemIndex === 3" />
+              <email-template-section v-if="activeNavItemIndex === 4" />
+              <access-forms-section v-if="activeNavItemIndex === 5" />
+              <ElementsManagement v-if="activeNavItemIndex === 6" />
+            </div>
+            <div v-else>
+              <LoadingIndicator />
+            </div>
+          </div>
+          <EmailDetailModal :email-id="selectedEmailId" />
+        </div>
+      </div>
     </div>
-    <LoadingIndicator v-else />
-    <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
-    <hr />
-    <email-template-section class="v-step-settings-5" />
-    <hr />
-    <div class="v-step-settings-6">
-      <access-forms-section />
-    </div>
-    <ElementsManagement class="v-step-settings-7" />
   </div>
 </template>
 
@@ -57,6 +86,45 @@ const infoRequirements = ref([])
 const accessForms = ref([])
 const isLoading = ref(true)
 const selectedEmailId = ref(null)
+
+const activeNavItemIndex = ref(0)
+const navItems = [
+  {
+    id: 1,
+    label: 'Information Requirements',
+    description: 'Configure the information requirements for resources.',
+  },
+  {
+    id: 2,
+    label: 'Webhooks',
+    description: 'Manage webhook subscriptions and deliveries.',
+  },
+  {
+    id: 3,
+    label: 'Email Notifications',
+    description: 'View and manage email notification settings.',
+  },
+  {
+    id: 4,
+    label: 'User Management',
+    description: 'Manage user accounts and permissions.',
+  },
+  {
+    id: 5,
+    label: 'Email Templates',
+    description: 'Create and edit email templates used for notifications.',
+  },
+  {
+    id: 6,
+    label: 'Access Forms',
+    description: 'Configure access request forms and settings.',
+  },
+  {
+    id: 7,
+    label: 'Form Elements Management',
+    description: 'Manage elements within the application.',
+  },
+]
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
