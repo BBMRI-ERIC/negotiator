@@ -77,6 +77,11 @@ import AdminBreadcrumb from '@/components/AdminBreadcrumb.vue'
 import DeliveryHistory from '@/components/DeliveryHistory.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import WebhookConfig from '@/components/WebhookConfig.vue'
+import {
+  buildWebhookPayload,
+  setSecretChangeMode,
+  useWebhookFormValidation,
+} from '@/composables/useWebhookFormValidation.js'
 
 const props = defineProps({
   webhookId: {
@@ -115,66 +120,12 @@ const showConfiguredSecretBanner = computed(
 )
 const showSecretInput = computed(() => !hasConfiguredSecret.value || changeSecretMode.value)
 
-const urlIsValid = computed(() => {
-  const pattern = /^https?:\/\/.+/
-  return pattern.test(form.url)
-})
-
-const secretValidation = computed(() => {
-  if (!showSecretInput.value) {
-    return { isValid: true, message: '' }
-  }
-
-  if (secretInput.value.length === 0) {
-    return { isValid: true, message: '' }
-  }
-
-  if (!secretInput.value.startsWith('whsec_')) {
-    return { isValid: false, message: 'Secret must start with whsec_' }
-  }
-
-  const encodedKeyMaterial = secretInput.value.slice('whsec_'.length)
-  if (encodedKeyMaterial.length === 0) {
-    return {
-      isValid: false,
-      message: 'Secret must include base64 key material after whsec_',
-    }
-  }
-
-  let decodedKeyMaterial
-  try {
-    decodedKeyMaterial = decodeBase64KeyMaterial(encodedKeyMaterial)
-  } catch {
-    return {
-      isValid: false,
-      message: 'Secret key material must be valid base64',
-    }
-  }
-
-  if (decodedKeyMaterial.length < 24 || decodedKeyMaterial.length > 64) {
-    return {
-      isValid: false,
-      message: 'Secret key material must decode to between 24 and 64 bytes',
-    }
-  }
-
-  return { isValid: true, message: '' }
-})
-
-const secretValidationMessage = computed(() => secretValidation.value.message)
-const showSecretValidationError = computed(
-  () => showSecretInput.value && secretValidationMessage.value.length > 0,
-)
-const secretIsValid = computed(() => secretValidation.value.isValid)
-
-const decodeBase64KeyMaterial = (encodedKeyMaterial) => {
-  if (!/^[A-Za-z0-9+/=]+$/.test(encodedKeyMaterial)) {
-    throw new Error('Invalid base64 characters')
-  }
-
-  const decodedBinary = atob(encodedKeyMaterial)
-  return Uint8Array.from(decodedBinary, (char) => char.charCodeAt(0))
-}
+const { urlIsValid, secretValidationMessage, showSecretValidationError, secretIsValid } =
+  useWebhookFormValidation({
+    url: computed(() => form.url),
+    secretInput,
+    showSecretInput,
+  })
 
 const isValidWebhookId = (value) => {
   const id = Number(value)
@@ -185,8 +136,7 @@ const resetFormFromWebhook = (currentWebhook) => {
   form.url = currentWebhook.url
   form.sslVerification = currentWebhook.sslVerification
   form.active = currentWebhook.active
-  secretInput.value = ''
-  changeSecretMode.value = false
+  setSecretChangeMode(changeSecretMode, secretInput, false)
 }
 
 const retrieveWebhook = async () => {
@@ -230,29 +180,20 @@ const updateForm = (updatedForm) => {
 }
 
 const startSecretChange = () => {
-  changeSecretMode.value = true
-  secretInput.value = ''
+  setSecretChangeMode(changeSecretMode, secretInput, true)
 }
 
 const cancelSecretChange = () => {
-  changeSecretMode.value = false
-  secretInput.value = ''
+  setSecretChangeMode(changeSecretMode, secretInput, false)
 }
 
-const buildWebhookPayload = () => {
-  const payload = {
-    url: form.url,
-    sslVerification: form.sslVerification,
-    active: form.active,
-  }
-
-  if (secretInput.value.length > 0 && secretIsValid.value) {
-    payload.secret = secretInput.value
-  } else if (isConfiguredWebhookWithSecret.value && changeSecretMode.value) {
-    payload.secret = null
-  }
-
-  return payload
+const buildUpdateWebhookPayload = () => {
+  return buildWebhookPayload({
+    form,
+    secretInput: secretInput.value,
+    secretIsValid: secretIsValid.value,
+    clearExistingSecret: isConfiguredWebhookWithSecret.value && changeSecretMode.value,
+  })
 }
 
 const submitForm = async () => {
@@ -262,7 +203,10 @@ const submitForm = async () => {
 
   try {
     isSaving.value = true
-    const updatedWebhook = await adminStore.updateWebhook(webhook.value.id, buildWebhookPayload())
+    const updatedWebhook = await adminStore.updateWebhook(
+      webhook.value.id,
+      buildUpdateWebhookPayload(),
+    )
     if (!updatedWebhook) {
       notifications.setNotification('Webhook update failed', 'danger')
       return
