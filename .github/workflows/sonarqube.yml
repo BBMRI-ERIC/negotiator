@@ -11,6 +11,7 @@ jobs:
   check-sonar-token:
     name: Check SonarQube token
     runs-on: ubuntu-latest
+    permissions: {}
     outputs:
       has-sonarqube-token: ${{ steps.check-token.outputs.has-sonarqube-token }}
     steps:
