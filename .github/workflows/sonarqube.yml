@@ -33,6 +33,8 @@ jobs:
     needs: check-sonar-token
     if: ${{ needs.check-sonar-token.outputs.has-sonarqube-token == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
         with:
