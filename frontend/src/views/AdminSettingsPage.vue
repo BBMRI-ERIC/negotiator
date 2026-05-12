@@ -17,6 +17,14 @@
             :class="{
               'active bg-primary text-white': activeNavItemIndex === index,
               'text-secondary': activeNavItemIndex !== index,
+              'v-step-settings-1': index === 0,
+              'v-step-settings-2': index === 1,
+              'v-step-settings-3': index === 2,
+              'v-step-settings-4': index === 3,
+              'v-step-settings-5': index === 4,
+              'v-step-settings-6': index === 5,
+              'v-step-settings-7': index === 6,
+              'v-step-settings-8': index === 7,
             }"
             data-bs-toggle="pill"
             @click="activeNavItemIndex = index"

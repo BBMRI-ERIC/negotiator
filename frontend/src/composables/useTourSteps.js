@@ -160,6 +160,13 @@ const formElementsStep = {
   content:
     'Create and customize form elements that can be used in access forms throughout the Negotiator system.',
 }
+const uiConfigurationStep = {
+  target: '.v-step-settings-8',
+  header: { title: 'UI Configuration' },
+  params: { enableScrolling: true },
+  content:
+    'Configure the user interface settings for the Negotiator system, including themes, layouts, and other visual elements.',
+}
 // Negotiation step templates
 const negotiationBodyStep = {
   target: '.v-step-negotiation-1',
@@ -275,6 +282,7 @@ export function useTourSteps(tourName, props = {}) {
       templatesStep,
       accessFormsStep,
       formElementsStep,
+      uiConfigurationStep,
     ],
     navTour: () => {
       const steps = [welcomeStep]
