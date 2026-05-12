@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>Form Elements</h2>
       <button
-        class="btn btn-success"
+        class="btn btn-sm btn-outline-primary"
         data-bs-toggle="modal"
         data-bs-target="#elementModal"
         @click="openCreateModal"

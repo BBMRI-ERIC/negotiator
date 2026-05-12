@@ -6,7 +6,7 @@
     :message-enabled="false"
     @confirm="save()"
   />
-  <h1 class="mb-5">UI Configuration</h1>
+  <h2 class="mb-4">UI Configuration</h2>
   <div class="ui-configuration">
     <div class="theme mb-2">
       <div class="mb-3 text-left fw-bold h3">

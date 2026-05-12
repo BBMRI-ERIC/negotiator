@@ -1,10 +1,10 @@
 <template>
-  <div class="container">
-    <div class="row gap-2 my-2 mx-auto mx-md-0 mb-3">
+  <div class="admin-settings-filter-sort">
+    <div class="row gap-2 my-2 mb-3">
       <div class="col d-flex flex-row">
         <div class="dropdown">
           <button
-            class="btn dropdown-toggle custom-button-hover mx-2"
+            class="btn btn-sm dropdown-toggle custom-button-hover me-2"
             :style="filtersSortData.sortBy !== '' ? buttonActiveStyle : buttonStyle"
             :class="filtersSortData.sortBy !== '' ? 'show' : ''"
             type="button"
@@ -38,7 +38,7 @@
         </div>
 
         <button
-          class="btn custom-button-hover"
+          class="btn btn-sm custom-button-hover"
           :style="buttonStyle"
           type="button"
           @click="changeSortDirection()"
@@ -50,7 +50,7 @@
         <button
           type="button"
           :style="clearButtonStyle"
-          class="btn custom-button-hover ms-auto"
+          class="btn btn-sm custom-button-hover ms-auto"
           @click="clearAllFilters()"
         >
           <i class="bi bi-x-circle" />
@@ -59,8 +59,8 @@
       </div>
     </div>
 
-    <div class="row row-cols-auto gap-2 ms-1 my-2">
-      <div v-for="field in filtersFields" :key="field.name" class="col mx-1">
+    <div class="row row-cols-auto gap-2 my-2">
+      <div v-for="field in filtersFields" :key="field.name" class="col">
         <TextFilter
           v-if="field.type == 'text' || field.type == 'email'"
           :name="field.name"

@@ -1,8 +1,10 @@
 <template>
   <div class="specific-area panel panel-default border-">
-    <div class="d-flex justify-content-between align-items-center mb-1">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-left">Information Requirements</h2>
-      <button class="btn btn-success" @click="addRequirement">Add Requirement</button>
+      <button class="btn btn-sm btn-outline-primary" @click="addRequirement">
+        Add Requirement
+      </button>
     </div>
     <div class="text-muted mb-3">
       Information requirements ensure Representatives of Resources in a Negotiation provide

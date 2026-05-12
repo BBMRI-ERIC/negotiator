@@ -1,5 +1,5 @@
 <template>
-  <div class="input-group">
+  <div class="input-group input-group-sm">
     <span class="input-group-text">{{ label }}</span>
     <input
       :id="name"
@@ -51,5 +51,3 @@ function resetValue() {
   emitInput()
 }
 </script>
-
-<style scoped></style>

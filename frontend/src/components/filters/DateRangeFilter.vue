@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="btn dropdown-toggle custom-button-hover"
+      class="btn btn-sm dropdown-toggle custom-button-hover"
       :style="buttonStyle"
       :class="buttonClass"
       type="button"
