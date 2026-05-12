@@ -68,16 +68,6 @@
           Admin Settings
         </router-link>
       </li>
-      <li v-if="isAdmin">
-        <router-link
-          to="/ui-configuration"
-          class="dropdown-item"
-          :style="{ color: uiConfiguration?.navbarTextColor }"
-        >
-          <i class="bi bi-house-gear" />
-          Admin UI Configuration
-        </router-link>
-      </li>
       <li v-if="showLegalLinksSection">
         <hr class="dropdown-divider" />
       </li>
