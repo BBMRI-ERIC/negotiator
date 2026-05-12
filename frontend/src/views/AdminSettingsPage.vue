@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-settings-page container-fluid py-4">
+  <div class="admin-settings-page container-fluid pb-4">
     <h1 class="mb-4 text-center v-step-settings-0">Administrator Console</h1>
     <hr class="mb-4" />
 

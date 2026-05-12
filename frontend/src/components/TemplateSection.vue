@@ -7,7 +7,7 @@
       :message-enabled="false"
       @confirm="updateTemplate()"
     />
-    <h2>Templates</h2>
+    <h2 class="mb-4">Templates</h2>
     <div class="text-muted mb-3">
       In this section, you can select an email template from the list and choose from the following
       options:
