@@ -9,7 +9,6 @@ import AdminSettingsPage from '../views/AdminSettingsPage.vue'
 import WebhooksListPage from '../views/WebhooksListPage.vue'
 import WebhookCreatePage from '../views/WebhookCreatePage.vue'
 import WebhookDetailPage from '../views/WebhookDetailPage.vue'
-import AdminUiConfigurationPage from '../views/AdminUiConfigurationPage.vue'
 import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
@@ -139,13 +138,6 @@ const router = createRouter({
       name: 'webhooks-detail',
       component: WebhookDetailPage,
       props: true,
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
-    },
-    {
-      path: '/ui-configuration',
-      name: 'ui-configuration',
-      component: AdminUiConfigurationPage,
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },

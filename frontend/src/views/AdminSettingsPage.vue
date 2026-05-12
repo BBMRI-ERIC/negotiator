@@ -3,7 +3,7 @@
     <h1 class="mb-4 text-center v-step-settings-0">Administrator Console</h1>
     <hr class="mb-4" />
 
-    <div class="row g-0">
+    <div class="row g-0 main-content">
       <div class="col-auto">
         <div
           class="nav flex-column nav-pills me-3 border-end pe-3 h-100"
@@ -47,6 +47,7 @@
               <email-template-section v-if="activeNavItemIndex === 4" />
               <access-forms-section v-if="activeNavItemIndex === 5" />
               <ElementsManagement v-if="activeNavItemIndex === 6" />
+              <AdminUiConfigurationPage v-if="activeNavItemIndex === 7" />
             </div>
             <div v-else>
               <LoadingIndicator />
@@ -74,6 +75,7 @@ import { Modal } from 'bootstrap'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
+import AdminUiConfigurationPage from '@/views/AdminUiConfigurationPage.vue'
 
 import ElementsManagement from '@/components/ElementsManagement.vue'
 const userStore = useUserStore()
@@ -124,6 +126,11 @@ const navItems = [
     label: 'Form Elements Management',
     description: 'Manage elements within the application.',
   },
+  {
+    id: 8,
+    label: 'UI Configuration',
+    description: 'Customize the user interface settings.',
+  },
 ]
 
 onMounted(async () => {
@@ -157,6 +164,9 @@ const viewEmailDetails = (email) => {
 </script>
 
 <style scoped>
+.main-content {
+  min-height: calc(100vh - (234px + 56px + 4.5rem + 110px));
+}
 a:link {
   text-decoration: none;
 }
