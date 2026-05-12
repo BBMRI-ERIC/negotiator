@@ -6,15 +6,14 @@
     <div class="row g-0 main-content">
       <div class="col-auto">
         <div
-          class="nav flex-column nav-pills me-3 border-end pe-3 h-100"
+          class="nav flex-row flex-md-column nav-pills pb-3 pb-md-0 me-3 pe-3 h-100"
           id="v-pills-tab"
           role="tablist"
-          style="min-width: 200px"
         >
           <button
             v-for="(item, index) in navItems"
             :key="item.id"
-            class="nav-link text-start mb-1 rounded"
+            class="nav-link text-md-start mb-1 rounded"
             :class="{
               'active bg-primary text-white': activeNavItemIndex === index,
               'text-secondary': activeNavItemIndex !== index,
@@ -164,6 +163,11 @@ const viewEmailDetails = (email) => {
 </script>
 
 <style scoped>
+@media (min-width: 768px) {
+  .nav {
+    border-right: 1px solid rgba(0, 0, 0, 0.125);
+  }
+}
 .main-content {
   min-height: calc(100vh - (234px + 56px + 4.5rem + 110px));
 }
