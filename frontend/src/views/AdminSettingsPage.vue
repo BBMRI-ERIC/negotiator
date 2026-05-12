@@ -47,7 +47,7 @@
               <email-template-section v-if="activeNavItemIndex === 4" />
               <access-forms-section v-if="activeNavItemIndex === 5" />
               <ElementsManagement v-if="activeNavItemIndex === 6" />
-              <AdminUiConfigurationPage v-if="activeNavItemIndex === 7" />
+              <AdminSettingsUiConfiguration v-if="activeNavItemIndex === 7" />
             </div>
             <div v-else>
               <LoadingIndicator />
@@ -75,7 +75,7 @@ import { Modal } from 'bootstrap'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
-import AdminUiConfigurationPage from '@/views/AdminUiConfigurationPage.vue'
+import AdminSettingsUiConfiguration from '@/components/AdminSettingsUiConfiguration.vue'
 
 import ElementsManagement from '@/components/ElementsManagement.vue'
 const userStore = useUserStore()
