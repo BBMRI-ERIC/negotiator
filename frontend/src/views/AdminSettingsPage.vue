@@ -28,6 +28,7 @@
             }"
             data-bs-toggle="pill"
             @click="activeNavItemIndex = index"
+            :title="item.description"
           >
             {{ item.label }}
           </button>
