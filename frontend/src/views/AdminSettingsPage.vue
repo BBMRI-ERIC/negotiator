@@ -183,4 +183,8 @@ const viewEmailDetails = (email) => {
 a:link {
   text-decoration: none;
 }
+.nav-link:hover:not(.active) {
+  background-color: #f8f9fa;
+  color: #212529;
+}
 </style>
