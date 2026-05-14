@@ -1,7 +1,7 @@
 <template>
   <div class="admin-settings-page-header mb-2">
     <div class="d-flex justify-content-between align-items-center mb-1">
-      <h1 class="text-left h2 mb-0">{{ title }}</h1>
+      <h2 class="text-left mb-0">{{ title }}</h2>
       <div class="header-actions">
         <slot name="actions" />
       </div>

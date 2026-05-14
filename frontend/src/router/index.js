@@ -6,13 +6,9 @@ import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
 import NetworksPage from '../views/NetworksPage.vue'
 import AdminSettingsPage from '../views/AdminSettingsPage.vue'
-import WebhooksListPage from '../views/WebhooksListPage.vue'
-import WebhookCreatePage from '../views/WebhookCreatePage.vue'
-import WebhookDetailPage from '../views/WebhookDetailPage.vue'
 import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
-import CustomizeForm from '@/views/CustomizeForm.vue'
 import GuidePage from '@/views/GuidePage.vue'
 import { ROLES } from '@/config/consts'
 import { useUserStore } from '../store/user.js'
@@ -113,31 +109,50 @@ const router = createRouter({
       meta: { isPublic: true, middleware: [hasUser] },
     },
     {
-      path: '/settings',
+      path: '/settings/:section?',
       name: 'settings',
       component: AdminSettingsPage,
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
-    },
-    {
-      path: '/settings/webhooks',
-      name: 'webhooks',
-      component: WebhooksListPage,
+      props: { activeNavItemIndex: 0 },
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },
     {
       path: '/settings/webhooks/new',
       name: 'webhooks-create',
-      component: WebhookCreatePage,
+      component: AdminSettingsPage,
+      props: { activeNavItemIndex: 1, isAddWebhookVisible: true },
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },
     {
       path: '/settings/webhooks/:webhookId',
       name: 'webhooks-detail',
-      component: WebhookDetailPage,
-      props: true,
+      component: AdminSettingsPage,
+      props: { activeNavItemIndex: 1, isEditWebhookVisible: true },
+      meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+    },
+    {
+      path: '/settings/createAccessForm',
+      name: 'create-Access-Form',
+      component: AdminSettingsPage,
+      props: { activeNavItemIndex: 5, typeAccessForm: 'Create', isAccessFormVisible: true },
+      meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+    },
+    {
+      path: '/settings/editAccessForm/:accessFormId?',
+      name: 'edit-access-Form',
+      component: AdminSettingsPage,
+      props: { activeNavItemIndex: 5, typeAccessForm: 'Edit', isAccessFormVisible: true },
+      meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+    },
+    {
+      path: '/settings/duplicateAccessForm/:accessFormId?',
+      name: 'duplicate-access-Form',
+      component: AdminSettingsPage,
+      props: { activeNavItemIndex: 5, typeAccessForm: 'Duplicate', isAccessFormVisible: true },
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },
@@ -155,27 +170,7 @@ const router = createRouter({
       props: true,
       meta: { isPublic: false },
     },
-    {
-      path: '/createAccessForm',
-      name: 'create-Access-Form',
-      component: CustomizeForm,
-      props: { typeAccessForm: 'Create' },
-      meta: { isPublic: false },
-    },
-    {
-      path: '/editAccessForm/:accessFormId?',
-      name: 'edit-access-Form',
-      component: CustomizeForm,
-      props: { typeAccessForm: 'Edit' },
-      meta: { isPublic: false },
-    },
-    {
-      path: '/duplicateAccessForm/:accessFormId?',
-      name: 'duplicate-access-Form',
-      component: CustomizeForm,
-      props: { typeAccessForm: 'Duplicate' },
-      meta: { isPublic: false },
-    },
+
     {
       path: '/guide',
       name: 'guide',

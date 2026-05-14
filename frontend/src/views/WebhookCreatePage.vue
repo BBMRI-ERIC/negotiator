@@ -53,7 +53,6 @@ const form = reactive({
 })
 
 const breadcrumbSegments = [
-  { label: 'Admin Settings', to: '/settings' },
   { label: 'Webhooks', to: '/settings/webhooks' },
   { label: 'Add Webhook' },
 ]

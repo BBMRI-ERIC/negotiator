@@ -5,7 +5,7 @@
     <div v-if="!isLoading" class="specific-area panel panel-default border-">
       <AdminSettingsPageHeader title="Webhooks">
         <template #actions>
-          <button class="btn btn-success" @click="addWebhook">Add Webhook</button>
+          <button class="btn btn-sm btn-outline-primary" @click="addWebhook">Add Webhook</button>
         </template>
 
         <template #description>
@@ -67,7 +67,7 @@ const webhooks = ref([])
 const deleteModal = ref(null)
 const webhookToDelete = ref(null)
 
-const breadcrumbSegments = [{ label: 'Admin Settings', to: '/settings' }, { label: 'Webhooks' }]
+const breadcrumbSegments = [{ label: 'Webhooks', to: '/settings/webhooks' }]
 
 const retrieveWebhooks = async () => {
   webhooks.value = (await adminStore.retrieveWebhooks()) || []
