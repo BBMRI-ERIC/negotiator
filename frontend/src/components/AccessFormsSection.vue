@@ -42,11 +42,11 @@ onMounted(() => {
 })
 
 function addAccessForm() {
-  router.push('/createAccessForm/')
+  router.push('/settings/createAccessForm/')
 }
 
 function editAccessForm(id) {
-  router.push('/editAccessForm/' + id)
+  router.push('/settings/editAccessForm/' + id)
 }
 </script>
 

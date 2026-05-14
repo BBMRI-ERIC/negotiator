@@ -108,7 +108,6 @@ const form = reactive({
 })
 
 const breadcrumbSegments = computed(() => [
-  { label: 'Admin Settings', to: '/settings' },
   { label: 'Webhooks', to: '/settings/webhooks' },
   { label: `Webhook ${webhook.value?.id ?? props.webhookId}` },
 ])

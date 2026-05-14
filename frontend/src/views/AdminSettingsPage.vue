@@ -27,7 +27,10 @@
               'v-step-settings-8': index === 7,
             }"
             data-bs-toggle="pill"
-            @click="activeNavItemIndex = index"
+            @click="
+              ((activeNavItemIndex = index),
+              $router.push(`/settings/${item.label.toLowerCase().replace(/\s+/g, '-')}`))
+            "
             :title="item.description"
           >
             {{ item.label }}
@@ -46,14 +49,28 @@
                 @set-info-requirements="setInfoRequirements"
                 @add-requirement="() => {}"
               />
-              <WebhooksSection v-if="activeNavItemIndex === 1" />
+              <div>
+                <WebhooksListPage
+                  v-if="activeNavItemIndex === 1 && !isAddWebhookVisible && !isEditWebhookVisible"
+                />
+                <WebhookCreatePage v-if="activeNavItemIndex === 1 && isAddWebhookVisible" />
+                <WebhookDetailPage v-if="activeNavItemIndex === 1 && isEditWebhookVisible" />
+              </div>
+
               <EmailNotificationsSection
                 v-if="activeNavItemIndex === 2"
                 @view-email="viewEmailDetails"
               />
               <UserListSection v-if="activeNavItemIndex === 3" />
-              <email-template-section v-if="activeNavItemIndex === 4" />
-              <access-forms-section v-if="activeNavItemIndex === 5" />
+              <EmailTemplateSection v-if="activeNavItemIndex === 4" />
+              <div>
+                <AccessFormsSection v-if="activeNavItemIndex === 5 && !isAccessFormVisible" />
+                <CustomizeForm
+                  v-if="activeNavItemIndex === 5 && isAccessFormVisible"
+                  :type-access-form="typeAccessForm"
+                />
+              </div>
+
               <ElementsManagement v-if="activeNavItemIndex === 6" />
               <AdminSettingsUiConfiguration v-if="activeNavItemIndex === 7" />
             </div>
@@ -75,7 +92,9 @@ import { useAdminStore } from '../store/admin.js'
 import { useFormsStore } from '../store/forms.js'
 import { useVueTourStore } from '../store/vueTour'
 import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
-import WebhooksSection from '@/components/WebhooksSection.vue'
+import WebhooksListPage from '@/views/WebhooksListPage.vue'
+import WebhookCreatePage from '@/views/WebhookCreatePage.vue'
+import WebhookDetailPage from '@/views/WebhookDetailPage.vue'
 import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
 import UserListSection from '@/components/UserListSection.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
@@ -83,9 +102,40 @@ import { Modal } from 'bootstrap'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
+import CustomizeForm from '@/views/CustomizeForm.vue'
 import AdminSettingsUiConfiguration from '@/components/AdminSettingsUiConfiguration.vue'
 
 import ElementsManagement from '@/components/ElementsManagement.vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const props = defineProps({
+  activeNavItemIndex: {
+    type: Number,
+    default: 0,
+  },
+  isWebhooksVisible: {
+    type: Boolean,
+    default: false,
+  },
+  isAddWebhookVisible: {
+    type: Boolean,
+    default: false,
+  },
+  isEditWebhookVisible: {
+    type: Boolean,
+    default: false,
+  },
+  isAccessFormVisible: {
+    type: Boolean,
+    default: false,
+  },
+  typeAccessForm: {
+    type: String,
+    default: '',
+  },
+})
 const userStore = useUserStore()
 const adminStore = useAdminStore()
 const formsStore = useFormsStore()
@@ -98,6 +148,7 @@ const isLoading = ref(true)
 const selectedEmailId = ref(null)
 
 const activeNavItemIndex = ref(0)
+
 const navItems = [
   {
     id: 1,
@@ -142,6 +193,12 @@ const navItems = [
 ]
 
 onMounted(async () => {
+  activeNavItemIndex.value = route.params.section
+    ? navItems.findIndex(
+        (item) => item.label.toLowerCase().replace(/\s+/g, '-') === route.params.section,
+      )
+    : props.activeNavItemIndex
+
   if (Object.keys(userStore.userInfo).length === 0) {
     await userStore.retrieveUser()
   }
