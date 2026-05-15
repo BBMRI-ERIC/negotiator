@@ -111,7 +111,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 
 const props = defineProps({
-  activeNavItemIndex: {
+  activeNavItemIndexProps: {
     type: Number,
     default: 0,
   },
@@ -197,7 +197,7 @@ onMounted(async () => {
     ? navItems.findIndex(
         (item) => item.label.toLowerCase().replace(/\s+/g, '-') === route.params.section,
       )
-    : props.activeNavItemIndex
+    : props.activeNavItemIndexProps
 
   if (Object.keys(userStore.userInfo).length === 0) {
     await userStore.retrieveUser()
