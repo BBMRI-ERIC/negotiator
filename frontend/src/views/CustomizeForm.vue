@@ -718,9 +718,7 @@ async function editAccessForm() {
 }
 
 function goToAdminSettingsPage() {
-  router.push({
-    name: 'settings',
-  })
+  router.push('/settings/access-forms')
 }
 
 function startModal() {
