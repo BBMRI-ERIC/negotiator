@@ -18,7 +18,7 @@ const prodSettings = {
   scope: 'SCOPES_PLACEHOLDER',
   post_logout_redirect_uri: 'LOGOUT_URI_PLACEHOLDER',
   response_type: 'code',
-  automaticSilentRenew: true,
+  automaticSilentRenew: 'AUTOMATIC_SILENT_RENEW_PLACEHOLDER' === 'true',
   silentRedirectUri: 'SILENT_REDIRECT_URL_PLACEHOLDER',
 }
 
