@@ -54,7 +54,10 @@
                   v-if="activeNavItemIndex === 1 && !isAddWebhookVisible && !isEditWebhookVisible"
                 />
                 <WebhookCreatePage v-if="activeNavItemIndex === 1 && isAddWebhookVisible" />
-                <WebhookDetailPage v-if="activeNavItemIndex === 1 && isEditWebhookVisible" />
+                <WebhookDetailPage
+                  v-if="activeNavItemIndex === 1 && isEditWebhookVisible"
+                  :webhook-id="$route.params.webhookId"
+                />
               </div>
 
               <EmailNotificationsSection
