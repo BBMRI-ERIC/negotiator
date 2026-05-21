@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.webhook.event;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,6 @@ public class WebhookEventMapper {
   private final Map<
           Class<? extends ApplicationEvent>, WebhookMappingStrategy<? extends ApplicationEvent>>
       strategyRegistry;
-  private final Map<WebhookEventType, Class<?>> documentedPayloadTypes;
 
   /**
    * Creates a mapper using a dedicated {@link ObjectMapper} copy configured for webhook mapping.
@@ -34,7 +32,6 @@ public class WebhookEventMapper {
     this.objectMapper =
         objectMapper.copy().addMixIn(ApplicationEvent.class, ApplicationEventMixin.class);
     this.strategyRegistry = buildStrategyRegistry(mappingStrategies);
-    this.documentedPayloadTypes = buildDocumentedPayloadTypes(mappingStrategies);
   }
 
   /**
@@ -55,15 +52,6 @@ public class WebhookEventMapper {
   private <T extends ApplicationEvent> Optional<WebhookPayloadEnvelope<?>> mapWithStrategy(
       WebhookMappingStrategy<T> strategy, ApplicationEvent event) {
     return strategy.map(strategy.getSupportedEventType().cast(event), objectMapper);
-  }
-
-  /**
-   * Lists all webhook event types and payload DTO classes that should be documented in OpenAPI.
-   *
-   * @return immutable map of webhook event type to payload DTO class
-   */
-  public Map<WebhookEventType, Class<?>> documentedPayloadTypes() {
-    return documentedPayloadTypes;
   }
 
   private static Map<
@@ -87,25 +75,6 @@ public class WebhookEventMapper {
       }
     }
     return Map.copyOf(registry);
-  }
-
-  private static Map<WebhookEventType, Class<?>> buildDocumentedPayloadTypes(
-      List<WebhookMappingStrategy<? extends ApplicationEvent>> mappingStrategies) {
-    Map<WebhookEventType, Class<?>> payloadTypes = new EnumMap<>(WebhookEventType.class);
-    for (WebhookMappingStrategy<? extends ApplicationEvent> strategy : mappingStrategies) {
-      for (Map.Entry<WebhookEventType, Class<?>> payloadEntry :
-          strategy.documentedPayloadTypes().entrySet()) {
-        Class<?> existingClass =
-            payloadTypes.putIfAbsent(payloadEntry.getKey(), payloadEntry.getValue());
-        if (existingClass != null && !existingClass.equals(payloadEntry.getValue())) {
-          throw new IllegalStateException(
-              "Conflicting documented payload type for webhook event: "
-                  + payloadEntry.getKey().value());
-        }
-      }
-    }
-    payloadTypes.put(WebhookEventType.PING, PingWebhookEvent.class);
-    return Map.copyOf(payloadTypes);
   }
 
   private static final class ApplicationEventMixin {

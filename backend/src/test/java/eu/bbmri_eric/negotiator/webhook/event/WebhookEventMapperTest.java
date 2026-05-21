@@ -183,28 +183,6 @@ class WebhookEventMapperTest {
   }
 
   @Test
-  void documentedPayloadTypes_containsAllWebhookPayloads() {
-    Map<WebhookEventType, Class<?>> documentedPayloads = mapper.documentedPayloadTypes();
-
-    assertThat(documentedPayloads)
-        .containsEntry(
-            WebhookEventType.NEGOTIATION_INFO_UPDATED, NegotiationInfoUpdatedWebhookEvent.class)
-        .containsEntry(
-            WebhookEventType.NEGOTIATION_STATE_UPDATED, NegotiationStateUpdatedWebhookEvent.class)
-        .containsEntry(WebhookEventType.NEGOTIATION_ADDED, NegotiationAddedWebhookEvent.class)
-        .containsEntry(
-            WebhookEventType.NEGOTIATION_RESOURCE_ADDED,
-            NegotiationResourceUpdatedWebhookEvent.class)
-        .containsEntry(
-            WebhookEventType.NEGOTIATION_POST_ADDED, NegotiationPostAddedWebhookEvent.class)
-        .containsEntry(
-            WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED,
-            NegotiationResourceStateUpdatedWebhookEvent.class)
-        .containsEntry(WebhookEventType.PING, PingWebhookEvent.class)
-        .hasSize(7);
-  }
-
-  @Test
   void constructor_whenDuplicateStrategiesConfigured_throwsException() {
     WebhookMappingStrategy<NewNegotiationEvent> duplicateStrategy =
         new WebhookMappingStrategy<>() {

@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.context.ApplicationEvent;
 
 /** Strategy for mapping a specific {@link ApplicationEvent} subtype to webhook payloads. */
-interface WebhookMappingStrategy<T extends ApplicationEvent> {
+public interface WebhookMappingStrategy<T extends ApplicationEvent> {
 
   /**
    * @return application event type supported by this strategy
