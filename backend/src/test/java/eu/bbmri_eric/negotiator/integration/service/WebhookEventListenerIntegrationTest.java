@@ -77,9 +77,9 @@ class WebhookEventListenerIntegrationTest {
         new NegotiationStateChangeEvent(
             this,
             "negotiation-1",
-            NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT));
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -96,9 +96,9 @@ class WebhookEventListenerIntegrationTest {
                       .withRequestBody(matchingJsonPath("$.timestamp"))
                       .withRequestBody(
                           matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1")))
-                      .withRequestBody(matchingJsonPath("$.data.fromState", equalTo("DRAFT")))
-                      .withRequestBody(matchingJsonPath("$.data.toState", equalTo("SUBMITTED")))
-                      .withRequestBody(matchingJsonPath("$.data.event", equalTo("SUBMIT"))));
+                      .withRequestBody(matchingJsonPath("$.data.fromState", equalTo("SUBMITTED")))
+                      .withRequestBody(matchingJsonPath("$.data.toState", equalTo("IN_PROGRESS")))
+                      .withRequestBody(matchingJsonPath("$.data.event", equalTo("APPROVE"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/negotiation-two"))
@@ -111,6 +111,56 @@ class WebhookEventListenerIntegrationTest {
                       .withRequestBody(
                           matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/negotiation-inactive")));
+            });
+  }
+
+  @Test
+  void publishNegotiationStateChangeEvent_whenDraftToSubmitted_dispatchesNegotiationAdded() {
+    String baseUrl = wireMockServer.getRuntimeInfo().getHttpBaseUrl();
+    createWebhook(baseUrl + "/negotiation-add-one", true);
+    createWebhook(baseUrl + "/negotiation-add-two", true);
+    createWebhook(baseUrl + "/negotiation-add-inactive", false);
+
+    wireMockServer.stubFor(post(urlEqualTo("/negotiation-add-one")));
+    wireMockServer.stubFor(post(urlEqualTo("/negotiation-add-two")));
+
+    eventPublisher.publishEvent(
+        new NegotiationStateChangeEvent(
+            this,
+            "negotiation-1",
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT));
+
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              wireMockServer.verify(
+                  1,
+                  postRequestedFor(urlEqualTo("/negotiation-add-one"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_ADDED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1")))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.currentState", equalTo("SUBMITTED"))));
+              wireMockServer.verify(
+                  1,
+                  postRequestedFor(urlEqualTo("/negotiation-add-two"))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_ADDED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1")))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.currentState", equalTo("SUBMITTED"))));
+              wireMockServer.verify(0, postRequestedFor(urlEqualTo("/negotiation-add-inactive")));
             });
   }
 
@@ -222,7 +272,8 @@ class WebhookEventListenerIntegrationTest {
     wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-one")));
     wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-two")));
 
-    eventPublisher.publishEvent(new NewNegotiationEvent(this, "negotiation-4"));
+    eventPublisher.publishEvent(
+        new NewNegotiationEvent(this, "negotiation-4", NegotiationState.SUBMITTED));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -237,7 +288,9 @@ class WebhookEventListenerIntegrationTest {
                               "$.type", equalTo(WebhookEventType.NEGOTIATION_ADDED.value())))
                       .withRequestBody(matchingJsonPath("$.timestamp"))
                       .withRequestBody(
-                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-4"))));
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-4")))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.currentState", equalTo("SUBMITTED"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/new-negotiation-two"))
@@ -247,8 +300,31 @@ class WebhookEventListenerIntegrationTest {
                               "$.type", equalTo(WebhookEventType.NEGOTIATION_ADDED.value())))
                       .withRequestBody(matchingJsonPath("$.timestamp"))
                       .withRequestBody(
-                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-4"))));
+                          matchingJsonPath("$.data.negotiationId", equalTo("negotiation-4")))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.currentState", equalTo("SUBMITTED"))));
               wireMockServer.verify(0, postRequestedFor(urlEqualTo("/new-negotiation-inactive")));
+            });
+  }
+
+  @Test
+  void publishNewNegotiationEvent_whenDraft_doesNotDispatchToActiveWebhooks() {
+    String baseUrl = wireMockServer.getRuntimeInfo().getHttpBaseUrl();
+    createWebhook(baseUrl + "/new-negotiation-draft-one", true);
+    createWebhook(baseUrl + "/new-negotiation-draft-two", true);
+
+    wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-draft-one")));
+    wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-draft-two")));
+
+    eventPublisher.publishEvent(
+        new NewNegotiationEvent(this, "negotiation-7", NegotiationState.DRAFT));
+
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              wireMockServer.verify(0, postRequestedFor(urlEqualTo("/new-negotiation-draft-one")));
+              wireMockServer.verify(0, postRequestedFor(urlEqualTo("/new-negotiation-draft-two")));
             });
   }
 

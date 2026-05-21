@@ -163,9 +163,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     if (negotiationBody.getAttachments() != null) {
       linkAttachments(negotiationBody, negotiation);
     }
-    if (Objects.equals(negotiation.getCurrentState(), NegotiationState.SUBMITTED)) {
-      eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiation.getId()));
-    }
+    eventPublisher.publishEvent(
+        new NewNegotiationEvent(this, negotiation.getId(), negotiation.getCurrentState()));
     return negotiation;
   }
 
