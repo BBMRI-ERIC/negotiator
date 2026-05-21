@@ -1,8 +1,9 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import eu.bbmri_eric.negotiator.webhook.event.PingWebhookEvent;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventDoc;
-import eu.bbmri_eric.negotiator.webhook.event.WebhookEventMapper;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookMappingStrategy;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.converter.ResolvedSchema;
@@ -21,9 +22,11 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
 
 /** Builds generated OpenAPI webhook documentation from mapped webhook event definitions. */
@@ -31,11 +34,12 @@ import org.springframework.stereotype.Component;
 public class WebhookOpenApiDocumentationFactory {
   private static final String APPLICATION_JSON = "application/json";
 
-  private final WebhookEventMapper webhookEventMapper;
+  private final Map<WebhookEventType, Class<?>> documentedPayloadTypes;
   private final List<WebhookHeaderDocumentation> webhookHeaderDocumentation;
 
-  public WebhookOpenApiDocumentationFactory(WebhookEventMapper webhookEventMapper) {
-    this.webhookEventMapper = webhookEventMapper;
+  public WebhookOpenApiDocumentationFactory(
+      List<WebhookMappingStrategy<? extends ApplicationEvent>> mappingStrategies) {
+    this.documentedPayloadTypes = buildDocumentedPayloadTypes(mappingStrategies);
     this.webhookHeaderDocumentation = discoverWebhookHeaderDocumentation();
   }
 
@@ -47,8 +51,7 @@ public class WebhookOpenApiDocumentationFactory {
    */
   public Map<String, PathItem> buildWebhookPaths(Components components) {
     Map<String, PathItem> webhookPaths = new TreeMap<>();
-    for (Map.Entry<WebhookEventType, Class<?>> definition :
-        webhookEventMapper.documentedPayloadTypes().entrySet()) {
+    for (Map.Entry<WebhookEventType, Class<?>> definition : documentedPayloadTypes.entrySet()) {
       WebhookEventType eventType = definition.getKey();
       Class<?> dataType = definition.getValue();
       String dataSchemaName = registerDataSchema(components, dataType);
@@ -59,6 +62,25 @@ public class WebhookOpenApiDocumentationFactory {
           new PathItem().post(buildWebhookOperation(eventType, dataType, envelopeSchemaName)));
     }
     return Map.copyOf(webhookPaths);
+  }
+
+  private static Map<WebhookEventType, Class<?>> buildDocumentedPayloadTypes(
+      List<WebhookMappingStrategy<? extends ApplicationEvent>> mappingStrategies) {
+    Map<WebhookEventType, Class<?>> payloadTypes = new EnumMap<>(WebhookEventType.class);
+    for (WebhookMappingStrategy<? extends ApplicationEvent> strategy : mappingStrategies) {
+      for (Map.Entry<WebhookEventType, Class<?>> payloadEntry :
+          strategy.documentedPayloadTypes().entrySet()) {
+        Class<?> existingClass =
+            payloadTypes.putIfAbsent(payloadEntry.getKey(), payloadEntry.getValue());
+        if (existingClass != null && !existingClass.equals(payloadEntry.getValue())) {
+          throw new IllegalStateException(
+              "Conflicting documented payload type for webhook event: "
+                  + payloadEntry.getKey().value());
+        }
+      }
+    }
+    payloadTypes.put(WebhookEventType.PING, PingWebhookEvent.class);
+    return Map.copyOf(payloadTypes);
   }
 
   private String registerDataSchema(Components components, Class<?> dataType) {
