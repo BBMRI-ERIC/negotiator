@@ -22,6 +22,7 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class WebhookOpenApiDocumentationFactory {
           eventType.value(),
           new PathItem().post(buildWebhookOperation(eventType, dataType, envelopeSchemaName)));
     }
-    return Map.copyOf(webhookPaths);
+    return Collections.unmodifiableMap(webhookPaths);
   }
 
   private static Map<WebhookEventType, Class<?>> buildDocumentedPayloadTypes(
