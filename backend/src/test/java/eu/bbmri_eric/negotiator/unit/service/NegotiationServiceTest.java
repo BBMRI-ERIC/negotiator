@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.attachment.Attachment;
@@ -24,6 +25,7 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationServiceImpl;
+import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
@@ -42,6 +44,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -168,6 +171,7 @@ public class NegotiationServiceTest {
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
+    negotiation.setId("negotiation-1");
     negotiation.setCurrentState(NegotiationState.SUBMITTED);
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
@@ -178,6 +182,12 @@ public class NegotiationServiceTest {
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
     assertEquals(null, negotiationDTO.getStatus());
+
+    ArgumentCaptor<NewNegotiationEvent> eventCaptor =
+        ArgumentCaptor.forClass(NewNegotiationEvent.class);
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    assertEquals("negotiation-1", eventCaptor.getValue().getNegotiationId());
+    assertEquals(NegotiationState.SUBMITTED, eventCaptor.getValue().getCurrentState());
   }
 
   @Test
@@ -188,6 +198,7 @@ public class NegotiationServiceTest {
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
+    negotiation.setId("negotiation-2");
     negotiation.setCurrentState(NegotiationState.DRAFT);
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
@@ -198,6 +209,12 @@ public class NegotiationServiceTest {
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
     assertNull(negotiationDTO.getStatus());
+
+    ArgumentCaptor<NewNegotiationEvent> eventCaptor =
+        ArgumentCaptor.forClass(NewNegotiationEvent.class);
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    assertEquals("negotiation-2", eventCaptor.getValue().getNegotiationId());
+    assertEquals(NegotiationState.DRAFT, eventCaptor.getValue().getCurrentState());
   }
 
   @Test
