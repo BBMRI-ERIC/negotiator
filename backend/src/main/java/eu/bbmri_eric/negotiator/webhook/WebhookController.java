@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/v3/webhooks")
-@Tag(name = "Webhook API", description = "Operations related to webhooks")
+@Tag(name = "Webhook REST Operations", description = "REST operations related to webhooks")
 @SecurityRequirement(name = "security_auth")
 public class WebhookController {
 
