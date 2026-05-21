@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param currentState state of the created negotiation
  */
 @WebhookEventDoc(
-    summary = "Negotiation created",
+    summary = "Negotiation added",
     description = "Sent when a new negotiation is created in the Negotiator.")
 @Schema(description = "Webhook data payload for a newly created negotiation.")
 record NegotiationAddedWebhookEvent(
