@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param negotiationId identifier of the affected negotiation
  */
 @WebhookEventDoc(
-    summary = "Negotiation resources added",
+    summary = "Resource was added to Negotiation",
     description = "Sent when one or more resources are added to an existing negotiation.")
 @Schema(description = "Webhook data payload for newly added negotiation resources.")
 record NegotiationResourceUpdatedWebhookEvent(
