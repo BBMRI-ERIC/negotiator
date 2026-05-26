@@ -41,8 +41,23 @@
         <div class="tab-content ps-3" id="v-pills-tabContent">
           <div class="tab-pane fade show active">
             <div v-if="!isLoading">
+              <AdminSettingsUiConfiguration v-if="activeNavItemIndex === 0" />
+              <UserListSection v-if="activeNavItemIndex === 1" />
+              <EmailNotificationsSection
+                v-if="activeNavItemIndex === 2"
+                @view-email="viewEmailDetails"
+              />
+              <EmailTemplateSection v-if="activeNavItemIndex === 3" />
+              <div>
+                <AccessFormsSection v-if="activeNavItemIndex === 4 && !isAccessFormVisible" />
+                <CustomizeForm
+                  v-if="activeNavItemIndex === 4 && isAccessFormVisible"
+                  :type-access-form="typeAccessForm"
+                />
+              </div>
+              <ElementsManagement v-if="activeNavItemIndex === 5" />
               <InformationRequirementsSection
-                v-if="activeNavItemIndex === 0"
+                v-if="activeNavItemIndex === 6"
                 :resource-all-events="resourceAllEvents"
                 :info-requirements="infoRequirements"
                 :access-forms="accessForms"
@@ -51,31 +66,14 @@
               />
               <div>
                 <WebhooksListPage
-                  v-if="activeNavItemIndex === 1 && !isAddWebhookVisible && !isEditWebhookVisible"
+                  v-if="activeNavItemIndex === 7 && !isAddWebhookVisible && !isEditWebhookVisible"
                 />
-                <WebhookCreatePage v-if="activeNavItemIndex === 1 && isAddWebhookVisible" />
+                <WebhookCreatePage v-if="activeNavItemIndex === 7 && isAddWebhookVisible" />
                 <WebhookDetailPage
-                  v-if="activeNavItemIndex === 1 && isEditWebhookVisible"
+                  v-if="activeNavItemIndex === 7 && isEditWebhookVisible"
                   :webhook-id="$route.params.webhookId"
                 />
               </div>
-
-              <EmailNotificationsSection
-                v-if="activeNavItemIndex === 2"
-                @view-email="viewEmailDetails"
-              />
-              <UserListSection v-if="activeNavItemIndex === 3" />
-              <EmailTemplateSection v-if="activeNavItemIndex === 4" />
-              <div>
-                <AccessFormsSection v-if="activeNavItemIndex === 5 && !isAccessFormVisible" />
-                <CustomizeForm
-                  v-if="activeNavItemIndex === 5 && isAccessFormVisible"
-                  :type-access-form="typeAccessForm"
-                />
-              </div>
-
-              <ElementsManagement v-if="activeNavItemIndex === 6" />
-              <AdminSettingsUiConfiguration v-if="activeNavItemIndex === 7" />
             </div>
             <div v-else>
               <LoadingIndicator />
@@ -155,13 +153,13 @@ const activeNavItemIndex = ref(0)
 const navItems = [
   {
     id: 1,
-    label: 'Information Requirements',
-    description: 'Configure the information requirements for resources.',
+    label: 'UI Configuration',
+    description: 'Customize the user interface settings.',
   },
   {
     id: 2,
-    label: 'Webhooks',
-    description: 'Manage webhook subscriptions and deliveries.',
+    label: 'Users',
+    description: 'Manage user accounts and permissions.',
   },
   {
     id: 3,
@@ -170,28 +168,28 @@ const navItems = [
   },
   {
     id: 4,
-    label: 'Users',
-    description: 'Manage user accounts and permissions.',
-  },
-  {
-    id: 5,
     label: 'Email Templates',
     description: 'Create and edit email templates used for notifications.',
   },
   {
-    id: 6,
+    id: 5,
     label: 'Access Forms',
     description: 'Configure access request forms and settings.',
   },
   {
-    id: 7,
+    id: 6,
     label: 'Form Elements',
     description: 'Manage elements within the application.',
   },
   {
+    id: 7,
+    label: 'Information Requirements',
+    description: 'Configure the information requirements for resources.',
+  },
+  {
     id: 8,
-    label: 'UI Configuration',
-    description: 'Customize the user interface settings.',
+    label: 'Webhooks',
+    description: 'Manage webhook subscriptions and deliveries.',
   },
 ]
 
