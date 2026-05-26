@@ -78,11 +78,11 @@ onMounted(async () => {
 })
 
 const addWebhook = () => {
-  router.push('/settings/webhooks/new')
+  router.push({ name: 'admin-webhooks-create' })
 }
 
 const editWebhook = (webhook) => {
-  router.push(`/settings/webhooks/${webhook.id}`)
+  router.push({ name: 'admin-webhooks-detail', params: { webhookId: webhook.id } })
 }
 
 const deleteWebhook = (webhook) => {

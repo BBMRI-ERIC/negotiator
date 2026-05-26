@@ -46,11 +46,11 @@ onMounted(() => {
 })
 
 function addAccessForm() {
-  router.push('/settings/createAccessForm/')
+  router.push({ name: 'admin-access-form-create' })
 }
 
 function editAccessForm(id) {
-  router.push('/settings/editAccessForm/' + id)
+  router.push({ name: 'admin-access-form-edit', params: { accessFormId: id } })
 }
 </script>
 

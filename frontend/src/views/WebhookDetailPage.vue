@@ -142,7 +142,7 @@ const resetFormFromWebhook = (currentWebhook) => {
 const retrieveWebhook = async () => {
   if (!isValidWebhookId(props.webhookId)) {
     notifications.setNotification('Webhook not found', 'danger')
-    await router.replace('/settings/webhooks')
+    await router.replace({ name: 'admin-webhooks' })
     return
   }
 
@@ -158,7 +158,7 @@ const retrieveWebhook = async () => {
     resetFormFromWebhook(currentWebhook)
   } catch {
     notifications.setNotification('Webhook not found', 'danger')
-    await router.replace('/settings/webhooks')
+    await router.replace({ name: 'admin-webhooks' })
   } finally {
     isLoading.value = false
   }
@@ -188,7 +188,7 @@ const cancelSecretChange = () => {
 }
 
 const cancel = () => {
-  router.push('/settings/webhooks')
+  router.push({ name: 'admin-webhooks' })
 }
 
 const buildUpdateWebhookPayload = () => {
@@ -215,7 +215,7 @@ const submitForm = async () => {
       notifications.setNotification('Webhook update failed', 'danger')
       return
     }
-    await router.push('/settings/webhooks')
+    await router.push({ name: 'admin-webhooks' })
   } catch (error) {
     console.error('Error updating webhook:', error)
     notifications.setNotification('Webhook update failed', 'danger')

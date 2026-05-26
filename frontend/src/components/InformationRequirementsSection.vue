@@ -27,7 +27,14 @@
       @close-modal="closeModal"
     />
 
-    <div v-if="!infoRequirements?.['info-requirements']?.length" class="alert alert-light my-3">
+    <div v-if="isLoading" class="text-center py-4">
+      <LoadingIndicator />
+    </div>
+
+    <div
+      v-else-if="!infoRequirements?.['info-requirements']?.length"
+      class="alert alert-light my-3"
+    >
       No information requirements configured.
     </div>
 
@@ -55,47 +62,53 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import InformationRequirementModal from '../components/modals/InfoRequirementModal.vue'
 import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
+import LoadingIndicator from '@/components/LoadingIndicator.vue'
+import { useAdminStore } from '@/store/admin.js'
+import { useFormsStore } from '@/store/forms.js'
 
-const props = defineProps({
-  resourceAllEvents: {
-    type: Object,
-    required: true,
-  },
-  infoRequirements: {
-    type: Object,
-    required: true,
-  },
-  accessForms: {
-    type: Array,
-    required: true,
-  },
-})
+const adminStore = useAdminStore()
+const formsStore = useFormsStore()
 
-const emit = defineEmits(['set-info-requirements'])
+const resourceAllEvents = ref([])
+const infoRequirements = ref({})
+const accessForms = ref([])
+const isLoading = ref(false)
 
 const showModal = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(10)
 
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    ;[resourceAllEvents.value, infoRequirements.value, accessForms.value] = await Promise.all([
+      adminStore.retrieveResourceAllEvents(),
+      adminStore.retrieveInfoRequirements(),
+      formsStore.retrieveAllAccessForms(),
+    ])
+  } finally {
+    isLoading.value = false
+  }
+})
+
 const paginatedRequirements = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   const end = start + pageSize.value
-  return props.infoRequirements?.['info-requirements']?.slice(start, end) || []
+  return infoRequirements.value?.['info-requirements']?.slice(start, end) || []
 })
 
 function getEventLabel(eventValue) {
-  const event = props.resourceAllEvents.find((e) => e.value === eventValue)
+  const event = resourceAllEvents.value.find((e) => e.value === eventValue)
   return event ? event.label : 'Unknown'
 }
 
-function setInfoRequirements(data) {
+async function setInfoRequirements(data) {
   try {
-    // Emit the data to the parent component to handle store update
-    emit('set-info-requirements', data)
-    // Close the modal after successful emission
+    await adminStore.setInfoRequirements(data)
+    infoRequirements.value = await adminStore.retrieveInfoRequirements()
     closeModal()
   } catch (error) {
     console.error('Error setting info requirements:', error)
