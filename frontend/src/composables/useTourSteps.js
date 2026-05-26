@@ -112,14 +112,14 @@ const adminConsoleStep = {
     'The Admin Settings Page is a centralized interface for administrators to configure and manage system-wide settings. This page provides tools to customize application behavior, manage user roles, and ensure the system operates according to organizational requirements.',
 }
 const infoReqStep = {
-  target: '.v-step-settings-1',
+  target: '.v-step-settings-7',
   header: { title: 'Information Requirements' },
   params: { enableScrolling: false },
   content:
     'The Negotiator allows you to define additional information requirements for Resource State Machine transitions available to the Representatives.',
 }
 const webhooksStep = {
-  target: '.v-step-settings-2',
+  target: '.v-step-settings-8',
   header: { title: 'Webhooks' },
   params: { enableScrolling: false },
   content:
@@ -133,35 +133,35 @@ const emailsStep = {
     'Search and manage all email templates used by the Negotiator for various notifications and communications with users.',
 }
 const usersStep = {
-  target: '.v-step-settings-4',
+  target: '.v-step-settings-2',
   header: { title: 'Users' },
   params: { enableScrolling: true },
   content:
     'Search user accounts, roles, and permissions within the Negotiator system to ensure proper access control and security.',
 }
 const templatesStep = {
-  target: '.v-step-settings-5',
+  target: '.v-step-settings-4',
   header: { title: 'Templates' },
   params: { enableScrolling: true },
   content:
     'The Negotiator provides a set of customizable templates used for generating PDFs, emails, and more',
 }
 const accessFormsStep = {
-  target: '.v-step-settings-6',
+  target: '.v-step-settings-5',
   header: { title: 'Access Forms' },
   params: { enableScrolling: true },
   content:
     'Adding and managing access forms that users must complete to request access to resources within the Negotiator platform.',
 }
 const formElementsStep = {
-  target: '.v-step-settings-7',
+  target: '.v-step-settings-6',
   header: { title: 'Form Elements' },
   params: { enableScrolling: true },
   content:
     'Create and customize form elements that can be used in access forms throughout the Negotiator system.',
 }
 const uiConfigurationStep = {
-  target: '.v-step-settings-8',
+  target: '.v-step-settings-1',
   header: { title: 'UI Configuration' },
   params: { enableScrolling: true },
   content:
@@ -275,14 +275,14 @@ export function useTourSteps(tourName, props = {}) {
     governanceTour: [orgStep, networksMgmtStep, orgSearchStep, createOrgStep],
     adminSettingsTour: [
       adminConsoleStep,
-      infoReqStep,
-      webhooksStep,
-      emailsStep,
+      uiConfigurationStep,
       usersStep,
+      emailsStep,
       templatesStep,
       accessFormsStep,
       formElementsStep,
-      uiConfigurationStep,
+      infoReqStep,
+      webhooksStep,
     ],
     navTour: () => {
       const steps = [welcomeStep]
