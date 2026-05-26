@@ -1,6 +1,6 @@
 <template>
   <div class="email-notifications-section">
-    <h3 class="mb-4">Emails</h3>
+    <AdminSettingsPageHeader title="Emails" />
 
     <!-- Filters -->
     <AdminSettingsFilterSort
@@ -108,6 +108,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import { ROLES } from '@/config/consts'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
 import { formatTimestamp } from '@/composables/utils.js'

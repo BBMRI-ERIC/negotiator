@@ -1,6 +1,7 @@
 <template>
   <div class="webhook-create-page">
     <div class="specific-area panel panel-default border-">
+      <AdminSettingsPageHeader title="Add Webhook" />
       <WebhookConfig
         :form="form"
         :urlIsValid="urlIsValid"
@@ -39,6 +40,7 @@ import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/store/admin.js'
 import { useNotificationsStore } from '@/store/notifications.js'
 import WebhookConfig from '@/components/WebhookConfig.vue'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import {
   buildWebhookPayload,
   useWebhookFormValidation,

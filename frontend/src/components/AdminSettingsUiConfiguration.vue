@@ -6,7 +6,7 @@
     :message-enabled="false"
     @confirm="save()"
   />
-  <h2 class="mb-4">UI Configuration</h2>
+  <AdminSettingsPageHeader title="UI Configuration" />
   <div class="ui-configuration">
     <div class="theme mb-2">
       <div class="mb-3 text-left fw-bold h3">
@@ -127,6 +127,7 @@
 <script setup>
 import { computed } from 'vue'
 import UiConfigurationSetting from '../components/UiConfigurationSetting.vue'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import HomePage from '../views/HomePage.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'

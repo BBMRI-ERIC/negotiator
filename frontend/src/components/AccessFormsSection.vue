@@ -1,13 +1,16 @@
 <template>
   <div class="access-forms-section">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="text-left">Access Forms</h2>
-      <button class="btn btn-sm btn-outline-primary" @click="addAccessForm">Add Access Form</button>
-    </div>
-    <div class="text-muted mb-3">
-      Manage your access forms below. You can add a new form, view all existing forms, or update
-      them as needed.
-    </div>
+    <AdminSettingsPageHeader title="Access Forms">
+      <template #actions>
+        <button class="btn btn-sm btn-outline-primary" @click="addAccessForm">
+          Add Access Form
+        </button>
+      </template>
+      <template #description>
+        Manage your access forms below. You can add a new form, view all existing forms, or update
+        them as needed.
+      </template>
+    </AdminSettingsPageHeader>
   </div>
   <table v-if="allAccessForms" class="table table-hover table-sm mt-3">
     <thead>
@@ -29,6 +32,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useNegotiationFormStore } from '../store/negotiationForm'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import { useRouter } from 'vue-router'
 
 const negotiationFormStore = useNegotiationFormStore()
