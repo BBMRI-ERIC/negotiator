@@ -1,21 +1,22 @@
 <template>
   <div class="specific-area panel panel-default border-">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="text-left">Information Requirements</h2>
-      <button class="btn btn-sm btn-outline-primary" @click="addRequirement">
-        Add Requirement
-      </button>
-    </div>
-    <div class="text-muted mb-3">
-      Information requirements ensure Representatives of Resources in a Negotiation provide
-      additional information before advancing to a chosen state. Learn more in our
-      <a
-        href="https://bbmri-eric.github.io/negotiator/administrator#additional-information-requirements-guide"
-        target="_blank"
-        rel="noopener noreferrer"
-        >Information Requirements Documentation</a
-      >.
-    </div>
+    <AdminSettingsPageHeader title="Information Requirements">
+      <template #actions>
+        <button class="btn btn-sm btn-outline-primary" @click="addRequirement">
+          Add Requirement
+        </button>
+      </template>
+      <template #description>
+        Information requirements ensure Representatives of Resources in a Negotiation provide
+        additional information before advancing to a chosen state. Learn more in our
+        <a
+          href="https://bbmri-eric.github.io/negotiator/administrator#additional-information-requirements-guide"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Information Requirements Documentation</a
+        >.
+      </template>
+    </AdminSettingsPageHeader>
 
     <!-- The modal component -->
     <InformationRequirementModal
@@ -56,6 +57,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import InformationRequirementModal from '../components/modals/InfoRequirementModal.vue'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 
 const props = defineProps({
   resourceAllEvents: {

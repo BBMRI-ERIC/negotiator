@@ -1,8 +1,6 @@
 <template>
   <div class="user-list-section">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="text-left">Users</h2>
-    </div>
+    <AdminSettingsPageHeader title="Users" />
     <AdminSettingsFilterSort
       v-model:filtersSortData="filtersSortData"
       :filters-fields="filtersFields"
@@ -70,6 +68,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useAdminStore } from '@/store/admin.js'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
 import { ROLES } from '@/config/consts'
 import { formatTimestamp } from '@/composables/utils.js'

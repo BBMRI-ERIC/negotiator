@@ -3,6 +3,7 @@
     <LoadingIndicator v-if="isLoading" />
 
     <div v-else-if="webhook" class="specific-area panel panel-default border-">
+      <AdminSettingsPageHeader :title="`Edit webhook ${webhook.id}`" />
       <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item" role="presentation">
           <button
@@ -81,6 +82,7 @@ import { useNotificationsStore } from '@/store/notifications.js'
 import DeliveryHistory from '@/components/DeliveryHistory.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import WebhookConfig from '@/components/WebhookConfig.vue'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import {
   buildWebhookPayload,
   setSecretChangeMode,
