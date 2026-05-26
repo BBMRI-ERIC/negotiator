@@ -102,6 +102,8 @@
     <div v-else class="text-center py-4">
       <p class="text-muted">No email notifications found.</p>
     </div>
+
+    <EmailDetailModal :email-id="selectedEmailId" />
   </div>
 </template>
 
@@ -112,8 +114,10 @@ import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import { ROLES } from '@/config/consts'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
 import { formatTimestamp } from '@/composables/utils.js'
+import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
+import { Modal } from 'bootstrap'
 
-const emit = defineEmits(['view-email'])
+const selectedEmailId = ref(null)
 
 const emailStore = useEmailStore()
 
@@ -249,7 +253,9 @@ const getMessagePreview = (message) => {
 }
 
 const viewEmailDetails = (email) => {
-  emit('view-email', email)
+  selectedEmailId.value = email.id
+  const emailModal = new Modal(document.querySelector('#emailDetailModal'))
+  emailModal.show()
 }
 
 // Helper function to format current datetime for input field

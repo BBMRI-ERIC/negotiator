@@ -70,7 +70,7 @@ const updateForm = (updatedForm) => {
 }
 
 const cancel = () => {
-  router.push('/settings/webhooks')
+  router.push({ name: 'admin-webhooks' })
 }
 
 const submitForm = async () => {
@@ -91,7 +91,7 @@ const submitForm = async () => {
       notifications.setNotification('Error creating webhook', 'danger')
       return
     }
-    await router.push('/settings/webhooks')
+    await router.push({ name: 'admin-webhooks' })
   } catch (error) {
     console.error('Error creating webhook:', error)
     notifications.setNotification('Error creating webhook', 'danger')

@@ -10,13 +10,14 @@
           id="v-pills-tab"
           role="tablist"
         >
-          <button
+          <router-link
             v-for="(item, index) in navItems"
-            :key="item.id"
+            :key="item.pathPrefix"
+            :to="item.to"
             class="nav-link text-md-start mb-1 rounded"
             :class="{
-              'active bg-primary text-white': activeNavItemIndex === index,
-              'text-secondary': activeNavItemIndex !== index,
+              'active bg-primary text-white': route.path.startsWith(item.pathPrefix),
+              'text-secondary': !route.path.startsWith(item.pathPrefix),
               'v-step-settings-1': index === 0,
               'v-step-settings-2': index === 1,
               'v-step-settings-3': index === 2,
@@ -26,60 +27,15 @@
               'v-step-settings-7': index === 6,
               'v-step-settings-8': index === 7,
             }"
-            data-bs-toggle="pill"
-            @click="
-              ((activeNavItemIndex = index),
-              $router.push(`/settings/${item.label.toLowerCase().replace(/\s+/g, '-')}`))
-            "
             :title="item.description"
           >
             {{ item.label }}
-          </button>
+          </router-link>
         </div>
       </div>
       <div class="col">
-        <div class="tab-content ps-3" id="v-pills-tabContent">
-          <div class="tab-pane fade show active">
-            <div v-if="!isLoading">
-              <AdminSettingsUiConfiguration v-if="activeNavItemIndex === 0" />
-              <UserListSection v-if="activeNavItemIndex === 1" />
-              <EmailNotificationsSection
-                v-if="activeNavItemIndex === 2"
-                @view-email="viewEmailDetails"
-              />
-              <EmailTemplateSection v-if="activeNavItemIndex === 3" />
-              <div>
-                <AccessFormsSection v-if="activeNavItemIndex === 4 && !isAccessFormVisible" />
-                <CustomizeForm
-                  v-if="activeNavItemIndex === 4 && isAccessFormVisible"
-                  :type-access-form="typeAccessForm"
-                />
-              </div>
-              <ElementsManagement v-if="activeNavItemIndex === 5" />
-              <InformationRequirementsSection
-                v-if="activeNavItemIndex === 6"
-                :resource-all-events="resourceAllEvents"
-                :info-requirements="infoRequirements"
-                :access-forms="accessForms"
-                @set-info-requirements="setInfoRequirements"
-                @add-requirement="() => {}"
-              />
-              <div>
-                <WebhooksListPage
-                  v-if="activeNavItemIndex === 7 && !isAddWebhookVisible && !isEditWebhookVisible"
-                />
-                <WebhookCreatePage v-if="activeNavItemIndex === 7 && isAddWebhookVisible" />
-                <WebhookDetailPage
-                  v-if="activeNavItemIndex === 7 && isEditWebhookVisible"
-                  :webhook-id="$route.params.webhookId"
-                />
-              </div>
-            </div>
-            <div v-else>
-              <LoadingIndicator />
-            </div>
-          </div>
-          <EmailDetailModal :email-id="selectedEmailId" />
+        <div class="ps-3">
+          <router-view />
         </div>
       </div>
     </div>
@@ -87,146 +43,72 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useUserStore } from '../store/user.js'
-import { useAdminStore } from '../store/admin.js'
-import { useFormsStore } from '../store/forms.js'
-import { useVueTourStore } from '../store/vueTour'
-import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
-import WebhooksListPage from '@/views/WebhooksListPage.vue'
-import WebhookCreatePage from '@/views/WebhookCreatePage.vue'
-import WebhookDetailPage from '@/views/WebhookDetailPage.vue'
-import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
-import UserListSection from '@/components/UserListSection.vue'
-import LoadingIndicator from '@/components/LoadingIndicator.vue'
-import { Modal } from 'bootstrap'
-import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
-import EmailTemplateSection from '@/components/TemplateSection.vue'
-import AccessFormsSection from '@/components/AccessFormsSection.vue'
-import CustomizeForm from '@/views/CustomizeForm.vue'
-import AdminSettingsUiConfiguration from '@/components/AdminSettingsUiConfiguration.vue'
-
-import ElementsManagement from '@/components/ElementsManagement.vue'
+import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '../store/user.js'
+import { useVueTourStore } from '../store/vueTour'
 
 const route = useRoute()
-
-const props = defineProps({
-  activeNavItemIndexProps: {
-    type: Number,
-    default: 0,
-  },
-  isWebhooksVisible: {
-    type: Boolean,
-    default: false,
-  },
-  isAddWebhookVisible: {
-    type: Boolean,
-    default: false,
-  },
-  isEditWebhookVisible: {
-    type: Boolean,
-    default: false,
-  },
-  isAccessFormVisible: {
-    type: Boolean,
-    default: false,
-  },
-  typeAccessForm: {
-    type: String,
-    default: '',
-  },
-})
 const userStore = useUserStore()
-const adminStore = useAdminStore()
-const formsStore = useFormsStore()
 const vueTourStore = useVueTourStore()
-
-const resourceAllEvents = ref({})
-const infoRequirements = ref([])
-const accessForms = ref([])
-const isLoading = ref(true)
-const selectedEmailId = ref(null)
-
-const activeNavItemIndex = ref(0)
 
 const navItems = [
   {
-    id: 1,
     label: 'UI Configuration',
+    to: { name: 'admin-ui-configuration' },
+    pathPrefix: '/settings/ui-configuration',
     description: 'Customize the user interface settings.',
   },
   {
-    id: 2,
     label: 'Users',
+    to: { name: 'admin-users' },
+    pathPrefix: '/settings/users',
     description: 'Manage user accounts and permissions.',
   },
   {
-    id: 3,
     label: 'Email Notifications',
+    to: { name: 'admin-email-notifications' },
+    pathPrefix: '/settings/email-notifications',
     description: 'View and manage email notification settings.',
   },
   {
-    id: 4,
     label: 'Email Templates',
+    to: { name: 'admin-email-templates' },
+    pathPrefix: '/settings/email-templates',
     description: 'Create and edit email templates used for notifications.',
   },
   {
-    id: 5,
     label: 'Access Forms',
+    to: { name: 'admin-access-forms' },
+    pathPrefix: '/settings/access-forms',
     description: 'Configure access request forms and settings.',
   },
   {
-    id: 6,
     label: 'Form Elements',
+    to: { name: 'admin-form-elements' },
+    pathPrefix: '/settings/form-elements',
     description: 'Manage elements within the application.',
   },
   {
-    id: 7,
     label: 'Information Requirements',
+    to: { name: 'admin-information-requirements' },
+    pathPrefix: '/settings/information-requirements',
     description: 'Configure the information requirements for resources.',
   },
   {
-    id: 8,
     label: 'Webhooks',
+    to: { name: 'admin-webhooks' },
+    pathPrefix: '/settings/webhooks',
     description: 'Manage webhook subscriptions and deliveries.',
   },
 ]
 
 onMounted(async () => {
-  activeNavItemIndex.value = route.params.section
-    ? navItems.findIndex(
-        (item) => item.label.toLowerCase().replace(/\s+/g, '-') === route.params.section,
-      )
-    : props.activeNavItemIndexProps
-
   if (Object.keys(userStore.userInfo).length === 0) {
     await userStore.retrieveUser()
   }
-
-  try {
-    isLoading.value = true
-    resourceAllEvents.value = await adminStore.retrieveResourceAllEvents()
-    infoRequirements.value = await adminStore.retrieveInfoRequirements()
-    accessForms.value = await formsStore.retrieveAllAccessForms()
-  } catch (error) {
-    console.error('Initialization error:', error)
-  } finally {
-    isLoading.value = false
-    vueTourStore.isSettingsVisible = true
-  }
+  vueTourStore.isSettingsVisible = true
 })
-
-async function setInfoRequirements(data) {
-  await adminStore.setInfoRequirements(data)
-  infoRequirements.value = await adminStore.retrieveInfoRequirements()
-}
-
-const viewEmailDetails = (email) => {
-  selectedEmailId.value = email.id
-  const emailModal = new Modal(document.querySelector('#emailDetailModal'))
-  emailModal.show()
-}
 </script>
 
 <style scoped>

@@ -6,6 +6,17 @@ import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
 import NetworksPage from '../views/NetworksPage.vue'
 import AdminSettingsPage from '../views/AdminSettingsPage.vue'
+import AdminSettingsUiConfiguration from '@/components/AdminSettingsUiConfiguration.vue'
+import UserListSection from '@/components/UserListSection.vue'
+import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
+import TemplateSection from '@/components/TemplateSection.vue'
+import AccessFormsSection from '@/components/AccessFormsSection.vue'
+import CustomizeForm from '../views/CustomizeForm.vue'
+import ElementsManagement from '@/components/ElementsManagement.vue'
+import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
+import WebhooksListPage from '../views/WebhooksListPage.vue'
+import WebhookCreatePage from '../views/WebhookCreatePage.vue'
+import WebhookDetailPage from '../views/WebhookDetailPage.vue'
 import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
@@ -109,52 +120,74 @@ const router = createRouter({
       meta: { isPublic: true, middleware: [hasUser] },
     },
     {
-      path: '/settings/:section?',
-      name: 'settings',
+      path: '/settings',
       component: AdminSettingsPage,
-      props: { activeNavItemIndexProps: 0 },
+      redirect: '/settings/ui-configuration',
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
-    },
-    {
-      path: '/settings/webhooks/new',
-      name: 'webhooks-create',
-      component: AdminSettingsPage,
-      props: { activeNavItemIndexProps: 7, isAddWebhookVisible: true },
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
-    },
-    {
-      path: '/settings/webhooks/:webhookId',
-      name: 'webhooks-detail',
-      component: AdminSettingsPage,
-      props: { activeNavItemIndexProps: 7, isEditWebhookVisible: true },
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
-    },
-    {
-      path: '/settings/createAccessForm',
-      name: 'create-Access-Form',
-      component: AdminSettingsPage,
-      props: { activeNavItemIndexProps: 4, typeAccessForm: 'Create', isAccessFormVisible: true },
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
-    },
-    {
-      path: '/settings/editAccessForm/:accessFormId?',
-      name: 'edit-access-Form',
-      component: AdminSettingsPage,
-      props: { activeNavItemIndexProps: 4, typeAccessForm: 'Edit', isAccessFormVisible: true },
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
-    },
-    {
-      path: '/settings/duplicateAccessForm/:accessFormId?',
-      name: 'duplicate-access-Form',
-      component: AdminSettingsPage,
-      props: { activeNavItemIndexProps: 4, typeAccessForm: 'Duplicate', isAccessFormVisible: true },
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+      children: [
+        {
+          path: 'ui-configuration',
+          name: 'admin-ui-configuration',
+          component: AdminSettingsUiConfiguration,
+        },
+        { path: 'users', name: 'admin-users', component: UserListSection },
+        {
+          path: 'email-notifications',
+          name: 'admin-email-notifications',
+          component: EmailNotificationsSection,
+        },
+        {
+          path: 'email-templates',
+          name: 'admin-email-templates',
+          component: TemplateSection,
+        },
+        {
+          path: 'access-forms',
+          name: 'admin-access-forms',
+          component: AccessFormsSection,
+        },
+        {
+          path: 'access-forms/create',
+          name: 'admin-access-form-create',
+          component: CustomizeForm,
+          props: { typeAccessForm: 'Create' },
+        },
+        {
+          path: 'access-forms/edit/:accessFormId',
+          name: 'admin-access-form-edit',
+          component: CustomizeForm,
+          props: { typeAccessForm: 'Edit' },
+        },
+        {
+          path: 'access-forms/duplicate/:accessFormId',
+          name: 'admin-access-form-duplicate',
+          component: CustomizeForm,
+          props: { typeAccessForm: 'Duplicate' },
+        },
+        {
+          path: 'form-elements',
+          name: 'admin-form-elements',
+          component: ElementsManagement,
+        },
+        {
+          path: 'information-requirements',
+          name: 'admin-information-requirements',
+          component: InformationRequirementsSection,
+        },
+        { path: 'webhooks', name: 'admin-webhooks', component: WebhooksListPage },
+        {
+          path: 'webhooks/new',
+          name: 'admin-webhooks-create',
+          component: WebhookCreatePage,
+        },
+        {
+          path: 'webhooks/:webhookId',
+          name: 'admin-webhooks-detail',
+          component: WebhookDetailPage,
+          props: true,
+        },
+      ],
     },
     {
       path: '/negotiations/:negotiationId/:userRole?',
