@@ -135,35 +135,35 @@ const emailsStep = {
 const usersStep = {
   target: '.v-step-settings-2',
   header: { title: 'Users' },
-  params: { enableScrolling: true },
+  params: { enableScrolling: false },
   content:
     'Search user accounts, roles, and permissions within the Negotiator system to ensure proper access control and security.',
 }
 const templatesStep = {
   target: '.v-step-settings-4',
   header: { title: 'Templates' },
-  params: { enableScrolling: true },
+  params: { enableScrolling: false },
   content:
     'The Negotiator provides a set of customizable templates used for generating PDFs, emails, and more',
 }
 const accessFormsStep = {
   target: '.v-step-settings-5',
   header: { title: 'Access Forms' },
-  params: { enableScrolling: true },
+  params: { enableScrolling: false },
   content:
     'Adding and managing access forms that users must complete to request access to resources within the Negotiator platform.',
 }
 const formElementsStep = {
   target: '.v-step-settings-6',
   header: { title: 'Form Elements' },
-  params: { enableScrolling: true },
+  params: { enableScrolling: false },
   content:
     'Create and customize form elements that can be used in access forms throughout the Negotiator system.',
 }
 const uiConfigurationStep = {
   target: '.v-step-settings-1',
   header: { title: 'UI Configuration' },
-  params: { enableScrolling: true },
+  params: { enableScrolling: false },
   content:
     'Configure the user interface settings for the Negotiator system, including themes, layouts, and other visual elements.',
 }
