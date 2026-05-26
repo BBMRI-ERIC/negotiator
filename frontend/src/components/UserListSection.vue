@@ -8,7 +8,8 @@
       :user-role="ROLES.ADMINISTRATOR"
       @filters-sort-data="fetchUsers"
     />
-    <div v-if="users.length === 0 && !isLoading" class="text-muted mb-3">No users found.</div>
+    <LoadingIndicator v-if="isLoading && users.length === 0" />
+    <div v-else-if="users.length === 0" class="text-muted mb-3">No users found.</div>
     <div v-else class="table-container">
       <table class="table table-hover">
         <thead>
@@ -70,6 +71,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useAdminStore } from '@/store/admin.js'
 import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
+import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { ROLES } from '@/config/consts'
 import { formatTimestamp } from '@/composables/utils.js'
 
