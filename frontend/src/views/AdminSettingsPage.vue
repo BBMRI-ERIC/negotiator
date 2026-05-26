@@ -15,18 +15,12 @@
             :key="item.pathPrefix"
             :to="item.to"
             class="nav-link text-md-start mb-1 rounded"
-            :class="{
-              'active bg-primary text-white': route.path.startsWith(item.pathPrefix),
-              'text-secondary': !route.path.startsWith(item.pathPrefix),
-              'v-step-settings-1': index === 0,
-              'v-step-settings-2': index === 1,
-              'v-step-settings-3': index === 2,
-              'v-step-settings-4': index === 3,
-              'v-step-settings-5': index === 4,
-              'v-step-settings-6': index === 5,
-              'v-step-settings-7': index === 6,
-              'v-step-settings-8': index === 7,
-            }"
+            :class="[
+              route.path.startsWith(item.pathPrefix)
+                ? 'active bg-primary text-white'
+                : 'text-secondary',
+              `v-step-settings-${index + 1}`,
+            ]"
             :title="item.description"
           >
             {{ item.label }}
