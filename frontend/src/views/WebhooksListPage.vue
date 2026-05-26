@@ -1,7 +1,5 @@
 <template>
   <div class="webhooks-page">
-    <AdminBreadcrumb :segments="breadcrumbSegments" />
-
     <div v-if="!isLoading" class="specific-area panel panel-default border-">
       <AdminSettingsPageHeader title="Webhooks">
         <template #actions>
@@ -52,7 +50,6 @@ import { Modal } from 'bootstrap'
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/store/admin.js'
 import { useNotificationsStore } from '@/store/notifications.js'
-import AdminBreadcrumb from '@/components/AdminBreadcrumb.vue'
 import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
@@ -66,8 +63,6 @@ const isLoading = ref(true)
 const webhooks = ref([])
 const deleteModal = ref(null)
 const webhookToDelete = ref(null)
-
-const breadcrumbSegments = [{ label: 'Webhooks', to: '/settings/webhooks' }]
 
 const retrieveWebhooks = async () => {
   webhooks.value = (await adminStore.retrieveWebhooks()) || []
