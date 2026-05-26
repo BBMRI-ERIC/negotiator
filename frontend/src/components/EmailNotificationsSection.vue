@@ -1,6 +1,6 @@
 <template>
   <div class="email-notifications-section">
-    <AdminSettingsPageHeader title="Emails" />
+    <AdminSettingsPageHeader title="Email Notifications" />
 
     <!-- Filters -->
     <AdminSettingsFilterSort

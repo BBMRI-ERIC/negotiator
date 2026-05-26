@@ -170,7 +170,7 @@ const navItems = [
   },
   {
     id: 4,
-    label: 'User Management',
+    label: 'Users',
     description: 'Manage user accounts and permissions.',
   },
   {
@@ -185,7 +185,7 @@ const navItems = [
   },
   {
     id: 7,
-    label: 'Form Elements Management',
+    label: 'Form Elements',
     description: 'Manage elements within the application.',
   },
   {

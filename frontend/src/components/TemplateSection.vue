@@ -7,7 +7,7 @@
       :message-enabled="false"
       @confirm="updateTemplate()"
     />
-    <AdminSettingsPageHeader title="Templates">
+    <AdminSettingsPageHeader title="Email Templates">
       <template #description>
         In this section, you can select an email template from the list and choose from the
         following options:
