@@ -1,7 +1,5 @@
 <template>
   <div class="webhook-create-page">
-    <AdminBreadcrumb :segments="breadcrumbSegments" />
-
     <div class="specific-area panel panel-default border-">
       <WebhookConfig
         :form="form"
@@ -13,14 +11,22 @@
         @updateForm="updateForm"
       />
 
-      <div class="d-flex mt-4">
+      <div class="d-flex gap-2 mt-4">
         <button
           type="button"
-          class="btn btn-primary me-2"
+          class="btn btn-primary"
           @click="submitForm"
           :disabled="!urlIsValid || !secretIsValid || isSaving"
         >
           Create
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          :disabled="isSaving"
+          @click="cancel"
+        >
+          Cancel
         </button>
       </div>
     </div>
@@ -32,7 +38,6 @@ import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/store/admin.js'
 import { useNotificationsStore } from '@/store/notifications.js'
-import AdminBreadcrumb from '@/components/AdminBreadcrumb.vue'
 import WebhookConfig from '@/components/WebhookConfig.vue'
 import {
   buildWebhookPayload,
@@ -52,11 +57,6 @@ const form = reactive({
   active: true,
 })
 
-const breadcrumbSegments = [
-  { label: 'Webhooks', to: '/settings/webhooks' },
-  { label: 'Add Webhook' },
-]
-
 const { urlIsValid, secretValidationMessage, showSecretValidationError, secretIsValid } =
   useWebhookFormValidation({
     url: computed(() => form.url),
@@ -65,6 +65,10 @@ const { urlIsValid, secretValidationMessage, showSecretValidationError, secretIs
 
 const updateForm = (updatedForm) => {
   Object.assign(form, updatedForm)
+}
+
+const cancel = () => {
+  router.push('/settings/webhooks')
 }
 
 const submitForm = async () => {

@@ -1,7 +1,5 @@
 <template>
   <div class="webhook-detail-page">
-    <AdminBreadcrumb :segments="breadcrumbSegments" />
-
     <LoadingIndicator v-if="isLoading" />
 
     <div v-else-if="webhook" class="specific-area panel panel-default border-">
@@ -53,15 +51,22 @@
         </div>
       </div>
 
-      <div class="mt-4">
+      <div v-if="activeTab === 'configuration'" class="mt-4 d-flex gap-2">
         <button
-          v-if="activeTab === 'configuration'"
           type="button"
           class="btn btn-primary"
           @click="submitForm"
           :disabled="!urlIsValid || !secretIsValid || isSaving"
         >
           Update
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          :disabled="isSaving"
+          @click="cancel"
+        >
+          Cancel
         </button>
       </div>
     </div>
@@ -73,7 +78,6 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/store/admin.js'
 import { useNotificationsStore } from '@/store/notifications.js'
-import AdminBreadcrumb from '@/components/AdminBreadcrumb.vue'
 import DeliveryHistory from '@/components/DeliveryHistory.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import WebhookConfig from '@/components/WebhookConfig.vue'
@@ -106,11 +110,6 @@ const form = reactive({
   sslVerification: true,
   active: true,
 })
-
-const breadcrumbSegments = computed(() => [
-  { label: 'Webhooks', to: '/settings/webhooks' },
-  { label: `Webhook ${webhook.value?.id ?? props.webhookId}` },
-])
 
 const hasConfiguredSecret = computed(() => Boolean(webhook.value?.secretId))
 const isConfiguredWebhookWithSecret = computed(() => hasConfiguredSecret.value)
@@ -184,6 +183,10 @@ const startSecretChange = () => {
 
 const cancelSecretChange = () => {
   setSecretChangeMode(changeSecretMode, secretInput, false)
+}
+
+const cancel = () => {
+  router.push('/settings/webhooks')
 }
 
 const buildUpdateWebhookPayload = () => {
