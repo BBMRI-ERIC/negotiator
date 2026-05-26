@@ -42,6 +42,7 @@
         Update Template
       </button>
     </div>
+    <LoadingIndicator v-else-if="isLoading" />
     <templates-table
       v-else
       v-model:alllTemplates="allTemplates"
@@ -55,6 +56,7 @@
 import { onMounted, ref } from 'vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
+import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import TemplatesTable from '@/components/TemplatesTable.vue'
 import TemplateEditor from '@/components/TemplateEditor.vue'
 import { useTemplates } from '@/store/templates.js'
@@ -64,11 +66,15 @@ const templateStore = useTemplates()
 const allTemplates = ref([])
 const templateName = ref('')
 const templateData = ref('')
+const isLoading = ref(false)
 
-onMounted(() => {
-  templateStore.retrieveTemplates().then((response) => {
-    allTemplates.value = response
-  })
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    allTemplates.value = await templateStore.retrieveTemplates()
+  } finally {
+    isLoading.value = false
+  }
 })
 
 function returnToTemplateTable() {
