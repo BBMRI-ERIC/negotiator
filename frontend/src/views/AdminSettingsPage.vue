@@ -6,7 +6,7 @@
     <div class="row g-0 main-content">
       <div class="col-auto">
         <div
-          class="nav flex-row flex-md-column nav-pills pb-3 pb-md-0 me-3 pe-3 h-100"
+          class="nav flex-row flex-xl-column nav-pills pb-3 pb-xl-0 me-3 pe-3 h-100"
           id="v-pills-tab"
           role="tablist"
         >
@@ -14,7 +14,7 @@
             v-for="(item, index) in navItems"
             :key="item.pathPrefix"
             :to="item.to"
-            class="nav-link text-md-start mb-1 rounded"
+            class="nav-link text-lg-start mb-1 rounded"
             :class="[
               route.path.startsWith(item.pathPrefix)
                 ? 'active bg-primary text-white'
@@ -106,7 +106,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-@media (min-width: 768px) {
+@media (min-width: 1200px) {
   .nav {
     border-right: 1px solid rgba(0, 0, 0, 0.125);
   }
