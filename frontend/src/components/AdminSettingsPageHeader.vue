@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between align-items-center mb-2">
       <h2 class="text-left mb-0">{{ title }}</h2>
       <div v-if="actions" class="d-flex gap-2">
-        <slot class="test" name="actions" />
+        <slot name="actions" />
       </div>
     </div>
 
