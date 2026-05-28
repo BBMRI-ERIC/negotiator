@@ -127,7 +127,7 @@ Deliveries are shown with newest first. Negotiator stores up to the latest 100 d
 ## Redeliveries
 
 If a delivery failed or a consumer had downtime, you can trigger a manual redelivery from Delivery History.
-To do that, click **Redeliver** on a delivery entry in the delivery history of a webhooks.
+To do that, click **Redeliver** on a delivery entry in the delivery history of a webhook.
 
 Behavior:
 - Reuses the same payload and event type as the selected source delivery
