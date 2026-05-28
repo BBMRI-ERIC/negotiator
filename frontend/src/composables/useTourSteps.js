@@ -155,7 +155,7 @@ const accessFormsStep = {
 }
 const formElementsStep = {
   target: '.v-step-settings-6',
-  header: { title: 'Form Elements' },
+  header: { title: 'Access Form Elements' },
   params: { enableScrolling: false },
   content:
     'Create and customize form elements that can be used in access forms throughout the Negotiator system.',

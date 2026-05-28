@@ -35,7 +35,7 @@
         </li>
         <li v-if="isAdmin">
           <strong>Admin Settings:</strong> Manage Information Requirements, Webhooks, Emails, Users,
-          Templates, Access Forms and Form Elements.
+          Templates, Access Forms and Access Form Elements.
           <PrimaryButton @click="startAdminSettingsTour()" size="sm" class="ms-2"
             >Take the Tour</PrimaryButton
           >
