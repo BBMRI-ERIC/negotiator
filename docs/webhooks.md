@@ -11,7 +11,7 @@ For the full interoperability specification, see the official
 
 Event types follow a full-stop delimited format, for example `negotiation.state.updated`.
 
-Negotiator sends webhook JSON payload with this top-level structure:
+Negotiator sends a webhook JSON payload with this top-level structure:
 
 - `type`: the event type identifier
 - `timestamp`: when the event occurred (ISO 8601 UTC timestamp)
