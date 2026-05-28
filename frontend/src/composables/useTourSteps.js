@@ -127,7 +127,7 @@ const webhooksStep = {
 }
 const emailsStep = {
   target: '.v-step-settings-3',
-  header: { title: 'Emails' },
+  header: { title: 'Email Templates' },
   params: { enableScrolling: false },
   content:
     'Search and manage all email templates used by the Negotiator for various notifications and communications with users.',
