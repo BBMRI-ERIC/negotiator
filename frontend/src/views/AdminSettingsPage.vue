@@ -78,7 +78,7 @@ const navItems = [
     description: 'Configure access request forms and settings.',
   },
   {
-    label: 'Form Elements',
+    label: 'Access Form Elements',
     to: { name: 'admin-form-elements' },
     pathPrefix: '/settings/form-elements',
     description: 'Manage elements within the application.',

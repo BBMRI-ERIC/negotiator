@@ -1,6 +1,6 @@
 <template>
   <div class="elements-management">
-    <AdminSettingsPageHeader title="Form Elements">
+    <AdminSettingsPageHeader title="Access Form Elements">
       <template #actions>
         <button
           class="btn btn-sm btn-outline-primary"
