@@ -34,7 +34,7 @@ All webhook operations and payload schemas are documented under the `Webhooks` s
 
 ## Headers
 
-Negotiator sends the standard webhook metadata headers (HTTP header names are case-insensitive):
+Negotiator sends the standard webhook metadata headers (HTTP header names are case-insensitive). `Webhook-Signature` is included only when a webhook secret is configured:
 
 | Header name         | Description                                              |
 |---------------------|----------------------------------------------------------|
