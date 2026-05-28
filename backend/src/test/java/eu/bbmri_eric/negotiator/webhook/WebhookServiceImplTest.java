@@ -52,6 +52,22 @@ class WebhookServiceImplTest {
   }
 
   @Test
+  void deliver_whenPayloadIsInvalidJson_throwsIllegalArgumentException() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> service.deliver("not-valid-json", WebhookEventType.PING, 1L));
+
+    assertEquals("Content is not a valid JSON", ex.getMessage());
+    verifyNoInteractions(
+        webhookRepository,
+        deliveryRepository,
+        webhookDeliveryPersister,
+        secureRestTemplate,
+        insecureRestTemplate);
+  }
+
+  @Test
   void ping_whenPayloadEnvelopeIsNotSerializable_throwsIllegalStateException() {
     Long webhookId = 1L;
     var payloadEnvelope =
