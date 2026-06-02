@@ -38,7 +38,7 @@ services:
       - POSTGRES_PASSWORD=negotiator
       - POSTGRES_DB=negotiator
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U negotiator -d negotiator"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 60s
       retries: 5
