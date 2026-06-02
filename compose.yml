@@ -8,6 +8,8 @@ services:
     command:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:8080"  # Make Traefik listen on 8080 for all traffic
+    labels:
+      - "traefik.enable=false"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   negotiator:
