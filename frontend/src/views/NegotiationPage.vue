@@ -84,11 +84,9 @@
               >
                 <span v-if="subelement.name" class="d-flex col">
                   <span class="text-truncate" :title="subelement.name">{{ subelement.name }}</span>
-                  <font-awesome-icon
+                  <i
                     v-if="isAttachment(subelement)"
-                    class="ms-1 cursor-pointer"
-                    icon="fa fa-download"
-                    fixed-width
+                    class="bi bi-download ms-1 cursor-pointer"
                     @click.prevent="downloadAttachment(subelement.id, subelement.name)"
                   />
                 </span>

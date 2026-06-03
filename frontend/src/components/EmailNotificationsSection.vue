@@ -220,11 +220,11 @@ const sortBy = (field) => {
 
 const getSortIcon = (field) => {
   if (filtersSortData.value.sortBy !== field) {
-    return 'fas fa-sort text-muted'
+    return 'bi bi-arrow-down-up text-muted'
   }
   return filtersSortData.value.sortOrder === 'ASC'
-    ? 'fas fa-sort-up text-dark'
-    : 'fas fa-sort-down text-dark'
+    ? 'bi bi-sort-up text-dark'
+    : 'bi bi-sort-down text-dark'
 }
 
 const goToPage = (page) => {
