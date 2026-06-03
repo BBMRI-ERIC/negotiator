@@ -55,7 +55,7 @@
                   aria-controls="rendered"
                   aria-selected="true"
                 >
-                  <i class="fas fa-eye me-2"></i>Rendered View
+                  <i class="bi bi-eye-fill me-2"></i>Rendered View
                 </button>
               </li>
               <li class="nav-item" role="presentation">
@@ -69,7 +69,7 @@
                   aria-controls="source"
                   aria-selected="false"
                 >
-                  <i class="fas fa-code me-2"></i>HTML Source
+                  <i class="bi bi-code me-2"></i>HTML Source
                 </button>
               </li>
             </ul>
@@ -94,7 +94,7 @@
                     class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 mt-2 me-2"
                     @click="copyToClipboard"
                   >
-                    <i class="fas fa-copy me-1"></i>Copy
+                    <i class="bi bi-clipboard me-1"></i>Copy
                   </button>
                   <pre class="bg-light p-3 rounded"><code>{{ email.message }}</code></pre>
                 </div>
