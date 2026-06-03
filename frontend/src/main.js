@@ -3,9 +3,6 @@ import App from './App.vue'
 import VueMatomo from 'vue-matomo'
 import router from './router'
 import { createPinia } from 'pinia'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faDownload, faPencil, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'bootstrap'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import matomo from './config/matomo.js'
@@ -23,11 +20,6 @@ import '@fontsource/open-sans/400.css'
 import '@fontsource/open-sans/500.css'
 import '@fontsource/open-sans/600.css'
 import '@fontsource/open-sans/700.css'
-
-library.add(faSpinner)
-library.add(faPencil)
-library.add(faTrash)
-library.add(faDownload)
 
 const pinia = createPinia()
 const app = createApp(App)
@@ -118,7 +110,5 @@ oidcStore.addOidcEventListener({
 })
 
 router.beforeEach(piniaOidcCreateRouterMiddleware(oidcStore))
-
-app.component('FontAwesomeIcon', FontAwesomeIcon)
 
 app.mount('#app')
