@@ -165,7 +165,8 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       context.setVariable("authorName", negotiation.getCreatedBy().getName());
       context.setVariable("authorEmail", negotiation.getCreatedBy().getEmail());
       context.setVariable("authorInstitution", negotiation.getCreatedBy().getOrganization());
-      context.setVariable("negotiationId", negotiation.getId());
+      context.setVariable("negotiationId", negotiation.getDisplayId());
+      context.setVariable("negotiationUuid", negotiation.getId());
       context.setVariable("negotiationTitle", negotiation.getTitle());
       context.setVariable("negotiationCreatedAt", negotiation.getCreationDate());
       context.setVariable("negotiationStatus", negotiation.getCurrentState());
