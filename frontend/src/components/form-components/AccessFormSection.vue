@@ -2,7 +2,7 @@
   <div class="access-form-section d-flex flex-column">
     <div class="section mb-5">
       <h2 class="fw-bold">
-        {{ accessFormWithPayloadSection.label }}
+        {{ capitalizeAllWords(accessFormWithPayloadSection.label) }}
       </h2>
       <p class="mb-0">{{ accessFormWithPayloadSection.description }}</p>
     </div>
@@ -23,7 +23,7 @@
       "
     >
       <label class="form-label" :class="{ required: element.required }">
-        {{ element.label }}
+        {{ capitalizeAllWords(element.label) }}
       </label>
       <span v-if="element.description" class="ms-2 text-muted">
         <i
@@ -221,7 +221,7 @@ import { useNegotiationFormStore } from '../../store/negotiationForm'
 import { useNotificationsStore } from '../../store/notifications'
 
 import fileExtensions from '@/config/uploadFileExtensions.js'
-import { isFileExtensionsSupported } from '../../composables/utils.js'
+import { capitalizeAllWords, isFileExtensionsSupported } from '../../composables/utils.js'
 
 const accessFormWithPayloadSection = defineModel('accessFormWithPayloadSection')
 const negotiationReplacedAttachmentsID = defineModel('negotiationReplacedAttachmentsID')
