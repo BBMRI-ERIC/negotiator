@@ -3,8 +3,9 @@ export function capitalizeFirstLetter(val) {
 }
 
 export function capitalizeAllWords(val) {
-  if (!val) return ''
-  return val
+  const str = String(val ?? '').trim()
+  if (!str) return ''
+  return str
     .split(/[\s_-]+/)
     .filter(Boolean) // remove empty strings from edge cases
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
