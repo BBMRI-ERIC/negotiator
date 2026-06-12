@@ -188,9 +188,7 @@
                   <span v-if="resource.accessForm">
                     {{ resource.accessForm.name }}
                   </span>
-                  <span v-else class="text-warning">
-                    None assigned
-                  </span>
+                  <span v-else class="text-warning"> None assigned </span>
                 </small>
               </div>
             </div>
