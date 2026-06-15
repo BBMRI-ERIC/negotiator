@@ -9,7 +9,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
     context("Access form name update - Bug Fix Verification", () => {
         it("should navigate to access forms admin section", () => {
             // Navigate to access forms in admin settings
-            cy.visit("http://localhost:8080/settings/5")
+            cy.visit("http://localhost:8080/settings/access-forms")
             
             // Check that the access forms section heading is visible
             cy.contains("h2", "Access Forms").should("be.visible")
@@ -26,14 +26,14 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
         })
 
         it("should display access forms in a table", () => {
-            cy.visit("http://localhost:8080/settings/5")
+            cy.visit("http://localhost:8080/settings/access-forms")
             
             // Check that at least one row exists in the table
             cy.get("tbody tr").should("have.length.greaterThan", 0)
         })
 
         it("should successfully update an access form name and persist it", () => {
-            cy.visit("http://localhost:8080/settings/5")
+            cy.visit("http://localhost:8080/settings/access-forms")
             
             // Get the first access form in the table
             cy.get("tbody tr").first().then(($row) => {
@@ -79,13 +79,13 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.get("tbody tr").should("contain", newName)
                 
                 // Double-check by visiting the access forms page again to ensure persistence
-                cy.visit("http://localhost:8080/settings/5")
+                cy.visit("http://localhost:8080/settings/access-forms")
                 cy.get("tbody tr").should("contain", newName)
             })
         })
 
         it("should preserve form name when editing without changing the name", () => {
-            cy.visit("http://localhost:8080/settings/5")
+            cy.visit("http://localhost:8080/settings/access-forms")
             
             // Get the first access form
             cy.get("tbody tr").first().then(($row) => {
