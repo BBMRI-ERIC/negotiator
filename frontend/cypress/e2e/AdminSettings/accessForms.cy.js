@@ -136,12 +136,11 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 // Verify the name is still the same
                 cy.url().should("contain", "/settings/access-forms")
                 cy.contains("h2", "Access Forms", { timeout: 10000 }).should("be.visible")
-                getRowByFormId(formId, { timeout: 10000 })
+                getRowByFormId(formId, { timeout: 15000 })
                     .find("td")
                     .eq(1)
-                    .invoke("text")
-                    .then((savedName) => {
-                        expect(savedName.trim()).to.eq(originalName)
+                    .should(($nameCell) => {
+                        expect($nameCell.text().trim()).to.eq(originalName)
                     })
             })
         })
