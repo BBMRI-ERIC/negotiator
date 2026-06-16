@@ -4,7 +4,8 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
     const clickWizardActionButton = () => {
         cy.get(".wizard-footer-right button").then(($button) => {
             const buttonText = $button.text().trim()
-            cy.wrap($button).scrollIntoView().click()
+            cy.wrap($button).scrollIntoView()
+            cy.wrap($button).click()
 
             if (buttonText === "Next") {
                 clickWizardActionButton()
@@ -13,9 +14,16 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
     }
     const getRowByFormId = (formId, options = {}) =>
         cy.contains("tbody tr td", new RegExp(`^\\s*${Cypress._.escapeRegExp(formId)}\\s*$`), {
-            timeout: options.timeout ?? 4000,
+            timeout: options.timeout ?? 15000,
         })
             .parents("tr")
+    const assertRowNameByFormId = (formId, expectedName, options = {}) =>
+        getRowByFormId(formId, options)
+            .find("td")
+            .eq(1)
+            .should(($nameCell) => {
+                expect($nameCell.text().trim()).to.eq(expectedName)
+            })
 
     beforeEach(() => {
         cy.visit("http://localhost:8080")
@@ -77,8 +85,8 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 // Find the form name input field and update it
                 cy.get("input[type='TEXT'][placeholder='Give a form name']")
                     .should("be.visible")
-                    .clear()
-                    .type(newName)
+                cy.get("input[type='TEXT'][placeholder='Give a form name']").clear()
+                cy.get("input[type='TEXT'][placeholder='Give a form name']").type(newName)
                 
                 // Move through all wizard steps and submit on the last step
                 clickWizardActionButton()
@@ -92,18 +100,18 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 
                 // Should be redirected back to access forms page
                 cy.url().should("contain", "/settings/access-forms")
+                cy.contains("h2", "Access Forms", { timeout: 10000 }).should("be.visible")
                 
                 // Verify the name was updated for the edited row (this tests the bug fix)
-                getRowByFormId(formId)
-                    .should("contain", newName)
+                assertRowNameByFormId(formId, newName)
                 
                 // Navigate away and back to verify persistence (using in-app navigation)
                 cy.contains("button.nav-link", "User Management").click()
                 cy.url().should("contain", "/settings/user-management")
                 cy.contains("button.nav-link", "Access Forms").click()
                 cy.url().should("contain", "/settings/access-forms")
-                getRowByFormId(formId)
-                    .should("contain", newName)
+                cy.contains("h2", "Access Forms", { timeout: 10000 }).should("be.visible")
+                assertRowNameByFormId(formId, newName)
             })
         })
 
