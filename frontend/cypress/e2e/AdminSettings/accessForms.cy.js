@@ -47,7 +47,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.wrap($row).click()
                 
                 // Wait for navigation to the edit page
-                cy.url().should("contain", `/settings/editAccessForm/${formId}`)
+                cy.url().should("contain", `/settings/access-forms/edit/${formId}`)
                 
                 // Check that the form name input is visible
                 cy.contains("label", "Form Name").should("be.visible")
@@ -93,7 +93,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 
                 // Click to edit
                 cy.wrap($row).click()
-                cy.url().should("contain", `/settings/editAccessForm/${formId}`)
+                cy.url().should("contain", `/settings/access-forms/edit/${formId}`)
                 
                 // Check that the form name field has content
                 cy.get("input[type='TEXT'][placeholder='Give a form name']").should("have.value")
