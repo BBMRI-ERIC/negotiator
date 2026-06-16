@@ -11,6 +11,9 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
             }
         })
     }
+    const getRowByFormId = (formId) =>
+        cy.contains("tbody tr td", new RegExp(`^\\s*${Cypress._.escapeRegExp(formId)}\\s*$`))
+            .parents("tr")
 
     beforeEach(() => {
         cy.visit("http://localhost:8080")
@@ -89,8 +92,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.url().should("contain", "/settings/access-forms")
                 
                 // Verify the name was updated for the edited row (this tests the bug fix)
-                cy.contains("tbody tr td", formId)
-                    .parents("tr")
+                getRowByFormId(formId)
                     .should("contain", newName)
                 
                 // Navigate away and back to verify persistence (using in-app navigation)
@@ -98,8 +100,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.url().should("contain", "/settings/user-management")
                 cy.contains("button.nav-link", "Access Forms").click()
                 cy.url().should("contain", "/settings/access-forms")
-                cy.contains("tbody tr td", formId)
-                    .parents("tr")
+                getRowByFormId(formId)
                     .should("contain", newName)
             })
         })
@@ -133,8 +134,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                     
                     // Verify the name is still the same
                     cy.url().should("contain", "/settings/access-forms")
-                    cy.contains("tbody tr td", formId)
-                        .parents("tr")
+                    getRowByFormId(formId)
                         .should("contain", currentName)
                 })
             })
