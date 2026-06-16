@@ -88,15 +88,19 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 // Should be redirected back to access forms page
                 cy.url().should("contain", "/settings/access-forms")
                 
-                // Verify the name was updated in the table (this tests the bug fix)
-                cy.get("tbody tr").should("contain", newName)
+                // Verify the name was updated for the edited row (this tests the bug fix)
+                cy.contains("tbody tr td", formId)
+                    .parents("tr")
+                    .should("contain", newName)
                 
                 // Navigate away and back to verify persistence (using in-app navigation)
                 cy.contains("button.nav-link", "User Management").click()
                 cy.url().should("contain", "/settings/user-management")
                 cy.contains("button.nav-link", "Access Forms").click()
                 cy.url().should("contain", "/settings/access-forms")
-                cy.get("tbody tr").should("contain", newName)
+                cy.contains("tbody tr td", formId)
+                    .parents("tr")
+                    .should("contain", newName)
             })
         })
 
@@ -129,7 +133,9 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                     
                     // Verify the name is still the same
                     cy.url().should("contain", "/settings/access-forms")
-                    cy.get("tbody tr").should("contain", currentName)
+                    cy.contains("tbody tr td", formId)
+                        .parents("tr")
+                        .should("contain", currentName)
                 })
             })
         })
