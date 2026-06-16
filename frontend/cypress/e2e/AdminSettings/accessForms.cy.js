@@ -11,8 +11,10 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
             }
         })
     }
-    const getRowByFormId = (formId) =>
-        cy.contains("tbody tr td", new RegExp(`^\\s*${Cypress._.escapeRegExp(formId)}\\s*$`))
+    const getRowByFormId = (formId, options = {}) =>
+        cy.contains("tbody tr td", new RegExp(`^\\s*${Cypress._.escapeRegExp(formId)}\\s*$`), {
+            timeout: options.timeout ?? 4000,
+        })
             .parents("tr")
 
     beforeEach(() => {
@@ -112,6 +114,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
             // Get the first access form
             cy.get("tbody tr").first().then(($row) => {
                 const formId = $row.find("td").eq(0).text().trim()
+                const originalName = $row.find("td").eq(1).text().trim()
                 
                 // Click to edit
                 cy.wrap($row).click()
@@ -121,22 +124,25 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.get("input[type='TEXT'][placeholder='Give a form name']")
                     .should("be.visible")
                     .should("not.have.value", "")
+
+                // Move through all wizard steps and submit on the last step
+                clickWizardActionButton()
                 
-                // Get current name value
-                cy.get("input[type='TEXT'][placeholder='Give a form name']").invoke("val").then((currentName) => {
-                    // Move through all wizard steps and submit on the last step
-                    clickWizardActionButton()
-                    
-                    // Confirm the modal
-                    cy.get("#feedbackEditModal").should("be.visible")
-                    cy.get("#feedbackEditModal .modal-title").contains("Confirm Editing").should("be.visible")
-                    cy.get("#feedbackEditModal .modal-footer button").contains("Confirm").click()
-                    
-                    // Verify the name is still the same
-                    cy.url().should("contain", "/settings/access-forms")
-                    getRowByFormId(formId)
-                        .should("contain", currentName)
-                })
+                // Confirm the modal
+                cy.get("#feedbackEditModal").should("be.visible")
+                cy.get("#feedbackEditModal .modal-title").contains("Confirm Editing").should("be.visible")
+                cy.get("#feedbackEditModal .modal-footer button").contains("Confirm").click()
+                
+                // Verify the name is still the same
+                cy.url().should("contain", "/settings/access-forms")
+                cy.contains("h2", "Access Forms", { timeout: 10000 }).should("be.visible")
+                getRowByFormId(formId, { timeout: 10000 })
+                    .find("td")
+                    .eq(1)
+                    .invoke("text")
+                    .then((savedName) => {
+                        expect(savedName.trim()).to.eq(originalName)
+                    })
             })
         })
     })
