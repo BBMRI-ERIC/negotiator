@@ -6,15 +6,14 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
         cy.login("Admin", "admin")
         // Wait for login to fully complete - user should be redirected to /researcher
         cy.url().should("eq", "http://localhost:8080/researcher")
-        // Navigate to settings via the profile dropdown menu to preserve OIDC session
-        // The settings link is inside the profile avatar dropdown (ProfileSettings.vue)
-        cy.get(".btn-group").find("[data-bs-toggle='dropdown']").first().click()
-        cy.get(".dropdown-menu").should("be.visible")
-        cy.contains("a.dropdown-item", "Admin Settings").click()
-        cy.url().should("contain", "/settings")
-        // Click the Access Forms nav link in the settings sidebar
-        cy.contains("a.nav-link", "Access Forms").click()
+        // Use the Vue Router programmatically to navigate without a full page reload
+        // This preserves the OIDC session state stored in the Pinia store
+        cy.window().then((win) => {
+            win.__vue_app__.config.globalProperties.$router.push("/settings/access-forms")
+        })
         cy.url().should("contain", "/settings/access-forms")
+        // Wait for the Access Forms section to load
+        cy.contains("h2", "Access Forms", { timeout: 10000 }).should("be.visible")
     })
 
     context("Access form name update - Bug Fix Verification", () => {
