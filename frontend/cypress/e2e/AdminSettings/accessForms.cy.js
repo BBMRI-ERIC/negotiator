@@ -9,7 +9,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
         // Use the Vue Router programmatically to navigate without a full page reload
         // This preserves the OIDC session state stored in the Pinia store
         cy.window().then((win) => {
-            win.__vue_app__.config.globalProperties.$router.push("/settings/access-forms")
+            win.document.querySelector('#app').__vue_app__.config.globalProperties.$router.push("/settings/access-forms")
         })
         cy.url().should("contain", "/settings/access-forms")
         // Wait for the Access Forms section to load
@@ -53,7 +53,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.wrap($row).click()
                 
                 // Wait for navigation to the edit page
-                cy.url().should("contain", `/settings/access-forms/edit/${formId}`)
+                cy.url().should("contain", `/settings/editAccessForm/${formId}`)
                 
                 // Check that the form name input is visible
                 cy.contains("label", "Form Name").should("be.visible")
@@ -83,9 +83,9 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.get("tbody tr").should("contain", newName)
                 
                 // Navigate away and back to verify persistence (using in-app navigation)
-                cy.contains("a.nav-link", "Users").click()
-                cy.url().should("contain", "/settings/users")
-                cy.contains("a.nav-link", "Access Forms").click()
+                cy.contains("button.nav-link", "User Management").click()
+                cy.url().should("contain", "/settings/user-management")
+                cy.contains("button.nav-link", "Access Forms").click()
                 cy.url().should("contain", "/settings/access-forms")
                 cy.get("tbody tr").should("contain", newName)
             })
@@ -101,7 +101,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 
                 // Click to edit
                 cy.wrap($row).click()
-                cy.url().should("contain", `/settings/access-forms/edit/${formId}`)
+                cy.url().should("contain", `/settings/editAccessForm/${formId}`)
                 
                 // Wait for the form to load and check that the form name field has content
                 cy.get("input[type='TEXT'][placeholder='Give a form name']")
