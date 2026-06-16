@@ -1,6 +1,17 @@
 /// <reference types="cypress" />
 
 describe("Test access form renaming functionality (Issue #1170)", () => {
+    const clickWizardActionButton = () => {
+        cy.get(".wizard-footer-right button").then(($button) => {
+            const buttonText = $button.text().trim()
+            cy.wrap($button).scrollIntoView().click()
+
+            if (buttonText === "Next") {
+                clickWizardActionButton()
+            }
+        })
+    }
+
     beforeEach(() => {
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
@@ -64,17 +75,15 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                     .clear()
                     .type(newName)
                 
-                // Scroll down to ensure the button is visible
-                cy.get("h1").scrollIntoView()
-                
-                // Find the form wizard footer and click the final step button
-                cy.get(".wizard-footer-right button").last().click()
+                // Move through all wizard steps and submit on the last step
+                clickWizardActionButton()
                 
                 // Wait for the confirmation modal to appear
-                cy.get(".modal-title").contains("Confirm Editing").should("be.visible")
+                cy.get("#feedbackEditModal").should("be.visible")
+                cy.get("#feedbackEditModal .modal-title").contains("Confirm Editing").should("be.visible")
                 
                 // Click the confirm button
-                cy.get(".modal-footer button").contains("Confirm").click()
+                cy.get("#feedbackEditModal .modal-footer button").contains("Confirm").click()
                 
                 // Should be redirected back to access forms page
                 cy.url().should("contain", "/settings/access-forms")
@@ -110,12 +119,13 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 
                 // Get current name value
                 cy.get("input[type='TEXT'][placeholder='Give a form name']").invoke("val").then((currentName) => {
-                    // Submit without changing the name
-                    cy.get(".wizard-footer-right button").last().click()
+                    // Move through all wizard steps and submit on the last step
+                    clickWizardActionButton()
                     
                     // Confirm the modal
-                    cy.get(".modal-title").contains("Confirm Editing").should("be.visible")
-                    cy.get(".modal-footer button").contains("Confirm").click()
+                    cy.get("#feedbackEditModal").should("be.visible")
+                    cy.get("#feedbackEditModal .modal-title").contains("Confirm Editing").should("be.visible")
+                    cy.get("#feedbackEditModal .modal-footer button").contains("Confirm").click()
                     
                     // Verify the name is still the same
                     cy.url().should("contain", "/settings/access-forms")
