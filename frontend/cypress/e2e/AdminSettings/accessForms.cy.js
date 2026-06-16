@@ -6,15 +6,19 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
         cy.login("Admin", "admin")
         // Wait for login to fully complete - user should be redirected to /researcher
         cy.url().should("eq", "http://localhost:8080/researcher")
+        // Navigate to settings via the navbar to preserve OIDC session
+        // (cy.visit() causes a full page reload which loses the in-memory auth state)
+        cy.get("a[href='/settings']").first().click()
+        cy.url().should("contain", "/settings")
+        // Click the Access Forms nav link
+        cy.contains("a.nav-link", "Access Forms").click()
+        cy.url().should("contain", "/settings/access-forms")
     })
 
     context("Access form name update - Bug Fix Verification", () => {
         it("should navigate to access forms admin section", () => {
-            // Navigate to access forms in admin settings
-            cy.visit("http://localhost:8080/settings/access-forms")
-            
-            // Wait for the page to load by checking for the heading
-            cy.contains("Access Forms", { timeout: 10000 }).should("be.visible")
+            // Check that the access forms section heading is visible
+            cy.contains("h2", "Access Forms").should("be.visible")
             
             // Check that the add button is visible
             cy.contains("button", "Add Access Form").should("be.visible")
@@ -28,19 +32,13 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
         })
 
         it("should display access forms in a table", () => {
-            cy.visit("http://localhost:8080/settings/access-forms")
-            cy.contains("Access Forms", { timeout: 10000 }).should("be.visible")
-            
             // Check that at least one row exists in the table
             cy.get("tbody tr").should("have.length.greaterThan", 0)
         })
 
         it("should successfully update an access form name and persist it", () => {
-            cy.visit("http://localhost:8080/settings/access-forms")
-            cy.contains("Access Forms", { timeout: 10000 }).should("be.visible")
-            
             // Wait for the table to load
-            cy.get("tbody tr", { timeout: 10000 }).should("have.length.greaterThan", 0)
+            cy.get("tbody tr").should("have.length.greaterThan", 0)
 
             // Get the first access form in the table
             cy.get("tbody tr").first().then(($row) => {
@@ -57,7 +55,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.url().should("contain", `/settings/access-forms/edit/${formId}`)
                 
                 // Check that the form name input is visible
-                cy.contains("label", "Form Name", { timeout: 10000 }).should("be.visible")
+                cy.contains("label", "Form Name").should("be.visible")
                 
                 // Find the form name input field and update it
                 cy.get("input[type='TEXT'][placeholder='Give a form name']")
@@ -83,18 +81,18 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 // Verify the name was updated in the table (this tests the bug fix)
                 cy.get("tbody tr").should("contain", newName)
                 
-                // Double-check by visiting the access forms page again to ensure persistence
-                cy.visit("http://localhost:8080/settings/access-forms")
+                // Navigate away and back to verify persistence
+                cy.contains("a.nav-link", "Users").click()
+                cy.url().should("contain", "/settings/users")
+                cy.contains("a.nav-link", "Access Forms").click()
+                cy.url().should("contain", "/settings/access-forms")
                 cy.get("tbody tr").should("contain", newName)
             })
         })
 
         it("should preserve form name when editing without changing the name", () => {
-            cy.visit("http://localhost:8080/settings/access-forms")
-            cy.contains("Access Forms", { timeout: 10000 }).should("be.visible")
-            
             // Wait for the table to load
-            cy.get("tbody tr", { timeout: 10000 }).should("have.length.greaterThan", 0)
+            cy.get("tbody tr").should("have.length.greaterThan", 0)
 
             // Get the first access form
             cy.get("tbody tr").first().then(($row) => {
@@ -104,8 +102,8 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.wrap($row).click()
                 cy.url().should("contain", `/settings/access-forms/edit/${formId}`)
                 
-                // Wait for the form to load
-                cy.get("input[type='TEXT'][placeholder='Give a form name']", { timeout: 10000 })
+                // Wait for the form to load and check that the form name field has content
+                cy.get("input[type='TEXT'][placeholder='Give a form name']")
                     .should("be.visible")
                     .should("not.have.value", "")
                 
