@@ -6,11 +6,13 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
         cy.login("Admin", "admin")
         // Wait for login to fully complete - user should be redirected to /researcher
         cy.url().should("eq", "http://localhost:8080/researcher")
-        // Navigate to settings via the navbar to preserve OIDC session
-        // (cy.visit() causes a full page reload which loses the in-memory auth state)
-        cy.get("a[href='/settings']").first().click()
+        // Navigate to settings via the profile dropdown menu to preserve OIDC session
+        // The settings link is inside the profile avatar dropdown (ProfileSettings.vue)
+        cy.get(".btn-group").find("[data-bs-toggle='dropdown']").first().click()
+        cy.get(".dropdown-menu").should("be.visible")
+        cy.contains("a.dropdown-item", "Admin Settings").click()
         cy.url().should("contain", "/settings")
-        // Click the Access Forms nav link
+        // Click the Access Forms nav link in the settings sidebar
         cy.contains("a.nav-link", "Access Forms").click()
         cy.url().should("contain", "/settings/access-forms")
     })
@@ -81,7 +83,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 // Verify the name was updated in the table (this tests the bug fix)
                 cy.get("tbody tr").should("contain", newName)
                 
-                // Navigate away and back to verify persistence
+                // Navigate away and back to verify persistence (using in-app navigation)
                 cy.contains("a.nav-link", "Users").click()
                 cy.url().should("contain", "/settings/users")
                 cy.contains("a.nav-link", "Access Forms").click()
