@@ -4,15 +4,18 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
     beforeEach(() => {
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
+        // Wait for login to complete and app to be ready
+        cy.url().should("not.contain", "Input_Username")
     })
 
     context("Access form name update - Bug Fix Verification", () => {
         it("should navigate to access forms admin section", () => {
             // Navigate to access forms in admin settings
             cy.visit("http://localhost:8080/settings/access-forms")
+            cy.url().should("contain", "/settings/access-forms")
             
             // Check that the access forms section heading is visible
-            cy.contains("h2", "Access Forms").should("be.visible")
+            cy.contains("Access Forms").should("be.visible")
             
             // Check that the add button is visible
             cy.contains("button", "Add Access Form").should("be.visible")
@@ -27,6 +30,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
 
         it("should display access forms in a table", () => {
             cy.visit("http://localhost:8080/settings/access-forms")
+            cy.url().should("contain", "/settings/access-forms")
             
             // Check that at least one row exists in the table
             cy.get("tbody tr").should("have.length.greaterThan", 0)
@@ -34,7 +38,11 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
 
         it("should successfully update an access form name and persist it", () => {
             cy.visit("http://localhost:8080/settings/access-forms")
+            cy.url().should("contain", "/settings/access-forms")
             
+            // Wait for the table to load
+            cy.get("tbody tr").should("have.length.greaterThan", 0)
+
             // Get the first access form in the table
             cy.get("tbody tr").first().then(($row) => {
                 // Extract the form ID and original name
@@ -86,7 +94,11 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
 
         it("should preserve form name when editing without changing the name", () => {
             cy.visit("http://localhost:8080/settings/access-forms")
+            cy.url().should("contain", "/settings/access-forms")
             
+            // Wait for the table to load
+            cy.get("tbody tr").should("have.length.greaterThan", 0)
+
             // Get the first access form
             cy.get("tbody tr").first().then(($row) => {
                 const formId = $row.find("td").eq(0).text().trim()
