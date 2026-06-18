@@ -44,7 +44,7 @@
         <lombok.version>1.18.30</lombok.version>
         <micrometer.version>1.14.4</micrometer.version>
         <modelmapper.version>3.2.4</modelmapper.version>
-        <moxy.version>2.5.1</moxy.version>
+        <moxy.version>5.0.0</moxy.version>
         <netty-macos.version>4.1.119.Final</netty-macos.version>
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.5</pdfbox.version>
