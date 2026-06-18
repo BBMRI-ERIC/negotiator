@@ -18,7 +18,7 @@
     </parent>
     <properties>
         <java.version>21</java.version>
-        <spring-modulith.version>1.4.1</spring-modulith.version>
+        <spring-modulith.version>1.4.12</spring-modulith.version>
         <testcontainers-util.version>1.21.1</testcontainers-util.version>
         <flyway.version>11.10.0</flyway.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
