@@ -3317,10 +3317,10 @@ vue-router@^5.0.2:
     unplugin-utils "^0.3.1"
     yaml "^2.9.0"
 
-vue3-form-wizard@^0.2.4:
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/vue3-form-wizard/-/vue3-form-wizard-0.2.9.tgz#a2b7873f76f77b82898442cbcf9064a25980c08f"
-  integrity sha512-07afis9uJlwJV8+yheQpVkDB9cz48SL8NpeScg1tTBAnacjX33kvt7ywuoitKEw/fx2ZPPu8vyV3swhD9oOKkw==
+vue3-form-wizard@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/vue3-form-wizard/-/vue3-form-wizard-1.1.1.tgz#d0c43ddc653bc8ec7f45761772949b204123d864"
+  integrity sha512-VE27FktnSk+gLTvCrSUErJxP9ma3M+9HaHgKDg0ox3M9gDxYqsu6YqKSnJefrvXfYqtHTV8u2YmhWzdQBBYvEg==
 
 vue3-tour@^1.0.3:
   version "1.0.3"
