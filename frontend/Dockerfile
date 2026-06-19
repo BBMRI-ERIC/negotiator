@@ -4,13 +4,12 @@ COPY . .
 RUN yarn install
 RUN yarn build
 
-FROM bitnamilegacy/nginx:1.24 AS production-stage
+FROM nginxinc/nginx-unprivileged:1.31.2-perl AS production-stage
+ARG NGINX_UID=101
 WORKDIR /app
-COPY nginx.conf /opt/bitnami/nginx/conf/server_blocks/my_server_block.conf
-COPY src/assets/scss /app/assets
-COPY start.sh .
-COPY --from=build-stage /app/dist .
-USER 0
-RUN chmod -R g+rwx /app
-USER 1001
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --chown=${NGINX_UID}:${NGINX_UID} src/assets/scss /app/assets
+COPY --chown=${NGINX_UID}:${NGINX_UID} start.sh .
+COPY --chown=${NGINX_UID}:${NGINX_UID} --from=build-stage /app/dist .
+USER ${NGINX_UID}
 CMD ["./start.sh"]
