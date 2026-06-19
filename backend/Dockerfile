@@ -1,5 +1,5 @@
 # Build jar file with dependencies
-FROM maven:3.9.9-eclipse-temurin-21 AS build_image
+FROM maven:3.9.15-eclipse-temurin-26 AS build_image
 ARG ARTIFACT_VERSION=unknown
 COPY src /app/src
 COPY pom.xml /app
