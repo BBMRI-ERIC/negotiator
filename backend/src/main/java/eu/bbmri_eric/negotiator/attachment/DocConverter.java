@@ -7,11 +7,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Range;
 
 @CommonsLog
 class DocConverter implements FileTypeConverter {
+  private static final String CONTENT_TYPE_DOC = "application/msword";
+  private static final String CONTENT_TYPE_TIKA_MSOFFICE = "application/x-tika-msoffice";
+
   @Override
   public byte[] convertToPdf(byte[] docBytes) throws IOException {
     if (docBytes == null || docBytes.length == 0) {
@@ -54,5 +58,10 @@ class DocConverter implements FileTypeConverter {
         pdfDoc.close();
       }
     }
+  }
+
+  @Override
+  public boolean supports(String contentType) {
+    return StringUtils.equalsAny(contentType, CONTENT_TYPE_DOC, CONTENT_TYPE_TIKA_MSOFFICE);
   }
 }
