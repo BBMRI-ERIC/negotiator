@@ -3,35 +3,27 @@ package eu.bbmri_eric.negotiator.integration.api;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
+@AutoConfigureMockMvc
 public class SecurityTest {
-
-  @Autowired private WebApplicationContext context;
-
-  @Autowired private UserDetailsService userDetailsService;
-
   @Value("#{'${spring.security.cors.allowed-methods}'.split(',')}")
   private List<String> ALLOWED_METHODS;
 
@@ -47,12 +39,7 @@ public class SecurityTest {
   @Value("${spring.security.cors.max-age}")
   private Long MAX_AGE = 3600L;
 
-  private MockMvc mockMvc;
-
-  @BeforeEach
-  public void beforeAll() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-  }
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testUnauthenticatedUser() throws Exception {
@@ -107,7 +94,7 @@ public class SecurityTest {
   public void corsHeadersArePresent() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.options("/v3/organizations")
+            MockMvcRequestBuilders.options("/v3/requests")
                 .header("Access-Control-Request-Method", "GET")
                 .header("Origin", "http://localhost:8087")
                 .header("Access-Control-Request-Headers", "X-Requested-With"))

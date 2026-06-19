@@ -6,11 +6,21 @@ import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
 import NetworksPage from '../views/NetworksPage.vue'
 import AdminSettingsPage from '../views/AdminSettingsPage.vue'
-import AdminUiConfigurationPage from '../views/AdminUiConfigurationPage.vue'
+import AdminSettingsUiConfiguration from '@/components/AdminSettingsUiConfiguration.vue'
+import UserListSection from '@/components/UserListSection.vue'
+import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
+import TemplateSection from '@/components/TemplateSection.vue'
+import AccessFormsSection from '@/components/AccessFormsSection.vue'
+import CustomizeForm from '../views/CustomizeForm.vue'
+import ElementsManagement from '@/components/ElementsManagement.vue'
+import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
+import WebhooksListPage from '../views/WebhooksListPage.vue'
+import WebhookCreatePage from '../views/WebhookCreatePage.vue'
+import WebhookDetailPage from '../views/WebhookDetailPage.vue'
 import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
-import CustomizeForm from '@/views/CustomizeForm.vue'
+import GuidePage from '@/views/GuidePage.vue'
 import { ROLES } from '@/config/consts'
 import { useUserStore } from '../store/user.js'
 import hasUser from '@/middlewares/hasUser.js'
@@ -111,17 +121,73 @@ const router = createRouter({
     },
     {
       path: '/settings',
-      name: 'settings',
       component: AdminSettingsPage,
+      redirect: '/settings/ui-configuration',
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
-    },
-    {
-      path: '/ui-configuration',
-      name: 'ui-configuration',
-      component: AdminUiConfigurationPage,
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+      children: [
+        {
+          path: 'ui-configuration',
+          name: 'admin-ui-configuration',
+          component: AdminSettingsUiConfiguration,
+        },
+        { path: 'users', name: 'admin-users', component: UserListSection },
+        {
+          path: 'email-notifications',
+          name: 'admin-email-notifications',
+          component: EmailNotificationsSection,
+        },
+        {
+          path: 'email-templates',
+          name: 'admin-email-templates',
+          component: TemplateSection,
+        },
+        {
+          path: 'access-forms',
+          name: 'admin-access-forms',
+          component: AccessFormsSection,
+        },
+        {
+          path: 'access-forms/create',
+          name: 'admin-access-form-create',
+          component: CustomizeForm,
+          props: { typeAccessForm: 'Create' },
+        },
+        {
+          path: 'access-forms/edit/:accessFormId',
+          name: 'admin-access-form-edit',
+          component: CustomizeForm,
+          props: { typeAccessForm: 'Edit' },
+        },
+        {
+          path: 'access-forms/duplicate/:accessFormId',
+          name: 'admin-access-form-duplicate',
+          component: CustomizeForm,
+          props: { typeAccessForm: 'Duplicate' },
+        },
+        {
+          path: 'form-elements',
+          name: 'admin-form-elements',
+          component: ElementsManagement,
+        },
+        {
+          path: 'information-requirements',
+          name: 'admin-information-requirements',
+          component: InformationRequirementsSection,
+        },
+        { path: 'webhooks', name: 'admin-webhooks', component: WebhooksListPage },
+        {
+          path: 'webhooks/new',
+          name: 'admin-webhooks-create',
+          component: WebhookCreatePage,
+        },
+        {
+          path: 'webhooks/:webhookId',
+          name: 'admin-webhooks-detail',
+          component: WebhookDetailPage,
+          props: true,
+        },
+      ],
     },
     {
       path: '/negotiations/:negotiationId/:userRole?',
@@ -137,25 +203,11 @@ const router = createRouter({
       props: true,
       meta: { isPublic: false },
     },
+
     {
-      path: '/createAccessForm',
-      name: 'create-Access-Form',
-      component: CustomizeForm,
-      props: { typeAccessForm: 'Create' },
-      meta: { isPublic: false },
-    },
-    {
-      path: '/editAccessForm/:accessFormId?',
-      name: 'edit-access-Form',
-      component: CustomizeForm,
-      props: { typeAccessForm: 'Edit' },
-      meta: { isPublic: false },
-    },
-    {
-      path: '/duplicateAccessForm/:accessFormId?',
-      name: 'duplicate-access-Form',
-      component: CustomizeForm,
-      props: { typeAccessForm: 'Duplicate' },
+      path: '/guide',
+      name: 'guide',
+      component: GuidePage,
       meta: { isPublic: false },
     },
     {

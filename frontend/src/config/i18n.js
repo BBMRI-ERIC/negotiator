@@ -8,11 +8,12 @@ export default {
         researcher: 'Your negotiations',
         biobanker: 'Your biobank',
         FAQ: 'Support',
-        doc: 'Documentation',
+        guide: 'Guide',
       },
       negotiationPage: {
-        resources: 'RESOURCE | RESOURCES',
-        organisations: 'ORGANIZATION | ORGANIZATIONS',
+        displayId: ' Negotiation ID',
+        resources: 'Resource | Resources',
+        organisations: 'Organization | Organizations',
       },
       governancePage: {
         resources: 'Resource | Resources',
@@ -24,6 +25,7 @@ export default {
         biobanker: 'Your organisation',
       },
       negotiationPage: {
+        displayId: 'Proposal ID',
         resources: 'Service | Services',
         organisations: 'Service provider | Service providers',
       },

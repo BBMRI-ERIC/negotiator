@@ -1,0 +1,75 @@
+package eu.bbmri_eric.negotiator.notification.internal;
+
+import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
+import eu.bbmri_eric.negotiator.notification.NotificationService;
+import eu.bbmri_eric.negotiator.user.AddedRepresentativeEvent;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import lombok.extern.apachecommons.CommonsLog;
+import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+/**
+ * Listens for requests to send an email notification to a user, when he is added to one or more
+ * resources. The handler buffers one or more new representative added events and collects them into
+ * a unique notification, sent to the Notification Service on a fixed time rate.
+ */
+@Component
+@CommonsLog
+public class AddedRepresentativeHandler implements ApplicationListener<AddedRepresentativeEvent> {
+
+  private final String TITLE = "You have been added as a representative for one or more resources";
+  private final String TEXT =
+      """
+      You have been added as a representative for one or more resources.
+
+
+      Please log in to the Negotiator.""";
+
+  private final Object bufferLock = new Object();
+  private Map<Long, List<AddedRepresentativeEvent>> eventsBuffer = new ConcurrentHashMap<>();
+  private final NotificationService notificationService;
+
+  private AddedRepresentativeHandler(NotificationService notificationService) {
+    this.notificationService = notificationService;
+  }
+
+  @Scheduled(fixedRate = 300000) // Polling every 5 minutes
+  public void flushEventBuffer() {
+    Map<Long, List<AddedRepresentativeEvent>> toHandle;
+
+    synchronized (bufferLock) {
+      if (eventsBuffer.isEmpty()) return;
+
+      toHandle = eventsBuffer;
+      eventsBuffer = new HashMap<>();
+    }
+
+    handleEvents(toHandle);
+  }
+
+  @Override
+  public void onApplicationEvent(AddedRepresentativeEvent event) {
+    eventsBuffer
+        .computeIfAbsent(event.getRepresentativeId(), k -> new CopyOnWriteArrayList<>())
+        .add(event);
+  }
+
+  public void handleEvents(Map<Long, List<AddedRepresentativeEvent>> events) {
+
+    events.forEach(
+        (representativeId, addedRepresentativeEvents) -> {
+          NotificationCreateDTO notification =
+              new NotificationCreateDTO(List.of(representativeId), TITLE, TEXT, null);
+          notificationService.createNotifications(notification);
+          log.info(
+              String.format(
+                  "Notification sent to representative %d about %d added resources",
+                  representativeId, addedRepresentativeEvents.size()));
+        });
+  }
+}

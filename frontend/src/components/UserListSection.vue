@@ -1,8 +1,6 @@
 <template>
   <div class="user-list-section">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="text-left">Users</h2>
-    </div>
+    <AdminSettingsPageHeader title="Users" />
     <AdminSettingsFilterSort
       v-model:filtersSortData="filtersSortData"
       :filters-fields="filtersFields"
@@ -10,7 +8,8 @@
       :user-role="ROLES.ADMINISTRATOR"
       @filters-sort-data="fetchUsers"
     />
-    <div v-if="users.length === 0 && !isLoading" class="text-muted mb-3">No users found.</div>
+    <LoadingIndicator v-if="isLoading && users.length === 0" />
+    <div v-else-if="users.length === 0" class="text-muted mb-3">No users found.</div>
     <div v-else class="table-container">
       <table class="table table-hover">
         <thead>
@@ -70,7 +69,9 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useAdminStore } from '@/store/admin.js'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
+import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { ROLES } from '@/config/consts'
 import { formatTimestamp } from '@/composables/utils.js'
 

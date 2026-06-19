@@ -1,8 +1,8 @@
 <template>
   <div :style="{ 'background-color': uiConfiguration?.appBackgroundColor }">
-    <VueTour v-if="isVueTourVisible" />
     <AnalyticsNotice :privacy-link="privacyPolicyLink" />
 
+    <AllVueTours />
     <header>
       <navigation-bar />
     </header>
@@ -27,11 +27,10 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
-import { RouterView, useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { RouterView, useRouter } from 'vue-router'
 import { useNotificationsStore } from '@/store/notifications.js'
-import allFeatureFlags from '@/config/featureFlags.js'
-import VueTour from './components/VueTour.vue'
+import AllVueTours from './components/vue-tours/AllVueTours.vue'
 import NavigationBar from './components/NavigationBar.vue'
 import AlertNotification from './components/AlertNotification.vue'
 import AnalyticsNotice from './components/AnalyticsNotice.vue'
@@ -41,12 +40,12 @@ import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const uiConfigurationStore = useUiConfiguration()
 const useNotifications = useNotificationsStore()
-const route = useRoute()
 const router = useRouter()
 
-const vueTourFeatureFlag = !!(
-  allFeatureFlags.vueTour === 'true' || allFeatureFlags.vueTour === true
-)
+onMounted(async () => {
+  await updateFaviconUrl()
+  changeFaviconUrl()
+})
 
 watch(
   () => router.currentRoute.value.fullPath,
@@ -57,15 +56,6 @@ watch(
   },
 )
 
-const isVueTourVisible = computed(() => {
-  return (
-    (route.fullPath === '/researcher' ||
-      route.fullPath === '/admin' ||
-      route.fullPath === '/biobanker') &&
-    vueTourFeatureFlag
-  )
-})
-
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
 })
@@ -73,6 +63,35 @@ const uiConfiguration = computed(() => {
 const privacyPolicyLink = computed(() => {
   return uiConfigurationStore.uiConfiguration?.footer?.footerPrivacyPolicyLink
 })
+const faviconUrl = ref('/favicon.ico')
+
+async function updateFaviconUrl() {
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  try {
+    await uiConfigurationStore.retrieveUiConfiguration()
+    if (uiConfiguration.value?.faviconUrlDark && uiConfiguration.value?.faviconUrlLight) {
+      faviconUrl.value = isDark
+        ? uiConfiguration.value.faviconUrlDark
+        : uiConfiguration.value.faviconUrlLight
+    } else {
+      faviconUrl.value = '/favicon.ico'
+    }
+  } catch {
+    faviconUrl.value = '/favicon.ico'
+  }
+}
+
+function changeFaviconUrl() {
+  const link = document.querySelector("link[rel~='icon']")
+  if (!link) {
+    const newLink = document.createElement('link')
+    newLink.rel = 'icon'
+    newLink.href = faviconUrl.value
+    document.head.appendChild(newLink)
+  } else {
+    link.href = faviconUrl.value
+  }
+}
 </script>
 
 <style scoped>
@@ -85,7 +104,9 @@ header {
 }
 
 .body {
-  min-height: calc(100vh - 391px);
+  min-height: calc(
+    100vh - (234px + 56px + 4.5rem)
+  ); /* (footer-234px, nav-56px, pt-1.5rem, mb-1.5rem) */
 }
 
 @media (min-width: 1024px) {
@@ -96,7 +117,9 @@ header {
   }
 
   .body {
-    min-height: calc(100vh - 263px);
+    min-height: calc(
+      100vh - (234px + 56px + 4.5rem)
+    ); /* (footer-234px, nav-56px, pt-1.5rem, mb-1.5rem) */
   }
 
   header .wrapper {

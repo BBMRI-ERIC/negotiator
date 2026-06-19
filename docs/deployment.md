@@ -90,6 +90,9 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `NEGOTIATOR_NOTIFICATION_REMINDERCRONEXPRESSION`      | Cron expression for reminder notifications.                                                             | `"0 0 6 * * *"`                                                              |
 | `NEGOTIATOR_EMAIL_FREQUENCYCRONEXPRESSION`            | Cron expression for email frequency.                                                                    | `"0 0 * * * *"`                                                              |
 | `NEGOTIATOR_EMAILADDRESS`                             | Email address from which emails are sent                                                                | "BBMRI-ERIC Negotiator <noreply@bbmri-eric.eu>"                              |
+| `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED`       | Enables encryption at rest for webhook secrets. If `true`, master key must be configured.                | `true`                                                                         |
+| `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY`    | Current webhook secret master key (mapped to `negotiator.webhook.secret-encryption.master-key`). See [Generating a webhook master secret](#generating-a-webhook-master-secret). | `""`                                                                          |
+| `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_PREVIOUS_MASTER_KEY` | Previous webhook secret master key used only for key rotation (`rotate-secrets` profile).         | `""`                                                                          |
 | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES` | OAuth2 Resource Audience(s); see [aud claim](https://datatracker.ietf.org/doc/html/rfc8693#section-3.1) | "https://negotiator.bbmri-eric.eu,negotiator-api"                            |
 
 > [!NOTE]
@@ -97,6 +100,44 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 > and REPRESENTATIVE/NETWORK MANAGER roles are assigned inside the Negotiator. Previous variables like
 > `NEGOTIATOR_AUTHORIZATION_RESEARCHERCLAIMVALUE` and `NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE` are deprecated and
 > not used by current versions.
+
+### Generating a webhook master secret
+
+When webhook secret encryption is enabled, set
+`NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY` to a securely generated 32-byte value.
+
+Recommended generation command:
+
+```bash
+openssl rand -hex 32
+```
+
+This command returns 64 hex characters (32 bytes). Use that value directly as the environment variable value.
+
+Store this key in your secret manager and do not commit it to source control.
+
+### Webhook secret encryption behavior
+
+- Encryption fallback is disabled: when `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED=true`,
+  `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY` must be set.
+- A random salt is generated and stored per webhook secret, so no global salt variable is needed.
+- To run without encryption, set `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED=false` explicitly.
+- The `dev` and `test` Spring profiles default to `enabled=false` for local development and tests.
+- New or updated webhook secrets are validated as `whsec_<base64>` using standard base64 and must decode to 24-64 bytes.
+
+### Webhook master-key rotation
+
+Use the `rotate-secrets` profile to re-encrypt existing webhook secrets with a new key.
+
+1. Set the new key material:
+  - `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_ENABLED=true`
+  - `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_MASTER_KEY=<new-key>`
+2. Set the old key material (used only during rotation):
+  - `NEGOTIATOR_WEBHOOK_SECRET_ENCRYPTION_PREVIOUS_MASTER_KEY=<old-key>`
+3. Start the backend once with profile `rotate-secrets` enabled (for example
+  `SPRING_PROFILES_ACTIVE=prod,rotate-secrets`).
+4. Verify logs contain `Secret rotation complete. Rotated X/Y secrets`.
+5. Remove previous key variables and restart normally without `rotate-secrets`.
 
 
 
@@ -109,6 +150,7 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `REDIRECT_URI`               | **(Required)** OAuth2 Redirect URI                                                                                     | `default_redirect_uri` |
 | `SCOPES`                     | **(Required)** OAuth2 Scopes                                                                                           | `default_scopes`       |
 | `LOGOUT_URI`                 | **(Required)** OAuth2 Logout Redirect URI                                                                              | `default_logout_uri`   |
+| `SILENT_REDIRECT_URI`        | **(Required)** OAuth2 Silent Renew Redirect URI                                                                        | `default_silent_redirect_uri` |
 | `API_RESOURCES`              | **(Required)** OAuth2 Resource Audience(s); see [aud claim](https://datatracker.ietf.org/doc/html/rfc8693#section-3.1) | `default_resources`    |
 | `MATOMO_HOST`                | Matomo analytics host                                                                                                  | `default_matomo_host`  |
 | `MATOMO_SITE_ID`             | Matomo site ID                                                                                                         | `default_site_id`      |
@@ -116,7 +158,6 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `I18N_FALLBACKLOCALE`        | Fallback locale if no match is found                                                                                   | `en`                   |
 | `FEATURE_FLAG_FAQPAGE`       | Toggle to enable the FAQ page                                                                                          | `false`                |
 | `FEATURE_FLAG_NETWORKS`      | Toggle to enable the Networks feature                                                                                  | `false`                |
-| `FEATURE_FLAG_VUETOUR`       | Toggle to enable Vue.js tour                                                                                           | `false`                |
 | `FEATURE_FLAG_NOTIFICATIONS` | Toggle to enable notification features                                                                                 | `false`                |
 | `DEV_MODE`                   | Enables development mode behavior                                                                                      | `false`                |
 | `AUTH_MANAGEMENT_LINK`       | Link to external authentication management interface                                                                   | `none`                 |

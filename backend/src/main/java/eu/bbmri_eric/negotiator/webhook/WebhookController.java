@@ -1,13 +1,13 @@
 package eu.bbmri_eric.negotiator.webhook;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/v3/webhooks")
-@Tag(name = "Webhook API", description = "Operations related to webhooks")
+@Tag(name = "Webhook REST Operations", description = "REST operations related to webhooks")
 @SecurityRequirement(name = "security_auth")
 public class WebhookController {
 
@@ -73,19 +74,23 @@ public class WebhookController {
   }
 
   @Operation(
-      summary = "Add a delivery to a webhook",
-      description = "Adds a new delivery to the specified webhook and returns the response")
-  @PostMapping(value = "/{id}/deliveries")
-  public EntityModel<DeliveryDTO> addDelivery(
-      @PathVariable Long id,
-      @Valid
-          @RequestBody
-          @Schema(
-              description = "Content to deliver",
-              example = "{\"test\":\"yes\"}",
-              type = "object")
-          String content) {
-    DeliveryDTO dto = webhookService.deliver(content, id);
+      summary = "Send a ping delivery to a webhook",
+      description = "Sends a predefined ping payload to the specified webhook")
+  @PostMapping(value = "/{id}/ping")
+  public EntityModel<DeliveryDTO> ping(@PathVariable Long id) {
+    DeliveryDTO dto = webhookService.ping(id);
+    return EntityModel.of(dto);
+  }
+
+  @Operation(
+      summary = "Manually redeliver a delivery",
+      description =
+          "Creates a new delivery attempt for an existing delivery using the same payload")
+  @PostMapping(value = "/{webhookId}/deliveries/{deliveryId}/redeliver")
+  @ResponseStatus(HttpStatus.CREATED)
+  public EntityModel<DeliveryDTO> redeliver(
+      @PathVariable Long webhookId, @PathVariable String deliveryId) {
+    DeliveryDTO dto = webhookService.redeliver(webhookId, deliveryId);
     return EntityModel.of(dto);
   }
 }

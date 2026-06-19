@@ -121,14 +121,17 @@ public interface NegotiationService {
    *
    * @param negotiationId the id of the negotiaton to check
    * @return true if the authenticated user is authorized, false otherwise
+   * @deprecated Rather use {@link NegotiationAccessManager}
    */
+  @Deprecated(forRemoval = true)
   boolean isAuthorizedForNegotiation(String negotiationId);
 
   /**
    * Checks whether the currently authenticated user is creator of negotiation
    *
    * @param negotiationId the id of the negotiaton to check
-   * @return true if the authenticated user is the creator of the negotiation, false otherwise
+   * @return {@code true} if the currently authenticated user is authorized to access the
+   *     negotiation
    */
   boolean isNegotiationCreator(String negotiationId);
 
@@ -159,4 +162,18 @@ public interface NegotiationService {
    * @param negotiationId the id of the negotiation to delete
    */
   void deleteNegotiation(String negotiationId);
+
+  /**
+   * Remove a resource from a negotiation. The operation is allowed only if the negotiation is in
+   * DRAFT state and the currently authenticated user is the negotiation creator.
+   *
+   * @param negotiationId the id of the negotiation
+   * @param resourceId the id of the resource to remove
+   * @throws EntityNotFoundException if the negotiation or resource is not found
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException if the user is not
+   *     authorized
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.ConflictStatusException if the negotiation
+   *     is not in DRAFT state
+   */
+  void removeResourceFromNegotiation(String negotiationId, Long resourceId);
 }

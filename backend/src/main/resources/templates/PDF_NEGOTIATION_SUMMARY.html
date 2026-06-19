@@ -262,6 +262,10 @@
             <span class="detail-value" th:text="${negotiationId}">Not specified</span>
         </div>
         <div class="detail-row">
+            <span class="detail-label">Negotiation UUID:</span>
+            <span class="detail-value" th:text="${negotiationUuid}">Not specified</span>
+        </div>
+        <div class="detail-row">
             <span class="detail-label">Requester:</span>
             <span class="detail-value" th:text="${authorName}">Not specified</span>
         </div>
@@ -306,7 +310,11 @@
         </tr>
         <tr>
             <td class="label-col">Negotiation ID:</td>
-            <td class="value-col font-bold" th:text="${negotiationId}">Not specified</td>
+            <td class="value-col" th:text="${negotiationId}">Not specified</td>
+        </tr>
+        <tr>
+            <td class="label-col">Negotiation UUID:</td>
+            <td class="value-col" th:text="${negotiationUuid}">Not specified</td>
         </tr>
         <tr>
             <td class="label-col">Project Title:</td>

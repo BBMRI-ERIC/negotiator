@@ -1,44 +1,80 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
+import eu.bbmri_eric.negotiator.webhook.event.WebhookPayloadEnvelope;
+import java.net.SocketTimeoutException;
+import java.time.Instant;
 import java.util.List;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import lombok.extern.apachecommons.CommonsLog;
-import org.jetbrains.annotations.NotNull;
+import java.util.UUID;
+import javax.net.ssl.SSLException;
+import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.modelmapper.ModelMapper;
+import org.openapitools.jackson.nullable.JsonNullable;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@CommonsLog
 public class WebhookServiceImpl implements WebhookService {
-  private final WebhookRepository webhookRepository;
-  private final ModelMapper modelMapper;
+  private static final String REQUEST_TIMEOUT_ERROR_MESSAGE = "Request timeout";
+  private static final String SSL_VALIDATION_ERROR_MESSAGE = "SSL certificate validation failed";
 
-  public WebhookServiceImpl(WebhookRepository webhookRepository, ModelMapper modelMapper) {
+  private final WebhookRepository webhookRepository;
+  private final DeliveryRepository deliveryRepository;
+  private final ModelMapper modelMapper;
+  private final ObjectMapper objectMapper;
+  private final WebhookDeliveryPersister webhookDeliveryPersister;
+  private final WebhookSecretService webhookSecretService;
+  private final WebhookSigningService webhookSigningService;
+  private final RestTemplate secureRestTemplate;
+  private final RestTemplate insecureRestTemplate;
+
+  public WebhookServiceImpl(
+      WebhookRepository webhookRepository,
+      DeliveryRepository deliveryRepository,
+      ModelMapper modelMapper,
+      ObjectMapper objectMapper,
+      WebhookDeliveryPersister webhookDeliveryPersister,
+      WebhookSecretService webhookSecretService,
+      WebhookSigningService webhookSigningService,
+      @Qualifier("secureWebhookRestTemplate") RestTemplate secureRestTemplate,
+      @Qualifier("insecureWebhookRestTemplate") RestTemplate insecureRestTemplate) {
     this.webhookRepository = webhookRepository;
+    this.deliveryRepository = deliveryRepository;
     this.modelMapper = modelMapper;
+    this.objectMapper = objectMapper;
+    this.webhookDeliveryPersister = webhookDeliveryPersister;
+    this.webhookSecretService = webhookSecretService;
+    this.webhookSigningService = webhookSigningService;
+    this.secureRestTemplate = secureRestTemplate;
+    this.insecureRestTemplate = insecureRestTemplate;
   }
 
   @Override
+  @Transactional
   public WebhookResponseDTO createWebhook(WebhookCreateDTO dto) {
     Webhook webhook = modelMapper.map(dto, Webhook.class);
+    applySecretTransition(webhook, dto.getSecret());
     Webhook savedWebhook = webhookRepository.save(webhook);
     return modelMapper.map(savedWebhook, WebhookResponseDTO.class);
   }
 
   @Override
-  @Transactional
+  @Transactional(readOnly = true)
   public WebhookResponseDTO getWebhookById(Long id) {
     Webhook webhook =
         webhookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -46,7 +82,7 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
-  @Transactional
+  @Transactional(readOnly = true)
   public List<WebhookResponseDTO> getAllWebhooks() {
     List<Webhook> webhooks = webhookRepository.findAll();
     return webhooks.stream()
@@ -55,35 +91,111 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
+  @Transactional
   public WebhookResponseDTO updateWebhook(Long id, WebhookCreateDTO dto) {
     Webhook existingWebhook =
         webhookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     modelMapper.map(dto, existingWebhook);
+    applySecretTransition(existingWebhook, dto.getSecret());
     Webhook updatedWebhook = webhookRepository.save(existingWebhook);
     return modelMapper.map(updatedWebhook, WebhookResponseDTO.class);
   }
 
   @Override
+  @Transactional
   public void deleteWebhook(Long id) {
-    if (!webhookRepository.existsById(id)) {
-      throw new EntityNotFoundException(id);
-    }
+    Webhook webhook =
+        webhookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    deleteAssociatedSecret(webhook);
     webhookRepository.deleteById(id);
   }
 
   @Override
-  @Transactional
-  public DeliveryDTO deliver(String jsonPayload, Long webhookId) {
+  public DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId) {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
     }
     Webhook webhook = getWebhook(webhookId);
     RestTemplate restTemplate =
-        webhook.isSslVerification() ? new RestTemplate() : createNoSSLRestTemplate();
-    return deliverWebhook(jsonPayload, restTemplate, webhook);
+        webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
+    String webhookMessageId = UUID.randomUUID().toString();
+    return deliverWebhook(jsonPayload, restTemplate, webhook, eventType, null, webhookMessageId);
   }
 
-  private @NotNull Webhook getWebhook(Long webhookId) {
+  @Override
+  public DeliveryDTO ping(Long webhookId) {
+    Instant occurredAt = Instant.now();
+    var payloadEnvelope = WebhookPayloadEnvelope.ping(webhookId, occurredAt);
+    String payload = serializePayload(payloadEnvelope);
+    return deliver(payload, WebhookEventType.PING, webhookId);
+  }
+
+  @Override
+  @Transactional
+  public DeliveryDTO redeliver(Long webhookId, String deliveryId) {
+    Webhook webhook = getWebhook(webhookId);
+    Delivery sourceDelivery =
+        deliveryRepository
+            .findByIdAndWebhookId(deliveryId, webhookId)
+            .orElseThrow(() -> new EntityNotFoundException(deliveryId));
+
+    RestTemplate restTemplate =
+        webhook.isSslVerification() ? secureRestTemplate : insecureRestTemplate;
+
+    String rootDeliveryId =
+        sourceDelivery.getRedeliveryOfDeliveryId() == null
+            ? deliveryId
+            : sourceDelivery.getRedeliveryOfDeliveryId();
+
+    return deliverWebhook(
+        sourceDelivery.getContent(),
+        restTemplate,
+        webhook,
+        sourceDelivery.getEventType(),
+        rootDeliveryId,
+        rootDeliveryId);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Long> getActiveWebhookIds() {
+    return webhookRepository.findByActiveTrue().stream().map(Webhook::getId).toList();
+  }
+
+  private void applySecretTransition(Webhook webhook, JsonNullable<String> secretPatch) {
+    if (secretPatch == null || !secretPatch.isPresent()) {
+      return;
+    }
+    String plainTextSecret = secretPatch.orElse(null);
+    if (plainTextSecret == null) {
+      deleteAssociatedSecret(webhook);
+      return;
+    }
+
+    if (plainTextSecret.isEmpty()) {
+      return;
+    }
+
+    webhookSecretService.validateSecret(plainTextSecret);
+    replaceAssociatedSecret(webhook, plainTextSecret);
+  }
+
+  private void replaceAssociatedSecret(Webhook webhook, String plainTextSecret) {
+    deleteAssociatedSecret(webhook);
+    DecryptedWebhookSecret createdSecret = webhookSecretService.createSecret(plainTextSecret);
+    webhook.setSecretId(createdSecret.id());
+  }
+
+  private void deleteAssociatedSecret(Webhook webhook) {
+    if (webhook.getSecretId() == null) {
+      return;
+    }
+    String currentSecretId = webhook.getSecretId();
+    webhook.setSecretId(null);
+    webhookSecretService.deleteSecret(currentSecretId);
+  }
+
+  private @NonNull Webhook getWebhook(Long webhookId) {
     Webhook webhook =
         webhookRepository
             .findById(webhookId)
@@ -96,26 +208,45 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   private DeliveryDTO deliverWebhook(
-      String jsonPayload, RestTemplate restTemplate, Webhook webhook) {
+      String jsonPayload,
+      RestTemplate restTemplate,
+      Webhook webhook,
+      WebhookEventType eventType,
+      String redeliveryOfDeliveryId,
+      String webhookMessageId) {
+    String deliveryId =
+        redeliveryOfDeliveryId == null ? webhookMessageId : UUID.randomUUID().toString();
     Delivery delivery;
     try {
-      HttpEntity<String> request = buildHttpEntity(jsonPayload);
+      long webhookTimestamp = Instant.now().getEpochSecond();
+      HttpEntity<String> request =
+          buildHttpEntity(jsonPayload, webhook, webhookMessageId, webhookTimestamp);
       int statusCode = postWebhook(restTemplate, webhook, request);
-      delivery = new Delivery(jsonPayload, statusCode);
-    } catch (org.springframework.web.client.HttpClientErrorException
-        | org.springframework.web.client.HttpServerErrorException ex) {
+      delivery = new Delivery(jsonPayload, statusCode, eventType);
+    } catch (HttpClientErrorException | HttpServerErrorException ex) {
       delivery =
-          new Delivery(jsonPayload, ex.getStatusCode().value(), parseErrorMessage(ex.getMessage()));
+          new Delivery(jsonPayload, ex.getStatusCode().value(), parseErrorMessage(ex), eventType);
+    } catch (ResourceAccessException ex) {
+      delivery = mapTransportException(jsonPayload, ex, eventType);
     } catch (Exception ex) {
-      delivery = new Delivery(jsonPayload, 500, parseErrorMessage(ex.getMessage()));
+      delivery = new Delivery(jsonPayload, null, parseErrorMessage(ex), eventType);
     }
-    return persistDelivery(webhook, delivery);
+    delivery.setId(deliveryId);
+    delivery.setRedeliveryOfDeliveryId(redeliveryOfDeliveryId);
+    return webhookDeliveryPersister.persist(webhook.getId(), delivery);
   }
 
-  private DeliveryDTO persistDelivery(Webhook webhook, Delivery delivery) {
-    webhook.addDelivery(delivery);
-    webhook = webhookRepository.saveAndFlush(webhook);
-    return modelMapper.map(webhook.getDeliveries().get(0), DeliveryDTO.class);
+  private Delivery mapTransportException(
+      String jsonPayload, ResourceAccessException ex, WebhookEventType eventType) {
+    if (containsCause(ex, ConnectTimeoutException.class)
+        || containsCause(ex, SocketTimeoutException.class)) {
+      return new Delivery(jsonPayload, null, REQUEST_TIMEOUT_ERROR_MESSAGE, eventType);
+    }
+
+    if (containsCause(ex, SSLException.class)) {
+      return new Delivery(jsonPayload, null, SSL_VALIDATION_ERROR_MESSAGE, eventType);
+    }
+    return new Delivery(jsonPayload, null, parseErrorMessage(ex), eventType);
   }
 
   private static int postWebhook(
@@ -126,51 +257,32 @@ public class WebhookServiceImpl implements WebhookService {
         .value();
   }
 
-  private static @NotNull HttpEntity<String> buildHttpEntity(String jsonPayload) {
+  private @NonNull HttpEntity<String> buildHttpEntity(
+      String jsonPayload, Webhook webhook, String webhookMessageId, long webhookTimestamp) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    return new HttpEntity<>(JSONUtils.toJSON(jsonPayload), headers);
+    headers.add(WebhookHeaders.WEBHOOK_ID, webhookMessageId);
+    headers.add(WebhookHeaders.TIMESTAMP, String.valueOf(webhookTimestamp));
+    webhookSigningService
+        .createSignature(webhookMessageId, webhookTimestamp, jsonPayload, webhook.getSecretId())
+        .ifPresent(signature -> headers.add(WebhookHeaders.SIGNATURE, signature.toString()));
+
+    return new HttpEntity<>(jsonPayload, headers);
   }
 
-  /**
-   * Allows the creation of a RestTemplate that does not verify SSL certificates.
-   *
-   * @return
-   */
-  private RestTemplate createNoSSLRestTemplate() {
+  private String serializePayload(Object payloadObject) {
     try {
-      SSLContext sslContext = SSLContext.getInstance("TLS");
-      sslContext.init(
-          null,
-          new TrustManager[] {
-            new X509TrustManager() {
-              public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[0];
-              }
-
-              public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                // Empty implementation
-              }
-
-              public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                // Empty implementation
-              }
-            }
-          },
-          new SecureRandom());
-      HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-      HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
-      return new RestTemplate();
-    } catch (Exception e) {
-      throw new InternalError();
+      return objectMapper.writeValueAsString(payloadObject);
+    } catch (JsonProcessingException ex) {
+      throw new IllegalStateException("Could not serialize webhook payload", ex);
     }
   }
 
-  private String parseErrorMessage(String errorMessage) {
-    if (errorMessage != null && errorMessage.length() > 255) {
-      return errorMessage.substring(0, 255);
-    } else {
-      return errorMessage;
-    }
+  private String parseErrorMessage(Exception ex) {
+    return StringUtils.abbreviate(ex.getMessage(), "...", 255);
+  }
+
+  private boolean containsCause(Throwable throwable, Class<? extends Throwable> causeClass) {
+    return ExceptionUtils.indexOfType(throwable, causeClass) != -1;
   }
 }

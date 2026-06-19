@@ -9,11 +9,11 @@
       aria-expanded="false"
       @click="() => fetchNotifications(0)"
     >
-      <i class="bi bi-bell" />
+      <i class="bi bi-bell fs-5" />
 
       <span
         v-if="unreadCount > 0"
-        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger pb-0 px-1"
+        class="position-absolute badge rounded-pill bg-danger notification-badge"
       >
         {{ unreadCount }}
       </span>
@@ -290,5 +290,19 @@ onUnmounted(() => {
   overflow: hidden;
   overflow-y: auto;
   max-height: calc(100vh - 150px);
+}
+
+.notification-badge {
+  font-size: 0.6rem;
+  top: 0;
+  right: 0;
+  transform: translate(25%, -25%);
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.2rem;
+  line-height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

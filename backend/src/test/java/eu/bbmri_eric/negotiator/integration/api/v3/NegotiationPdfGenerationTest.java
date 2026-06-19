@@ -16,6 +16,7 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.InputStream;
 import java.util.List;
@@ -70,6 +71,23 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
+  @WithMockNegotiatorUser(id = 102L)
+  void testGenerateNegotiationPdf_WithoutAttachments_AsNetworkManager_ReturnsBasicPdf()
+      throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(get(PDF_ENDPOINT, NEGOTIATION_1_ID))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andReturn();
+
+    byte[] pdfContent = result.getResponse().getContentAsByteArray();
+    assertNotNull(pdfContent);
+    assertTrue(pdfContent.length > 0);
+    assertTrue(new String(pdfContent).startsWith("%PDF"));
+  }
+
+  @Test
   @WithUserDetails("TheResearcher")
   void testGenerateNegotiationPdfWithAttachments_WithPdfAttachment_MergesPdfs() throws Exception {
     MockMultipartFile pdfFile =
@@ -95,6 +113,22 @@ class NegotiationPdfGenerationTest {
     assertNotNull(mergedPdfContent);
     assertTrue(mergedPdfContent.length > 0);
     assertTrue(new String(mergedPdfContent).startsWith("%PDF"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 102L)
+  void testGenerateNegotiationPdfWithAttachments_AsNetworkManager_ReturnsPdf() throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andReturn();
+
+    byte[] pdfContent = result.getResponse().getContentAsByteArray();
+    assertNotNull(pdfContent);
+    assertTrue(pdfContent.length > 0);
+    assertTrue(new String(pdfContent).startsWith("%PDF"));
   }
 
   @Test

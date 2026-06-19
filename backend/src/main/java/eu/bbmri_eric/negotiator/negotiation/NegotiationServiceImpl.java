@@ -11,6 +11,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
@@ -21,6 +22,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +55,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
   private NegotiationAccessManager negotiationAccessManager;
+  private EntityManager entityManager;
 
   public NegotiationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -63,7 +66,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       ModelMapper modelMapper,
       PersonService personService,
       ApplicationEventPublisher eventPublisher,
-      NegotiationAccessManager negotiationAccessManager) {
+      NegotiationAccessManager negotiationAccessManager,
+      EntityManager entityManager) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
@@ -73,6 +77,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.personService = personService;
     this.eventPublisher = eventPublisher;
     this.negotiationAccessManager = negotiationAccessManager;
+    this.entityManager = entityManager;
   }
 
   @Override
@@ -82,17 +87,20 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   /**
-   * Check if the currently authenticated user is authorized for teh negotiation
+   * Check if the currently authenticated user is authorized for the negotiation
    *
    * @param negotiationId the id of the negotiaton to check
    * @return true if the user is the creator of the negotiation or if he/she is representative of
    *     any resource involved in the negotiation
+   * @deprecated Rather use {@link NegotiationAccessManager}
    */
   @Override
+  @Deprecated(forRemoval = true)
   public boolean isAuthorizedForNegotiation(String negotiationId) {
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     return isNegotiationCreator(negotiationId)
-        || personService.isRepresentativeOfAnyResourceOfNegotiation(
-            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId)
+        || personService.isRepresentativeOfAnyResourceOfNegotiation(userId, negotiationId)
+        || personRepository.isManagerOfAnyResourceOfNegotiation(userId, negotiationId)
         || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
@@ -145,6 +153,9 @@ public class NegotiationServiceImpl implements NegotiationService {
       NegotiationCreateDTO negotiationBody, Negotiation negotiation) {
     try {
       negotiation = negotiationRepository.save(negotiation);
+      entityManager.flush();
+      // Necessary to load the generated display ID from the DB
+      entityManager.refresh(negotiation);
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated", ex);
       throw new EntityNotStorableException();
@@ -152,9 +163,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     if (negotiationBody.getAttachments() != null) {
       linkAttachments(negotiationBody, negotiation);
     }
-    if (Objects.equals(negotiation.getCurrentState(), NegotiationState.SUBMITTED)) {
-      eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiation.getId()));
-    }
+    eventPublisher.publishEvent(
+        new NewNegotiationEvent(this, negotiation.getId(), negotiation.getCurrentState()));
     return negotiation;
   }
 
@@ -183,6 +193,10 @@ public class NegotiationServiceImpl implements NegotiationService {
     verifyWriteAccessToNegotiation(negotiationEntity);
     if (Objects.nonNull(updateDTO.getPayload())) {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
+    }
+    if (Objects.nonNull(updateDTO.getDisplayId())
+        && AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      negotiationEntity.setDisplayId(updateDTO.getDisplayId());
     }
     if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
       log.info("Transferring Negotiation");
@@ -360,5 +374,40 @@ public class NegotiationServiceImpl implements NegotiationService {
       throw new ConflictStatusException("Cannot delete a Negotiation that is not in DRAFT state");
     }
     negotiationRepository.delete(negotiation);
+  }
+
+  @Override
+  public void removeResourceFromNegotiation(String negotiationId, Long resourceId) {
+    Negotiation negotiation = findEntityById(negotiationId, false);
+    verifyRemoveResourcePreconditions(negotiationId, negotiation);
+    Resource resource = findResourceInNegotiation(negotiationId, resourceId, negotiation);
+    negotiation.removeResource(resource);
+    negotiationRepository.save(negotiation);
+  }
+
+  private void verifyRemoveResourcePreconditions(String negotiationId, Negotiation negotiation) {
+    if (!isNegotiationCreator(negotiationId)) {
+      throw new ForbiddenRequestException(
+          "Only the negotiation author can remove resources from a draft negotiation");
+    }
+    if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
+      throw new IllegalStateException(
+          "Resources can only be removed from negotiations in DRAFT state");
+    }
+    if (negotiation.getResources().size() <= 1) {
+      throw new IllegalArgumentException("Cannot remove the last resource from a negotiation");
+    }
+  }
+
+  private Resource findResourceInNegotiation(
+      String negotiationId, Long resourceId, Negotiation negotiation) {
+    return negotiation.getResources().stream()
+        .filter(r -> r.getId().equals(resourceId))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new EntityNotFoundException(
+                    "Resource with id %s not found in negotiation %s"
+                        .formatted(resourceId, negotiationId)));
   }
 }

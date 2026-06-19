@@ -1,12 +1,16 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +26,9 @@ import org.hibernate.type.SqlTypes;
 @Getter
 @Setter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@EqualsAndHashCode
 @Entity
+@Table(name = "webhook_delivery")
 public class Delivery {
 
   @Id private String id;
@@ -37,23 +43,30 @@ public class Delivery {
   @Column(nullable = false, updatable = false)
   private LocalDateTime at;
 
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private WebhookEventType eventType;
+
   /** Optional HTTP status code from the delivery attempt. */
   private Integer httpStatusCode;
 
   /** Optional error message if the delivery attempt failed. */
   private String errorMessage;
 
-  public Delivery(String content, Integer httpStatusCode, String errorMessage) {
+  /** Optional id of the original delivery when this record is a manual redelivery. */
+  private String redeliveryOfDeliveryId;
+
+  public Delivery(
+      String content, Integer httpStatusCode, String errorMessage, WebhookEventType eventType) {
     validateStatusAndMessage(httpStatusCode, errorMessage);
     this.content = content;
     this.httpStatusCode = httpStatusCode;
     this.errorMessage = errorMessage;
+    this.eventType = eventType;
   }
 
-  public Delivery(String content, Integer httpStatusCode) {
-    validateStatusAndMessage(httpStatusCode, null);
-    this.content = content;
-    this.httpStatusCode = httpStatusCode;
+  public Delivery(String content, Integer httpStatusCode, WebhookEventType eventType) {
+    this(content, httpStatusCode, null, eventType);
   }
 
   private static void validateStatusAndMessage(Integer httpStatusCode, String errorMessage) {
@@ -69,22 +82,5 @@ public class Delivery {
     if (id == null || id.isEmpty()) {
       id = UUID.randomUUID().toString();
     }
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
-    Delivery delivery = (Delivery) o;
-    return Objects.equals(id, delivery.id)
-        && Objects.equals(webhookId, delivery.webhookId)
-        && Objects.equals(content, delivery.content)
-        && Objects.equals(at, delivery.at)
-        && Objects.equals(httpStatusCode, delivery.httpStatusCode)
-        && Objects.equals(errorMessage, delivery.errorMessage);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, webhookId, content, at, httpStatusCode, errorMessage);
   }
 }

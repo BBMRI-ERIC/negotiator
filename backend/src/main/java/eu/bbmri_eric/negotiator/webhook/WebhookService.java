@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import java.util.List;
 
 public interface WebhookService {
@@ -46,7 +47,33 @@ public interface WebhookService {
    * Creates a new delivery for a given webhook.
    *
    * @param jsonPayload the JSON content for the delivery
+   * @param eventType the event type header for the delivery
+   * @param webhookId the id of the target webhook
    * @return a DTO representing the newly created delivery
    */
-  DeliveryDTO deliver(String jsonPayload, Long webhookId);
+  DeliveryDTO deliver(String jsonPayload, WebhookEventType eventType, Long webhookId);
+
+  /**
+   * Sends a standardized ping delivery for the given webhook.
+   *
+   * @param webhookId the id of the target webhook
+   * @return a DTO representing the newly created ping delivery
+   */
+  DeliveryDTO ping(Long webhookId);
+
+  /**
+   * Creates a manual redelivery for a previously recorded delivery.
+   *
+   * @param webhookId the owning webhook id
+   * @param deliveryId the source delivery id to redeliver
+   * @return a DTO representing the newly created delivery attempt
+   */
+  DeliveryDTO redeliver(Long webhookId, String deliveryId);
+
+  /**
+   * Returns the ids of all currently active webhooks.
+   *
+   * @return a list of active webhook ids
+   */
+  List<Long> getActiveWebhookIds();
 }

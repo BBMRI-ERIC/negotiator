@@ -1023,6 +1023,7 @@ public class NegotiationControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isString())
+            .andExpect(jsonPath("$.displayId").isString())
             .andExpect(jsonPath("$.publicPostsEnabled", is(true)))
             .andExpect(jsonPath("$.privatePostsEnabled", is(false)))
             .andExpect(jsonPath("$.payload.project.title", is("Title")))
@@ -1146,6 +1147,24 @@ public class NegotiationControllerTests {
         .andReturn();
     Optional<Negotiation> negotiation = negotiationRepository.findById(NEGOTIATION_1_ID);
     negotiation.ifPresent(value -> assertEquals(value.getModifiedBy().getName(), "TheResearcher"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @Transactional
+  public void testUpdate_asAdminOk_whenUpdateDisplayId() throws Exception {
+    String requestBody = "{\"displayId\":\"POP88\"}";
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.displayId").isString())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+    Optional<Negotiation> negotiation = negotiationRepository.findById(NEGOTIATION_1_ID);
+    assertEquals("POP88", negotiation.get().getDisplayId());
   }
 
   @Test
@@ -1545,9 +1564,101 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void addResources_draftStatus_userCanAddResources() throws Exception {
+    // Get a negotiation created by TheResearcher and set it to DRAFT status
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_1_ID).get();
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiationRepository.saveAndFlush(negotiation);
+
+    // Get the initial count of resources
+    int initialResourceCount = negotiation.getResources().size();
+
+    // Find resources that are not yet part of this negotiation
+    List<Resource> newResources =
+        resourceRepository.findAll().stream()
+            .filter(resource -> !negotiation.getResources().contains(resource))
+            .limit(2) // Add 2 new resources
+            .toList();
+
+    Assertions.assertFalse(newResources.isEmpty(), "Should have resources to add");
+
+    // Add new resources to the negotiation
+    UpdateResourcesDTO updateResourcesDTO =
+        new UpdateResourcesDTO(newResources.stream().map(Resource::getId).toList());
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath(
+                "$._embedded.resources.length()", is(initialResourceCount + newResources.size())));
+
+    // Verify the resources were actually added
+    Negotiation updatedNegotiation = negotiationRepository.findById(NEGOTIATION_1_ID).get();
+    assertEquals(
+        initialResourceCount + newResources.size(),
+        updatedNegotiation.getResources().size(),
+        "Resources should be added to the negotiation");
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void removeResource_draftStatus_multipleResources_userCanRemoveResource() throws Exception {
+    // negotiation-5 belongs to TheResearcher and has 2 resources (ids 5 and 7)
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiationRepository.saveAndFlush(negotiation);
+
+    int initialResourceCount = negotiation.getResources().size();
+    Assertions.assertTrue(initialResourceCount > 1, "Negotiation should have more than 1 resource");
+
+    Long resourceIdToRemove = negotiation.getResources().iterator().next().getId();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                "%s/%s/resources/%s"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID, resourceIdToRemove)))
+        .andExpect(status().isNoContent());
+
+    Negotiation updatedNegotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    assertEquals(
+        initialResourceCount - 1,
+        updatedNegotiation.getResources().size(),
+        "Resource should be removed from the negotiation");
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void removeResource_draftStatus_onlyOneResourceLeft_throwsBadRequest() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiationRepository.saveAndFlush(negotiation);
+    Long resourceIdToRemove = negotiation.getResources().iterator().next().getId();
+    mockMvc.perform(
+        MockMvcRequestBuilders.delete(
+            "%s/%s/resources/%s"
+                .formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID, resourceIdToRemove)));
+    resourceIdToRemove = negotiation.getResources().iterator().next().getId();
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                "%s/%s/resources/%s"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID, resourceIdToRemove)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   @WithUserDetails("admin")
   void getLifecycleEvents() throws Exception {
-    // negotiation-1 status is IN_PROGRESS
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/negotiation-1/lifecycle".formatted(NEGOTIATIONS_URL)))
@@ -1834,5 +1945,82 @@ public class NegotiationControllerTests {
         .andExpect(content().contentType("application/pdf"))
         .andExpect(
             header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  @Transactional
+  public void testUpdateDisplayId_Ok_whenAdmin() throws Exception {
+    String newDisplayId = "NEG-2024-001";
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setDisplayId(newDisplayId);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/%s".formatted(NEGOTIATION_1_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.displayId", is(newDisplayId)));
+
+    // Verify the displayId was persisted
+    Optional<Negotiation> negotiation = negotiationRepository.findById(NEGOTIATION_1_ID);
+    negotiation.ifPresent(value -> assertEquals(newDisplayId, value.getDisplayId()));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testUpdateDisplayId_BadRequest_whenDisplayIdTooLong() throws Exception {
+    String tooLongDisplayId = "A".repeat(21); // 21 characters, max is 20
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setDisplayId(tooLongDisplayId);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/%s".formatted(NEGOTIATION_1_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  @Transactional
+  public void testSearchNegotiations_Ok_byDisplayId() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_1_ID).orElseThrow();
+    negotiation.setDisplayId("SEARCH-001");
+    negotiationRepository.save(negotiation);
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?search=SEARCH-001"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements").value(1))
+        .andExpect(jsonPath("$._embedded.negotiations[0].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations[0].displayId", is("SEARCH-001")));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testSearchNegotiations_Ok_byTitle() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?search=Biobanking"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements").value(1))
+        .andExpect(jsonPath("$._embedded.negotiations[0].id", is(NEGOTIATION_1_ID)));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testSearchNegotiations_Ok_noResults() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?search=NonExistentSearch"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements").value(0));
   }
 }

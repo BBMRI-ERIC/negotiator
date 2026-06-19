@@ -68,37 +68,27 @@
           Admin Settings
         </router-link>
       </li>
-      <li v-if="isAdmin">
-        <router-link
-          to="/ui-configuration"
-          class="dropdown-item"
-          :style="{ color: uiConfiguration?.navbarTextColor }"
-        >
-          <i class="bi bi-house-gear" />
-          Admin UI Configuration
-        </router-link>
-      </li>
-      <li>
+      <li v-if="showLegalLinksSection">
         <hr class="dropdown-divider" />
       </li>
-      <li>
+      <li v-if="showPrivacyPolicyLink">
         <a
-          href="https://www.bbmri-eric.eu/wp-content/uploads/AoM_10_8_Access-Policy_FINAL_EU.pdfl"
+          :href="privacyPolicyLink"
           class="dropdown-item"
           :style="{ color: uiConfiguration?.navbarTextColor }"
         >
           <i class="bi bi-shield-lock" />
-          Privacy Policy
+          {{ privacyPolicyText }}
         </a>
       </li>
-      <li>
+      <li v-if="showAccessPolicyLink">
         <a
-          href="https://www.bbmri-eric.eu/services/access-policies/"
+          :href="accessPolicyLink"
           class="dropdown-item"
           :style="{ color: uiConfiguration?.navbarTextColor }"
         >
           <i class="bi bi-clipboard-check" />
-          Access Policy
+          {{ accessPolicyText }}
         </a>
       </li>
       <li>
@@ -147,20 +137,57 @@ const uiConfigurationStore = useUiConfiguration()
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.navbar
 })
+
+const uiConfigurationFooter = computed(() => {
+  return uiConfigurationStore.uiConfiguration?.footer
+})
+
 const returnAcronymOfName = computed(() => {
-  const words = props.user?.name.split(' ')
+  const name = props.user?.name || ''
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  let initials = ''
+  if (words.length === 1) {
+    // Single word: take only the first letter
+    initials = words[0][0] ? words[0][0].toUpperCase() : ''
+  } else if (words.length > 1) {
+    // Multiple words: take first letter of first and last word
+    initials = words[0][0].toUpperCase() + ' ' + words[words.length - 1][0].toUpperCase()
+  }
+  return initials
+})
 
-  // Initialize an empty string for the acronym
-  let acronym = ''
+const privacyPolicyLink = computed(() => {
+  return (
+    uiConfiguration.value?.navbarPrivacyPolicyLink ||
+    uiConfigurationFooter.value?.footerPrivacyPolicyLink
+  )
+})
 
-  // Iterate over each word
-  words.forEach((word) => {
-    // Get the first character of each word and append it to the acronym
-    if (word.length > 0) {
-      acronym += word[0].toUpperCase() + ' '
-    }
-  })
-  return acronym
+const privacyPolicyText = computed(() => {
+  return (
+    uiConfiguration.value?.navbarPrivacyPolicyText ||
+    uiConfigurationFooter.value?.footerPrivacyPolicyText
+  )
+})
+
+const showPrivacyPolicyLink = computed(() => {
+  return Boolean(privacyPolicyLink.value && privacyPolicyText.value)
+})
+
+const accessPolicyLink = computed(() => {
+  return uiConfiguration.value?.navbarAccessPolicyLink
+})
+
+const accessPolicyText = computed(() => {
+  return uiConfiguration.value?.navbarAccessPolicyText
+})
+
+const showAccessPolicyLink = computed(() => {
+  return Boolean(accessPolicyLink.value && accessPolicyText.value)
+})
+
+const showLegalLinksSection = computed(() => {
+  return showPrivacyPolicyLink.value || showAccessPolicyLink.value
 })
 
 function signOutOidc() {

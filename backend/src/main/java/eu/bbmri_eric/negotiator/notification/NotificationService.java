@@ -19,4 +19,13 @@ public interface NotificationService {
    * @return the NotificationDTO if found, or null if not found
    */
   NotificationDTO findById(@Nonnull Long id);
+
+  /**
+   * Finds a notification by recipient id and negotiationId.
+   *
+   * @param recipientId the unique identifier of the email recipient #param negotiationId the unique
+   *     identifier of the negotiation
+   * @return the count of notifications matching the criteria
+   */
+  int countByRecipientIdAndNegotiationId(@Nonnull Long recipientId, @Nonnull String negotiationId);
 }

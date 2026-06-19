@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.info_submission;
 
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface InformationSubmissionService {
   /**
@@ -48,5 +47,5 @@ public interface InformationSubmissionService {
    *
    * @return a summary file
    */
-  MultipartFile createSummary(Long requirementId, String negotiationId);
+  InformationSubmissionSummaryDTO createSummary(Long requirementId, String negotiationId);
 }

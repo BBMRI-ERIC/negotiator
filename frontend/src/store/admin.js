@@ -29,8 +29,10 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   function retrieveInfoRequirement(link) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = link.startsWith('http') ? new URL(link).pathname : link
     return axios
-      .get(`${link}`, { headers: getBearerHeaders() })
+      .get(url, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -97,25 +99,21 @@ export const useAdminStore = defineStore('admin', () => {
         notifications.setNotification('Webhook deleted successfully')
       })
       .catch((error) => {
-        notifications.setNotification('Error deleting webhook', 'error')
+        notifications.setNotification('Error deleting webhook', 'danger')
         throw error
       })
   }
 
   function testWebhook(webhookId) {
     return axios
-      .post(
-        `${apiPaths.BASE_API_PATH}/webhooks/${webhookId}/deliveries`,
-        { test: 'yes' },
-        {
-          headers: getBearerHeaders(),
-        },
-      )
+      .post(`${apiPaths.BASE_API_PATH}/webhooks/${webhookId}/ping`, null, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         return response.data
       })
       .catch((error) => {
-        notifications.setNotification('Failed to send test delivery', 'error')
+        notifications.setNotification('Failed to send test ping', 'danger')
         throw error
       })
   }
@@ -126,6 +124,24 @@ export const useAdminStore = defineStore('admin', () => {
         headers: getBearerHeaders(),
       })
       .then((response) => response.data)
+  }
+
+  function redeliverWebhookDelivery(webhookId, deliveryId) {
+    return axios
+      .post(
+        `${apiPaths.BASE_API_PATH}/webhooks/${webhookId}/deliveries/${deliveryId}/redeliver`,
+        null,
+        {
+          headers: getBearerHeaders(),
+        },
+      )
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        notifications.setNotification('Failed to redeliver webhook delivery', 'danger')
+        throw error
+      })
   }
 
   function retrieveUsers(page = 0, size = 10, filtersSortData) {
@@ -217,7 +233,7 @@ export const useAdminStore = defineStore('admin', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error updating resource', 'error')
+        notifications.setNotification('Error updating resource', 'danger')
         throw new Error('Failed to update resource')
       })
   }
@@ -263,7 +279,7 @@ export const useAdminStore = defineStore('admin', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error updating organization', 'error')
+        notifications.setNotification('Error updating organization', 'danger')
         throw new Error('Failed to update organization')
       })
   }
@@ -282,7 +298,7 @@ export const useAdminStore = defineStore('admin', () => {
         return response.data._embedded?.organizations?.[0] || response.data
       })
       .catch((error) => {
-        notifications.setNotification('Error creating organization', 'error')
+        notifications.setNotification('Error creating organization', 'danger')
         throw error
       })
   }
@@ -298,6 +314,7 @@ export const useAdminStore = defineStore('admin', () => {
     deleteWebhook,
     testWebhook,
     getWebhook,
+    redeliverWebhookDelivery,
     retrieveUsers,
     retrieveResources,
     retrieveResourcesPaginated,

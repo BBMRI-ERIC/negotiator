@@ -9,17 +9,20 @@ public class ResourceStateChangeEvent extends ApplicationEvent {
   private final String resourceId;
   private final NegotiationResourceState fromState;
   private final NegotiationResourceState toState;
+  private final NegotiationResourceEvent event;
 
   public ResourceStateChangeEvent(
       Object source,
       String negotiationId,
       String resourceId,
       NegotiationResourceState fromState,
-      NegotiationResourceState toState) {
+      NegotiationResourceState toState,
+      NegotiationResourceEvent event) {
     super(source);
     this.negotiationId = negotiationId;
     this.resourceId = resourceId;
     this.fromState = fromState;
     this.toState = toState;
+    this.event = event;
   }
 }

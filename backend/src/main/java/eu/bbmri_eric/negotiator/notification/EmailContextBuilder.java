@@ -46,10 +46,14 @@ public class EmailContextBuilder {
     // DO NOT remove any variables without a good reason.
     // Any deployments without updated templates would miss them.
     // If you add or modify them mention it in the documentation.
+    String emailButtonLink = frontendUrl + "/biobanker";
+    String emailButtonText = "Negotiator Login";
     variables.put("recipient", recipientName);
     variables.put("message", message);
 
     if (negotiationId != null && negotiationTitle != null && negotiationCreationDate != null) {
+      emailButtonLink = frontendUrl + "/negotiations/" + negotiationId;
+      emailButtonText = "View Details";
       variables.put("negotiation", negotiationId);
       variables.put("titleForNegotiation", negotiationTitle);
       variables.put("date", negotiationCreationDate.format(DATE_TIME_FORMATTER));
@@ -58,6 +62,8 @@ public class EmailContextBuilder {
     variables.put("emailYoursSincerelyText", emailYoursSincerelyText);
     variables.put("emailHelpdeskHref", emailHelpdeskHref);
     variables.put("logoUrl", logoURL);
+    variables.put("emailButtonLink", emailButtonLink);
+    variables.put("emailButtonText", emailButtonText);
     return templateService.processTemplate(variables, TEMPLATE_NAME);
   }
 }

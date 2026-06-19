@@ -2,9 +2,9 @@ package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -47,5 +47,11 @@ class NotificationServiceImpl implements NotificationService {
         .map(notification -> modelMapper.map(notification, NotificationDTO.class))
         .orElseThrow(
             () -> new EntityNotFoundException("Notification with id " + id + " not found"));
+  }
+
+  @Override
+  public int countByRecipientIdAndNegotiationId(
+      @NotNull Long recipientId, @NotNull String negotiationId) {
+    return notificationRepository.countByRecipientIdAndNegotiationId(recipientId, negotiationId);
   }
 }

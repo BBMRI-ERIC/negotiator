@@ -22,6 +22,17 @@ public class DeliveryDTO {
       example = "123e4567-e89b-12d3-a456-426614174000")
   private String id;
 
+  @Schema(
+      description =
+          "Identifier of original delivery when this is a redelivery, equal to delivery id if not a redelivery",
+      example = "123e4567-e89b-12d3-a456-426614174000")
+  private String rootId;
+
+  @Schema(
+      description = "Flag indicating whether this delivery is a redelivery attempt",
+      example = "false")
+  private Boolean redelivery;
+
   /** JSON content of the delivery. */
   @Schema(description = "JSON content of the delivery", example = "{\"key\":\"value\"}")
   private JsonNode content;

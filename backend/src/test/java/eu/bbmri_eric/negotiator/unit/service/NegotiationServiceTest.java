@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.attachment.Attachment;
@@ -16,19 +17,24 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationServiceImpl;
+import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import jakarta.persistence.EntityManager;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +44,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -54,7 +61,11 @@ public class NegotiationServiceTest {
   @Mock AttachmentRepository attachmentRepository;
   @Mock NegotiationRepository negotiationRepository;
   @Mock PersonRepository personRepository;
+  @Mock PersonService personService;
+  @Mock NetworkRepository networkRepository;
+  @Mock NegotiationAccessManager negotiationAccessManager;
   @Mock ApplicationEventPublisher eventPublisher;
+  @Mock EntityManager entityManager;
 
   @Mock RequestRepository requestRepository;
   @Mock ModelMapper modelMapper;
@@ -125,6 +136,34 @@ public class NegotiationServiceTest {
   }
 
   @Test
+  @WithMockNegotiatorUser(
+      id = 2L,
+      authName = "networkManager",
+      authSubject = "networkManager@aai.eu",
+      authEmail = "networkManager@aai.eu",
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_isAuthorizedForNegotiation_IsTrue_WhenUserIsNetworkManager() {
+    when(personRepository.isNegotiationCreator(2L, "123")).thenReturn(false);
+    when(personService.isRepresentativeOfAnyResourceOfNegotiation(2L, "123")).thenReturn(false);
+    when(personRepository.isManagerOfAnyResourceOfNegotiation(2L, "123")).thenReturn(true);
+    assertTrue(negotiationService.isAuthorizedForNegotiation("123"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 2L,
+      authName = "researcher",
+      authSubject = "researcher@aai.eu",
+      authEmail = "researcher@aai.eu",
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_isAuthorizedForNegotiation_IsFalse_WhenUserHasNoAccess() {
+    when(personRepository.isNegotiationCreator(2L, "123")).thenReturn(false);
+    when(personService.isRepresentativeOfAnyResourceOfNegotiation(2L, "123")).thenReturn(false);
+    when(personRepository.isManagerOfAnyResourceOfNegotiation(2L, "123")).thenReturn(false);
+    assertFalse(negotiationService.isAuthorizedForNegotiation("123"));
+  }
+
+  @Test
   void testCreateNegotiation_ok() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
 
@@ -132,6 +171,7 @@ public class NegotiationServiceTest {
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
+    negotiation.setId("negotiation-1");
     negotiation.setCurrentState(NegotiationState.SUBMITTED);
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
@@ -142,6 +182,12 @@ public class NegotiationServiceTest {
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
     assertEquals(null, negotiationDTO.getStatus());
+
+    ArgumentCaptor<NewNegotiationEvent> eventCaptor =
+        ArgumentCaptor.forClass(NewNegotiationEvent.class);
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    assertEquals("negotiation-1", eventCaptor.getValue().getNegotiationId());
+    assertEquals(NegotiationState.SUBMITTED, eventCaptor.getValue().getCurrentState());
   }
 
   @Test
@@ -152,6 +198,7 @@ public class NegotiationServiceTest {
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
+    negotiation.setId("negotiation-2");
     negotiation.setCurrentState(NegotiationState.DRAFT);
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
@@ -162,6 +209,12 @@ public class NegotiationServiceTest {
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
     assertNull(negotiationDTO.getStatus());
+
+    ArgumentCaptor<NewNegotiationEvent> eventCaptor =
+        ArgumentCaptor.forClass(NewNegotiationEvent.class);
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    assertEquals("negotiation-2", eventCaptor.getValue().getNegotiationId());
+    assertEquals(NegotiationState.DRAFT, eventCaptor.getValue().getCurrentState());
   }
 
   @Test

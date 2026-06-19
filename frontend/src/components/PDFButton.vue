@@ -9,7 +9,7 @@
       }"
       ><i class="bi bi-file-earmark-pdf" />
       {{ text }}
-      <span v-if="badgeText" class="badge rounded-pill" :class="badgeClass"> {{ badgeText }} </span>
+      <UiBadge v-if="badgeText" :class="`bg-${badgeType} rounded-pill`">{{ badgeText }}</UiBadge>
     </a>
 
     <DownloadingSpinner ref="downloadingSpinner" />
@@ -23,6 +23,7 @@ import { useNegotiationPageStore } from '@/store/negotiationPage.js'
 import { useNotificationsStore } from '../store/notifications'
 import DownloadingSpinner from '@/components/modals/DownloadingSpinner.vue'
 import { Modal } from 'bootstrap'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const downloadingSpinner = ref(null)
 
@@ -58,10 +59,6 @@ const notificationsStore = useNotificationsStore()
 
 const uiConfigurationTheme = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
-})
-
-const badgeClass = computed(() => {
-  return `bg-${props.badgeType}`
 })
 
 async function retrievePDF() {

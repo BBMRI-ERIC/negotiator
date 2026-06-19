@@ -1,31 +1,29 @@
 <template>
-  <div class="card mb-3">
-    <div class="card-body d-flex justify-content-between align-items-center">
-      <div class="d-flex align-items-center">
-        <i :class="getStatusIcon(webhook)" class="me-3"></i>
+  <div class="card">
+    <div
+      class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
+    >
+      <div class="d-flex align-items-center gap-3">
+        <i :class="getStatusIcon(webhook)"></i>
         <div>
-          <h5 class="card-title mb-0">{{ webhook.url }}</h5>
-          <small class="text-muted">
-            <span v-if="webhook.testInProgress">
-              <i class="bi bi-arrow-repeat spin"></i> Testing...
-            </span>
-            <span v-else>
-              {{ getLastDeliveryStatus(webhook) }}
-            </span>
-          </small>
+          <button
+            type="button"
+            class="url-link card-title mb-0"
+            @click.stop="$emit('edit', webhook)"
+          >
+            {{ webhook.url }}
+          </button>
         </div>
       </div>
-      <div>
+      <div class="d-flex gap-2 align-items-center justify-content-end">
         <button
-          class="btn btn-outline-secondary btn-sm me-2"
+          class="btn btn-outline-secondary btn-sm"
           @click.stop="$emit('test', webhook)"
-          :disabled="webhook.testInProgress"
+          :disabled="webhook.testInProgress || !webhook.active"
         >
           Test
         </button>
-        <button class="btn btn-primary btn-sm me-2" @click.stop="$emit('edit', webhook)">
-          Edit
-        </button>
+        <button class="btn btn-primary btn-sm" @click.stop="$emit('edit', webhook)">Edit</button>
         <button class="btn btn-danger btn-sm" @click.stop="$emit('delete', webhook)">Delete</button>
       </div>
     </div>
@@ -41,8 +39,11 @@ defineProps({
 })
 
 const getStatusIcon = (webhook) => {
+  if (webhook.testInProgress) {
+    return 'bi bi-arrow-repeat spin'
+  }
   if (!webhook.active) {
-    return 'bi bi-dash-circle text-secondary'
+    return 'bi bi-slash-circle text-secondary'
   }
   if (webhook.deliveries && webhook.deliveries.length > 0) {
     const latest = webhook.deliveries[0]
@@ -51,14 +52,6 @@ const getStatusIcon = (webhook) => {
       : 'bi bi-exclamation-triangle text-danger'
   }
   return 'bi bi-question-circle text-secondary'
-}
-
-const getLastDeliveryStatus = (webhook) => {
-  if (webhook.deliveries && webhook.deliveries.length > 0) {
-    const latest = webhook.deliveries[0]
-    return latest.httpStatusCode === 200 ? '200 OK' : `${latest.httpStatusCode} Error`
-  }
-  return 'No deliveries'
 }
 </script>
 
@@ -70,6 +63,19 @@ const getLastDeliveryStatus = (webhook) => {
 .btn:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+.url-link {
+  background: none;
+  border: 0;
+  color: var(--bs-link-color);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.url-link:hover {
+  color: var(--bs-link-hover-color);
 }
 
 .spin {

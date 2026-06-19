@@ -1,5 +1,5 @@
 # Build jar file with dependencies
-FROM maven:3.9.9-eclipse-temurin-21 AS build_image
+FROM maven:3.9.16-eclipse-temurin-21-noble@sha256:d7e7f57407437c014571f1ad5a9955f03fc3edcb1d964067ef351fa38e798665 AS build_image
 ARG ARTIFACT_VERSION=unknown
 COPY src /app/src
 COPY pom.xml /app
@@ -9,7 +9,7 @@ RUN mvn --quiet -B clean package -Dmaven.test.skip=true
 
 
 # Runtime image
-FROM eclipse-temurin:21-jre-jammy@sha256:daebe9ae03913ec4b2dadd8df60f3ea3df1aa6108fecd5d324d000bdd5c4c816
+FROM eclipse-temurin:21-jre-noble@sha256:1038345f7b7211c290148801b92d66abe5588d4acd6820994df43b883cdfc04c
 RUN mkdir /var/log/negotiator && chown 1001 /var/log/negotiator
 RUN mkdir -p /app/config/templates && chown 1001 /app/config/templates
 USER 1001

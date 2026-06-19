@@ -32,8 +32,7 @@ public class ResourceCreateDTO {
   @Schema(description = "ID of the associated organization", example = "1")
   private Long organizationId;
 
-  @NotNull
-  @Schema(description = "ID of the access form related to the resource", example = "42")
+  @Schema(description = "Optional ID of the access form related to the resource", example = "42")
   private Long accessFormId;
 
   @NotNull

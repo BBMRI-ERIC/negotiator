@@ -1,0 +1,214 @@
+package eu.bbmri_eric.negotiator.webhook.event;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
+import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
+import eu.bbmri_eric.negotiator.post.NewPostEvent;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEvent;
+
+class WebhookEventMapperTest {
+
+  private WebhookEventMapper mapper;
+
+  @BeforeEach
+  void setUp() {
+    mapper = new WebhookEventMapper(new ObjectMapper(), mappingStrategies());
+  }
+
+  private static List<WebhookMappingStrategy<? extends ApplicationEvent>> mappingStrategies() {
+    WebhookMappingStrategyConfiguration configuration = new WebhookMappingStrategyConfiguration();
+    return List.of(
+        new NegotiationStateChangeWebhookMappingStrategy(),
+        new NewNegotiationWebhookMappingStrategy(),
+        configuration.informationSubmissionWebhookMappingStrategy(),
+        configuration.newPostWebhookMappingStrategy(),
+        configuration.newResourcesAddedWebhookMappingStrategy(),
+        configuration.resourceStateChangeWebhookMappingStrategy());
+  }
+
+  @Test
+  void map_whenEventIsUnsupported_returnsEmpty() {
+    ApplicationEvent unsupportedEvent = new ApplicationEvent(this) {};
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(unsupportedEvent);
+
+    assertThat(mapped).isEmpty();
+  }
+
+  @Test
+  void map_whenInformationSubmissionEvent_returnsStableEventTypeAndData() {
+    InformationSubmissionEvent event = new InformationSubmissionEvent(this, "negotiation-1");
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_INFO_UPDATED);
+    assertThat(mapped.get().timestamp()).isNotNull();
+    assertThat(mapped.get().data())
+        .isEqualTo(new NegotiationInfoUpdatedWebhookEvent("negotiation-1"));
+  }
+
+  @Test
+  void map_whenNegotiationStateChangeEventFromDraftToSubmitted_returnsNegotiationAdded() {
+    NegotiationStateChangeEvent event =
+        new NegotiationStateChangeEvent(
+            this,
+            "negotiation-2",
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_ADDED);
+    assertThat(mapped.get().timestamp()).isNotNull();
+    assertThat(mapped.get().data())
+        .isEqualTo(new NegotiationAddedWebhookEvent("negotiation-2", NegotiationState.SUBMITTED));
+  }
+
+  @Test
+  void map_whenNegotiationStateChangeEventIsNotDraftToSubmitted_returnsStateUpdated() {
+    NegotiationStateChangeEvent event =
+        new NegotiationStateChangeEvent(
+            this,
+            "negotiation-2",
+            NegotiationState.SUBMITTED,
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_STATE_UPDATED);
+    assertThat(mapped.get().timestamp()).isNotNull();
+    assertThat(mapped.get().data())
+        .isEqualTo(
+            new NegotiationStateUpdatedWebhookEvent(
+                "negotiation-2",
+                NegotiationState.SUBMITTED,
+                NegotiationState.IN_PROGRESS,
+                NegotiationEvent.APPROVE));
+  }
+
+  @Test
+  void map_whenNewNegotiationEventIsSubmitted_returnsStableEventTypeAndData() {
+    NewNegotiationEvent event =
+        new NewNegotiationEvent(this, "negotiation-3", NegotiationState.SUBMITTED);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_ADDED);
+    assertThat(mapped.get().timestamp()).isNotNull();
+    assertThat(mapped.get().data())
+        .isEqualTo(new NegotiationAddedWebhookEvent("negotiation-3", NegotiationState.SUBMITTED));
+  }
+
+  @Test
+  void map_whenNewNegotiationEventIsDraft_returnsEmpty() {
+    NewNegotiationEvent event =
+        new NewNegotiationEvent(this, "negotiation-3", NegotiationState.DRAFT);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isEmpty();
+  }
+
+  @Test
+  void map_whenNewResourcesAddedEvent_returnsStableEventTypeAndData() {
+    NewResourcesAddedEvent event = new NewResourcesAddedEvent(this, "negotiation-4");
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_RESOURCE_ADDED);
+    assertThat(mapped.get().timestamp()).isNotNull();
+    assertThat(mapped.get().data())
+        .isEqualTo(new NegotiationResourceUpdatedWebhookEvent("negotiation-4"));
+  }
+
+  @Test
+  void map_whenNewPostEvent_returnsStableEventTypeAndData() {
+    NewPostEvent event = new NewPostEvent(this, "post-1", "negotiation-5", 1000L, 2000L);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_POST_ADDED);
+    assertThat(mapped.get().timestamp()).isNotNull();
+    assertThat(mapped.get().data())
+        .isEqualTo(new NegotiationPostAddedWebhookEvent("post-1", "negotiation-5", 1000L, 2000L));
+  }
+
+  @Test
+  void map_whenResourceStateChangeEvent_returnsStableEventTypeAndData() {
+    ResourceStateChangeEvent event =
+        new ResourceStateChangeEvent(
+            this,
+            "negotiation-5",
+            "resource-1",
+            NegotiationResourceState.SUBMITTED,
+            NegotiationResourceState.RESOURCE_AVAILABLE,
+            NegotiationResourceEvent.MARK_AS_AVAILABLE);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_RESOURCE_STATE_UPDATED);
+    assertThat(mapped.get().timestamp()).isNotNull();
+    assertThat(mapped.get().data())
+        .isEqualTo(
+            new NegotiationResourceStateUpdatedWebhookEvent(
+                "negotiation-5",
+                "resource-1",
+                NegotiationResourceState.SUBMITTED,
+                NegotiationResourceState.RESOURCE_AVAILABLE,
+                NegotiationResourceEvent.MARK_AS_AVAILABLE));
+  }
+
+  @Test
+  void constructor_whenDuplicateStrategiesConfigured_throwsException() {
+    WebhookMappingStrategy<NewNegotiationEvent> duplicateStrategy =
+        new WebhookMappingStrategy<>() {
+          @Override
+          public Class<NewNegotiationEvent> getSupportedEventType() {
+            return NewNegotiationEvent.class;
+          }
+
+          @Override
+          public Optional<WebhookPayloadEnvelope<?>> map(
+              NewNegotiationEvent event, ObjectMapper objectMapper) {
+            return Optional.empty();
+          }
+
+          @Override
+          public Map<WebhookEventType, Class<?>> documentedPayloadTypes() {
+            return Map.of();
+          }
+        };
+
+    assertThatThrownBy(
+            () ->
+                new WebhookEventMapper(
+                    new ObjectMapper(),
+                    List.of(new NewNegotiationWebhookMappingStrategy(), duplicateStrategy)))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining(NewNegotiationEvent.class.getName());
+  }
+}

@@ -1,22 +1,22 @@
 <template>
   <div class="elements-management">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Form Elements</h2>
-      <button
-        class="btn btn-success"
-        data-bs-toggle="modal"
-        data-bs-target="#elementModal"
-        @click="openCreateModal"
-      >
-        Add Element
-      </button>
-    </div>
-
-    <p class="text-muted mb-4">
-      Manage form elements that can be used to build dynamic access forms. Each element represents a
-      specific input type (text, choice, file upload, etc.) that can be added to forms for data
-      collection.
-    </p>
+    <AdminSettingsPageHeader title="Access Form Elements">
+      <template #actions>
+        <button
+          class="btn btn-sm btn-outline-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#elementModal"
+          @click="openCreateModal"
+        >
+          Add Element
+        </button>
+      </template>
+      <template #description>
+        Manage form elements that can be used to build dynamic access forms. Each element represents
+        a specific input type (text, choice, file upload, etc.) that can be added to forms for data
+        collection.
+      </template>
+    </AdminSettingsPageHeader>
 
     <div v-if="loading" class="text-center">
       <div class="spinner-border" role="status">
@@ -205,6 +205,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useFormsStore } from '@/store/forms'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import NegotiatorModal from '@/components/modals/NegotiatorModal.vue'
 
 const formsStore = useFormsStore()

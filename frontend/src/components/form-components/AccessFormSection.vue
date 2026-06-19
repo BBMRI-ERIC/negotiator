@@ -14,6 +14,7 @@
       :class="
         element.required === true &&
         focusElementId === element.id &&
+        validationErrorHighlight &&
         validationErrorHighlight.includes(element.id)
           ? 'border border-danger rounded p-3'
           : focusElementId === element.id
@@ -76,11 +77,15 @@
         </div>
 
         <div v-else-if="element.type === 'MULTIPLE_CHOICE'">
-          <div
-            v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
-            :key="index"
-          >
-            <div class="form-check form-check-inline">
+          <div v-if="valueSetsLoading">
+            <span class="text-muted">Loading options...</span>
+          </div>
+          <div v-else>
+            <div
+              class="form-check form-check-inline"
+              v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
+              :key="`${element.id}-${value}`"
+            >
               <input
                 :id="`inlineCheckbox-${element.id}-${index}`"
                 v-model="element.value"
@@ -105,11 +110,15 @@
         </div>
 
         <div v-else-if="element.type === 'SINGLE_CHOICE'">
-          <div
-            v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
-            :key="index"
-          >
-            <div class="form-check form-check-inline">
+          <div v-if="valueSetsLoading">
+            <span class="text-muted">Loading options...</span>
+          </div>
+          <div v-else>
+            <div
+              class="form-check form-check-inline"
+              v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
+              :key="`${element.id}-${value}`"
+            >
               <input
                 :id="`inlineRadio-${element.id}-${index}`"
                 v-model="element.value"
@@ -207,7 +216,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useNegotiationFormStore } from '../../store/negotiationForm'
 import { useNotificationsStore } from '../../store/notifications'
 
@@ -243,21 +252,48 @@ const props = defineProps({
   },
 })
 
-onMounted(() => {
-  accessFormWithPayloadSection.value.elements.forEach((element) => {
-    if (element.type === 'MULTIPLE_CHOICE' || element.type === 'SINGLE_CHOICE') {
-      getValueSet(element.id)
-    }
-  })
+// --- Robust value set loading pattern ---
+const negotiationValueSets = ref({})
+const valueSetsLoading = ref(false)
+
+// Computed property to track choice element IDs for targeted watching
+const choiceElementIds = computed(() => {
+  const elements = accessFormWithPayloadSection.value?.elements || []
+  return elements
+    .filter((e) => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
+    .map((e) => e.id)
+    .join(',')
 })
 
-const negotiationValueSets = ref({})
-
-async function getValueSet(id) {
-  await negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(id).then((res) => {
-    negotiationValueSets.value[id] = res
+function loadValueSets() {
+  valueSetsLoading.value = true
+  const elements = accessFormWithPayloadSection.value?.elements || []
+  const promises = elements
+    .filter((e) => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
+    .map((e) =>
+      negotiationFormStore
+        .retrieveDynamicAccessFormsValueSetByID(e.id)
+        .then((res) => {
+          negotiationValueSets.value[e.id] = res
+        })
+        .catch(() => {
+          // Fallback to empty values on error
+          negotiationValueSets.value[e.id] = { availableValues: [] }
+        }),
+    )
+  Promise.allSettled(promises).finally(() => {
+    valueSetsLoading.value = false
   })
 }
+
+onMounted(loadValueSets)
+
+// Watch only the element IDs to avoid triggering on user input changes
+watch(choiceElementIds, (newIds, oldIds) => {
+  if (newIds !== oldIds) {
+    loadValueSets()
+  }
+})
 
 function handleFileUpload(event, indexOfElement) {
   if (
@@ -337,6 +373,13 @@ function isNumber(evt) {
 </script>
 
 <style scoped>
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
 .required:after {
   content: '  *\00a0';
   color: red;

@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="btn dropdown-toggle custom-button-hover"
+      class="btn btn-sm dropdown-toggle custom-button-hover"
       :style="buttonStyle"
       :class="buttonClass"
       type="button"
@@ -12,10 +12,7 @@
       {{ label }}
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-      <div
-        class="mx-2 my-2 dropdown-contents"
-        :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-      >
+      <div class="mx-2 my-2 dropdown-contents text-sort-filter-button-outline">
         <TextFilter v-model:value="start" label="Start" :type="type" @input="emitStartChange" />
         <TextFilter
           v-model:value="end"

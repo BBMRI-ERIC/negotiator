@@ -24,6 +24,14 @@ export default defineConfig({
     plugins: [
         vue()
     ],
+    build: {
+        rollupOptions: {
+            input: {
+                index: fileURLToPath(new URL('./index.html', import.meta.url)),
+                silentRenew: fileURLToPath(new URL('./silent-renew-oidc.html', import.meta.url)),
+            },
+        },
+    },
     resolve: {
         alias: {
             "@": fileURLToPath(new URL("./src", import.meta.url))
@@ -31,10 +39,25 @@ export default defineConfig({
     },
     server: {
         port: 8080,
+        cors: true,
+        strictPort: false,
         proxy: {
-            "^/api": {
+            "/api": {
                 target: PROXY_TARGET,
-                changeOrigin: true
+                changeOrigin: true,
+                secure: false,
+                ws: true,
+                configure: (proxy) => {
+                    proxy.on('error', (err) => {
+                        console.log('proxy error', err);
+                    });
+                    proxy.on('proxyReq', (_proxyReq, req) => {
+                        console.log('Sending Request:', req.method, req.url);
+                    });
+                    proxy.on('proxyRes', (proxyRes, req) => {
+                        console.log('Received Response:', proxyRes.statusCode, req.url);
+                    });
+                }
             }
         }
     }

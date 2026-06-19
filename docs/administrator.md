@@ -61,28 +61,8 @@ The requirement will be triggered when a Representative tries to advance the Sta
 
 ## Webhooks
 
-The Negotiator uses a webhook system to allow external systems to be notified of events that occur within the
-Negotiator.
-This guide provides an overview of how to set up and use webhooks with the Negotiator.
-
-### Setting Up Webhooks
-
-To set up webhooks, you need to provide a URL endpoint that the Negotiator can send HTTP POST requests to when certain
-events occur.
-You can do this by going to the Admin Settings -> Webhooks section in the Negotiator UI.
-There, you can add a new webhook by providing the following information:
-
-- **Webhook URL**: The URL endpoint that will receive the webhook notifications.
-- **SSL Verification**: Whether to verify the SSL certificate of the webhook URL. This is enabled by default and it is
-  recommended to keep it enabled for security reasons.
-- **Active**: Whether the webhook is active or not. You can disable a webhook if you want to temporarily stop receiving
-  notifications without deleting it.
-
-> [!WARNING]  
-> We currently do not support authentication for webhooks. This means that anyone who knows the webhook URL can send
-> requests to it.
-> Please ensure that your webhook URL is not publicly accessible or use a firewall to restrict access to it. If you
-> would like us to implement authentication for webhooks, please let us know.
+Webhooks notify external systems when events occur.
+For setup and technical details, see [Managing webhooks](/webhooks#managing-webhooks).
 
 ## Templates
 

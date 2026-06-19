@@ -2,12 +2,14 @@
 name: negotiator
 services:
   traefik:
-    image: traefik:v3.2.0
+    image: traefik:v3.6
     container_name: traefik
     network_mode: host  # Use host network
     command:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:8080"  # Make Traefik listen on 8080 for all traffic
+    labels:
+      - "traefik.enable=false"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   negotiator:
@@ -38,7 +40,7 @@ services:
       - POSTGRES_PASSWORD=negotiator
       - POSTGRES_DB=negotiator
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "negotiator" ]
+      test: [ "CMD", "pg_isready", "-d", "negotiator", "-U", "negotiator" ]
       interval: 5s
       timeout: 60s
       retries: 5
@@ -68,6 +70,8 @@ services:
   oidc-server-mock:
     container_name: oidc-server-mock
     image: ghcr.io/soluto/oidc-server-mock:0.9.2
+    restart: always
+    platform: linux/amd64
     ports:
       - '4011:8080'
     environment:

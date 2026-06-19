@@ -45,23 +45,24 @@
       dismiss-button-text="Back to HomePage"
       @confirm="addFormSection"
     />
-    <div class="new-section-button">
-      <h1>{{ `${typeAccessForm + ' Access Form'}` }}</h1>
-      <label :style="{ color: uiConfiguration?.primaryTextColor }">
-        This form allows for the inclusion of multiple sections to accommodate various data inputs.
-        If your situation requires additional details, or if you are submitting information related
-        to multiple items or categories, please click the button below to add a new section. Each
-        added section will function independently, allowing for distinct data entry. You can add as
-        many sections as needed to accurately reflect your information.
-      </label>
-      <button
-        @click="openAddFormSectionModal.click()"
-        type="button"
-        class="btn btn-sm sm btn-danger my-3 py-1 px-1 me-md-5"
-      >
-        + Add new section
-      </button>
-    </div>
+    <AdminSettingsPageHeader :title="`${typeAccessForm} Access Form`">
+      <template #description>
+        <label :style="{ color: uiConfiguration?.primaryTextColor }">
+          This form allows for the inclusion of multiple sections to accommodate various data
+          inputs. If your situation requires additional details, or if you are submitting
+          information related to multiple items or categories, please click the button below to add
+          a new section. Each added section will function independently, allowing for distinct data
+          entry. You can add as many sections as needed to accurately reflect your information.
+        </label>
+      </template>
+    </AdminSettingsPageHeader>
+    <button
+      @click="openAddFormSectionModal.click()"
+      type="button"
+      class="btn btn-sm sm btn-danger my-3 py-1 px-1 me-md-5"
+    >
+      + Add new section
+    </button>
     <div class="form-name" v-if="accessForm">
       <label class="form-label" :style="{ color: uiConfiguration?.primaryTextColor }">
         Form Name
@@ -401,6 +402,7 @@ import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import AddFormSectionModal from '@/components/modals/AddFormSectionModal.vue'
 import { FormWizard, TabContent } from 'vue3-form-wizard'
 import { useNegotiationFormStore } from '../store/negotiationForm'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import 'vue3-form-wizard/dist/style.css'
 import draggable from 'vuedraggable'
@@ -718,9 +720,7 @@ async function editAccessForm() {
 }
 
 function goToAdminSettingsPage() {
-  router.push({
-    name: 'settings',
-  })
+  router.push({ name: 'admin-access-forms' })
 }
 
 function startModal() {

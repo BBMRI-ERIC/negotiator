@@ -1,6 +1,6 @@
 <template>
   <div class="email-notifications-section">
-    <h3 class="mb-4">Emails</h3>
+    <AdminSettingsPageHeader title="Email Notifications" />
 
     <!-- Filters -->
     <AdminSettingsFilterSort
@@ -102,17 +102,22 @@
     <div v-else class="text-center py-4">
       <p class="text-muted">No email notifications found.</p>
     </div>
+
+    <EmailDetailModal :email-id="selectedEmailId" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
 import { ROLES } from '@/config/consts'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
 import { formatTimestamp } from '@/composables/utils.js'
+import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
+import { Modal } from 'bootstrap'
 
-const emit = defineEmits(['view-email'])
+const selectedEmailId = ref(null)
 
 const emailStore = useEmailStore()
 
@@ -215,11 +220,11 @@ const sortBy = (field) => {
 
 const getSortIcon = (field) => {
   if (filtersSortData.value.sortBy !== field) {
-    return 'fas fa-sort text-muted'
+    return 'bi bi-arrow-down-up text-muted'
   }
   return filtersSortData.value.sortOrder === 'ASC'
-    ? 'fas fa-sort-up text-dark'
-    : 'fas fa-sort-down text-dark'
+    ? 'bi bi-sort-up text-dark'
+    : 'bi bi-sort-down text-dark'
 }
 
 const goToPage = (page) => {
@@ -248,7 +253,9 @@ const getMessagePreview = (message) => {
 }
 
 const viewEmailDetails = (email) => {
-  emit('view-email', email)
+  selectedEmailId.value = email.id
+  const emailModal = new Modal(document.querySelector('#emailDetailModal'))
+  emailModal.show()
 }
 
 // Helper function to format current datetime for input field

@@ -41,8 +41,28 @@ public class DeliveryModelMapper {
         };
     TypeMap<Delivery, DeliveryDTO> entityToDto =
         modelMapper.createTypeMap(Delivery.class, DeliveryDTO.class);
+
     entityToDto.addMappings(
-        mapper ->
-            mapper.using(stringToJsonNode).map(Delivery::getContent, DeliveryDTO::setContent));
+        mapper -> {
+          mapper.using(stringToJsonNode).map(Delivery::getContent, DeliveryDTO::setContent);
+          // Skip auto-mapping for fields handled by the PostConverter to prevent ModelMapper from
+          // incorrectly matching redeliveryOfDeliveryId (String) to redelivery (Boolean).
+          mapper.skip(DeliveryDTO::setRootId);
+          mapper.skip(DeliveryDTO::setRedelivery);
+        });
+
+    // Conditional logic for rootId and redelivery flag must use a PostConverter because
+    // ModelMapper does not support conditional property access in mapper.map() lambdas.
+    entityToDto.setPostConverter(
+        ctx -> {
+          Delivery src = ctx.getSource();
+          DeliveryDTO dest = ctx.getDestination();
+          String redeliveryId = src.getRedeliveryOfDeliveryId();
+          dest.setRootId(redeliveryId != null ? redeliveryId : src.getId());
+          dest.setRedelivery(redeliveryId != null);
+          return dest;
+        });
+
+    entityToDto.validate();
   }
 }

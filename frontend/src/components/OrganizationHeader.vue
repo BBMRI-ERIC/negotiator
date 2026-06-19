@@ -25,10 +25,9 @@
           title="Select current status. The term Resource is abstract and can for example refer to biological samples, datasets or a service such as sequencing."
           @click.stop="onToggleDropdown"
         >
-          <span class="badge text-wrap" :class="getStatusColor(org.status)">
-            <i :class="getStatusIcon(org.status)" class="px-1" />
+          <UiBadge :class="getStatusColor(org.status)" :icon="getStatusIcon(org.status)">
             {{ org.status?.replace(/_/g, ' ') || '' }}
-          </span>
+          </UiBadge>
           <i
             v-if="org.updatable"
             class="bi icon-smaller mx-1"
@@ -54,6 +53,7 @@
 </template>
 
 <script setup>
+import UiBadge from '@/components/ui/UiBadge.vue'
 import { ref } from 'vue'
 import { getStatusColor, getStatusIcon } from '../composables/utils.js'
 

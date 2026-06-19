@@ -26,6 +26,7 @@ class EmailNotificationRequestListener {
       NotificationService notificationService,
       PersonRepository personRepository,
       NegotiationRepository negotiationRepository,
+      NotificationRepository notificationRepository,
       EmailContextBuilder emailContextBuilder) {
     this.emailService = emailService;
     this.notificationService = notificationService;
@@ -35,7 +36,7 @@ class EmailNotificationRequestListener {
   }
 
   @TransactionalEventListener
-  @Async
+  @Async("emailTaskExecutor")
   void onNewNotification(NewNotificationEvent event) {
     NotificationDTO notification = notificationService.findById(event.getNotificationId());
     if (notification == null) {
@@ -52,7 +53,9 @@ class EmailNotificationRequestListener {
             .orElseThrow(() -> new EntityNotFoundException(notification.getRecipientId()));
 
     Negotiation negotiation =
-        negotiationRepository.findById(notification.getNegotiationId()).orElse(null);
+        notification.getNegotiationId() != null
+            ? negotiationRepository.findById(notification.getNegotiationId()).orElse(null)
+            : null;
 
     String emailContent =
         emailContextBuilder.buildEmailContent(
@@ -62,6 +65,14 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
 
-    emailService.sendEmail(person, notification.getTitle(), emailContent);
+    String negotiationId = negotiation != null ? negotiation.getId() : null;
+    String subject =
+        negotiation != null
+            ? "New notification for Negotiation:"
+                + " "
+                + negotiation.getTitle().substring(0, Math.min(negotiation.getTitle().length(), 30))
+            : notification.getTitle();
+
+    emailService.sendEmail(person, subject, emailContent, negotiationId);
   }
 }

@@ -50,8 +50,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function updateResourceStatus(link) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = link.startsWith('http') ? new URL(link).pathname : link
     return axios
-      .put(`${link}`, {}, { headers: getBearerHeaders() })
+      .put(url, {}, { headers: getBearerHeaders() })
       .then((response) => {
         notifications.setNotification(
           `Than you. Your action for Negotiation ${response.data.id} was submitted successfully`,
@@ -206,8 +208,11 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function downloadAttachmentFromLink(href) {
-    axios.get(`${href}`, { headers: getBearerHeaders(), responseType: 'blob' }).then((response) => {
-      const disposition = response.headers['Content-Disposition']
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = href.startsWith('http') ? new URL(href).pathname : href
+    axios.get(url, { headers: getBearerHeaders(), responseType: 'blob' }).then((response) => {
+      const disposition =
+        response.headers['content-disposition'] || response.headers['Content-Disposition']
       let filename = 'summary.csv'
       console.log(response.headers)
       if (disposition) {
@@ -232,8 +237,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function retrieveInfoRequirement(link) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = link.startsWith('http') ? new URL(link).pathname : link
     return axios
-      .get(`${link}`, { headers: getBearerHeaders() })
+      .get(url, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -243,8 +250,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function retrieveInformationSubmission(href) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const url = href.startsWith('http') ? new URL(href).pathname : href
     return axios
-      .get(`${href}`, { headers: getBearerHeaders() })
+      .get(url, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -270,8 +279,10 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   async function fetchURL(url) {
+    // Convert absolute URLs to relative paths for proper proxy handling in dev
+    const relativeUrl = url.startsWith('http') ? new URL(url).pathname : url
     return axios
-      .get(`${url}`, { headers: getBearerHeaders() })
+      .get(relativeUrl, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -281,18 +292,32 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function addResources(data, negotiationId) {
+  async function addResources(data, negotiationId, silent = false) {
     try {
       const response = await axios.patch(
         `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources`,
         data,
         { headers: getBearerHeaders() },
       )
-      notifications.setNotification('Resources were successfully updated')
+      if (!silent) notifications.setNotification('Resources were successfully updated')
       return response.data
     } catch {
-      notifications.setNotification('There was an error saving the attachment')
+      if (!silent) notifications.setNotification('There was an error saving the attachment')
       return undefined
+    }
+  }
+
+  async function removeResource(negotiationId, resourceId) {
+    try {
+      await axios.delete(
+        `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources/${resourceId}`,
+        { headers: getBearerHeaders() },
+      )
+      notifications.setNotification('Resource removed successfully', 'success')
+      return true
+    } catch {
+      notifications.setNotification('Failed to remove resource', 'danger')
+      return false
     }
   }
 
@@ -308,14 +333,18 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function deleteNegotiation(negotiationId) {
+  async function deleteNegotiation(negotiationId, silent = false) {
     return axios
       .delete(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, { headers: getBearerHeaders() })
       .then(() => {
-        notifications.setNotification(`Negotiation with id ${negotiationId} deleted successfully`)
+        if (!silent) {
+          notifications.setNotification(`Negotiation with id ${negotiationId} deleted successfully`)
+        }
       })
       .catch(() => {
-        notifications.setNotification('Error deleting negotiation')
+        if (!silent) {
+          notifications.setNotification('Error deleting negotiation')
+        }
       })
   }
 
@@ -326,7 +355,8 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
         responseType: 'blob',
       })
       .then((response) => {
-        const disposition = response.headers['content-disposition']
+        const disposition =
+          response.headers['content-disposition'] || response.headers['Content-Disposition']
 
         let filename = `negotiation-${id}.pdf`
         if (disposition && disposition.includes('filename=')) {
@@ -377,6 +407,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     retrieveInformationSubmission,
     fetchURL,
     addResources,
+    removeResource,
     retrieveAllResources,
     retrieveResourceAllStates,
     deleteNegotiation,

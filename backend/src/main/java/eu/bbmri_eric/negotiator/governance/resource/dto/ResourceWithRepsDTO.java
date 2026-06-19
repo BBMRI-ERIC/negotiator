@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
+import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
 import eu.bbmri_eric.negotiator.user.UserDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Set;
@@ -14,4 +15,7 @@ public class ResourceWithRepsDTO extends ResourceResponseModel {
       example =
           "[{\"id\": \"123\", \"name\": \"Sarah Rep\", \"email\": \"sarah@example.com\"}, {\"id\": \"456\", \"name\": \"Adam Rep\", \"email\": \"adam@example.com\"}]")
   private Set<UserDTO> representatives;
+
+  @Schema(description = "Access form associated with this resource")
+  private AccessFormDTO accessForm;
 }

@@ -7,19 +7,20 @@
       :message-enabled="false"
       @confirm="updateTemplate()"
     />
-    <h2>Templates</h2>
-    <div class="text-muted mb-3">
-      In this section, you can select an email template from the list and choose from the following
-      options:
-      <div class="mt-3">
-        <span class="fw-bold">Edit Template: </span>
-        Modify the content or settings of the selected email template to suit your needs.
-      </div>
-      <div>
-        <span class="fw-bold"> Reset Template:</span>
-        Revert the selected email template to its default state, discarding any changes made.
-      </div>
-    </div>
+    <AdminSettingsPageHeader title="Email Templates">
+      <template #description>
+        In this section, you can select an email template from the list and choose from the
+        following options:
+        <div class="mt-3">
+          <span class="fw-bold">Edit Template: </span>
+          Modify the content or settings of the selected email template to suit your needs.
+        </div>
+        <div>
+          <span class="fw-bold"> Reset Template:</span>
+          Revert the selected email template to its default state, discarding any changes made.
+        </div>
+      </template>
+    </AdminSettingsPageHeader>
     <div v-if="templateData" class="template-edit">
       <button
         type="button"
@@ -41,6 +42,7 @@
         Update Template
       </button>
     </div>
+    <LoadingIndicator v-else-if="isLoading" />
     <templates-table
       v-else
       v-model:alllTemplates="allTemplates"
@@ -53,6 +55,8 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
+import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
+import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import TemplatesTable from '@/components/TemplatesTable.vue'
 import TemplateEditor from '@/components/TemplateEditor.vue'
 import { useTemplates } from '@/store/templates.js'
@@ -62,11 +66,15 @@ const templateStore = useTemplates()
 const allTemplates = ref([])
 const templateName = ref('')
 const templateData = ref('')
+const isLoading = ref(false)
 
-onMounted(() => {
-  templateStore.retrieveTemplates().then((response) => {
-    allTemplates.value = response
-  })
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    allTemplates.value = await templateStore.retrieveTemplates()
+  } finally {
+    isLoading.value = false
+  }
 })
 
 function returnToTemplateTable() {

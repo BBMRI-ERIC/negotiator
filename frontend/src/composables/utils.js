@@ -31,21 +31,21 @@ export function getBadgeColor(status) {
 export function getButtonColor(event) {
   switch (event.toUpperCase()) {
     case 'APPROVE':
-      return 'bg-success'
+      return 'btn-success'
     case 'DECLINE':
-      return 'bg-danger'
+      return 'btn-danger'
     case 'START':
-      return 'bg-primary'
+      return 'btn-primary'
     case 'PAUSE':
-      return 'bg-info'
+      return 'btn-info'
     case 'UNPAUSE':
-      return 'bg-primary' // Assuming the same color as "START"
+      return 'btn-primary' // Assuming the same color as "START"
     case 'ABANDON':
-      return 'bg-danger'
+      return 'btn-danger'
     case 'CONCLUDE':
-      return 'bg-success'
+      return 'btn-success'
     default:
-      return 'bg-info' // Fallback color for unknown events
+      return 'btn-info' // Fallback color for unknown events
   }
 }
 

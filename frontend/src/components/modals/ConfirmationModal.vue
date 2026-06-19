@@ -46,5 +46,6 @@ const emit = defineEmits(['confirm'])
 
 function emitConfirm() {
   emit('confirm', message.value)
+  message.value = ''
 }
 </script>

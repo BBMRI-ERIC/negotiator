@@ -1,13 +1,16 @@
 package eu.bbmri_eric.negotiator.common.configuration;
 
+import eu.bbmri_eric.negotiator.webhook.WebhookOpenApiDocumentationFactory;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.Scopes;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,11 +27,29 @@ public class SwaggerConfig {
   private List<String> scopes;
 
   @Bean
-  public OpenAPI customOpenAPI() {
+  OpenAPI customOpenAPI(WebhookOpenApiDocumentationFactory webhookOpenApiDocumentationFactory) {
     Scopes oauthScopes = new Scopes();
     for (String scope : scopes) {
       oauthScopes.addString(scope, "no description");
     }
+
+    Components components =
+        new Components()
+            .addSecuritySchemes(
+                "security_auth",
+                new io.swagger.v3.oas.models.security.SecurityScheme()
+                    .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.OAUTH2)
+                    .flows(
+                        new io.swagger.v3.oas.models.security.OAuthFlows()
+                            .authorizationCode(
+                                new io.swagger.v3.oas.models.security.OAuthFlow()
+                                    .authorizationUrl(authorizationUrl)
+                                    .tokenUrl(tokenUrl)
+                                    .scopes(oauthScopes))));
+
+    Map<String, PathItem> webhookPaths =
+        webhookOpenApiDocumentationFactory.buildWebhookPaths(components);
+
     return new OpenAPI()
         .externalDocs(
             new ExternalDocumentation()
@@ -52,18 +73,7 @@ public class SwaggerConfig {
                         .name("BBMRI-ERIC CS-IT")
                         .url("https://www.bbmri-eric.eu/bbmri-eric/common-service-it/"))
                 .version("3.0.0"))
-        .components(
-            new Components()
-                .addSecuritySchemes(
-                    "security_auth",
-                    new io.swagger.v3.oas.models.security.SecurityScheme()
-                        .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.OAUTH2)
-                        .flows(
-                            new io.swagger.v3.oas.models.security.OAuthFlows()
-                                .authorizationCode(
-                                    new io.swagger.v3.oas.models.security.OAuthFlow()
-                                        .authorizationUrl(authorizationUrl)
-                                        .tokenUrl(tokenUrl)
-                                        .scopes(oauthScopes)))));
+        .webhooks(webhookPaths)
+        .components(components);
   }
 }

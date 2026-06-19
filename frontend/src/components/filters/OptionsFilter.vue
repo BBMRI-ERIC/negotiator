@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="btn dropdown-toggle custom-button-hover show"
+      class="btn btn-sm dropdown-toggle custom-button-hover show"
       :style="buttonStyle"
       type="button"
       data-bs-toggle="dropdown"
@@ -26,7 +26,7 @@
       <button
         type="button"
         :style="clearButtonStyle"
-        class="btn custom-button-hover mt-1 ms-2"
+        class="btn btn-sm custom-button-hover mt-1 ms-2"
         @click="clearValue"
       >
         <i class="bi bi-x-circle" />

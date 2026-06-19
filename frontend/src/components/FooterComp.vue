@@ -115,13 +115,13 @@
             {{ uiConfiguration?.footerNewsletterText }}
           </button>
         </div>
-        <div v-if="uiConfiguration?.isFooterPrivacyPolicyVisible" class="ms-md-2 ms-5 mt-2">
+        <div v-if="showPrivacyPolicyLink" class="ms-md-2 ms-5 mt-2">
           <a
             class="me-5 link"
             :style="{ color: uiConfiguration?.footerTextColor }"
-            :href="uiConfiguration?.footerPrivacyPolicyLink"
+            :href="privacyPolicyLink"
           >
-            {{ uiConfiguration?.footerPrivacyPolicyText }}
+            {{ privacyPolicyText }}
           </a>
         </div>
       </div>
@@ -205,6 +205,10 @@ const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.footer
 })
 
+const uiConfigurationNavbar = computed(() => {
+  return uiConfigurationStore.uiConfiguration?.navbar
+})
+
 const returnLogoSrc = computed(() => {
   if (uiConfiguration.value?.footerLeftSideIcon === 'bbmri') {
     return bbmriLogo
@@ -221,6 +225,28 @@ const returnWorkProgrammeSrc = computed(() => {
     return workProgrammeLogo
   }
   return uiConfiguration.value?.footerWorkProgrammeImageUrl
+})
+
+const privacyPolicyLink = computed(() => {
+  return (
+    uiConfiguration.value?.footerPrivacyPolicyLink ||
+    uiConfigurationNavbar.value?.navbarPrivacyPolicyLink
+  )
+})
+
+const privacyPolicyText = computed(() => {
+  return (
+    uiConfiguration.value?.footerPrivacyPolicyText ||
+    uiConfigurationNavbar.value?.navbarPrivacyPolicyText
+  )
+})
+
+const showPrivacyPolicyLink = computed(() => {
+  return Boolean(
+    uiConfiguration.value?.isFooterPrivacyPolicyVisible &&
+    privacyPolicyLink.value &&
+    privacyPolicyText.value,
+  )
 })
 </script>
 

@@ -31,6 +31,9 @@ public class NegotiationDTO {
       example = "123e4567-e89b-12d3-a456-426614174000")
   private String id;
 
+  @Schema(description = "Human-readable display ID of the negotiation", example = "1001")
+  private String displayId;
+
   @Schema(description = "Details about the author of the negotiation")
   private UserResponseModel author;
 

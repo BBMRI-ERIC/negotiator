@@ -3,9 +3,6 @@ import App from './App.vue'
 import VueMatomo from 'vue-matomo'
 import router from './router'
 import { createPinia } from 'pinia'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faDownload, faPencil, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'bootstrap'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import matomo from './config/matomo.js'
@@ -19,11 +16,10 @@ import { createI18n } from 'vue-i18n'
 import i18nConfig from './config/i18n.js'
 import { useMatomo } from '@/composables/useMatomo.js'
 import('./assets/scss/theme.scss')
-
-library.add(faSpinner)
-library.add(faPencil)
-library.add(faTrash)
-library.add(faDownload)
+import '@fontsource/open-sans/400.css'
+import '@fontsource/open-sans/500.css'
+import '@fontsource/open-sans/600.css'
+import '@fontsource/open-sans/700.css'
 
 const pinia = createPinia()
 const app = createApp(App)
@@ -67,6 +63,23 @@ const i18n = createI18n(i18nConfig)
 app.use(i18n)
 app.use(router)
 app.use(pinia)
+
+const oidcStore = useOidcStore()
+
+// Here we are working around pinia-oidc not automatically updating the user info in the store after a successful silent renew.
+// By calling oidcCheckAccess the oidc store will update the user info internally
+oidcStore.addOidcEventListener({
+  eventName: 'userLoaded',
+  eventListener: async () => {
+    const route = router.currentRoute.value
+    await oidcStore.oidcCheckAccess({
+      path: route.path,
+      fullPath: route.fullPath,
+      meta: route.meta ?? {},
+    })
+  },
+})
+
 app.use(Vue3Tour)
 app.use(VueDOMPurifyHTML, {
   default: {
@@ -74,8 +87,28 @@ app.use(VueDOMPurifyHTML, {
   },
 })
 
-router.beforeEach(piniaOidcCreateRouterMiddleware(useOidcStore()))
+oidcStore.addOidcEventListener({
+  eventName: 'tokenExpired',
+  eventListener: async () => {
+    console.log('OIDC: Access token has expired')
 
-app.component('FontAwesomeIcon', FontAwesomeIcon)
+    // Check if we are not on the home page
+    if (router.currentRoute.value.name !== 'home') {
+      await router.replace({
+        name: 'home',
+        query: { logged_out_reason: 'token_expired' },
+      })
+    }
+  },
+})
+
+oidcStore.addOidcEventListener({
+  eventName: 'silentRenewError',
+  eventListener: async ({ detail: error }) => {
+    console.error('OIDC: Access token could not be renewed:', error)
+  },
+})
+
+router.beforeEach(piniaOidcCreateRouterMiddleware(oidcStore))
 
 app.mount('#app')

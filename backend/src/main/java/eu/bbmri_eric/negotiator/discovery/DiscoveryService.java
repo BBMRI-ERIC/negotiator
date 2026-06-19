@@ -36,6 +36,10 @@ public class DiscoveryService extends AuditEntity {
   @Column(unique = true)
   private String url;
 
+  @Builder.Default
+  @Column(nullable = false)
+  private boolean active = true;
+
   /**
    * Overrides the default equals method to compare DiscoveryService objects based on name and url.
    *
