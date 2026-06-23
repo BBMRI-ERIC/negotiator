@@ -53,3 +53,4 @@ frontend/.yarn
 frontend/.yarnrc.yml
 # Currently not checked in
 frontend/yarn.lock
+frontend/.env.*.local

@@ -1,13 +1,13 @@
 const devSettings = {
-  authority: 'http://localhost:4011',
-  client_id: 'auth-code-client',
-  resource: 'https://negotiator.bbmri-eric.eu',
-  redirect_uri: 'http://localhost:8080/logged-in',
-  scope: 'openid profile email permissions some-app-scope-1',
-  post_logout_redirect_uri: 'http://localhost:8080',
-  response_type: 'code',
-  automaticSilentRenew: true,
-  silentRedirectUri: 'http://localhost:8080/silent-renew-oidc.html',
+  authority: import.meta.env.VITE_OIDC_AUTHORITY,
+  client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
+  resource: import.meta.env.VITE_OIDC_RESOURCE,
+  redirect_uri: import.meta.env.VITE_OIDC_REDIRECT_URI,
+  scope: import.meta.env.VITE_OIDC_SCOPE,
+  post_logout_redirect_uri: import.meta.env.VITE_OIDC_POST_LOGOUT_REDIRECT_URI,
+  response_type: import.meta.env.VITE_OIDC_RESPONSE_TYPE,
+  automaticSilentRenew: import.meta.env.VITE_OIDC_AUTOMATIC_SILENT_RENEW,
+  silentRedirectUri: import.meta.env.VITE_OIDC_SILENT_REDIRECT_URI,
 }
 
 const prodSettings = {

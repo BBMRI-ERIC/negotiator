@@ -18,6 +18,7 @@ export default {
       governancePage: {
         resources: 'Resource | Resources',
         organisations: 'Organization | Organizations',
+        addResourcesTooltip: 'Add a resource to the Organization',
       },
     },
     'en-canSERV': {
