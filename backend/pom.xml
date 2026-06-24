@@ -47,7 +47,7 @@
         <moxy.version>2.5.1</moxy.version>
         <netty-macos.version>4.1.119.Final</netty-macos.version>
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
-        <pdfbox.version>3.0.5</pdfbox.version>
+        <pdfbox.version>3.0.7</pdfbox.version>
         <poi.version>5.4.1</poi.version>
         <postgresql.version>42.7.11</postgresql.version>
         <reactor.version>3.7.3</reactor.version>
