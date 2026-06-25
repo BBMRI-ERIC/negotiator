@@ -48,7 +48,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
 
         it("should display access forms in a table", () => {
             // Check that at least one row exists in the table
-            cy.get("tbody tr").should("have.length.greaterThan", 0)
+            cy.get("tbody tr").its("length").should("be.gt", 0)     
         })
 
         it("should successfully update an access form name and persist it", () => {
@@ -93,7 +93,8 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.get("tbody tr").should("contain", newName)
 
                 // Navigate away and back to verify persistence (using in-app navigation)
-                cy.contains("button.nav-link", "User Management").click()
+                cy.reload()
+                cy.contains(".nav-link", "User Management").click()
                 cy.url().should("contain", "/settings/user-management")
                 cy.contains("button.nav-link", "Access Forms").click()
                 cy.url().should("contain", "/settings/access-forms")
