@@ -63,12 +63,7 @@ class AccessFormSectionElementLink implements Comparable<AccessFormSectionElemen
 
   @Override
   public int compareTo(AccessFormSectionElementLink o) {
-    int orderCompare = Integer.compare(this.elementOrder, o.elementOrder);
-    if (orderCompare != 0) return orderCompare;
-    if (this.id == null && o.id == null) return 0;
-    if (this.id == null) return -1;
-    if (o.id == null) return 1;
-    return Long.compare(this.id, o.id);
+    return Integer.compare(this.elementOrder, o.elementOrder);
   }
 
   @Override
