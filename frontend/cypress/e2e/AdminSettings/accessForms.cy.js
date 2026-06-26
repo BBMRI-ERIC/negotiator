@@ -95,6 +95,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
 
                 // Navigate away and back to verify persistence (using in-app navigation)
                 cy.reload()
+                cy.wait(500)
                 cy.contains(".nav-link", "User Management").click()
                 cy.url().should("contain", "/settings/user-management")
                 cy.contains("button.nav-link", "Access Forms").click()
