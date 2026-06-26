@@ -67,7 +67,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.wrap($row).click()
                 
                 // Wait for navigation to the edit page (flat routing)
-                cy.url().should("contain", `/settings/editAccessForm/${formId}`)
+                cy.url().should("contain", `/settings/editAccessForm/${formId}`, { timeout: 1000 })
 
                 // Check that the form name input is visible
                 cy.contains("label", "Form Name").should("be.visible")
