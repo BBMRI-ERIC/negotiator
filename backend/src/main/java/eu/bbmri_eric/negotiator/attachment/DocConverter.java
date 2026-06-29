@@ -1,8 +1,9 @@
 package eu.bbmri_eric.negotiator.attachment;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,6 +21,7 @@ class DocConverter implements FileTypeConverter {
 
     log.debug("Converting DOC to PDF, input size: " + docBytes.length);
     Document pdfDoc = null;
+    PdfDocument pdfDocument = null;
 
     try (ByteArrayInputStream docInputStream = new ByteArrayInputStream(docBytes);
         HWPFDocument doc = new HWPFDocument(docInputStream);
@@ -29,9 +31,8 @@ class DocConverter implements FileTypeConverter {
       int paragraphCount = range.numParagraphs();
       log.debug("Processing paragraphs from DOC: " + paragraphCount);
 
-      pdfDoc = new Document();
-      PdfWriter.getInstance(pdfDoc, pdfOutputStream);
-      pdfDoc.open();
+      pdfDocument = new PdfDocument(new PdfWriter(pdfOutputStream));
+      pdfDoc = new Document(pdfDocument);
 
       if (paragraphCount == 0) {
         log.warn("No paragraphs found in DOC, creating empty PDF");
@@ -49,9 +50,22 @@ class DocConverter implements FileTypeConverter {
       byte[] result = pdfOutputStream.toByteArray();
       log.debug("Successfully converted DOC to PDF, output size: " + result.length);
       return result;
+    } catch (Exception e) {
+      throw new IOException("Error converting DOC to PDF", e);
     } finally {
-      if (pdfDoc != null && pdfDoc.isOpen()) {
-        pdfDoc.close();
+      if (pdfDoc != null) {
+        try {
+          pdfDoc.close();
+        } catch (Exception e) {
+          log.warn("Error closing PDF document", e);
+        }
+      }
+      if (pdfDocument != null) {
+        try {
+          pdfDocument.close();
+        } catch (Exception e) {
+          log.warn("Error closing PDF document", e);
+        }
       }
     }
   }

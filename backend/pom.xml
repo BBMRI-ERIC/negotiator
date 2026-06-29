@@ -29,7 +29,6 @@
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-validator.version>1.10.1</commons-validator.version>
         <docx4j.version>11.5.14</docx4j.version>
-        <flying-saucer.version>9.5.1</flying-saucer.version>
         <gson.version>2.12.1</gson.version>
         <httpcomponents.version>5.5.1</httpcomponents.version>
         <hypersistence.version>3.9.10</hypersistence.version>
@@ -51,6 +50,8 @@
         <poi.version>5.4.1</poi.version>
         <postgresql.version>42.7.11</postgresql.version>
         <reactor.version>3.7.3</reactor.version>
+        <itext.version>9.6.0</itext.version>
+        <itext.html2pdf.version>6.3.2</itext.html2pdf.version>
         <standardwebhooks.version>1.1.1</standardwebhooks.version>
         <spring-hateoas.version>2.5.1</spring-hateoas.version>
         <springdoc.version>2.8.9</springdoc.version>
@@ -407,9 +408,24 @@
             <version>${moxy.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.xhtmlrenderer</groupId>
-            <artifactId>flying-saucer-pdf</artifactId>
-            <version>${flying-saucer.version}</version>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>html2pdf</artifactId>
+            <version>${itext.html2pdf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>kernel</artifactId>
+            <version>${itext.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>layout</artifactId>
+            <version>${itext.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>io</artifactId>
+            <version>${itext.version}</version>
         </dependency>
 
         <!-- Development -->
