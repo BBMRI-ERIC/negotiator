@@ -49,9 +49,15 @@ class DocConverter implements FileTypeConverter {
       byte[] result = pdfOutputStream.toByteArray();
       log.debug("Successfully converted DOC to PDF, output size: " + result.length);
       return result;
+    } catch (Exception e) {
+      throw new IOException("Error converting DOC to PDF", e);
     } finally {
       if (pdfDoc != null && pdfDoc.isOpen()) {
-        pdfDoc.close();
+        try {
+          pdfDoc.close();
+        } catch (Exception e) {
+          log.warn("Error closing PDF document", e);
+        }
       }
     }
   }
