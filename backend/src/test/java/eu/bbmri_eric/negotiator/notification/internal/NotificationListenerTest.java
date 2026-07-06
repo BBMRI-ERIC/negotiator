@@ -4,9 +4,9 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import java.time.Duration;
 import java.util.Arrays;

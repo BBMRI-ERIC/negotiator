@@ -83,4 +83,15 @@ public class LifecycleInfoTests {
         .andExpect(jsonPath("$._embedded.events[0].label").isString())
         .andExpect(jsonPath("$._embedded.events[0].description").isString());
   }
+
+  @Test
+  @WithUserDetails("researcher")
+  void getStateMachineDiagram_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/resource-lifecycle"))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.SUBMITTED.CONTACT.target").value("REPRESENTATIVE_CONTACTED"))
+        .andExpect(jsonPath("$.SUBMITTED.CONTACT.event").value("CONTACT"));
+  }
 }

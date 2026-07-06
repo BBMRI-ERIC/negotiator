@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.negotiation;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationTimelineEventDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import jakarta.transaction.Transactional;
 import java.util.Comparator;
 import java.util.List;

@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.webhook.event;
 
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

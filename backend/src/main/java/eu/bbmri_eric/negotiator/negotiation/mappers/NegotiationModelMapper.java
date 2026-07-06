@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import jakarta.annotation.PostConstruct;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;

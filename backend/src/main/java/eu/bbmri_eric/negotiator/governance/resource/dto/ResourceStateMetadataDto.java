@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;

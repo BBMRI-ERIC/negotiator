@@ -4,7 +4,7 @@ import static org.apache.commons.math3.util.Precision.round;
 
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

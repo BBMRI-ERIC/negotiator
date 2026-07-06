@@ -6,7 +6,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

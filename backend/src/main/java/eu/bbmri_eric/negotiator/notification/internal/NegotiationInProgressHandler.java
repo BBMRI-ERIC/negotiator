@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.notification.internal;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationStateChangeEvent;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.stereotype.Component;

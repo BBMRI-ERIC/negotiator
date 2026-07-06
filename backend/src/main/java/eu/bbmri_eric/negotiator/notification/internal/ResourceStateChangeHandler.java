@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.notification.internal;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import jakarta.transaction.Transactional;

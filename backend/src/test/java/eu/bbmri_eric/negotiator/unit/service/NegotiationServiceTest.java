@@ -30,7 +30,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
