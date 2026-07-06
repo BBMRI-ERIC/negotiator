@@ -25,7 +25,7 @@ import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionDTO;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;

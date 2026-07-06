@@ -3,9 +3,9 @@ package eu.bbmri_eric.negotiator.notification.internal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationStateChangeEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

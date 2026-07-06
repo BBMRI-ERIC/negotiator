@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.common.exceptions;
 
 import eu.bbmri_eric.negotiator.attachment.UnsupportedFileTypeException;
+import eu.bbmri_eric.negotiator.lifecycle.TransitionPreconditionException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +25,6 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
-import org.springframework.statemachine.StateMachineException;
 import org.springframework.transaction.TransactionException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponse;
@@ -438,9 +438,10 @@ public class NegotiatorExceptionHandler {
     return problemDetail;
   }
 
-  @ExceptionHandler(StateMachineException.class)
+  @ExceptionHandler(TransitionPreconditionException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public final ErrorResponse handleStateMachineException(StateMachineException ex) {
+  public final ErrorResponse handleTransitionPreconditionException(
+      TransitionPreconditionException ex) {
     ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
     detail.setTitle("Could not advance the state machine");
     detail.setDetail(ex.getMessage());

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**

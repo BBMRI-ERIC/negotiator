@@ -22,22 +22,23 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepositor
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmission;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
+import eu.bbmri_eric.negotiator.lifecycle.TransitionPreconditionException;
+import eu.bbmri_eric.negotiator.lifecycle.negotiation.NegotiationLifecycleServiceImpl;
+import eu.bbmri_eric.negotiator.lifecycle.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceLifecycleRecord;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleRecord;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleServiceImpl;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
@@ -54,7 +55,6 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.statemachine.StateMachineException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
@@ -444,7 +444,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   @Transactional
-  void sendEventForResource_notFulfilledRequirement_throwsStateMachineException()
+  void sendEventForResource_notFulfilledRequirement_throwsTransitionPreconditionException()
       throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -453,7 +453,7 @@ public class NegotiationLifecycleServiceImplTest {
         new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
     assertTrue(requirementRepository.existsByForEvent(NegotiationResourceEvent.CONTACT));
     assertThrows(
-        StateMachineException.class,
+        TransitionPreconditionException.class,
         () ->
             resourceLifecycleService.sendEvent(
                 negotiationDTO.getId(),

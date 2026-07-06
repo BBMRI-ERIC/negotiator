@@ -21,7 +21,7 @@
         <spring-modulith.version>1.4.12</spring-modulith.version>
         <testcontainers-util.version>1.21.1</testcontainers-util.version>
         <flyway.version>11.10.0</flyway.version>
-        <spring.state-machine.version>4.0.0</spring.state-machine.version>
+        <stateless4j.version>2.6.0</stateless4j.version>
 
         <!-- Third-party libraries -->
         <awaitility.version>4.3.0</awaitility.version>
@@ -199,21 +199,11 @@
             <artifactId>spring-modulith-api</artifactId>
         </dependency>
 
-        <!-- Spring Statemachine -->
+        <!-- stateless4j -->
         <dependency>
-            <groupId>org.springframework.statemachine</groupId>
-            <artifactId>spring-statemachine-core</artifactId>
-            <version>${spring.state-machine.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.statemachine</groupId>
-            <artifactId>spring-statemachine-recipes-common</artifactId>
-            <version>${spring.state-machine.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.statemachine</groupId>
-            <artifactId>spring-statemachine-starter</artifactId>
-            <version>${spring.state-machine.version}</version>
+            <groupId>com.github.stateless4j</groupId>
+            <artifactId>stateless4j</artifactId>
+            <version>${stateless4j.version}</version>
         </dependency>
 
         <!-- Spring Doc / OpenAPI -->

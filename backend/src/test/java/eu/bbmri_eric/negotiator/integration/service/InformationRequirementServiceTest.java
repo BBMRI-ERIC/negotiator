@@ -10,7 +10,7 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementService;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

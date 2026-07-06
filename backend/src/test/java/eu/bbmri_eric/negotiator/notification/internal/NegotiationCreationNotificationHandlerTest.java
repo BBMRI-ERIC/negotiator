@@ -5,8 +5,8 @@ import static org.mockito.Mockito.*;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
