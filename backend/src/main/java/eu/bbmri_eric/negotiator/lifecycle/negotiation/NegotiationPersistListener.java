@@ -19,7 +19,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NegotiationPersistListener implements TransitionListener<NegotiationTransitionContext> {
+public class NegotiationPersistListener
+    implements TransitionListener<NegotiationTransitionContext> {
 
   private final NegotiationRepository negotiationRepository;
   private final PersonRepository personRepository;
@@ -71,7 +72,8 @@ public class NegotiationPersistListener implements TransitionListener<Negotiatio
 
   private void createPost(Long senderId, Negotiation negotiation, String postBody) {
     Person postSender = personRepository.findById(senderId).orElse(null);
-    Post post = Post.builder().negotiation(negotiation).text(postBody).type(PostType.PUBLIC).build();
+    Post post =
+        Post.builder().negotiation(negotiation).text(postBody).type(PostType.PUBLIC).build();
     post.setCreatedBy(postSender);
     post.setCreationDate(LocalDateTime.now());
     postRepository.save(post);

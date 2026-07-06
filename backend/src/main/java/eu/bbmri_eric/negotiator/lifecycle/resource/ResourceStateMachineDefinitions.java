@@ -15,7 +15,9 @@ public final class ResourceStateMachineDefinitions {
 
   public static StateMachineDefinition definition() {
     Set<String> states =
-        Arrays.stream(NegotiationResourceState.values()).map(Enum::name).collect(Collectors.toSet());
+        Arrays.stream(NegotiationResourceState.values())
+            .map(Enum::name)
+            .collect(Collectors.toSet());
 
     List<TransitionDescriptor> transitions =
         List.of(

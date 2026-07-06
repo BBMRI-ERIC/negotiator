@@ -96,7 +96,10 @@ class ResourceLifecycleServiceImplTest {
                     status ->
                         assertEquals(
                             eu.bbmri_eric.negotiator.negotiation.NegotiationState.IN_PROGRESS,
-                            negotiationRepository.findById(negotiationId).get().getCurrentState())));
+                            negotiationRepository
+                                .findById(negotiationId)
+                                .get()
+                                .getCurrentState())));
   }
 
   void checkNegotiationResourceRecordPresenceWithAssignedState(
@@ -105,7 +108,9 @@ class ResourceLifecycleServiceImplTest {
     Set<NegotiationResourceLifecycleRecord> records =
         negotiation.getNegotiationResourceLifecycleRecords();
     Assertions.assertNotNull(
-        records.stream().filter(r -> r.getChangedTo().equals(negotiationResourceState)).findFirst());
+        records.stream()
+            .filter(r -> r.getChangedTo().equals(negotiationResourceState))
+            .findFirst());
   }
 
   @Test
@@ -117,7 +122,9 @@ class ResourceLifecycleServiceImplTest {
         EntityNotFoundException.class,
         () ->
             resourceLifecycleService.sendEvent(
-                negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
+                negotiationDTO.getId(),
+                "biobank:1:collection:2",
+                NegotiationResourceEvent.CONTACT));
   }
 
   @Test
@@ -171,7 +178,8 @@ class ResourceLifecycleServiceImplTest {
             NegotiationResourceEvent.MARK_AS_AVAILABLE));
     transactionTemplate.executeWithoutResult(
         status -> {
-          Negotiation negotiation = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
+          Negotiation negotiation =
+              negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
           Set<NegotiationResourceLifecycleRecord> records =
               negotiation.getNegotiationResourceLifecycleRecords();
           assertEquals(4, records.size());
@@ -225,13 +233,16 @@ class ResourceLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     approveAndAwaitInProgress(negotiationDTO.getId());
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
-    requirementRepository.save(new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
+    requirementRepository.save(
+        new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
     assertTrue(requirementRepository.existsByForEvent(NegotiationResourceEvent.CONTACT));
     assertThrows(
         TransitionPreconditionException.class,
         () ->
             resourceLifecycleService.sendEvent(
-                negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
+                negotiationDTO.getId(),
+                "biobank:1:collection:2",
+                NegotiationResourceEvent.CONTACT));
   }
 
   @Test
@@ -242,13 +253,15 @@ class ResourceLifecycleServiceImplTest {
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
     InformationRequirement requirement =
         requirementRepository.save(
-            new InformationRequirement(accessForm, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+            new InformationRequirement(
+                accessForm, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     Resource resource = resourceRepository.findBySourceId("biobank:1:collection:2").get();
     informationSubmissionRepository.saveAndFlush(
         new InformationSubmission(requirement, resource, negotiation, "{}"));
     assertTrue(
-        requirementRepository.existsByForEvent(NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+        requirementRepository.existsByForEvent(
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
     assertTrue(
         informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resource.getSourceId(), negotiation.getId()));
@@ -266,7 +279,8 @@ class ResourceLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
         Set.of(),
-        resourceLifecycleService.getPossibleEvents(negotiationDTO.getId(), "biobank:1:collection:2"));
+        resourceLifecycleService.getPossibleEvents(
+            negotiationDTO.getId(), "biobank:1:collection:2"));
   }
 
   @Test
@@ -275,8 +289,11 @@ class ResourceLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     approveAndAwaitInProgress(negotiationDTO.getId());
     assertEquals(
-        Set.of(NegotiationResourceEvent.STEP_AWAY, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY),
-        resourceLifecycleService.getPossibleEvents(negotiationDTO.getId(), "biobank:1:collection:2"));
+        Set.of(
+            NegotiationResourceEvent.STEP_AWAY,
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY),
+        resourceLifecycleService.getPossibleEvents(
+            negotiationDTO.getId(), "biobank:1:collection:2"));
   }
 
   @Test

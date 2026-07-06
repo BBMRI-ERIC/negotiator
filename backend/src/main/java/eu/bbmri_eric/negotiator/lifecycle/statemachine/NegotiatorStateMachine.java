@@ -9,7 +9,8 @@ public final class NegotiatorStateMachine<C extends TransitionContext> {
   private final C context;
   private final List<TransitionListener<C>> listeners;
 
-  NegotiatorStateMachine(StateMachine<String, String> delegate, C context, List<TransitionListener<C>> listeners) {
+  NegotiatorStateMachine(
+      StateMachine<String, String> delegate, C context, List<TransitionListener<C>> listeners) {
     this.delegate = delegate;
     this.context = context;
     this.listeners = listeners;
@@ -25,7 +26,8 @@ public final class NegotiatorStateMachine<C extends TransitionContext> {
       return new TransitionOutcome<>(fromState, fromState, event, context, false);
     }
     delegate.fire(event);
-    TransitionOutcome<C> outcome = new TransitionOutcome<>(fromState, delegate.getState(), event, context, true);
+    TransitionOutcome<C> outcome =
+        new TransitionOutcome<>(fromState, delegate.getState(), event, context, true);
     listeners.forEach(listener -> listener.onTransition(outcome));
     return outcome;
   }

@@ -18,7 +18,8 @@ public record TransitionDescriptor(
     this(sourceState, targetState, event, null, null, Set.of());
   }
 
-  public TransitionDescriptor(String sourceState, String targetState, String event, String actionName) {
+  public TransitionDescriptor(
+      String sourceState, String targetState, String event, String actionName) {
     this(sourceState, targetState, event, null, actionName, Set.of());
   }
 
@@ -28,7 +29,12 @@ public record TransitionDescriptor(
   }
 
   public static TransitionDescriptor withSecurity(
-      String sourceState, String targetState, String event, Set<String> securityAttributes, String actionName) {
-    return new TransitionDescriptor(sourceState, targetState, event, null, actionName, securityAttributes);
+      String sourceState,
+      String targetState,
+      String event,
+      Set<String> securityAttributes,
+      String actionName) {
+    return new TransitionDescriptor(
+        sourceState, targetState, event, null, actionName, securityAttributes);
   }
 }

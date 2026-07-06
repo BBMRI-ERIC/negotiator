@@ -5,13 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
-import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationStateChangeEvent;
+import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import java.util.List;

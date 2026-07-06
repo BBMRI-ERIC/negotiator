@@ -12,7 +12,9 @@ public final class StateMachineFactory<C extends TransitionContext> {
   private final List<TransitionListener<C>> listeners;
 
   public StateMachineFactory(
-      StateMachineDefinition definition, BeanResolver resolver, List<TransitionListener<C>> listeners) {
+      StateMachineDefinition definition,
+      BeanResolver resolver,
+      List<TransitionListener<C>> listeners) {
     this.definition = definition;
     this.resolver = resolver;
     this.listeners = List.copyOf(listeners);
@@ -39,7 +41,8 @@ public final class StateMachineFactory<C extends TransitionContext> {
     for (TransitionDescriptor transition : definition.transitions()) {
       StateConfiguration<String, String> stateConfig = config.configure(transition.sourceState());
       Guard<C> guard = transition.guardName() != null ? resolveGuard(transition.guardName()) : null;
-      TransitionAction<C> action = transition.actionName() != null ? resolveAction(transition.actionName()) : null;
+      TransitionAction<C> action =
+          transition.actionName() != null ? resolveAction(transition.actionName()) : null;
       if (guard != null && action != null) {
         stateConfig.permitIf(
             transition.event(),
@@ -47,9 +50,11 @@ public final class StateMachineFactory<C extends TransitionContext> {
             () -> guard.isSatisfied(context),
             () -> action.execute(context));
       } else if (guard != null) {
-        stateConfig.permitIf(transition.event(), transition.targetState(), () -> guard.isSatisfied(context));
+        stateConfig.permitIf(
+            transition.event(), transition.targetState(), () -> guard.isSatisfied(context));
       } else if (action != null) {
-        stateConfig.permit(transition.event(), transition.targetState(), () -> action.execute(context));
+        stateConfig.permit(
+            transition.event(), transition.targetState(), () -> action.execute(context));
       } else {
         stateConfig.permit(transition.event(), transition.targetState());
       }

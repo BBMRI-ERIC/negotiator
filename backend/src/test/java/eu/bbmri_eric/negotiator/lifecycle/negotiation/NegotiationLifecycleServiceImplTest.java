@@ -65,7 +65,8 @@ class NegotiationLifecycleServiceImplTest {
   @BeforeEach
   void setUp() {
     negotiationLifecycleService =
-        new NegotiationLifecycleServiceImpl(negotiationRepository, beanResolver, List.of(persistListener));
+        new NegotiationLifecycleServiceImpl(
+            negotiationRepository, beanResolver, List.of(persistListener));
   }
 
   NegotiationDTO saveNegotiation() throws IOException {
@@ -323,12 +324,14 @@ class NegotiationLifecycleServiceImplTest {
         .atMost(Duration.ofSeconds(5))
         .untilAsserted(
             () -> {
-              Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
+              Negotiation negotiation =
+                  negotiationRepository.findById(negotiationDTO.getId()).get();
               assertEquals(NegotiationState.IN_PROGRESS, negotiation.getCurrentState());
             });
 
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
-    List<ResourceWithStatusDTO> resources = resourceService.findAllInNegotiation(negotiation.getId());
+    List<ResourceWithStatusDTO> resources =
+        resourceService.findAllInNegotiation(negotiation.getId());
     assertEquals(2, resources.size());
     resourceService.updateResourcesInANegotiation(
         negotiation.getId(),
@@ -340,11 +343,13 @@ class NegotiationLifecycleServiceImplTest {
         .atMost(Duration.ofSeconds(5))
         .untilAsserted(
             () -> {
-              List<ResourceViewDTO> foundResources = resourceRepository.findByNegotiation(negotiation.getId());
+              List<ResourceViewDTO> foundResources =
+                  resourceRepository.findByNegotiation(negotiation.getId());
               foundResources.forEach(
                   resource ->
                       assertEquals(
-                          NegotiationResourceState.RESOURCE_MADE_AVAILABLE, resource.getCurrentState()));
+                          NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
+                          resource.getCurrentState()));
             });
 
     await()

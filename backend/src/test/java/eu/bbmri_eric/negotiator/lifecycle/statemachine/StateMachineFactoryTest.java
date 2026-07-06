@@ -24,7 +24,8 @@ class StateMachineFactoryTest {
 
   @Test
   void build_returnsMachineInitializedToGivenCurrentState() {
-    StateMachineDefinition definition = new StateMachineDefinition(Set.of("DRAFT", "SUBMITTED"), List.of());
+    StateMachineDefinition definition =
+        new StateMachineDefinition(Set.of("DRAFT", "SUBMITTED"), List.of());
     StateMachineFactory<TestContext> factory = new StateMachineFactory<>(definition);
 
     NegotiatorStateMachine<TestContext> machine = factory.build("SUBMITTED", new TestContext());
@@ -95,7 +96,9 @@ class StateMachineFactoryTest {
     StateMachineDefinition definition =
         new StateMachineDefinition(
             Set.of("SUBMITTED", "IN_PROGRESS"),
-            List.of(new TransitionDescriptor("SUBMITTED", "IN_PROGRESS", "APPROVE", "testGuard", null)));
+            List.of(
+                new TransitionDescriptor(
+                    "SUBMITTED", "IN_PROGRESS", "APPROVE", "testGuard", null)));
     StateMachineFactory<TestContext> factory = new StateMachineFactory<>(definition, resolver);
     NegotiatorStateMachine<TestContext> machine = factory.build("SUBMITTED", context);
 
@@ -117,7 +120,9 @@ class StateMachineFactoryTest {
     StateMachineDefinition definition =
         new StateMachineDefinition(
             Set.of("SUBMITTED", "IN_PROGRESS"),
-            List.of(new TransitionDescriptor("SUBMITTED", "IN_PROGRESS", "APPROVE", "testGuard", null)));
+            List.of(
+                new TransitionDescriptor(
+                    "SUBMITTED", "IN_PROGRESS", "APPROVE", "testGuard", null)));
     StateMachineFactory<TestContext> factory = new StateMachineFactory<>(definition, resolver);
     NegotiatorStateMachine<TestContext> machine = factory.build("SUBMITTED", context);
 

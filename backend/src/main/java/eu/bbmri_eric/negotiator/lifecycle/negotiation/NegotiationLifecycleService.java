@@ -10,5 +10,6 @@ public interface NegotiationLifecycleService {
 
   NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent);
 
-  NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent, String message);
+  NegotiationState sendEvent(
+      String negotiationId, NegotiationEvent negotiationEvent, String message);
 }

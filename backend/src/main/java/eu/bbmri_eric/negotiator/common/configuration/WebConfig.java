@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.common.configuration;
 
-import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationRoleConverter;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationEventConverter;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEventConverter;
+import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationRoleConverter;
 import java.util.List;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;

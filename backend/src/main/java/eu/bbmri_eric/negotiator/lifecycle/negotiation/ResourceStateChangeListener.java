@@ -9,12 +9,14 @@ import eu.bbmri_eric.negotiator.negotiation.ResourceStateChangeEvent;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-/** Listener for Resource State changes, auto-concluding the Negotiation once all resources are terminal. */
+/**
+ * Listener for Resource State changes, auto-concluding the Negotiation once all resources are
+ * terminal.
+ */
 @Component
 @CommonsLog
 public class ResourceStateChangeListener {

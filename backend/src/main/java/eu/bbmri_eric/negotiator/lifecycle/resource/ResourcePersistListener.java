@@ -32,7 +32,8 @@ public class ResourcePersistListener implements TransitionListener<ResourceTrans
       return;
     }
 
-    NegotiationResourceState fromState = negotiation.getCurrentStateForResource(context.resourceId());
+    NegotiationResourceState fromState =
+        negotiation.getCurrentStateForResource(context.resourceId());
     negotiation.setStateForResource(
         context.resourceId(), NegotiationResourceState.valueOf(outcome.toState()));
     NegotiationResourceState toState = negotiation.getCurrentStateForResource(context.resourceId());
