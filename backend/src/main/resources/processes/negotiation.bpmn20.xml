@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:flowable="http://flowable.org/bpmn"
+             xmlns:negotiator="http://negotiator.bbmri-eric.eu/schema/lifecycle"
+             targetNamespace="http://negotiator.bbmri-eric.eu/processes/negotiation">
+
+  <process id="negotiation" name="Negotiation lifecycle" isExecutable="true">
+
+    <startEvent id="start" />
+    <exclusiveGateway id="gw_initial" />
+    <sequenceFlow id="f_start_to_gw" sourceRef="start" targetRef="gw_initial" />
+    <sequenceFlow id="f_initial_to_DRAFT" sourceRef="gw_initial" targetRef="DRAFT">
+      <conditionExpression xsi:type="tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${initialState == 'DRAFT'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_SUBMITTED" sourceRef="gw_initial" targetRef="SUBMITTED">
+      <conditionExpression xsi:type="tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${initialState != 'DRAFT'}</conditionExpression>
+    </sequenceFlow>
+
+    <!-- DRAFT -->
+    <receiveTask id="DRAFT" name="DRAFT" />
+    <sequenceFlow id="f_DRAFT_to_gw" sourceRef="DRAFT" targetRef="gw_DRAFT" />
+    <eventBasedGateway id="gw_DRAFT" />
+
+    <sequenceFlow id="f_gw_DRAFT_to_SUBMIT" sourceRef="gw_DRAFT" targetRef="catch_DRAFT_SUBMIT" />
+    <intermediateCatchEvent id="catch_DRAFT_SUBMIT" name="SUBMIT">
+      <messageEventDefinition messageRef="msg_SUBMIT" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_SUBMIT_to_action" sourceRef="catch_DRAFT_SUBMIT" targetRef="action_enablePublicPosts" />
+    <serviceTask id="action_enablePublicPosts" name="Enable public posts"
+                 flowable:delegateExpression="${lifecycleEnablePublicPostsAction}" />
+    <sequenceFlow id="f_action_enablePublicPosts_to_SUBMITTED" sourceRef="action_enablePublicPosts" targetRef="SUBMITTED" />
+
+    <!-- SUBMITTED -->
+    <receiveTask id="SUBMITTED" name="SUBMITTED" />
+    <sequenceFlow id="f_SUBMITTED_to_gw" sourceRef="SUBMITTED" targetRef="gw_SUBMITTED" />
+    <eventBasedGateway id="gw_SUBMITTED" />
+
+    <sequenceFlow id="f_gw_SUBMITTED_to_APPROVE" sourceRef="gw_SUBMITTED" targetRef="catch_SUBMITTED_APPROVE">
+      <extensionElements>
+        <negotiator:security roles="ROLE_ADMIN" />
+      </extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_SUBMITTED_APPROVE" name="APPROVE">
+      <messageEventDefinition messageRef="msg_APPROVE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_APPROVE_to_action" sourceRef="catch_SUBMITTED_APPROVE" targetRef="action_enablePrivatePosts" />
+    <serviceTask id="action_enablePrivatePosts" name="Enable private posts"
+                 flowable:delegateExpression="${lifecycleEnablePrivatePostsAction}" />
+    <sequenceFlow id="f_action_enablePrivatePosts_to_IN_PROGRESS" sourceRef="action_enablePrivatePosts" targetRef="IN_PROGRESS" />
+
+    <sequenceFlow id="f_gw_SUBMITTED_to_DECLINE" sourceRef="gw_SUBMITTED" targetRef="catch_SUBMITTED_DECLINE">
+      <extensionElements>
+        <negotiator:security roles="ROLE_ADMIN" />
+      </extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_SUBMITTED_DECLINE" name="DECLINE">
+      <messageEventDefinition messageRef="msg_DECLINE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_DECLINE_to_DECLINED" sourceRef="catch_SUBMITTED_DECLINE" targetRef="DECLINED" />
+
+    <endEvent id="DECLINED" name="DECLINED" />
+
+    <!-- IN_PROGRESS -->
+    <receiveTask id="IN_PROGRESS" name="IN_PROGRESS" />
+    <sequenceFlow id="f_IN_PROGRESS_to_gw" sourceRef="IN_PROGRESS" targetRef="gw_IN_PROGRESS" />
+    <eventBasedGateway id="gw_IN_PROGRESS" />
+
+    <sequenceFlow id="f_gw_IN_PROGRESS_to_PAUSE" sourceRef="gw_IN_PROGRESS" targetRef="catch_IN_PROGRESS_PAUSE" />
+    <intermediateCatchEvent id="catch_IN_PROGRESS_PAUSE" name="PAUSE">
+      <messageEventDefinition messageRef="msg_PAUSE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_PAUSE_to_PAUSED" sourceRef="catch_IN_PROGRESS_PAUSE" targetRef="PAUSED" />
+
+    <sequenceFlow id="f_gw_IN_PROGRESS_to_ABANDON" sourceRef="gw_IN_PROGRESS" targetRef="catch_IN_PROGRESS_ABANDON" />
+    <intermediateCatchEvent id="catch_IN_PROGRESS_ABANDON" name="ABANDON">
+      <messageEventDefinition messageRef="msg_ABANDON" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_IN_PROGRESS_ABANDON_to_action" sourceRef="catch_IN_PROGRESS_ABANDON" targetRef="action_disablePosts_fromInProgress" />
+    <serviceTask id="action_disablePosts_fromInProgress" name="Disable posts"
+                 flowable:delegateExpression="${lifecycleDisablePostsAction}" />
+    <sequenceFlow id="f_action_disablePosts_fromInProgress_to_ABANDONED" sourceRef="action_disablePosts_fromInProgress" targetRef="ABANDONED" />
+
+    <sequenceFlow id="f_gw_IN_PROGRESS_to_CONCLUDE" sourceRef="gw_IN_PROGRESS" targetRef="catch_IN_PROGRESS_CONCLUDE" />
+    <intermediateCatchEvent id="catch_IN_PROGRESS_CONCLUDE" name="CONCLUDE">
+      <messageEventDefinition messageRef="msg_CONCLUDE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_CONCLUDE_to_CONCLUDED" sourceRef="catch_IN_PROGRESS_CONCLUDE" targetRef="CONCLUDED" />
+
+    <endEvent id="CONCLUDED" name="CONCLUDED" />
+    <endEvent id="ABANDONED" name="ABANDONED" />
+
+    <!-- PAUSED -->
+    <receiveTask id="PAUSED" name="PAUSED" />
+    <sequenceFlow id="f_PAUSED_to_gw" sourceRef="PAUSED" targetRef="gw_PAUSED" />
+    <eventBasedGateway id="gw_PAUSED" />
+
+    <sequenceFlow id="f_gw_PAUSED_to_UNPAUSE" sourceRef="gw_PAUSED" targetRef="catch_PAUSED_UNPAUSE" />
+    <intermediateCatchEvent id="catch_PAUSED_UNPAUSE" name="UNPAUSE">
+      <messageEventDefinition messageRef="msg_UNPAUSE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_UNPAUSE_to_IN_PROGRESS" sourceRef="catch_PAUSED_UNPAUSE" targetRef="IN_PROGRESS" />
+
+    <sequenceFlow id="f_gw_PAUSED_to_ABANDON" sourceRef="gw_PAUSED" targetRef="catch_PAUSED_ABANDON" />
+    <intermediateCatchEvent id="catch_PAUSED_ABANDON" name="ABANDON">
+      <messageEventDefinition messageRef="msg_ABANDON" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_PAUSED_ABANDON_to_ABANDONED" sourceRef="catch_PAUSED_ABANDON" targetRef="ABANDONED" />
+
+  </process>
+
+  <message id="msg_SUBMIT" name="SUBMIT" />
+  <message id="msg_APPROVE" name="APPROVE" />
+  <message id="msg_DECLINE" name="DECLINE" />
+  <message id="msg_PAUSE" name="PAUSE" />
+  <message id="msg_UNPAUSE" name="UNPAUSE" />
+  <message id="msg_ABANDON" name="ABANDON" />
+  <message id="msg_CONCLUDE" name="CONCLUDE" />
+
+</definitions>
