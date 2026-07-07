@@ -16,6 +16,7 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.flowable.bpmn.model.BpmnModel;
@@ -130,16 +131,30 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
     log.debug("Negotiation %s transitioned to %s via %s".formatted(negotiationId, toState, event));
   }
 
+  /**
+   * Finds the process instance for this negotiation, or lazily starts one landing directly at the
+   * entity's current state. Eager start (NegotiationProcessStartListener) covers negotiations
+   * created through NegotiationServiceImpl; this covers any negotiation that reached the database
+   * by another path (fixtures, direct repository writes) and therefore never fired
+   * NewNegotiationEvent.
+   */
   private ProcessInstance findProcessInstance(String negotiationId) {
     ProcessInstance instance =
         runtimeService
             .createProcessInstanceQuery()
             .processInstanceBusinessKey(negotiationId)
             .singleResult();
-    if (instance == null) {
-      throw new EntityNotFoundException(negotiationId);
+    if (instance != null) {
+      return instance;
     }
-    return instance;
+    NegotiationState currentState =
+        negotiationRepository
+            .findNegotiationStateById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    return runtimeService.startProcessInstanceByKey(
+        "negotiation",
+        negotiationId,
+        Map.of("negotiationId", negotiationId, "initialState", currentState.name()));
   }
 
   private String currentActivityId(ProcessInstance instance) {

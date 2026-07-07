@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
+package eu.bbmri_eric.negotiator.lifecycle.negotiation;
 
 import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationState;

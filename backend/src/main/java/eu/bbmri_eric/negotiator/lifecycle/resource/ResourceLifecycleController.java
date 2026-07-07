@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
+package eu.bbmri_eric.negotiator.lifecycle.resource;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceEventMetadataDto;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceStateMetadataDto;

@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.common.exceptions;
 
 import eu.bbmri_eric.negotiator.attachment.UnsupportedFileTypeException;
+import eu.bbmri_eric.negotiator.lifecycle.TransitionPreconditionException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -441,6 +442,16 @@ public class NegotiatorExceptionHandler {
   @ExceptionHandler(StateMachineException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public final ErrorResponse handleStateMachineException(StateMachineException ex) {
+    ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    detail.setTitle("Could not advance the state machine");
+    detail.setDetail(ex.getMessage());
+    return new ErrorResponseException(HttpStatus.BAD_REQUEST, detail, ex);
+  }
+
+  @ExceptionHandler(TransitionPreconditionException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public final ErrorResponse handleTransitionPreconditionException(
+      TransitionPreconditionException ex) {
     ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
     detail.setTitle("Could not advance the state machine");
     detail.setDetail(ex.getMessage());

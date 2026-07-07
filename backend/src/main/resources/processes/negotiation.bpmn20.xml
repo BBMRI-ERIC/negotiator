@@ -13,7 +13,13 @@
       <conditionExpression xsi:type="tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${initialState == 'DRAFT'}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="f_initial_to_SUBMITTED" sourceRef="gw_initial" targetRef="SUBMITTED">
-      <conditionExpression xsi:type="tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${initialState != 'DRAFT'}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${initialState == 'SUBMITTED'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_IN_PROGRESS" sourceRef="gw_initial" targetRef="IN_PROGRESS">
+      <conditionExpression xsi:type="tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${initialState == 'IN_PROGRESS'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_PAUSED" sourceRef="gw_initial" targetRef="PAUSED">
+      <conditionExpression xsi:type="tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${initialState == 'PAUSED'}</conditionExpression>
     </sequenceFlow>
 
     <!-- DRAFT -->

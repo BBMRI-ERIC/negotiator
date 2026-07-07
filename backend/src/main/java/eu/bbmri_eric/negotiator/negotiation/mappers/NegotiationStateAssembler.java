@@ -3,8 +3,8 @@ package eu.bbmri_eric.negotiator.negotiation.mappers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri_eric.negotiator.lifecycle.negotiation.NegotiationLifecycleController;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationStateMetadataDto;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleController;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
