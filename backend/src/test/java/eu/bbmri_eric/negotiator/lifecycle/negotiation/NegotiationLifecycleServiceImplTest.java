@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.negotiation;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,29 +9,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceViewDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @IntegrationTest(loadTestData = true)
 @RecordApplicationEvents
@@ -42,6 +52,9 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired PostRepository postRepository;
   @Autowired ApplicationEvents events;
+  @Autowired ResourceService resourceService;
+  @Autowired ResourceRepository resourceRepository;
+  @Autowired TransactionTemplate transactionTemplate;
 
   private NegotiationDTO saveNegotiation() throws IOException {
     return saveNegotiation(false);
@@ -247,5 +260,75 @@ public class NegotiationLifecycleServiceImplTest {
             .allMatch(
                 dto ->
                     java.util.Objects.equals(dto.getStatus(), NegotiationState.SUBMITTED.name())));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void createNegotiation_approve_eachResourceHasState() throws IOException, InterruptedException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    NegotiationState state =
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertEquals(NegotiationState.IN_PROGRESS, state);
+    Thread.sleep(1000);
+    transactionTemplate.executeWithoutResult(
+        status -> {
+          Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
+          negotiation
+              .getResources()
+              .forEach(
+                  resource ->
+                      assertEquals(
+                          NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+                          negotiation.getCurrentStateForResource(resource.getSourceId())));
+        });
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
+  void successfulNegotiation_2finishedResources_closedAutomatically() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertEquals(NegotiationState.SUBMITTED, NegotiationState.valueOf(negotiationDTO.getStatus()));
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              Negotiation negotiation =
+                  negotiationRepository.findById(negotiationDTO.getId()).get();
+              assertEquals(NegotiationState.IN_PROGRESS, negotiation.getCurrentState());
+            });
+
+    Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
+    List<ResourceWithStatusDTO> resources =
+        resourceService.findAllInNegotiation(negotiation.getId());
+    assertEquals(2, resources.size());
+    resourceService.updateResourcesInANegotiation(
+        negotiation.getId(),
+        new UpdateResourcesDTO(
+            resources.stream().map(ResourceWithStatusDTO::getId).collect(Collectors.toList()),
+            NegotiationResourceState.RESOURCE_MADE_AVAILABLE));
+    assertEquals(2, resources.size());
+
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              List<ResourceViewDTO> foundResources =
+                  resourceRepository.findByNegotiation(negotiation.getId());
+              foundResources.forEach(
+                  resource ->
+                      assertEquals(
+                          NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
+                          resource.getCurrentState()));
+            });
+
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () ->
+                assertEquals(
+                    NegotiationState.CONCLUDED,
+                    negotiationRepository.findNegotiationStateById(negotiation.getId()).get()));
   }
 }

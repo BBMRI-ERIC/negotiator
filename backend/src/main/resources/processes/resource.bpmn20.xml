@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:flowable="http://flowable.org/bpmn"
+             xmlns:negotiator="http://negotiator.bbmri-eric.eu/schema/lifecycle"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             targetNamespace="http://negotiator.bbmri-eric.eu/processes/resource">
+
+  <process id="resource" name="Resource lifecycle" isExecutable="true">
+
+    <startEvent id="start" />
+    <exclusiveGateway id="gw_initial" />
+    <sequenceFlow id="f_start_to_gw" sourceRef="start" targetRef="gw_initial" />
+    <sequenceFlow id="f_initial_to_SUBMITTED" sourceRef="gw_initial" targetRef="SUBMITTED">
+      <conditionExpression xsi:type="tFormalExpression">${initialState == 'SUBMITTED'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_REPRESENTATIVE_UNREACHABLE" sourceRef="gw_initial" targetRef="REPRESENTATIVE_UNREACHABLE">
+      <conditionExpression xsi:type="tFormalExpression">${initialState == 'REPRESENTATIVE_UNREACHABLE'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_REPRESENTATIVE_CONTACTED" sourceRef="gw_initial" targetRef="REPRESENTATIVE_CONTACTED">
+      <conditionExpression xsi:type="tFormalExpression">${initialState == 'REPRESENTATIVE_CONTACTED'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_CHECKING_AVAILABILITY" sourceRef="gw_initial" targetRef="CHECKING_AVAILABILITY">
+      <conditionExpression xsi:type="tFormalExpression">${initialState == 'CHECKING_AVAILABILITY'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_RESOURCE_AVAILABLE" sourceRef="gw_initial" targetRef="RESOURCE_AVAILABLE">
+      <conditionExpression xsi:type="tFormalExpression">${initialState == 'RESOURCE_AVAILABLE'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT" sourceRef="gw_initial" targetRef="RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT">
+      <conditionExpression xsi:type="tFormalExpression">${initialState == 'RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_ACCESS_CONDITIONS_INDICATED" sourceRef="gw_initial" targetRef="ACCESS_CONDITIONS_INDICATED">
+      <conditionExpression xsi:type="tFormalExpression">${initialState == 'ACCESS_CONDITIONS_INDICATED'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_initial_to_ACCESS_CONDITIONS_MET" sourceRef="gw_initial" targetRef="ACCESS_CONDITIONS_MET">
+      <conditionExpression xsi:type="tFormalExpression">${initialState == 'ACCESS_CONDITIONS_MET'}</conditionExpression>
+    </sequenceFlow>
+
+    <!-- ===================== SUBMITTED ===================== -->
+    <receiveTask id="SUBMITTED" name="SUBMITTED" />
+    <sequenceFlow id="f_SUBMITTED_to_gw" sourceRef="SUBMITTED" targetRef="gw_SUBMITTED" />
+    <eventBasedGateway id="gw_SUBMITTED" />
+
+    <sequenceFlow id="f_gw_SUBMITTED_to_CONTACT" sourceRef="gw_SUBMITTED" targetRef="catch_SUBMITTED_CONTACT">
+      <extensionElements><negotiator:security roles="isAdmin" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_SUBMITTED_CONTACT" name="CONTACT">
+      <messageEventDefinition messageRef="msg_CONTACT" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_SUBMITTED_CONTACT_to_target" sourceRef="catch_SUBMITTED_CONTACT" targetRef="REPRESENTATIVE_CONTACTED" />
+
+    <sequenceFlow id="f_gw_SUBMITTED_to_MARK_AS_UNREACHABLE" sourceRef="gw_SUBMITTED" targetRef="catch_SUBMITTED_MARK_AS_UNREACHABLE">
+      <extensionElements><negotiator:security roles="isAdmin" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_SUBMITTED_MARK_AS_UNREACHABLE" name="MARK_AS_UNREACHABLE">
+      <messageEventDefinition messageRef="msg_MARK_AS_UNREACHABLE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_SUBMITTED_MARK_AS_UNREACHABLE_to_target" sourceRef="catch_SUBMITTED_MARK_AS_UNREACHABLE" targetRef="REPRESENTATIVE_UNREACHABLE" />
+
+    <!-- ===================== REPRESENTATIVE_UNREACHABLE ===================== -->
+    <receiveTask id="REPRESENTATIVE_UNREACHABLE" name="REPRESENTATIVE_UNREACHABLE" />
+    <sequenceFlow id="f_REPRESENTATIVE_UNREACHABLE_to_gw" sourceRef="REPRESENTATIVE_UNREACHABLE" targetRef="gw_REPRESENTATIVE_UNREACHABLE" />
+    <eventBasedGateway id="gw_REPRESENTATIVE_UNREACHABLE" />
+
+    <sequenceFlow id="f_gw_REPRESENTATIVE_UNREACHABLE_to_CONTACT" sourceRef="gw_REPRESENTATIVE_UNREACHABLE" targetRef="catch_REPRESENTATIVE_UNREACHABLE_CONTACT">
+      <extensionElements><negotiator:security roles="isAdmin" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_REPRESENTATIVE_UNREACHABLE_CONTACT" name="CONTACT">
+      <messageEventDefinition messageRef="msg_CONTACT" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_REPRESENTATIVE_UNREACHABLE_CONTACT_to_target" sourceRef="catch_REPRESENTATIVE_UNREACHABLE_CONTACT" targetRef="REPRESENTATIVE_CONTACTED" />
+
+    <!-- ===================== REPRESENTATIVE_CONTACTED ===================== -->
+    <receiveTask id="REPRESENTATIVE_CONTACTED" name="REPRESENTATIVE_CONTACTED" />
+    <sequenceFlow id="f_REPRESENTATIVE_CONTACTED_to_gw" sourceRef="REPRESENTATIVE_CONTACTED" targetRef="gw_REPRESENTATIVE_CONTACTED" />
+    <eventBasedGateway id="gw_REPRESENTATIVE_CONTACTED" />
+
+    <sequenceFlow id="f_gw_REPRESENTATIVE_CONTACTED_to_MARK_AS_CHECKING_AVAILABILITY" sourceRef="gw_REPRESENTATIVE_CONTACTED" targetRef="catch_MARK_AS_CHECKING_AVAILABILITY">
+      <extensionElements><negotiator:security roles="isRepresentative" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_MARK_AS_CHECKING_AVAILABILITY" name="MARK_AS_CHECKING_AVAILABILITY">
+      <messageEventDefinition messageRef="msg_MARK_AS_CHECKING_AVAILABILITY" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_MARK_AS_CHECKING_AVAILABILITY_to_target" sourceRef="catch_MARK_AS_CHECKING_AVAILABILITY" targetRef="CHECKING_AVAILABILITY" />
+
+    <sequenceFlow id="f_gw_REPRESENTATIVE_CONTACTED_to_STEP_AWAY" sourceRef="gw_REPRESENTATIVE_CONTACTED" targetRef="catch_STEP_AWAY">
+      <extensionElements><negotiator:security roles="isRepresentative" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_STEP_AWAY" name="STEP_AWAY">
+      <messageEventDefinition messageRef="msg_STEP_AWAY" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_STEP_AWAY_to_target" sourceRef="catch_STEP_AWAY" targetRef="RESOURCE_UNAVAILABLE" />
+
+    <!-- ===================== CHECKING_AVAILABILITY ===================== -->
+    <receiveTask id="CHECKING_AVAILABILITY" name="CHECKING_AVAILABILITY" />
+    <sequenceFlow id="f_CHECKING_AVAILABILITY_to_gw" sourceRef="CHECKING_AVAILABILITY" targetRef="gw_CHECKING_AVAILABILITY" />
+    <eventBasedGateway id="gw_CHECKING_AVAILABILITY" />
+
+    <sequenceFlow id="f_gw_CHECKING_AVAILABILITY_to_MARK_AS_UNAVAILABLE" sourceRef="gw_CHECKING_AVAILABILITY" targetRef="catch_MARK_AS_UNAVAILABLE">
+      <extensionElements><negotiator:security roles="isRepresentative" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_MARK_AS_UNAVAILABLE" name="MARK_AS_UNAVAILABLE">
+      <messageEventDefinition messageRef="msg_MARK_AS_UNAVAILABLE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_MARK_AS_UNAVAILABLE_to_target" sourceRef="catch_MARK_AS_UNAVAILABLE" targetRef="RESOURCE_UNAVAILABLE" />
+
+    <sequenceFlow id="f_gw_CHECKING_AVAILABILITY_to_MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT" sourceRef="gw_CHECKING_AVAILABILITY" targetRef="catch_MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT">
+      <extensionElements><negotiator:security roles="isRepresentative" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT" name="MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT">
+      <messageEventDefinition messageRef="msg_MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_WILLING_TO_COLLECT_to_target" sourceRef="catch_MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT" targetRef="RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT" />
+
+    <sequenceFlow id="f_gw_CHECKING_AVAILABILITY_to_MARK_AS_AVAILABLE" sourceRef="gw_CHECKING_AVAILABILITY" targetRef="catch_MARK_AS_AVAILABLE">
+      <extensionElements><negotiator:security roles="isRepresentative" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_MARK_AS_AVAILABLE" name="MARK_AS_AVAILABLE">
+      <messageEventDefinition messageRef="msg_MARK_AS_AVAILABLE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_MARK_AS_AVAILABLE_to_target" sourceRef="catch_MARK_AS_AVAILABLE" targetRef="RESOURCE_AVAILABLE" />
+
+    <!-- ===================== RESOURCE_AVAILABLE ===================== -->
+    <receiveTask id="RESOURCE_AVAILABLE" name="RESOURCE_AVAILABLE" />
+    <sequenceFlow id="f_RESOURCE_AVAILABLE_to_gw" sourceRef="RESOURCE_AVAILABLE" targetRef="gw_RESOURCE_AVAILABLE" />
+    <eventBasedGateway id="gw_RESOURCE_AVAILABLE" />
+
+    <sequenceFlow id="f_gw_RESOURCE_AVAILABLE_to_INDICATE" sourceRef="gw_RESOURCE_AVAILABLE" targetRef="catch_RESOURCE_AVAILABLE_INDICATE">
+      <extensionElements><negotiator:security roles="isRepresentative" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_RESOURCE_AVAILABLE_INDICATE" name="INDICATE_ACCESS_CONDITIONS">
+      <messageEventDefinition messageRef="msg_INDICATE_ACCESS_CONDITIONS" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_RESOURCE_AVAILABLE_INDICATE_to_target" sourceRef="catch_RESOURCE_AVAILABLE_INDICATE" targetRef="ACCESS_CONDITIONS_INDICATED" />
+
+    <!-- ===================== RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT ===================== -->
+    <receiveTask id="RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT" name="RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT" />
+    <sequenceFlow id="f_WILLING_TO_COLLECT_to_gw" sourceRef="RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT" targetRef="gw_WILLING_TO_COLLECT" />
+    <eventBasedGateway id="gw_WILLING_TO_COLLECT" />
+
+    <sequenceFlow id="f_gw_WILLING_TO_COLLECT_to_INDICATE" sourceRef="gw_WILLING_TO_COLLECT" targetRef="catch_WILLING_TO_COLLECT_INDICATE">
+      <extensionElements><negotiator:security roles="isRepresentative" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_WILLING_TO_COLLECT_INDICATE" name="INDICATE_ACCESS_CONDITIONS">
+      <messageEventDefinition messageRef="msg_INDICATE_ACCESS_CONDITIONS" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_WILLING_TO_COLLECT_INDICATE_to_target" sourceRef="catch_WILLING_TO_COLLECT_INDICATE" targetRef="ACCESS_CONDITIONS_INDICATED" />
+
+    <!-- ===================== ACCESS_CONDITIONS_INDICATED ===================== -->
+    <receiveTask id="ACCESS_CONDITIONS_INDICATED" name="ACCESS_CONDITIONS_INDICATED" />
+    <sequenceFlow id="f_ACCESS_CONDITIONS_INDICATED_to_gw" sourceRef="ACCESS_CONDITIONS_INDICATED" targetRef="gw_ACCESS_CONDITIONS_INDICATED" />
+    <eventBasedGateway id="gw_ACCESS_CONDITIONS_INDICATED" />
+
+    <sequenceFlow id="f_gw_ACI_to_DECLINE" sourceRef="gw_ACCESS_CONDITIONS_INDICATED" targetRef="catch_DECLINE_ACCESS_CONDITIONS">
+      <extensionElements><negotiator:security roles="isCreator" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_DECLINE_ACCESS_CONDITIONS" name="DECLINE_ACCESS_CONDITIONS">
+      <messageEventDefinition messageRef="msg_DECLINE_ACCESS_CONDITIONS" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_DECLINE_ACCESS_CONDITIONS_to_target" sourceRef="catch_DECLINE_ACCESS_CONDITIONS" targetRef="RESOURCE_NOT_MADE_AVAILABLE" />
+
+    <sequenceFlow id="f_gw_ACI_to_ACCEPT" sourceRef="gw_ACCESS_CONDITIONS_INDICATED" targetRef="catch_ACCEPT_ACCESS_CONDITIONS">
+      <extensionElements><negotiator:security roles="isCreator" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_ACCEPT_ACCESS_CONDITIONS" name="ACCEPT_ACCESS_CONDITIONS">
+      <messageEventDefinition messageRef="msg_ACCEPT_ACCESS_CONDITIONS" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_ACCEPT_ACCESS_CONDITIONS_to_target" sourceRef="catch_ACCEPT_ACCESS_CONDITIONS" targetRef="ACCESS_CONDITIONS_MET" />
+
+    <!-- ===================== ACCESS_CONDITIONS_MET ===================== -->
+    <receiveTask id="ACCESS_CONDITIONS_MET" name="ACCESS_CONDITIONS_MET" />
+    <sequenceFlow id="f_ACCESS_CONDITIONS_MET_to_gw" sourceRef="ACCESS_CONDITIONS_MET" targetRef="gw_ACCESS_CONDITIONS_MET" />
+    <eventBasedGateway id="gw_ACCESS_CONDITIONS_MET" />
+
+    <sequenceFlow id="f_gw_ACM_to_GRANT" sourceRef="gw_ACCESS_CONDITIONS_MET" targetRef="catch_GRANT_ACCESS_TO_RESOURCE">
+      <extensionElements><negotiator:security roles="isRepresentative" /></extensionElements>
+    </sequenceFlow>
+    <intermediateCatchEvent id="catch_GRANT_ACCESS_TO_RESOURCE" name="GRANT_ACCESS_TO_RESOURCE">
+      <messageEventDefinition messageRef="msg_GRANT_ACCESS_TO_RESOURCE" />
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_catch_GRANT_ACCESS_TO_RESOURCE_to_target" sourceRef="catch_GRANT_ACCESS_TO_RESOURCE" targetRef="RESOURCE_MADE_AVAILABLE" />
+
+    <!-- ===================== Terminal states ===================== -->
+    <endEvent id="RESOURCE_UNAVAILABLE" name="RESOURCE_UNAVAILABLE" />
+    <endEvent id="RESOURCE_NOT_MADE_AVAILABLE" name="RESOURCE_NOT_MADE_AVAILABLE" />
+    <endEvent id="RESOURCE_MADE_AVAILABLE" name="RESOURCE_MADE_AVAILABLE" />
+
+  </process>
+
+  <message id="msg_CONTACT" name="CONTACT" />
+  <message id="msg_MARK_AS_UNREACHABLE" name="MARK_AS_UNREACHABLE" />
+  <message id="msg_MARK_AS_CHECKING_AVAILABILITY" name="MARK_AS_CHECKING_AVAILABILITY" />
+  <message id="msg_STEP_AWAY" name="STEP_AWAY" />
+  <message id="msg_MARK_AS_UNAVAILABLE" name="MARK_AS_UNAVAILABLE" />
+  <message id="msg_MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT" name="MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT" />
+  <message id="msg_MARK_AS_AVAILABLE" name="MARK_AS_AVAILABLE" />
+  <message id="msg_INDICATE_ACCESS_CONDITIONS" name="INDICATE_ACCESS_CONDITIONS" />
+  <message id="msg_DECLINE_ACCESS_CONDITIONS" name="DECLINE_ACCESS_CONDITIONS" />
+  <message id="msg_ACCEPT_ACCESS_CONDITIONS" name="ACCEPT_ACCESS_CONDITIONS" />
+  <message id="msg_GRANT_ACCESS_TO_RESOURCE" name="GRANT_ACCESS_TO_RESOURCE" />
+
+</definitions>
