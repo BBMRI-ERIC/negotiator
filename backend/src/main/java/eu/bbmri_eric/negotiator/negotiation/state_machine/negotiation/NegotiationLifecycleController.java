@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
+import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationStateMetadataDto;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationEventAssembler;

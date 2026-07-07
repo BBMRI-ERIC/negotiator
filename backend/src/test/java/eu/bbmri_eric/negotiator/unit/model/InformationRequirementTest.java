@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.unit.model;
 
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
 import org.junit.jupiter.api.Test;
 
 public class InformationRequirementTest {

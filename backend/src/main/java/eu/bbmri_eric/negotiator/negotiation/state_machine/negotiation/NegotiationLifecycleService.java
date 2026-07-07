@@ -2,6 +2,8 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 

@@ -7,7 +7,9 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepositor
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import java.util.HashMap;
 import java.util.List;

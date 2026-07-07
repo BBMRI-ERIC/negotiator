@@ -9,7 +9,7 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmission;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionMapper;
 import eu.bbmri_eric.negotiator.info_submission.SubmittedInformationDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

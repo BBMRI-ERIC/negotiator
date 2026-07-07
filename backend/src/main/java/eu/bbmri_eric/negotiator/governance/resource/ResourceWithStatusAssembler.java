@@ -11,7 +11,7 @@ import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionController;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionService;
 import eu.bbmri_eric.negotiator.info_submission.SubmittedInformationDTO;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import java.util.ArrayList;
 import java.util.List;

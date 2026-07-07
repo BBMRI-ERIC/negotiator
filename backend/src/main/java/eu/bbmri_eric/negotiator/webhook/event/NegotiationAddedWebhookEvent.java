@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**

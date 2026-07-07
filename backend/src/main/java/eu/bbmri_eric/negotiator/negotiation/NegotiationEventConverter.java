@@ -1,15 +1,14 @@
-package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
+package eu.bbmri_eric.negotiator.negotiation;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-public class NegotiationResourceEventConverter
-    implements Converter<String, NegotiationResourceEvent> {
+public class NegotiationEventConverter implements Converter<String, NegotiationEvent> {
   @Override
-  public NegotiationResourceEvent convert(String source) {
+  public NegotiationEvent convert(String source) {
     try {
-      return NegotiationResourceEvent.valueOf(source.toUpperCase());
+      return NegotiationEvent.valueOf(source.toUpperCase());
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }

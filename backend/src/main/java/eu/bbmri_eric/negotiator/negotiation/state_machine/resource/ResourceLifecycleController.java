@@ -2,6 +2,8 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceEventMetadataDto;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceStateMetadataDto;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.mappers.ResourceEventAssembler;
 import eu.bbmri_eric.negotiator.negotiation.mappers.ResourceStateAssembler;
 import io.swagger.v3.oas.annotations.Operation;

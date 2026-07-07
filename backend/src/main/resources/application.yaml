@@ -82,6 +82,11 @@ spring:
           audiences: "https://negotiator.bbmri-eric.eu,negotiator-api"
   profiles:
     default: prod
+flowable:
+  database-schema-update: true
+  async-executor-activate: false
+  process:
+    definition-cache-limit: 100
 negotiator:
   events:
     async:

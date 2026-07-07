@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
+package eu.bbmri_eric.negotiator.negotiation;
 
 import lombok.Getter;
 

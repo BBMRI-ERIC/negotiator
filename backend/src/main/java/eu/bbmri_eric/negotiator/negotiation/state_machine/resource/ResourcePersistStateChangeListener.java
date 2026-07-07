@@ -2,6 +2,9 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.ResourceStateChangeEvent;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import java.util.Optional;

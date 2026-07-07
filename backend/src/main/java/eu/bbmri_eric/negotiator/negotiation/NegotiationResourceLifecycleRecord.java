@@ -1,8 +1,7 @@
-package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
+package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationTimelineEvent;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
+import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;

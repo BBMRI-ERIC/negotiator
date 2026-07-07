@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
