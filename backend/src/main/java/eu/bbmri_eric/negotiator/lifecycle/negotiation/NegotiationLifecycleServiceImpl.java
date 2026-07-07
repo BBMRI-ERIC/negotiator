@@ -144,13 +144,19 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
             .createProcessInstanceQuery()
             .processInstanceBusinessKey(negotiationId)
             .singleResult();
-    if (instance != null) {
-      return instance;
-    }
     NegotiationState currentState =
         negotiationRepository
             .findNegotiationStateById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    if (instance != null) {
+      if (currentActivityId(instance).equals(currentState.name())) {
+        return instance;
+      }
+      // The entity's currentState was changed by something other than sendEvent (a direct
+      // repository write) since this process instance was started; discard and restart at the
+      // now-current state.
+      runtimeService.deleteProcessInstance(instance.getId(), "resynchronizing with entity state");
+    }
     return runtimeService.startProcessInstanceByKey(
         "negotiation",
         negotiationId,

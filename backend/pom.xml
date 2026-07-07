@@ -21,7 +21,6 @@
         <spring-modulith.version>1.4.12</spring-modulith.version>
         <testcontainers-util.version>1.21.1</testcontainers-util.version>
         <flyway.version>11.10.0</flyway.version>
-        <spring.state-machine.version>4.0.0</spring.state-machine.version>
         <flowable.version>7.0.0</flowable.version>
 
         <!-- Third-party libraries -->
@@ -200,28 +199,11 @@
             <artifactId>spring-modulith-api</artifactId>
         </dependency>
 
-        <!-- Flowable (prototype replacement for Spring Statemachine, see docs/prd-flowable-migration.md) -->
+        <!-- Flowable (replaces Spring Statemachine, see docs/prd-flowable-migration.md) -->
         <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring-boot-starter</artifactId>
             <version>${flowable.version}</version>
-        </dependency>
-
-        <!-- Spring Statemachine -->
-        <dependency>
-            <groupId>org.springframework.statemachine</groupId>
-            <artifactId>spring-statemachine-core</artifactId>
-            <version>${spring.state-machine.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.statemachine</groupId>
-            <artifactId>spring-statemachine-recipes-common</artifactId>
-            <version>${spring.state-machine.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.statemachine</groupId>
-            <artifactId>spring-statemachine-starter</artifactId>
-            <version>${spring.state-machine.version}</version>
         </dependency>
 
         <!-- Spring Doc / OpenAPI -->
@@ -252,11 +234,6 @@
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- Observability / Logging -->

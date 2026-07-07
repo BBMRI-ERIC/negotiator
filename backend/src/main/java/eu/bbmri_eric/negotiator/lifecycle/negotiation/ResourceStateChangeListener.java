@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
+package eu.bbmri_eric.negotiator.lifecycle.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-/** Listener for Resource State changes. */
+/** Auto-concludes a Negotiation once every one of its resources reaches a terminal state. */
 @Component
 @CommonsLog
 public class ResourceStateChangeListener {
