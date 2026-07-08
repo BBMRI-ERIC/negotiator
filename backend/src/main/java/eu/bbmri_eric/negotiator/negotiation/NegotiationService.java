@@ -2,12 +2,15 @@ package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Pageable;
 
 public interface NegotiationService {
@@ -136,6 +139,14 @@ public interface NegotiationService {
   boolean isNegotiationCreator(String negotiationId);
 
   /**
+   * Checks whether the currently authenticated user is a collaborator of the negotiation
+   *
+   * @param negotiationId the id of the negotiation to check
+   * @return {@code true} if the currently authenticated user is a collaborator of the negotiation
+   */
+  boolean isNegotiationCollaborator(String negotiationId);
+
+  /**
    * Checks whether a an Organization is part of the negotiation, i.e., there is at least one
    * resource part of the Organization that is part of the Negotiation
    *
@@ -176,4 +187,43 @@ public interface NegotiationService {
    *     is not in DRAFT state
    */
   void removeResourceFromNegotiation(String negotiationId, Long resourceId);
+
+  /**
+   * Returns the collaborators of the negotiation with the given ID.
+   *
+   * @param negotiationId the id of the negotiation
+   * @return a set of UserResponseModel representing the collaborators
+   * @throws EntityNotFoundException if the negotiation is not found
+   */
+  Set<UserResponseModel> getCollaborators(String negotiationId);
+
+  /**
+   * Adds a collaborator to the negotiation.
+   *
+   * @param negotiationId the id of the negotiation
+   * @param personId the internal id of the person to add
+   * @throws EntityNotFoundException if the negotiation or person is not found
+   * @throws ForbiddenRequestException if the caller is not authorized to add a collaborator
+   */
+  void addCollaborator(String negotiationId, Long personId);
+
+  /**
+   * Adds a collaborator to the negotiation by their subject ID.
+   *
+   * @param negotiationId the id of the negotiation
+   * @param subjectId the subject ID of the person to add
+   * @throws EntityNotFoundException if the negotiation or person is not found
+   * @throws ForbiddenRequestException if the caller is not authorized to add a collaborator
+   */
+  void addCollaboratorBySubjectId(String negotiationId, String subjectId);
+
+  /**
+   * Removes a collaborator from the negotiation. Only the creator or an admin may call this.
+   *
+   * @param negotiationId the id of the negotiation
+   * @param personId the internal id of the person to remove
+   * @throws EntityNotFoundException if the negotiation or person is not found
+   * @throws ForbiddenRequestException if the caller is not authorized to remove a collaborator
+   */
+  void removeCollaborator(String negotiationId, Long personId);
 }
