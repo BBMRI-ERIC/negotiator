@@ -133,6 +133,37 @@
           :negotiation-id="negotiation.id"
           @transfer-negotiation="handleTransferNegotiation"
         />
+        <AddCollaboratorButton
+          class="mt-2"
+          :negotiation-id="negotiation.id"
+          @collaborator-added="handleCollaboratorAdded"
+        />
+      </li>
+      <!-- Collaborators list -->
+      <li class="list-group-item p-2">
+        <div class="fw-bold mb-1" :style="{ color: uiConfiguration.primaryTextColor }">
+          Collaborators:
+        </div>
+        <div v-if="collaborators.length === 0" class="text-muted small">No collaborators yet.</div>
+        <ul v-else class="list-unstyled mb-0">
+          <li
+            v-for="collaborator in collaborators"
+            :key="collaborator.id"
+            class="d-flex align-items-center justify-content-between py-1"
+          >
+            <span class="text-truncate me-2" :style="{ color: uiConfiguration.secondaryTextColor }">
+              {{ collaborator.name }}
+            </span>
+            <button
+              v-if="isAuthor || isAdmin"
+              class="btn btn-sm btn-link text-danger p-0 flex-shrink-0"
+              title="Remove collaborator"
+              @click="promptRemoveCollaborator(collaborator)"
+            >
+              <i class="bi bi-person-x-fill"></i>
+            </button>
+          </li>
+        </ul>
       </li>
       <li
         v-if="getSummaryLinks(negotiation._links).length > 0"
@@ -149,10 +180,62 @@
       </li>
     </ul>
   </div>
+
+  <!-- Remove-collaborator confirmation modal -->
+  <div
+    v-if="collaboratorToRemove"
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background-color: rgba(0, 0, 0, 0.5)"
+    @click.self="cancelRemoveCollaborator"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-sm" @click.stop>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">Remove Collaborator</h6>
+          <button
+            type="button"
+            class="btn-close"
+            :disabled="isRemoving"
+            @click="cancelRemoveCollaborator"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-0">
+            Are you sure you want to remove
+            <strong>{{ collaboratorToRemove.name }}</strong> as a collaborator?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            :disabled="isRemoving"
+            @click="cancelRemoveCollaborator"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            :disabled="isRemoving"
+            @click="confirmRemoveCollaborator"
+          >
+            <span
+              v-if="isRemoving"
+              class="spinner-border spinner-border-sm me-1"
+              role="status"
+            ></span>
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import UiBadge from '@/components/ui/UiBadge.vue'
 import PDFButton from '@/components/PDFButton.vue'
@@ -167,14 +250,20 @@ import {
 } from '../composables/utils.js'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from '../store/notifications'
+import { useUserStore } from '../store/user.js'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
+import AddCollaboratorButton from '@/components/AddCollaboratorButton.vue'
 
 useNegotiationPageStore()
 const notifications = useNotificationsStore()
+const userStore = useUserStore()
 
 const isEditingDisplayId = ref(false)
 const editedDisplayId = ref('')
+const collaborators = ref([])
+const collaboratorToRemove = ref(null)
+const isRemoving = ref(false)
 
 const props = defineProps({
   negotiation: { type: Object, required: true },
@@ -189,8 +278,65 @@ const emit = defineEmits([
   'assign-status',
   'download-attachment-from-link',
   'transfer-negotiation',
+  'collaborator-added',
+  'collaborator-removed',
   'update-display-id',
 ])
+
+const isAuthor = computed(
+  () => userStore.userInfo?.subjectId && userStore.userInfo.subjectId === props.author?.subjectId,
+)
+
+onMounted(async () => {
+  await fetchCollaborators()
+})
+
+async function fetchCollaborators() {
+  try {
+    const response = await axios.get(
+      `${apiPaths.NEGOTIATION_PATH}/${props.negotiation.id}/collaborators`,
+      { headers: getBearerHeaders() },
+    )
+    collaborators.value = Array.isArray(response.data)
+      ? response.data
+      : (response.data?._embedded?.users ?? [])
+  } catch (error) {
+    console.error('Failed to fetch collaborators:', error)
+  }
+}
+
+function promptRemoveCollaborator(collaborator) {
+  collaboratorToRemove.value = collaborator
+}
+
+function cancelRemoveCollaborator() {
+  if (!isRemoving.value) {
+    collaboratorToRemove.value = null
+  }
+}
+
+async function confirmRemoveCollaborator() {
+  if (!collaboratorToRemove.value) return
+  isRemoving.value = true
+  try {
+    await axios.delete(
+      `${apiPaths.NEGOTIATION_PATH}/${props.negotiation.id}/collaborators/${collaboratorToRemove.value.id}`,
+      { headers: getBearerHeaders() },
+    )
+    notifications.setNotification(
+      `${collaboratorToRemove.value.name} has been removed as a collaborator.`,
+    )
+    emit('collaborator-removed', collaboratorToRemove.value)
+    collaboratorToRemove.value = null
+    await fetchCollaborators()
+  } catch (error) {
+    notifications.setNotification(
+      'Failed to remove collaborator: ' + (error.response?.data?.message ?? error.message),
+    )
+  } finally {
+    isRemoving.value = false
+  }
+}
 
 function assignStatus(status) {
   emit('assign-status', status)
@@ -214,6 +360,11 @@ function handleTransferNegotiation(subjectId) {
   // Optional: Log or perform cleanup
   console.log(`Negotiation transferred to Subject ID: ${subjectId}`)
   emit('transfer-negotiation', subjectId)
+}
+
+function handleCollaboratorAdded(user) {
+  emit('collaborator-added', user)
+  fetchCollaborators()
 }
 
 function startEditDisplayId() {

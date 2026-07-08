@@ -52,6 +52,8 @@ public interface NegotiationRepository
 
   boolean existsByIdAndCreatedBy_Id(String negotiationId, Long personId);
 
+  boolean existsByIdAndCollaborators_Id(String negotiationId, Long personId);
+
   @Query(
       value =
           "SELECT EXISTS ("
