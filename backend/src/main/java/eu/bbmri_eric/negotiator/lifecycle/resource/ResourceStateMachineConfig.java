@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.lifecycle.resource;
 
 import eu.bbmri_eric.negotiator.lifecycle.statemachine.BeanResolver;
 import eu.bbmri_eric.negotiator.lifecycle.statemachine.StateMachineDefinition;
-import eu.bbmri_eric.negotiator.lifecycle.statemachine.StateMachineFactory;
 import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionDescriptor;
+import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionExecutor;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import java.util.List;
@@ -97,11 +97,11 @@ public class ResourceStateMachineConfig {
   }
 
   @Bean
-  public StateMachineFactory<ResourceTransitionContext> resourceStateMachineFactory(
+  public TransitionExecutor<ResourceTransitionContext> resourceTransitionExecutor(
       StateMachineDefinition resourceStateMachineDefinition,
       BeanResolver beanResolver,
       ResourcePersistTransitionListener resourcePersistTransitionListener) {
-    return new StateMachineFactory<>(
+    return new TransitionExecutor<>(
         resourceStateMachineDefinition, beanResolver, resourcePersistTransitionListener);
   }
 }

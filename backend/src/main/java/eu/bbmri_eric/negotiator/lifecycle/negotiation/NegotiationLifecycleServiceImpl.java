@@ -1,12 +1,11 @@
 package eu.bbmri_eric.negotiator.lifecycle.negotiation;
 
-import com.github.oxo42.stateless4j.StateMachine;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.lifecycle.statemachine.StateMachineDefinition;
-import eu.bbmri_eric.negotiator.lifecycle.statemachine.StateMachineFactory;
 import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionDescriptor;
+import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionExecutor;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
@@ -24,16 +23,16 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   private final NegotiationRepository negotiationRepository;
   private final StateMachineDefinition definition;
-  private final StateMachineFactory<NegotiationTransitionContext> factory;
+  private final TransitionExecutor<NegotiationTransitionContext> executor;
 
   public NegotiationLifecycleServiceImpl(
       NegotiationRepository negotiationRepository,
       @Qualifier("negotiationStateMachineDefinition") StateMachineDefinition definition,
-      @Qualifier("negotiationStateMachineFactory")
-          StateMachineFactory<NegotiationTransitionContext> factory) {
+      @Qualifier("negotiationTransitionExecutor")
+          TransitionExecutor<NegotiationTransitionContext> executor) {
     this.negotiationRepository = negotiationRepository;
     this.definition = definition;
-    this.factory = factory;
+    this.executor = executor;
   }
 
   @Override
@@ -68,10 +67,9 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
             new HashSet<>(AuthenticatedUserContext.getRoles()),
             message,
             AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
-    StateMachine<String, String> machine =
-        factory.build(getCurrentStateForNegotiation(negotiationId).name(), context);
-    machine.fire(negotiationEvent.name());
-    return getCurrentStateForNegotiation(negotiationId);
+    String currentState = getCurrentStateForNegotiation(negotiationId).name();
+    return NegotiationState.valueOf(
+        executor.fire(currentState, negotiationEvent.name(), context).targetState());
   }
 
   private NegotiationState getCurrentStateForNegotiation(String negotiationId) {

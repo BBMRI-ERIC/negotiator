@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.common.exceptions;
 
 import eu.bbmri_eric.negotiator.attachment.UnsupportedFileTypeException;
 import eu.bbmri_eric.negotiator.lifecycle.TransitionPreconditionException;
+import eu.bbmri_eric.negotiator.lifecycle.statemachine.InvalidTransitionException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -386,6 +387,38 @@ public class NegotiatorExceptionHandler {
                                   }
                                   """)))
   public final ProblemDetail handleIllegalStateException(IllegalStateException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));
+    problemDetail.setTitle("Internal Server Error");
+    problemDetail.setDetail(ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(InvalidTransitionException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ApiResponse(
+      responseCode = "500",
+      description = "Internal Server Error",
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                                  {
+                                    "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+                                    "title": "Internal Server Error",
+                                    "status": 500,
+                                    "detail": "Specific error message goes here",
+                                    "instance": "/api/your-endpoint"
+                                  }
+                                  """)))
+  public final ProblemDetail handleInvalidTransitionException(InvalidTransitionException ex) {
+    // Reaching here means the service's pre-check and the transition table disagree: a server bug,
+    // not a client error. Log the wrapped cause so it can be diagnosed from the logs alone.
+    log.error("Invalid lifecycle transition reached the HTTP layer: " + ex.getMessage(), ex);
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     problemDetail.setType(
         URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));

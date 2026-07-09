@@ -1,14 +1,13 @@
 package eu.bbmri_eric.negotiator.lifecycle.resource;
 
-import com.github.oxo42.stateless4j.StateMachine;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.lifecycle.TransitionPreconditionException;
 import eu.bbmri_eric.negotiator.lifecycle.statemachine.StateMachineDefinition;
-import eu.bbmri_eric.negotiator.lifecycle.statemachine.StateMachineFactory;
 import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionDescriptor;
+import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionExecutor;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
@@ -35,7 +34,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   private final InformationRequirementRepository requirementRepository;
   private final InformationSubmissionRepository requirementSubmissionRepository;
   private final StateMachineDefinition definition;
-  private final StateMachineFactory<ResourceTransitionContext> factory;
+  private final TransitionExecutor<ResourceTransitionContext> executor;
   private final PersonService personService;
 
   public ResourceLifecycleServiceImpl(
@@ -43,14 +42,14 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       InformationRequirementRepository requirementRepository,
       InformationSubmissionRepository requirementSubmissionRepository,
       @Qualifier("resourceStateMachineDefinition") StateMachineDefinition definition,
-      @Qualifier("resourceStateMachineFactory")
-          StateMachineFactory<ResourceTransitionContext> factory,
+      @Qualifier("resourceTransitionExecutor")
+          TransitionExecutor<ResourceTransitionContext> executor,
       PersonService personService) {
     this.negotiationRepository = negotiationRepository;
     this.requirementRepository = requirementRepository;
     this.requirementSubmissionRepository = requirementSubmissionRepository;
     this.definition = definition;
-    this.factory = factory;
+    this.executor = executor;
     this.personService = personService;
   }
 
@@ -106,10 +105,9 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     ResourceTransitionContext context =
         new ResourceTransitionContext(
             negotiationId, new HashSet<>(AuthenticatedUserContext.getRoles()), resourceId);
-    StateMachine<String, String> machine =
-        factory.build(getCurrentStateForResource(negotiationId, resourceId).name(), context);
-    machine.fire(negotiationResourceEvent.name());
-    return getCurrentStateForResource(negotiationId, resourceId);
+    String currentState = getCurrentStateForResource(negotiationId, resourceId).name();
+    return NegotiationResourceState.valueOf(
+        executor.fire(currentState, negotiationResourceEvent.name(), context).targetState());
   }
 
   private NegotiationResourceState getCurrentStateForResource(
