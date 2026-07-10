@@ -27,17 +27,18 @@ import { computed } from 'vue'
 import NewRequestModal from '../components/modals/NewRequestModal.vue'
 import { useApiCallsStore } from '../store/apiCalls.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
-import allFeatureFlags from '@/config/featureFlags.js'
+import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
 
 const apiCallsStore = useApiCallsStore()
 const uiConfigurationStore = useUiConfiguration()
+const { dev_mode: devMode } = useFeatureFlags()
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.newRequestButton
 })
 
 async function startNewRequest() {
-  if (allFeatureFlags.dev_mode === 'true' || allFeatureFlags.dev_mode === true) {
+  if (devMode) {
     const data = {
       url: 'https://bbmritestnn.gcc.rug.nl',
       humanReadable:
