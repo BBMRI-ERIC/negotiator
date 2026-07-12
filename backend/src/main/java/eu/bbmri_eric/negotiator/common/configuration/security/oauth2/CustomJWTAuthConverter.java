@@ -42,6 +42,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   private static final String NEGOTIATOR_AUTHZ_MANAGEMENT = "negotiator_authz_management";
   private static final String NEGOTIATOR_RESOURCE_MANAGEMENT = "negotiator_resource_management";
   private static final String NEGOTIATOR_MONITORING = "negotiator_monitoring";
+  private static final String NEGOTIATOR_HELPDESK = "negotiator_helpdesk";
 
   private final PersonRepository personRepository;
   private final String userInfoEndpoint;
@@ -120,6 +121,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
       }
       if (scopes.contains(NEGOTIATOR_MONITORING)) {
         authorities.add(new SimpleGrantedAuthority("ROLE_PROMETHEUS"));
+      }
+      if (scopes.contains(NEGOTIATOR_HELPDESK)) {
+        authorities.add(new SimpleGrantedAuthority("ROLE_HELPDESK_INTEGRATION"));
       }
     }
     return authorities;
