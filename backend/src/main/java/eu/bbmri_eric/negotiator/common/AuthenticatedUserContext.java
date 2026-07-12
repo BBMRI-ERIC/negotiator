@@ -74,9 +74,7 @@ public class AuthenticatedUserContext {
    * @return true or false
    */
   public static boolean isCurrentlyAuthenticatedUserAdmin() {
-    return !Objects.isNull(SecurityContextHolder.getContext().getAuthentication())
-        && SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    return hasRole("ROLE_ADMIN");
   }
 
   /**
@@ -88,6 +86,21 @@ public class AuthenticatedUserContext {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Check if the current request is authenticated as the helpdesk integration service account.
+   *
+   * @return true if the caller holds the ROLE_HELPDESK_INTEGRATION authority
+   */
+  public static boolean isHelpdeskIntegration() {
+    return hasRole("ROLE_HELPDESK_INTEGRATION");
+  }
+
+  private static boolean hasRole(String role) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return auth != null
+        && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role));
   }
 
   /**

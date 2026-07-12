@@ -101,7 +101,8 @@ public class PostServiceImpl implements PostService {
     if (!negotiationService.isAuthorizedForNegotiation(negotiationId)
         && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !personRepository.isManagerOfAnyResourceOfNegotiation(
-            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId)) {
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId)
+        && !AuthenticatedUserContext.isHelpdeskIntegration()) {
       throw new ForbiddenRequestException(
           "You're not authorized to send messages to this negotiation");
     }
