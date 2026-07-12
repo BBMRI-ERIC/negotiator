@@ -258,6 +258,17 @@ public class CustomJWTAuthConverterTest {
   }
 
   @Test
+  void testGetAuthoritiesFromScope_withHelpdeskScope_grantsHelpdeskIntegrationRole() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("scope", "negotiator_helpdesk");
+    Jwt jwt = createFakeJwt(claims, "helpdeskScopeToken");
+
+    Collection<GrantedAuthority> authorities = converterWithUserInfo.getAuthoritiesFromScope(jwt);
+    assertTrue(
+        authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_HELPDESK_INTEGRATION")));
+  }
+
+  @Test
   void testUserInfoCache_behavior() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("sub", "cacheUser");

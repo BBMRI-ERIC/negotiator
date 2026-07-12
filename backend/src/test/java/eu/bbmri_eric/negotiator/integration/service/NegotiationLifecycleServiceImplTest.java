@@ -419,6 +419,67 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 109L)
+  @Transactional
+  void getPossibleEventsForResource_asHelpdeskIntegration_returnsRepresentativeEvents() {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-helpdesk").get();
+    Set<NegotiationResourceEvent> events =
+        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:3");
+    assertTrue(events.contains(NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 109L)
+  void sendEventForResource_asHelpdeskIntegration_transitionsState() {
+    assertEquals(
+        NegotiationResourceState.CHECKING_AVAILABILITY,
+        resourceLifecycleService.sendEvent(
+            "negotiation-helpdesk",
+            "biobank:1:collection:3",
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+    assertEquals(
+        NegotiationResourceState.RESOURCE_UNAVAILABLE,
+        resourceLifecycleService.sendEvent(
+            "negotiation-helpdesk", "biobank:1:collection:8", NegotiationResourceEvent.STEP_AWAY));
+    assertEquals(
+        NegotiationResourceState.RESOURCE_AVAILABLE,
+        resourceLifecycleService.sendEvent(
+            "negotiation-helpdesk",
+            "biobank:1:collection:4",
+            NegotiationResourceEvent.MARK_AS_AVAILABLE));
+    assertEquals(
+        NegotiationResourceState.RESOURCE_UNAVAILABLE,
+        resourceLifecycleService.sendEvent(
+            "negotiation-helpdesk",
+            "biobank:1:collection:9",
+            NegotiationResourceEvent.MARK_AS_UNAVAILABLE));
+    assertEquals(
+        NegotiationResourceState.RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT,
+        resourceLifecycleService.sendEvent(
+            "negotiation-helpdesk",
+            "biobank:1:collection:10",
+            NegotiationResourceEvent.MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT));
+    assertEquals(
+        NegotiationResourceState.ACCESS_CONDITIONS_INDICATED,
+        resourceLifecycleService.sendEvent(
+            "negotiation-helpdesk",
+            "biobank:1:collection:5",
+            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+    assertEquals(
+        NegotiationResourceState.ACCESS_CONDITIONS_INDICATED,
+        resourceLifecycleService.sendEvent(
+            "negotiation-helpdesk",
+            "biobank:1:collection:6",
+            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+    assertEquals(
+        NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
+        resourceLifecycleService.sendEvent(
+            "negotiation-helpdesk",
+            "biobank:1:collection:7",
+            NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE));
+  }
+
+  @Test
   @WithMockNegotiatorUser(id = 102L)
   @Transactional
   void getPossibleStatesForResource_notAuthorized_isEmpty() {

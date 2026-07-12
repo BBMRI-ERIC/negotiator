@@ -39,6 +39,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -376,6 +378,29 @@ public class PostServiceTest {
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(returnedPostDTO.getText(), publicPost1.getText());
     assertEquals(returnedPostDTO.getType(), PostType.PUBLIC);
+  }
+
+  @ParameterizedTest
+  @EnumSource(PostType.class)
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION")
+  public void test_createPublicPost_asHelpdeskIntegration_Ok(PostType postType) {
+    negotiation.setPublicPostsEnabled(true);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
+    when(postRepository.save(any())).thenReturn(publicPost1);
+    PostCreateDTO postCreateDTO =
+        PostCreateDTO.builder().text(publicPost1.getText()).type(PostType.PUBLIC).build();
+    PostDTO postDTO =
+        PostDTO.builder()
+            .id("test-id")
+            .createdBy(new UserResponseModel())
+            .creationDate(LocalDateTime.now())
+            .text(publicPost1.getText())
+            .type(postType)
+            .build();
+    when(modelMapper.map(publicPost1, PostDTO.class)).thenReturn(postDTO);
+    PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
+    assertEquals(postType, returnedPostDTO.getType());
   }
 
   @Test

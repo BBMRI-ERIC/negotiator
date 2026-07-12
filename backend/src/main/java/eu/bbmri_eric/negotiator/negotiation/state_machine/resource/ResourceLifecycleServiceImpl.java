@@ -9,6 +9,12 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
@@ -20,13 +26,6 @@ import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Spring State Machine implementation of the ResourceLifecycleService. */
 @Service
@@ -170,10 +169,10 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     if (securityRule.getAttributes().contains("isCreator")) {
       return negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, creatorId);
     } else if (securityRule.getAttributes().contains("isRepresentativeOrHelpdeskIntegration")) {
-      return personService.isRepresentativeOfAnyResource(
+      return AuthenticatedUserContext.isHelpdeskIntegration()
+          || personService.isRepresentativeOfAnyResource(
               AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(),
-              List.of(resourceId))
-          || AuthenticatedUserContext.isHelpdeskIntegration();
+              List.of(resourceId));
     } else if (securityRule.getAttributes().contains("isAdmin")) {
       return Objects.isNull(SecurityContextHolder.getContext().getAuthentication())
           || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();

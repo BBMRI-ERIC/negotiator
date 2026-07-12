@@ -45,7 +45,23 @@ values (4, 'Test collection #1 of biobank #1', 'This is the first test collectio
        (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3',
         'biobank:3:collection:3', 1, 6, 1, 'coll3bb3@test.org', 'https://biobank3.org/collection3'),
        (10, 'Test collection #10 of biobank #3', 'This is the third test collection of biobank 3',
-        'biobank:3:collection:4', 1, 6, 1,'coll10bb3@test.org', 'https://biobank3.org/collection10');
+        'biobank:3:collection:4', 1, 6, 1,'coll10bb3@test.org', 'https://biobank3.org/collection10'),
+       (11, 'Helpdesk collection #1 of biobank #1', 'Collection of biobank 1 for helpdesk integration tests',
+        'biobank:1:collection:3', 1, 4, 1, 'coll3bb1@test.org', 'https://biobank1.org/collection3'),
+       (12, 'Helpdesk collection #2 of biobank #1', 'Collection of biobank 1 for helpdesk integration tests',
+        'biobank:1:collection:4', 1, 4, 1, 'coll4bb1@test.org', 'https://biobank1.org/collection4'),
+       (13, 'Helpdesk collection #3 of biobank #1', 'Collection of biobank 1 for helpdesk integration tests',
+        'biobank:1:collection:5', 1, 4, 1, 'coll5bb1@test.org', 'https://biobank1.org/collection5'),
+       (14, 'Helpdesk collection #4 of biobank #1', 'Collection of biobank 1 for helpdesk integration tests',
+        'biobank:1:collection:6', 1, 4, 1, 'coll6bb1@test.org', 'https://biobank1.org/collection6'),
+       (15, 'Helpdesk collection #5 of biobank #1', 'Collection of biobank 1 for helpdesk integration tests',
+        'biobank:1:collection:7', 1, 4, 1, 'coll7bb1@test.org', 'https://biobank1.org/collection7'),
+       (16, 'Helpdesk collection #6 of biobank #1', 'Collection of biobank 1 for helpdesk integration tests',
+        'biobank:1:collection:8', 1, 4, 1, 'coll8bb1@test.org', 'https://biobank1.org/collection8'),
+       (17, 'Helpdesk collection #7 of biobank #1', 'Collection of biobank 1 for helpdesk integration tests',
+        'biobank:1:collection:9', 1, 4, 1, 'coll9bb1@test.org', 'https://biobank1.org/collection9'),
+       (18, 'Helpdesk collection #8 of biobank #1', 'Collection of biobank 1 for helpdesk integration tests',
+        'biobank:1:collection:10', 1, 4, 1, 'coll10bb1@test.org', 'https://biobank1.org/collection10');
 
 -- TheBiobanker (109) represents resources of biobank1 and biobank2.
 -- SareRepr (105) represents resources of biobank3
@@ -79,13 +95,17 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108, '#
         false, true, 1),
        ('negotiation-6', '2024-11-12', 'DRAFT', '2024-04-12', 108, 108, '#1 Material Type: RNA',
         '{"project":{"title":"Not yet completed","description":"This is a draft negotiation"}}',
-        false, true, 1);
+        false, true, 1),
+       ('negotiation-helpdesk', '2024-12-01', 'IN_PROGRESS', '2024-12-01', 108, 108, '#1 Material Type: DNA',
+        '{"project":{"title":"Helpdesk integration negotiation","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
+        true, true, 1);
 
 insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)
 values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-1', 4),
        (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-3', 5),
        (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_AVAILABLE', 'negotiation-3', 5);
 insert into negotiation_lifecycle_record (changed_to, creation_date, negotiation_id, modified_date, created_by, modified_by) VALUES ('IN_PROGRESS', '2023-06-19 10:15:00', 'negotiation-1', '2023-06-19 10:15:00', 101, 101);
+insert into negotiation_lifecycle_record (changed_to, creation_date, negotiation_id, modified_date, created_by, modified_by) VALUES ('IN_PROGRESS', '2024-12-01 10:00:00', 'negotiation-helpdesk', '2024-12-01 10:00:00', 101, 101);
 insert into request (id, url, human_readable, discovery_service_id)
 values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1),
        ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1),
@@ -110,6 +130,14 @@ values ('request-1', 4),
 
 insert into negotiation_resource_link (negotiation_id, resource_id, current_state)
 values ('negotiation-1', 4, 'SUBMITTED'),
+       ('negotiation-helpdesk', 11, 'REPRESENTATIVE_CONTACTED'),
+       ('negotiation-helpdesk', 12, 'CHECKING_AVAILABILITY'),
+       ('negotiation-helpdesk', 13, 'RESOURCE_AVAILABLE'),
+       ('negotiation-helpdesk', 14, 'RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT'),
+       ('negotiation-helpdesk', 15, 'ACCESS_CONDITIONS_MET'),
+       ('negotiation-helpdesk', 16, 'REPRESENTATIVE_CONTACTED'),
+       ('negotiation-helpdesk', 17, 'CHECKING_AVAILABILITY'),
+       ('negotiation-helpdesk', 18, 'CHECKING_AVAILABILITY'),
        ('negotiation-v2', 7, 'SUBMITTED'),
        ('negotiation-3', 5, 'RESOURCE_UNAVAILABLE'),
        ('negotiation-4', 5, null),
