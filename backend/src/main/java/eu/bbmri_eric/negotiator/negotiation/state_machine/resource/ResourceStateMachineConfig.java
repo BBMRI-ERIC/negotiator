@@ -1,8 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -12,6 +9,10 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
+
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Configuration for the Resource State Machine. */
 @Configuration
@@ -58,43 +59,43 @@ public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<St
         .source(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())
         .event(NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY.name())
         .target(NegotiationResourceState.CHECKING_AVAILABILITY.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
+        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())
         .event(NegotiationResourceEvent.STEP_AWAY.name())
         .target(NegotiationResourceState.RESOURCE_UNAVAILABLE.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
+        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
         .event(NegotiationResourceEvent.MARK_AS_UNAVAILABLE.name())
         .target(NegotiationResourceState.RESOURCE_UNAVAILABLE.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
+        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
         .event(NegotiationResourceEvent.MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT.name())
         .target(NegotiationResourceState.RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
+        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
         .event(NegotiationResourceEvent.MARK_AS_AVAILABLE.name())
         .target(NegotiationResourceState.RESOURCE_AVAILABLE.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
+        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.RESOURCE_AVAILABLE.name())
         .event(NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS.name())
         .target(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
+        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT.name())
         .event(NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS.name())
         .target(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
+        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
@@ -112,7 +113,7 @@ public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<St
         .source(NegotiationResourceState.ACCESS_CONDITIONS_MET.name())
         .event(NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE.name())
         .target(NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL);
+        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL);
 
     transitions.withExternal().guard(negotiationIsApproved());
   }
