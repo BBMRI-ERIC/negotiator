@@ -12,7 +12,8 @@ values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7Ynv
         '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', false, '2023-02-15'),
        (105, 'sarah.representative@gmail.com', 'SarahRepr', '5', null, 'Test Biobank', false, '2025-03-30'),
        (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false, '2025-04-20'),
-       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false, '2025-02-10');
+       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false, '2025-02-10'),
+       (110, 'helpdesk.owner@gmail.com', 'HelpdeskOwner', '1002@bbmri.eu', null, 'BBMRI', false, '2025-01-01');
 
 insert into authorities (person_id, authority)
 values (101, 'ADMIN'),  -- still needed for data sources tests
@@ -96,7 +97,7 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108, '#
        ('negotiation-6', '2024-11-12', 'DRAFT', '2024-04-12', 108, 108, '#1 Material Type: RNA',
         '{"project":{"title":"Not yet completed","description":"This is a draft negotiation"}}',
         false, true, 1),
-       ('negotiation-helpdesk', '2024-12-01', 'IN_PROGRESS', '2024-12-01', 108, 108, '#1 Material Type: DNA',
+       ('negotiation-helpdesk', '2024-12-01', 'IN_PROGRESS', '2024-12-01', 110, 110, '#1 Material Type: DNA',
         '{"project":{"title":"Helpdesk integration negotiation","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
         true, true, 1);
 
@@ -105,7 +106,7 @@ values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negot
        (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-3', 5),
        (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_AVAILABLE', 'negotiation-3', 5);
 insert into negotiation_lifecycle_record (changed_to, creation_date, negotiation_id, modified_date, created_by, modified_by) VALUES ('IN_PROGRESS', '2023-06-19 10:15:00', 'negotiation-1', '2023-06-19 10:15:00', 101, 101);
-insert into negotiation_lifecycle_record (changed_to, creation_date, negotiation_id, modified_date, created_by, modified_by) VALUES ('IN_PROGRESS', '2024-12-01 10:00:00', 'negotiation-helpdesk', '2024-12-01 10:00:00', 101, 101);
+insert into negotiation_lifecycle_record (changed_to, creation_date, negotiation_id, modified_date, created_by, modified_by) VALUES ('IN_PROGRESS', '2024-12-01 10:00:00', 'negotiation-helpdesk', '2024-12-01 10:00:00', 110, 110);
 insert into request (id, url, human_readable, discovery_service_id)
 values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1),
        ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1),

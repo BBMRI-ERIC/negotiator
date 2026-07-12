@@ -1,5 +1,8 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -9,10 +12,6 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
-
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 
 /** Configuration for the Resource State Machine. */
 @Configuration
