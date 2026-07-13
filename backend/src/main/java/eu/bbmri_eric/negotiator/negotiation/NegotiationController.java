@@ -164,8 +164,6 @@ public class NegotiationController {
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
     boolean isAdmin = AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
-    // Collaborators have the same edit rights as the creator, so they also receive the full
-    // model with lifecycle events and the Update link.
     boolean isCreatorOrCollaborator =
         negotiationService.isNegotiationCreator(id)
             || negotiationService.isNegotiationCollaborator(id);
@@ -363,7 +361,7 @@ public class NegotiationController {
   @GetMapping("/negotiations/{id}/collaborators")
   @Operation(
       summary = "List collaborators of a negotiation",
-      description = "Returns all collaborators of the negotiation. Accessible by creator or admin.")
+      description = "Returns all collaborators of the negotiation.")
   public Set<UserResponseModel> getCollaborators(@Valid @PathVariable String id) {
     return negotiationService.getCollaborators(id);
   }
@@ -373,7 +371,7 @@ public class NegotiationController {
   @Operation(
       summary = "Add a collaborator to a negotiation",
       description =
-          "Adds a person as a collaborator. Collaborators have the same access as the creator."
+          "Adds a person as a collaborator."
               + " The creator, an existing collaborator, or an admin can perform this action.")
   public void addCollaborator(@Valid @PathVariable String id, @Valid @PathVariable Long personId) {
     negotiationService.addCollaborator(id, personId);
