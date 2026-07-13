@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -92,7 +94,7 @@ public class PostControllerTests {
   @WithUserDetails("TheResearcher")
   @Transactional
   public void testCreatePublicPostOK() throws Exception {
-    PostCreateDTO request = TestUtils.createPostDTO(null, "message", null, PostType.PUBLIC);
+    PostCreateDTO request = TestUtils.createPostDTO(null, "message", PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
@@ -115,7 +117,7 @@ public class PostControllerTests {
 
   @Test
   public void testCreatePublicPostUnauthorized() throws Exception {
-    PostCreateDTO request = TestUtils.createPostDTO(null, "message", null, PostType.PUBLIC);
+    PostCreateDTO request = TestUtils.createPostDTO(null, "message", PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
@@ -130,7 +132,7 @@ public class PostControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testCreatePrivatePostWithUnknownResource() throws Exception {
-    PostCreateDTO request = TestUtils.createPostDTO("Unknown", "message", null, PostType.PRIVATE);
+    PostCreateDTO request = TestUtils.createPostDTO("Unknown", "message", PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
@@ -172,7 +174,7 @@ public class PostControllerTests {
   @Transactional
   public void testCreatePrivatePostOK() throws Exception {
     PostCreateDTO request =
-        TestUtils.createPostDTO(NEGOTIATION_1_ORGANIZATION_ID, "message", null, PostType.PRIVATE);
+        TestUtils.createPostDTO(NEGOTIATION_1_ORGANIZATION_ID, "message", PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
@@ -196,7 +198,7 @@ public class PostControllerTests {
   @Test
   public void testCreatePrivatePostUnauthorized() throws Exception {
     PostCreateDTO request =
-        TestUtils.createPostDTO(NEGOTIATION_1_ORGANIZATION_ID, "message", null, PostType.PRIVATE);
+        TestUtils.createPostDTO(NEGOTIATION_1_ORGANIZATION_ID, "message", PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
@@ -206,5 +208,56 @@ public class PostControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 110L, authorities = "ROLE_HELPDESK_INTEGRATION")
+  @Transactional
+  public void testCreatePost_asHelpdeskIntegration_withHelpdeskActor_persistsAndReturnsActor()
+      throws Exception {
+    PostCreateDTO request =
+        TestUtils.createPostDTO(
+            "message from helpdesk", PostType.PUBLIC, "john.smith@helpdesk.org");
+    String requestBody = TestUtils.jsonFromRequest(request);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, "negotiation-helpdesk", POSTS_URI);
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(URI.create(uri))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.helpdeskActor", is("john.smith@helpdesk.org")))
+            .andReturn();
+
+    String postId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Optional<Post> post = postRepository.findById(postId);
+    assertTrue(post.isPresent());
+    assertEquals("john.smith@helpdesk.org", post.get().getHelpdeskActor());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void testCreatePost_asRegularUser_withHelpdeskActorInBody_doesNotPersistActor()
+      throws Exception {
+    PostCreateDTO request = TestUtils.createPostDTO("message", PostType.PUBLIC, "injected-actor");
+    String requestBody = TestUtils.jsonFromRequest(request);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(URI.create(uri))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andReturn();
+
+    String postId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Optional<Post> post = postRepository.findById(postId);
+    assertTrue(post.isPresent());
+    assertNull(post.get().getHelpdeskActor());
   }
 }
