@@ -128,6 +128,10 @@ public class PostServiceImpl implements PostService {
             .findById(authorId)
             .orElseThrow(() -> new EntityNotFoundException(authorId));
     postEntity.setCreatedBy(author);
+    if (AuthenticatedUserContext.isHelpdeskIntegration()
+        && postRequest.getHelpdeskActor() != null) {
+      postEntity.setHelpdeskActor(postRequest.getHelpdeskActor());
+    }
     return postEntity;
   }
 

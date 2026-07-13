@@ -66,6 +66,9 @@ public class Post extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private PostType type;
 
+  @Column(name = "helpdesk_actor")
+  private String helpdeskActor;
+
   public boolean isPublic() {
     return this.type == PostType.PUBLIC;
   }
