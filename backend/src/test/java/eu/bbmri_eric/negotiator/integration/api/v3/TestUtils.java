@@ -16,7 +16,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.QueryCreateV2DTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
-import eu.bbmri_eric.negotiator.post.PostStatus;
 import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.user.Person;
 import java.io.IOException;
@@ -205,9 +204,12 @@ public class TestUtils {
     //    assertEquals(requestRepository.findAll().size(), 0);
   }
 
-  public static PostCreateDTO createPostDTO(
-      String organizationId, String text, PostStatus status, PostType type) {
+  public static PostCreateDTO createPostDTO(String organizationId, String text, PostType type) {
     return PostCreateDTO.builder().organizationId(organizationId).text(text).type(type).build();
+  }
+
+  public static PostCreateDTO createPostDTO(String text, PostType type, String helpdeskActor) {
+    return PostCreateDTO.builder().text(text).type(type).helpdeskActor(helpdeskActor).build();
   }
 
   public static Post createPost(

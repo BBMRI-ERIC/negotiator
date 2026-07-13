@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -401,6 +402,66 @@ public class PostServiceTest {
     when(modelMapper.map(publicPost1, PostDTO.class)).thenReturn(postDTO);
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(postType, returnedPostDTO.getType());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION")
+  public void test_createPost_asHelpdeskIntegration_withHelpdeskActor_setsHelpdeskActorOnEntity() {
+    negotiation.setPublicPostsEnabled(true);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
+    Post savedPost = Post.builder().text("message").type(PostType.PUBLIC).build();
+    savedPost.setCreatedBy(researcher);
+    when(postRepository.save(any()))
+        .thenAnswer(
+            invocation -> {
+              Post p = invocation.getArgument(0);
+              assertEquals("john.smith@helpdesk.org", p.getHelpdeskActor());
+              return savedPost;
+            });
+    PostCreateDTO postCreateDTO =
+        TestUtils.createPostDTO("message", PostType.PUBLIC, "john.smith@helpdesk.org");
+    when(modelMapper.map(savedPost, PostDTO.class))
+        .thenReturn(
+            PostDTO.builder()
+                .id("test-id")
+                .createdBy(new UserResponseModel())
+                .creationDate(LocalDateTime.now())
+                .text("message")
+                .type(PostType.PUBLIC)
+                .helpdeskActor("john.smith@helpdesk.org")
+                .build());
+    PostDTO result = postService.create(postCreateDTO, negotiation.getId());
+    assertEquals("john.smith@helpdesk.org", result.getHelpdeskActor());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = RESEARCHER_ID)
+  public void test_createPost_asRegularUser_withHelpdeskActor_doesNotSetHelpdeskActorOnEntity() {
+    negotiation.setPublicPostsEnabled(true);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
+    when(postRepository.save(any()))
+        .thenAnswer(
+            invocation -> {
+              Post p = invocation.getArgument(0);
+              assertNull(p.getHelpdeskActor());
+              return publicPost1;
+            });
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
+    PostCreateDTO postCreateDTO =
+        TestUtils.createPostDTO("message", PostType.PUBLIC, "injected-actor");
+    when(modelMapper.map(publicPost1, PostDTO.class))
+        .thenReturn(
+            PostDTO.builder()
+                .id("test-id")
+                .createdBy(new UserResponseModel())
+                .creationDate(LocalDateTime.now())
+                .text("message")
+                .type(PostType.PUBLIC)
+                .build());
+    PostDTO result = postService.create(postCreateDTO, negotiation.getId());
+    assertNull(result.getHelpdeskActor());
   }
 
   @Test
