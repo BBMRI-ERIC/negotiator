@@ -108,7 +108,7 @@ const props = defineProps({
 })
 
 function getAuthorName(item) {
-  return item.createdBy?.name || 'Unknown'
+  return item.helpdeskActor || item.createdBy?.name || 'Unknown'
 }
 
 function getChannelPostColor(item) {
