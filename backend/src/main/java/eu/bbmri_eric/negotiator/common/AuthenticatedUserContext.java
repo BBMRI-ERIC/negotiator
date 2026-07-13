@@ -46,6 +46,27 @@ public class AuthenticatedUserContext {
   }
 
   /**
+   * Retrieve an internal identifier for the currently authenticated user.
+   *
+   * @return the internal identifier, or {@code null} when identity is missing or unresolvable.
+   */
+  public static Long getCurrentlyAuthenticatedUserInternalIdOrNull() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null) {
+      return null;
+    }
+    Object principal = auth.getPrincipal();
+    if (!(principal instanceof NegotiatorPrincipal negotiatorPrincipal)) {
+      return null;
+    }
+    Person person = negotiatorPrincipal.getPerson();
+    if (person == null) {
+      return null;
+    }
+    return person.getId();
+  }
+
+  /**
    * Method for temporary elevation of auth, useful for running automatic operations.
    *
    * @param task a runnable method
@@ -86,6 +107,27 @@ public class AuthenticatedUserContext {
    */
   public static List<String> getRoles() {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+        .map(GrantedAuthority::getAuthority)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Retrieve roles associated with the currently authenticated user.
+   *
+   * @return a list of roles, or an empty list when identity is missing.
+   */
+  public static List<String> getRolesOrEmpty() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null) {
+      return List.of();
+    }
+    Object principal = auth.getPrincipal();
+    if (!(principal instanceof NegotiatorPrincipal negotiatorPrincipal)
+        || negotiatorPrincipal.getPerson() == null
+        || auth.getAuthorities() == null) {
+      return List.of();
+    }
+    return auth.getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.toList());
   }

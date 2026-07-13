@@ -1,19 +1,13 @@
 package eu.bbmri_eric.negotiator.lifecycle.statemachine;
 
 /**
- * Thrown when an event is not a valid transition from the current state: either the event is
- * undefined in the Transition Table for that state, or a guard denied the transition. Signals a
- * transition-validity failure, distinct from a business failure. When a guard denies the
- * transition, the underlying library exception is preserved as the cause.
+ * Thrown when an event is undefined from the current state in the Transition Table. Maps to HTTP
+ * 403. The caller's UI is stale or the wrong state was targeted.
  */
 public class InvalidTransitionException extends RuntimeException {
 
   public InvalidTransitionException(String currentState, String event) {
     super(message(currentState, event));
-  }
-
-  public InvalidTransitionException(String currentState, String event, Throwable cause) {
-    super(message(currentState, event), cause);
   }
 
   private static String message(String currentState, String event) {

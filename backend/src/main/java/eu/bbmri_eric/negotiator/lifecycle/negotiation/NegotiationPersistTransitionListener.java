@@ -46,10 +46,10 @@ public class NegotiationPersistTransitionListener
     Negotiation negotiation =
         negotiationRepository.findDetailedById(context.negotiationId()).orElseThrow();
     updateNegotiationStatus(outcome.targetState(), negotiation);
-    if (Objects.nonNull(context.senderId())
+    if (Objects.nonNull(context.userId())
         && Objects.nonNull(context.postBody())
         && !context.postBody().isEmpty()) {
-      createPost(context.senderId(), negotiation, context.postBody());
+      createPost(context.userId(), negotiation, context.postBody());
     }
     publishChangeEvent(outcome);
   }

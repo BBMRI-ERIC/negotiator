@@ -14,4 +14,6 @@ public interface NegotiatorTransitionContext extends TransitionContext {
   String negotiationId();
 
   Set<String> roles();
+
+  Long userId();
 }

@@ -237,12 +237,6 @@ public class NegotiationController {
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable("event") NegotiationResourceEvent event) {
-    if (!personService.isRepresentativeOfAnyResource(
-            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), List.of(resourceId))
-        && !isCreator(negotiationService.findById(negotiationId, false))) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-
     resourceLifecycleService.sendEvent(negotiationId, resourceId, event);
     NegotiationDTO result = negotiationService.findById(negotiationId, true);
     return ResponseEntity.ok(result);
@@ -351,17 +345,4 @@ public class NegotiationController {
         .body(pdfBytes);
   }
 
-  private String getUserId() {
-    String userId = null;
-    try {
-      userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId().toString();
-    } catch (ClassCastException e) {
-      log.warn("Could not find user in db");
-    }
-    return userId;
-  }
-
-  private boolean isCreator(NegotiationDTO negotiationDTO) {
-    return negotiationDTO.getAuthor().getId().equals(getUserId());
-  }
 }

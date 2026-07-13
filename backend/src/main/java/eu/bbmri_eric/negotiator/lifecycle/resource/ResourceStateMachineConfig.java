@@ -7,7 +7,6 @@ import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionExecutor;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceState;
 import java.util.List;
-import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -84,16 +83,17 @@ public class ResourceStateMachineConfig {
                 NegotiationResourceState.ACCESS_CONDITIONS_MET,
                 NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE,
                 NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
-                "isRepresentative")));
+                "isRepresentative")),
+        "negotiationInProgress",
+        "infoRequirementMet");
   }
 
   private static TransitionDescriptor transition(
       NegotiationResourceState source,
       NegotiationResourceEvent event,
       NegotiationResourceState target,
-      String securityAttribute) {
-    return new TransitionDescriptor(
-        source.name(), target.name(), event.name(), null, null, Set.of(securityAttribute));
+      String guardName) {
+    return new TransitionDescriptor(source.name(), target.name(), event.name(), null, guardName);
   }
 
   @Bean

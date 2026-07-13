@@ -1358,8 +1358,14 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheBiobanker")
-  void sendEvent_ValidResourceEvent_ReturnResourceLifecycleState() throws Exception {
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @Transactional
+  void sendEvent_AdminCanContactResource_ValidResourceEvent_ReturnsOk() throws Exception {
+    Negotiation negotiation =
+        negotiationRepository.findById(NEGOTIATION_1_ID).orElseThrow(TestAbortedException::new);
+    negotiation.setStateForResource("biobank:1:collection:1", NegotiationResourceState.SUBMITTED);
+    negotiationRepository.saveAndFlush(negotiation);
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
@@ -1367,18 +1373,34 @@ public class NegotiationControllerTests {
                     .formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is("negotiation-1")));
+
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        negotiationRepository
+            .findNegotiationResourceStateById("negotiation-1", "biobank:1:collection:1")
+            .orElseThrow());
   }
 
   @Test
   @WithUserDetails("TheBiobanker")
-  void sendEvent_ValidLowerCaseResourceEvent_ReturnResourceLifecycleState() throws Exception {
+  void sendEvent_DeniedResourceEvent_Forbidden() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/CONTACT"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  void sendEvent_DeniedLowerCaseResourceEvent_Forbidden() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
                 "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/contact"
                     .formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is("negotiation-1")));
+        .andExpect(status().isForbidden());
   }
 
   @Test

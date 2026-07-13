@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
@@ -22,7 +21,9 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepositor
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmission;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
-import eu.bbmri_eric.negotiator.lifecycle.TransitionPreconditionException;
+import eu.bbmri_eric.negotiator.lifecycle.statemachine.InvalidTransitionException;
+import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionDeniedException;
+import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionPreconditionException;
 import eu.bbmri_eric.negotiator.lifecycle.negotiation.NegotiationLifecycleServiceImpl;
 import eu.bbmri_eric.negotiator.lifecycle.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
@@ -198,7 +199,7 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEvent_wrongEvent_noChangeInState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertThrows(
-        ForbiddenRequestException.class,
+        InvalidTransitionException.class,
         () ->
             negotiationLifecycleService.sendEvent(
                 negotiationDTO.getId(), NegotiationEvent.ABANDON, "not acceptable"));
@@ -312,15 +313,34 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
-  void sendEventForResource_approvedNegotiation_Ok() throws IOException, InterruptedException {
-    NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    Thread.sleep(1000);
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @Transactional
+  void sendEventForResource_adminContactsSubmittedResource_ok() {
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
-            negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
+            "negotiation-1", "biobank:1:collection:1", NegotiationResourceEvent.CONTACT));
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        negotiationRepository
+            .findNegotiationResourceStateById("negotiation-1", "biobank:1:collection:1")
+            .orElseThrow());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
+  void sendEventForResource_alreadyContacted_throwsInvalidTransition()
+      throws IOException, InterruptedException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    Thread.sleep(1000);
+    assertThrows(
+        InvalidTransitionException.class,
+        () ->
+            resourceLifecycleService.sendEvent(
+                negotiationDTO.getId(),
+                "biobank:1:collection:2",
+                NegotiationResourceEvent.CONTACT));
     transactionTemplate.executeWithoutResult(
         status ->
             checkNegotiationResourceRecordPresenceWithAssignedState(
@@ -330,17 +350,18 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
-  void sendEventForResource_approvedNegotiationWrongEvent_noChange()
+  void sendEventForResource_approvedNegotiationWrongEvent_throwsInvalidTransition()
       throws IOException, InterruptedException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Thread.sleep(1000);
-    assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        resourceLifecycleService.sendEvent(
-            negotiationDTO.getId(),
-            "biobank:1:collection:2",
-            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+    assertThrows(
+        InvalidTransitionException.class,
+        () ->
+            resourceLifecycleService.sendEvent(
+                negotiationDTO.getId(),
+                "biobank:1:collection:2",
+                NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
   }
 
   @Test
@@ -348,13 +369,8 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok()
       throws IOException, InterruptedException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    NegotiationState state =
-        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Thread.sleep(1000);
-    assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        resourceLifecycleService.sendEvent(
-            negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
     assertEquals(
         NegotiationResourceState.CHECKING_AVAILABILITY,
         resourceLifecycleService.sendEvent(
@@ -380,23 +396,35 @@ public class NegotiationLifecycleServiceImplTest {
   @Test
   @WithMockNegotiatorUser(id = 109L)
   @Transactional
-  void sendEventForResource_notAuthorized_noChange() {
+  void sendEventForResource_undefinedEvent_throwsInvalidTransition() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
-    assertEquals(
-        negotiation.getCurrentStateForResource("biobank:1:collection:1"),
-        resourceLifecycleService.sendEvent(
-            negotiation.getId(),
-            "biobank:1:collection:1",
-            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+    assertThrows(
+        InvalidTransitionException.class,
+        () ->
+            resourceLifecycleService.sendEvent(
+                negotiation.getId(),
+                "biobank:1:collection:1",
+                NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  @Transactional
+  void sendEventForResource_adminOnlyEvent_nonAdminRepresentative_throwsTransitionDenied() {
+    assertThrows(
+        TransitionDeniedException.class,
+        () ->
+            resourceLifecycleService.sendEvent(
+                "negotiation-1", "biobank:1:collection:1", NegotiationResourceEvent.CONTACT));
   }
 
   @Test
   @WithMockNegotiatorUser(id = 105L)
   @Transactional
-  void sendEventForNegotiation_notAuthorized_noChange() throws IOException {
+  void sendEventForNegotiation_notAuthorized_throwsTransitionDenied() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertThrows(
-        ForbiddenRequestException.class,
+        TransitionDeniedException.class,
         () ->
             negotiationLifecycleService.sendEvent(
                 negotiationDTO.getId(), NegotiationEvent.ABANDON, "not acceptable"));

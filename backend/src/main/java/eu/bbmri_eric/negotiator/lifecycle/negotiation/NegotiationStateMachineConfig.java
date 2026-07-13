@@ -7,7 +7,6 @@ import eu.bbmri_eric.negotiator.lifecycle.statemachine.TransitionExecutor;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationState;
 import java.util.List;
-import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,22 +24,19 @@ public class NegotiationStateMachineConfig {
                 NegotiationState.SUBMITTED.name(),
                 NegotiationEvent.SUBMIT.name(),
                 "enablePublicPosts",
-                null,
-                Set.of()),
+                null),
             new TransitionDescriptor(
                 NegotiationState.SUBMITTED.name(),
                 NegotiationState.IN_PROGRESS.name(),
                 NegotiationEvent.APPROVE.name(),
                 "enablePrivatePosts",
-                null,
-                Set.of("ROLE_ADMIN")),
+                "isAdmin"),
             new TransitionDescriptor(
                 NegotiationState.SUBMITTED.name(),
                 NegotiationState.DECLINED.name(),
                 NegotiationEvent.DECLINE.name(),
                 null,
-                null,
-                Set.of("ROLE_ADMIN")),
+                "isAdmin"),
             new TransitionDescriptor(
                 NegotiationState.IN_PROGRESS.name(),
                 NegotiationState.PAUSED.name(),
@@ -58,12 +54,13 @@ public class NegotiationStateMachineConfig {
                 NegotiationState.ABANDONED.name(),
                 NegotiationEvent.ABANDON.name(),
                 "disablePosts",
-                null,
-                Set.of()),
+                null),
             new TransitionDescriptor(
                 NegotiationState.IN_PROGRESS.name(),
                 NegotiationState.CONCLUDED.name(),
-                NegotiationEvent.CONCLUDE.name())));
+                NegotiationEvent.CONCLUDE.name())),
+        "isCreatorOrAdmin",
+        null);
   }
 
   @Bean

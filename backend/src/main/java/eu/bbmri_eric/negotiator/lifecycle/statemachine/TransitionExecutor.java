@@ -5,16 +5,21 @@ import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * Executes a single lifecycle transition against a {@link StateMachineDefinition} (the Transition
- * Table) and returns its {@link TransitionOutcome}.
+ * The deep module over the underlying stateless4j library. Its public interface is two methods:
+ * {@code fire(currentState, event, context)}, which returns a {@link TransitionOutcome}, and
+ * {@code permittedEvents(currentState, context)}, which lists the events whose guards pass for that
+ * context. Both answer through the same guard evaluation, so listing and firing cannot drift.
+ * stateless4j is an implementation detail confined behind this seam; callers never see a library
+ * type.
  *
- * <p>This is the one seam over the underlying stateless4j library: callers never see a stateless4j
- * type. The execution order of a successful transition is <em>guard → transition action → persist
- * transition listener → outcome</em>. The outcome is returned only after the listener completes, so
- * a returned target state always corresponds to a persisted (pending-commit) state change; a
- * listener failure propagates and the caller's transaction rolls back.
+ * <p>The execution order of a successful transition is <em>machine guard → transition guard →
+ * precondition → transition action → persist transition listener → outcome</em>. The outcome is
+ * returned only after the listener completes, so a returned target state always corresponds to a
+ * persisted (pending-commit) state change; a listener failure propagates and the caller's
+ * transaction rolls back.
  */
 public class TransitionExecutor<C extends TransitionContext> {
 
@@ -34,29 +39,93 @@ public class TransitionExecutor<C extends TransitionContext> {
   /**
    * Fires {@code event} from {@code currentState} and returns the resulting outcome.
    *
-   * @throws InvalidTransitionException if {@code event} is not defined from {@code currentState} in
-   *     the Transition Table, or if a guard denies the transition (the library exception is
-   *     preserved as the cause).
+   * <p>Execution order: definedness check → machine guard → transition guard → precondition →
+   * transition action → persist transition listener → outcome.
+   *
+   * @throws InvalidTransitionException if {@code event} is not defined from {@code currentState}.
+   * @throws TransitionDeniedException if a machine or transition guard denies the caller.
+   * @throws TransitionPreconditionException if a precondition refuses the firing.
    */
   public TransitionOutcome<C> fire(String currentState, String event, C context) {
-    if (isNotDefined(currentState, event)) {
+    TransitionDescriptor descriptor = findDescriptor(currentState, event);
+    if (descriptor == null) {
       throw new InvalidTransitionException(currentState, event);
     }
+    evaluateMachineGuard(currentState, event, context);
+    evaluateTransitionGuard(descriptor, currentState, event, context);
+    evaluatePrecondition(context, event);
     OutcomeHolder<C> holder = new OutcomeHolder<>();
     StateMachine<String, String> machine = build(currentState, context, holder);
-    try {
-      machine.fire(event);
-    } catch (IllegalStateException guardDenial) {
-      // The event is defined (pre-checked above), so the library can only refuse it here because a
-      // guard denied the transition. Any other exception (action, listener) is not caught.
-      throw new InvalidTransitionException(currentState, event, guardDenial);
-    }
+    machine.fire(event);
     return holder.outcome;
   }
 
-  private boolean isNotDefined(String currentState, String event) {
+  /**
+   * Lists the events from {@code currentState} whose guards pass for {@code context}. Preconditions
+   * are not evaluated, so an event with an unmet precondition stays discoverable.
+   */
+  public Set<String> permittedEvents(String currentState, C context) {
+    if (definition.machineGuardName() != null) {
+      Guard<C> machineGuard = resolveGuard(definition.machineGuardName());
+      if (!machineGuard.evaluate(context)) {
+        return Set.of();
+      }
+    }
     return definition.transitionsFrom(currentState).stream()
-        .noneMatch(descriptor -> descriptor.event().equals(event));
+        .filter(descriptor -> transitionGuardPasses(descriptor, context))
+        .map(TransitionDescriptor::event)
+        .collect(Collectors.toSet());
+  }
+
+  private TransitionDescriptor findDescriptor(String currentState, String event) {
+    return definition.transitionsFrom(currentState).stream()
+        .filter(d -> d.event().equals(event))
+        .findFirst()
+        .orElse(null);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void evaluateMachineGuard(String currentState, String event, C context) {
+    if (definition.machineGuardName() != null) {
+      Guard<C> machineGuard = beanResolver.resolve(definition.machineGuardName(), Guard.class);
+      if (!machineGuard.evaluate(context)) {
+        throw new TransitionDeniedException(currentState, event);
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void evaluateTransitionGuard(
+      TransitionDescriptor descriptor, String currentState, String event, C context) {
+    if (descriptor.guardName() != null) {
+      Guard<C> guard = beanResolver.resolve(descriptor.guardName(), Guard.class);
+      if (!guard.evaluate(context)) {
+        throw new TransitionDeniedException(currentState, event);
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void evaluatePrecondition(C context, String event) {
+    if (definition.preconditionName() != null) {
+      Precondition<C> precondition =
+          beanResolver.resolve(definition.preconditionName(), Precondition.class);
+      precondition.check(context, event);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private boolean transitionGuardPasses(TransitionDescriptor descriptor, C context) {
+    if (descriptor.guardName() == null) {
+      return true;
+    }
+    Guard<C> guard = beanResolver.resolve(descriptor.guardName(), Guard.class);
+    return guard.evaluate(context);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Guard<C> resolveGuard(String name) {
+    return beanResolver.resolve(name, Guard.class);
   }
 
   private StateMachine<String, String> build(
@@ -66,16 +135,7 @@ public class TransitionExecutor<C extends TransitionContext> {
     for (TransitionDescriptor descriptor : definition.transitions()) {
       StateConfiguration<String, String> stateConfig = config.configure(descriptor.sourceState());
       Runnable action = resolveAction(descriptor, context);
-      if (descriptor.guardName() != null) {
-        Guard<C> guard = beanResolver.resolve(descriptor.guardName(), Guard.class);
-        stateConfig.permitIf(
-            descriptor.event(),
-            descriptor.targetState(),
-            () -> guard.evaluate(context),
-            action::run);
-      } else {
-        stateConfig.permit(descriptor.event(), descriptor.targetState(), action::run);
-      }
+      stateConfig.permit(descriptor.event(), descriptor.targetState(), action::run);
       attachListener(config, descriptor.targetState(), statesWithListener, context, holder);
     }
     return new StateMachine<>(currentState, config);
