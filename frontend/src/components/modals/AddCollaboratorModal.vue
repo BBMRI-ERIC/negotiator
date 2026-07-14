@@ -9,7 +9,7 @@
     <div class="modal-dialog modal-dialog-centered" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Add Collaborator</h5>
+          <h5  id="add-collaborator-title"  class="modal-title">Add Collaborator</h5>
           <button
             type="button"
             class="btn-close"

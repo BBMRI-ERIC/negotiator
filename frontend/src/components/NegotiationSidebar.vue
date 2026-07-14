@@ -156,8 +156,10 @@
             </span>
             <button
               v-if="isAuthor || isAdmin"
+              type="button"
               class="btn btn-sm btn-link text-danger p-0 flex-shrink-0"
               title="Remove collaborator"
+              aria-label="Remove collaborator"
               @click="promptRemoveCollaborator(collaborator)"
             >
               <i class="bi bi-person-x-fill"></i>
@@ -186,16 +188,20 @@
     v-if="collaboratorToRemove"
     class="modal fade show"
     tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="removeCollaboratorTitle"
     style="display: block; background-color: rgba(0, 0, 0, 0.5)"
     @click.self="cancelRemoveCollaborator"
   >
     <div class="modal-dialog modal-dialog-centered modal-sm" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
-          <h6 class="modal-title">Remove Collaborator</h6>
+          <h6 id="remove-collaborator-title" class="modal-title">Remove Collaborator</h6>
           <button
             type="button"
             class="btn-close"
+            aria-label="Close"
             :disabled="isRemoving"
             @click="cancelRemoveCollaborator"
           ></button>
