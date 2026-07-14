@@ -3,13 +3,16 @@
     v-if="isOpen"
     class="modal fade show"
     tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="add-collaborator-title"
     style="display: block; background-color: rgba(0, 0, 0, 0.5)"
     @click="handleBackdropClick"
   >
     <div class="modal-dialog modal-dialog-centered" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
-          <h5  id="add-collaborator-title"  class="modal-title">Add Collaborator</h5>
+          <h5 id="add-collaborator-title" class="modal-title">Add Collaborator</h5>
           <button
             type="button"
             class="btn-close"
