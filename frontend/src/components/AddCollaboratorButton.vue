@@ -24,7 +24,7 @@ import { computed, ref } from 'vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import AddCollaboratorModal from '@/components/modals/AddCollaboratorModal.vue'
 
-const props = defineProps({
+defineProps({
   negotiationId: {
     type: String,
     required: true,
@@ -71,4 +71,3 @@ function handleCollaboratorAdded(user) {
   outline-offset: 2px;
 }
 </style>
-
