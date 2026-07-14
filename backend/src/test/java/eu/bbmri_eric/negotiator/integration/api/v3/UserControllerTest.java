@@ -200,15 +200,19 @@ public class UserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "The"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.users.length()", is(2)))
-        .andExpect(jsonPath("$._embedded.users[0].id", is("108")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("TheResearcher")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1000@bbmri.eu")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("adam.researcher@gmail.com")))
-        .andExpect(jsonPath("$._embedded.users[1].id", is("109")))
-        .andExpect(jsonPath("$._embedded.users[1].name", is("TheBiobanker")))
-        .andExpect(jsonPath("$._embedded.users[1].subjectId", is("1001@bbmri.eu")))
-        .andExpect(jsonPath("$._embedded.users[1].email", is("taylor.biobanker@gmail.com")));
+        .andExpect(jsonPath("$._embedded.users.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.users[0].id", is("110")))
+        .andExpect(jsonPath("$._embedded.users[0].name", is("TheCollaborator")))
+        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1002@bbmri.eu")))
+        .andExpect(jsonPath("$._embedded.users[0].email", is("collaborator.user@negotiator.dev")))
+        .andExpect(jsonPath("$._embedded.users[1].id", is("108")))
+        .andExpect(jsonPath("$._embedded.users[1].name", is("TheResearcher")))
+        .andExpect(jsonPath("$._embedded.users[1].subjectId", is("1000@bbmri.eu")))
+        .andExpect(jsonPath("$._embedded.users[1].email", is("adam.researcher@gmail.com")))
+        .andExpect(jsonPath("$._embedded.users[2].id", is("109")))
+        .andExpect(jsonPath("$._embedded.users[2].name", is("TheBiobanker")))
+        .andExpect(jsonPath("$._embedded.users[2].subjectId", is("1001@bbmri.eu")))
+        .andExpect(jsonPath("$._embedded.users[2].email", is("taylor.biobanker@gmail.com")));
   }
 
   @Test
