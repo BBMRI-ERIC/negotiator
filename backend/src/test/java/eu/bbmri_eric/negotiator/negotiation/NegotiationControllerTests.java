@@ -2084,6 +2084,17 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithUserDetails("SarahRepr")
+  @Transactional
+  public void getCollaborators_Forbidden_whenNormalUser() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get(
+                            "/v3/negotiations/%s/collaborators".formatted(NEGOTIATION_1_ID)))
+            .andExpect(status().isForbidden());
+  }
+
+  @Test
   @WithUserDetails("TheResearcher")
   @Transactional
   public void addCollaboratorById_NoContent_whenAuthor() throws Exception {
