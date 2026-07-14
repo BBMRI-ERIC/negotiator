@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import eu.bbmri_eric.negotiator.common.exceptions.ConflictStatusException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
@@ -204,6 +205,8 @@ public interface NegotiationService {
    * @param personId the internal id of the person to add
    * @throws EntityNotFoundException if the negotiation or person is not found
    * @throws ForbiddenRequestException if the caller is not authorized to add a collaborator
+   * @throws ConflictStatusException if the person to be added is already a collaborator or the
+   *     author
    */
   void addCollaborator(String negotiationId, Long personId);
 
@@ -214,6 +217,8 @@ public interface NegotiationService {
    * @param subjectId the subject ID of the person to add
    * @throws EntityNotFoundException if the negotiation or person is not found
    * @throws ForbiddenRequestException if the caller is not authorized to add a collaborator
+   * @throws ConflictStatusException if the person to be added is already a collaborator or the
+   *     author
    */
   void addCollaboratorBySubjectId(String negotiationId, String subjectId);
 
