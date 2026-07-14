@@ -278,8 +278,6 @@
         @assign-status="assignStatus"
         @download-attachment-from-link="downloadAttachmentFromLink"
         @update-display-id="updateDisplayId"
-        @collaborator-added="handleCollaboratorAdded"
-        @collaborator-removed="handleCollaboratorRemoved"
       />
     </div>
   </div>
@@ -531,14 +529,6 @@ async function deleteNegotiation() {
 
 function updateDisplayId(newDisplayId) {
   negotiation.value.displayId = newDisplayId
-}
-
-function handleCollaboratorAdded(user) {
-  console.log('Collaborator added:', user)
-}
-
-function handleCollaboratorRemoved(user) {
-  console.log('Collaborator removed:', user)
 }
 
 function translateTrueFalse(value) {
