@@ -447,7 +447,12 @@ public class NegotiationServiceImpl implements NegotiationService {
         personRepository
             .findById(personId)
             .orElseThrow(() -> new EntityNotFoundException(personId));
-    negotiation.addCollaborator(person);
+    if (Objects.equals(negotiation.getCreatedBy().getId(), person.getId())) {
+      throw new ConflictStatusException("The negotiation author cannot be added as a collaborator.");
+    }
+    if (!negotiation.addCollaborator(person)) {
+      throw new ConflictStatusException("This user is already a collaborator.");
+    }
     negotiationRepository.save(negotiation);
   }
 
@@ -465,7 +470,12 @@ public class NegotiationServiceImpl implements NegotiationService {
             .findBySubjectId(subjectId)
             .orElseThrow(
                 () -> new EntityNotFoundException("No user found with subject ID: " + subjectId));
-    negotiation.addCollaborator(person);
+    if (Objects.equals(negotiation.getCreatedBy().getId(), person.getId())) {
+      throw new ConflictStatusException("The negotiation author cannot be added as a collaborator.");
+    }
+    if (!negotiation.addCollaborator(person)) {
+      throw new ConflictStatusException("This user is already a collaborator.");
+    }
     negotiationRepository.save(negotiation);
   }
 
