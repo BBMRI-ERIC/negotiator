@@ -190,7 +190,7 @@
     tabindex="-1"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="removeCollaboratorTitle"
+    aria-labelledby="remove-collaborator-title"
     style="display: block; background-color: rgba(0, 0, 0, 0.5)"
     @click.self="cancelRemoveCollaborator"
   >
