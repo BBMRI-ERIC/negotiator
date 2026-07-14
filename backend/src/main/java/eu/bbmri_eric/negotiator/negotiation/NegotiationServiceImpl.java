@@ -426,6 +426,8 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public Set<UserResponseModel> getCollaborators(String negotiationId) {
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userId);
     Negotiation negotiation = findEntityById(negotiationId, false);
     return negotiation.getCollaborators().stream()
         .map(person -> modelMapper.map(person, UserResponseModel.class))
