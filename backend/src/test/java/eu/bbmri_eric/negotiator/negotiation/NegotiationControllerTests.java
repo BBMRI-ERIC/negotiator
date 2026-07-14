@@ -306,6 +306,7 @@ public class NegotiationControllerTests {
    */
   @Test
   @WithUserDetails("admin")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testGetAllForAdministrator_SortedByState() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations?sortBy=currentState"))
@@ -2056,7 +2057,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("admin")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void getCollaborators_Ok_whenAdmin() throws Exception {
     mockMvc
         .perform(
@@ -2070,7 +2071,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void getCollaborators_Ok_whenAuthor() throws Exception {
     mockMvc
         .perform(
@@ -2084,7 +2085,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void addCollaboratorById_NoContent_whenAuthor() throws Exception {
     mockMvc
         .perform(
@@ -2098,7 +2099,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheCollaborator")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void addCollaboratorById_NoContent_whenCollaborator() throws Exception {
     mockMvc
         .perform(
@@ -2112,7 +2113,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("SarahRepr")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void addCollaboratorById_Forbidden_whenNormalUser() throws Exception {
     mockMvc
         .perform(
@@ -2123,7 +2124,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void addCollaboratorBySubjectId_NoContent_whenAuthor() throws Exception {
     mockMvc
         .perform(
@@ -2138,7 +2139,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheCollaborator")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void addCollaboratorBySubjectId_NoContent_whenCollaborator() throws Exception {
     mockMvc
         .perform(
@@ -2153,7 +2154,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("SarahRepr")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void addCollaboratorBySubjectId_Forbidden_whenNormalUser() throws Exception {
     mockMvc
         .perform(
@@ -2165,7 +2166,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void removeCollaborator_NoContent_whenAuthor() throws Exception {
     assertTrue(
         negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 110L),
@@ -2184,7 +2185,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheCollaborator")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void removeCollaborator_Forbidden_whenCollaborator() throws Exception {
     mockMvc
         .perform(
@@ -2195,7 +2196,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("SarahRepr")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void removeCollaborator_Forbidden_whenNormalUser() throws Exception {
     mockMvc
         .perform(
@@ -2206,7 +2207,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheCollaborator")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void getCollaboratorNegotiations_Ok_whenCollaborator() throws Exception {
     mockMvc
         .perform(
@@ -2221,7 +2222,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheCollaborator")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   public void getNegotiation_Ok_whenCollaborator() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/%s".formatted(NEGOTIATION_1_ID)))
