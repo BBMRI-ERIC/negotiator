@@ -2088,10 +2088,10 @@ public class NegotiationControllerTests {
   @Transactional
   public void getCollaborators_Forbidden_whenNormalUser() throws Exception {
     mockMvc
-            .perform(
-                    MockMvcRequestBuilders.get(
-                            "/v3/negotiations/%s/collaborators".formatted(NEGOTIATION_1_ID)))
-            .andExpect(status().isForbidden());
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/%s/collaborators".formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isForbidden());
   }
 
   @Test
