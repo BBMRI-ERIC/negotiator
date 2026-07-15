@@ -76,15 +76,51 @@ function getHumanFileSize(bytes, dp = 1) {
 }
 
 function getFileTypeIconClass(fileType) {
-  if (fileType === 'application/pdf') {
+  if (
+      [
+        'pdf',
+        'application/pdf',
+      ].includes(fileType)
+  ) {
     return { 'bi-file-pdf': true }
   } else if (
     [
+      'doc',
+      'docx',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/msword',
     ].includes(fileType)
   ) {
-    return { 'bi-file-word': true }
+    return { 'bi-file-richtext': true }
+  } else if (
+      [
+        'png',
+        'jpeg',
+        'jpg',
+        'image/png',
+        'image/jpeg',
+        'image/jpg',
+      ].includes(fileType)
+  ) {
+    return { 'bi-file-earmark-image': true }
+  } else if (
+      [
+        'xls',
+        'xlsx',
+        'csv',
+        'text/csv',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ].includes(fileType)
+  ) {
+    return { 'bi-file-earmark-spreadsheet': true };
+  } else if (
+      [
+        'txt',
+        'text/plain',
+      ].includes(fileType)
+  ) {
+    return { 'bi-file-text': true };
   } else {
     return { 'bi-file-earmark': true }
   }
