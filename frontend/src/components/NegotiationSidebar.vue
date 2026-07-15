@@ -183,61 +183,12 @@
     </ul>
   </div>
 
-  <!-- Remove-collaborator confirmation modal -->
-  <div
-    v-if="collaboratorToRemove"
-    class="modal fade show"
-    tabindex="-1"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="remove-collaborator-title"
-    style="display: block; background-color: rgba(0, 0, 0, 0.5)"
-    @click.self="cancelRemoveCollaborator"
-  >
-    <div class="modal-dialog modal-dialog-centered modal-sm" @click.stop>
-      <div class="modal-content">
-        <div class="modal-header">
-          <h6 id="remove-collaborator-title" class="modal-title">Remove Collaborator</h6>
-          <button
-            type="button"
-            class="btn-close"
-            aria-label="Close"
-            :disabled="isRemoving"
-            @click="cancelRemoveCollaborator"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <p class="mb-0">
-            Are you sure you want to remove
-            <strong>{{ collaboratorToRemove.name }}</strong> as a collaborator?
-          </p>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-outline-secondary btn-sm"
-            :disabled="isRemoving"
-            @click="cancelRemoveCollaborator"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="btn btn-danger btn-sm"
-            :disabled="isRemoving"
-            @click="confirmRemoveCollaborator"
-          >
-            <span
-              v-if="isRemoving"
-              class="spinner-border spinner-border-sm me-1"
-              role="status"
-            ></span>
-            Remove
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <RemoveCollaboratorModal
+      v-model:is-open="isRemoveCollaboratorModalOpen"
+      :collaborator="collaboratorToRemove"
+      :negotiation-id="negotiation.id"
+      @collaborator-removed="handleCollaboratorRemoved"
+  />
 </template>
 
 <script setup>
@@ -260,6 +211,7 @@ import { useUserStore } from '../store/user.js'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 import AddCollaboratorButton from '@/components/AddCollaboratorButton.vue'
+import RemoveCollaboratorModal from '@/components/modals/RemoveCollaboratorModal.vue'
 
 useNegotiationPageStore()
 const notifications = useNotificationsStore()
@@ -269,7 +221,7 @@ const isEditingDisplayId = ref(false)
 const editedDisplayId = ref('')
 const collaborators = ref([])
 const collaboratorToRemove = ref(null)
-const isRemoving = ref(false)
+const isRemoveCollaboratorModalOpen = ref(false)
 
 const props = defineProps({
   negotiation: { type: Object, required: true },
@@ -313,35 +265,13 @@ async function fetchCollaborators() {
 
 function promptRemoveCollaborator(collaborator) {
   collaboratorToRemove.value = collaborator
+  isRemoveCollaboratorModalOpen.value = true
 }
 
-function cancelRemoveCollaborator() {
-  if (!isRemoving.value) {
-    collaboratorToRemove.value = null
-  }
-}
-
-async function confirmRemoveCollaborator() {
-  if (!collaboratorToRemove.value) return
-  isRemoving.value = true
-  try {
-    await axios.delete(
-      `${apiPaths.NEGOTIATION_PATH}/${props.negotiation.id}/collaborators/${collaboratorToRemove.value.id}`,
-      { headers: getBearerHeaders() },
-    )
-    notifications.setNotification(
-      `${collaboratorToRemove.value.name} has been removed as a collaborator.`,
-    )
-    emit('collaborator-removed', collaboratorToRemove.value)
-    collaboratorToRemove.value = null
-    await fetchCollaborators()
-  } catch (error) {
-    notifications.setNotification(
-      'Failed to remove collaborator: ' + (error.response?.data?.message ?? error.message),
-    )
-  } finally {
-    isRemoving.value = false
-  }
+async function handleCollaboratorRemoved(collaborator) {
+  emit('collaborator-removed', collaborator)
+  collaboratorToRemove.value = null
+  await fetchCollaborators()
 }
 
 function assignStatus(status) {
