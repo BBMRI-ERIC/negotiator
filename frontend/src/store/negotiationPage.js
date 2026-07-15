@@ -285,14 +285,14 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
         : url
 
     return axios
-        .get(relativeUrl, { headers: getBearerHeaders() })
-        .then((response) => {
-          return response.data
-        })
-        .catch(() => {
-          notifications.setNotification('There was an error saving the attachment')
-          return null
-        })
+      .get(relativeUrl, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('There was an error saving the attachment')
+        return null
+      })
   }
 
   async function addResources(data, negotiationId, silent = false) {
