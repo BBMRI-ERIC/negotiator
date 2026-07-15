@@ -76,12 +76,7 @@ function getHumanFileSize(bytes, dp = 1) {
 }
 
 function getFileTypeIconClass(fileType) {
-  if (
-      [
-        'pdf',
-        'application/pdf',
-      ].includes(fileType)
-  ) {
+  if (['pdf', 'application/pdf'].includes(fileType)) {
     return { 'bi-file-pdf': true }
   } else if (
     [
@@ -114,12 +109,7 @@ function getFileTypeIconClass(fileType) {
       ].includes(fileType)
   ) {
     return { 'bi-file-earmark-spreadsheet': true };
-  } else if (
-      [
-        'txt',
-        'text/plain',
-      ].includes(fileType)
-  ) {
+  } else if (['txt', 'text/plain',].includes(fileType)) {
     return { 'bi-file-text': true };
   } else {
     return { 'bi-file-earmark': true }
@@ -127,14 +117,43 @@ function getFileTypeIconClass(fileType) {
 }
 
 function getFileTypeName(fileType) {
-  if (fileType === 'application/pdf') {
+  if (['pdf', 'application/pdf'].includes(fileType)) {
     return 'PDF'
   } else if (
-    fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      [
+        'docx',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ].includes(fileType)
   ) {
     return 'DOCX'
-  } else if (fileType === 'application/msword') {
+  } else if (['doc', 'application/msword',].includes(fileType)) {
     return 'DOC'
+  } else if (['png', 'image/png'].includes(fileType)) {
+    return 'PNG'
+  } else if (
+      [
+        'jpg',
+        'jpeg',
+        'image/jpeg',
+        'image/jpg',
+      ].includes(fileType)
+  ) {
+    return 'JPEG'
+  } else if (['xls', 'application/vnd.ms-excel',].includes(fileType)) {
+    return 'XLS'
+  } else if (
+      [
+        'xlsx',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ].includes(fileType)
+  ) {
+    return 'XLSX'
+  } else if (['csv', 'text/csv',].includes(fileType)) {
+    return 'CSV'
+  } else if (['txt', 'text/plain',].includes(fileType)) {
+    return 'TXT'
+  } else {
+    return ''
   }
 }
 </script>
