@@ -280,16 +280,19 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
 
   async function fetchURL(url) {
     // Convert absolute URLs to relative paths for proper proxy handling in dev
-    const relativeUrl = url.startsWith('http') ? new URL(url).pathname : url
+    const relativeUrl = url.startsWith('http')
+        ? `${new URL(url).pathname}${new URL(url).search}`
+        : url
+
     return axios
-      .get(relativeUrl, { headers: getBearerHeaders() })
-      .then((response) => {
-        return response.data
-      })
-      .catch(() => {
-        notifications.setNotification('There was an error saving the attachment')
-        return null
-      })
+        .get(relativeUrl, { headers: getBearerHeaders() })
+        .then((response) => {
+          return response.data
+        })
+        .catch(() => {
+          notifications.setNotification('There was an error saving the attachment')
+          return null
+        })
   }
 
   async function addResources(data, negotiationId, silent = false) {

@@ -213,10 +213,19 @@ const handleCheckboxChange = () => {
 }
 
 async function fetchPage(url) {
-  const response = await store.dispatch('fetchURL', { url })
-  resources.value = response._embedded.resources
-  pageLinks.value = response._links
-  pageNumber.value = response.page.number
+  if (!url) {
+    return
+  }
+
+  loading.value = true
+  const response = await store.fetchURL(url)
+
+  resources.value = response?._embedded?.resources ?? []
+  pageLinks.value = response?._links ?? {}
+  pageNumber.value = response?.page?.number ?? 0
+  totalPages.value = response?.page?.totalPages ?? 0
+  totalElements.value = response?.page?.totalElements ?? 0
+  loading.value = false
 }
 // Method to handle search input
 const onSearch = debounce(async () => {
