@@ -1,5 +1,6 @@
 <template>
   <div
+    :id="id"
     class="modal"
     :class="{ fade: fade }"
     tabindex="-1"
@@ -139,6 +140,10 @@ const searchQuery = ref('')
 const states = ref([])
 const selectedState = ref({})
 const props = defineProps({
+  id: {
+    type: String,
+    required: true,
+  },
   shown: {
     type: Boolean,
     required: true,
@@ -146,6 +151,10 @@ const props = defineProps({
   negotiationId: {
     type: String,
     required: true,
+  },
+  fade: {
+    type: Boolean,
+    default: true,
   },
 })
 const store = useNegotiationPageStore()
