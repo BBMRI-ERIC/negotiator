@@ -280,9 +280,8 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
 
   async function fetchURL(url) {
     // Convert absolute URLs to relative paths for proper proxy handling in dev
-    const relativeUrl = url.startsWith('http')
-        ? `${new URL(url).pathname}${new URL(url).search}`
-        : url
+    const parsedUrl = url.startsWith('http') ? new URL(url) : null
+    const relativeUrl = parsedUrl ? `${parsedUrl.pathname}${parsedUrl.search}` : url
 
     return axios
       .get(relativeUrl, { headers: getBearerHeaders() })

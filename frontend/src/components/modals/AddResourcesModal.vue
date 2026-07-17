@@ -227,14 +227,22 @@ async function fetchPage(url) {
   }
 
   loading.value = true
-  const response = await store.fetchURL(url)
 
-  resources.value = response?._embedded?.resources ?? []
-  pageLinks.value = response?._links ?? {}
-  pageNumber.value = response?.page?.number ?? 0
-  totalPages.value = response?.page?.totalPages ?? 0
-  totalElements.value = response?.page?.totalElements ?? 0
-  loading.value = false
+  try {
+    const response = await store.fetchURL(url)
+
+    if (!response) {
+      return
+    }
+
+    resources.value = response?._embedded?.resources ?? []
+    pageLinks.value = response?._links ?? {}
+    pageNumber.value = response?.page?.number ?? 0
+    totalPages.value = response?.page?.totalPages ?? 0
+    totalElements.value = response?.page?.totalElements ?? 0
+  } finally {
+    loading.value = false
+  }
 }
 // Method to handle search input
 const onSearch = debounce(async () => {
