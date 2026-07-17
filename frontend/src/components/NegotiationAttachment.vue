@@ -76,84 +76,64 @@ function getHumanFileSize(bytes, dp = 1) {
 }
 
 function getFileTypeIconClass(fileType) {
-  if (['pdf', 'application/pdf'].includes(fileType)) {
-    return { 'bi-file-pdf': true }
-  } else if (
-    [
-      'doc',
-      'docx',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/msword',
-    ].includes(fileType)
-  ) {
-    return { 'bi-file-word': true }
-  } else if (
-      [
-        'png',
-        'jpeg',
-        'jpg',
-        'image/png',
-        'image/jpeg',
-        'image/jpg',
-      ].includes(fileType)
-  ) {
-    return { 'bi-file-earmark-image': true }
-  } else if (
-      [
-        'xls',
-        'xlsx',
-        'csv',
-        'text/csv',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      ].includes(fileType)
-  ) {
-    return { 'bi-file-earmark-spreadsheet': true }
-  } else if (['txt', 'text/plain'].includes(fileType)) {
-    return { 'bi-file-text': true }
-  } else {
-    return { 'bi-file-earmark': true }
+  switch (fileType) {
+    case 'application/pdf':
+      return { 'bi-file-pdf': true }
+
+    case 'application/msword':
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return { 'bi-file-word': true }
+
+    case 'image/png':
+    case 'image/jpeg':
+    case 'image/jpg':
+      return { 'bi-file-earmark-image': true }
+
+    case 'text/csv':
+    case 'application/vnd.ms-excel':
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return { 'bi-file-earmark-spreadsheet': true }
+
+    case 'text/plain':
+      return { 'bi-file-text': true }
+
+    default:
+      return { 'bi-file-earmark': true }
   }
 }
 
 function getFileTypeName(fileType) {
-  if (['pdf', 'application/pdf'].includes(fileType)) {
-    return 'PDF'
-  } else if (
-      [
-        'docx',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      ].includes(fileType)
-  ) {
-    return 'DOCX'
-  } else if (['doc', 'application/msword'].includes(fileType)) {
-    return 'DOC'
-  } else if (['png', 'image/png'].includes(fileType)) {
-    return 'PNG'
-  } else if (
-      [
-        'jpg',
-        'jpeg',
-        'image/jpeg',
-        'image/jpg',
-      ].includes(fileType)
-  ) {
-    return 'JPEG'
-  } else if (['xls', 'application/vnd.ms-excel'].includes(fileType)) {
-    return 'XLS'
-  } else if (
-      [
-        'xlsx',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      ].includes(fileType)
-  ) {
-    return 'XLSX'
-  } else if (['csv', 'text/csv'].includes(fileType)) {
-    return 'CSV'
-  } else if (['txt', 'text/plain'].includes(fileType)) {
-    return 'TXT'
-  } else {
-    return ''
+  switch (fileType) {
+    case 'application/pdf':
+      return 'PDF'
+
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return 'DOCX'
+
+    case 'application/msword':
+      return 'DOC'
+
+    case 'image/png':
+      return 'PNG'
+
+    case 'image/jpeg':
+    case 'image/jpg':
+      return 'JPEG'
+
+    case 'application/vnd.ms-excel':
+      return 'XLS'
+
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return 'XLSX'
+
+    case 'text/csv':
+      return 'CSV'
+
+    case 'text/plain':
+      return 'TXT'
+
+    default:
+      return ''
   }
 }
 </script>
