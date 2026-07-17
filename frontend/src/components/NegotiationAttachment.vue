@@ -86,7 +86,7 @@ function getFileTypeIconClass(fileType) {
       'application/msword',
     ].includes(fileType)
   ) {
-    return { 'bi-file-richtext': true }
+    return { 'bi-file-word': true }
   } else if (
       [
         'png',
@@ -108,9 +108,9 @@ function getFileTypeIconClass(fileType) {
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       ].includes(fileType)
   ) {
-    return { 'bi-file-earmark-spreadsheet': true };
-  } else if (['txt', 'text/plain',].includes(fileType)) {
-    return { 'bi-file-text': true };
+    return { 'bi-file-earmark-spreadsheet': true }
+  } else if (['txt', 'text/plain'].includes(fileType)) {
+    return { 'bi-file-text': true }
   } else {
     return { 'bi-file-earmark': true }
   }
@@ -126,7 +126,7 @@ function getFileTypeName(fileType) {
       ].includes(fileType)
   ) {
     return 'DOCX'
-  } else if (['doc', 'application/msword',].includes(fileType)) {
+  } else if (['doc', 'application/msword'].includes(fileType)) {
     return 'DOC'
   } else if (['png', 'image/png'].includes(fileType)) {
     return 'PNG'
@@ -139,7 +139,7 @@ function getFileTypeName(fileType) {
       ].includes(fileType)
   ) {
     return 'JPEG'
-  } else if (['xls', 'application/vnd.ms-excel',].includes(fileType)) {
+  } else if (['xls', 'application/vnd.ms-excel'].includes(fileType)) {
     return 'XLS'
   } else if (
       [
@@ -148,9 +148,9 @@ function getFileTypeName(fileType) {
       ].includes(fileType)
   ) {
     return 'XLSX'
-  } else if (['csv', 'text/csv',].includes(fileType)) {
+  } else if (['csv', 'text/csv'].includes(fileType)) {
     return 'CSV'
-  } else if (['txt', 'text/plain',].includes(fileType)) {
+  } else if (['txt', 'text/plain'].includes(fileType)) {
     return 'TXT'
   } else {
     return ''
