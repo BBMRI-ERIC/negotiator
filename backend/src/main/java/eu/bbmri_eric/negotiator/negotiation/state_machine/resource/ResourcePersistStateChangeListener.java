@@ -41,8 +41,10 @@ public class ResourcePersistStateChangeListener
       StateMachine<String, String> stateMachine) {
     String negotiationId = parseNegotiationIdFromMessage(message);
     String resourceId = parseResourceIdFromMessage(message);
+    String helpdeskActor = parseHelpdeskActorFromMessage(message);
     Optional<Negotiation> negotiation = getNegotiation(negotiationId);
-    negotiation.ifPresent(value -> updateStateForResource(state, transition, value, resourceId));
+    negotiation.ifPresent(
+        value -> updateStateForResource(state, transition, value, resourceId, helpdeskActor));
   }
 
   @Nullable
@@ -55,14 +57,21 @@ public class ResourcePersistStateChangeListener
     return message.getHeaders().get("resourceId", String.class);
   }
 
+  @Nullable
+  private static String parseHelpdeskActorFromMessage(Message<String> message) {
+    return message.getHeaders().get("helpdeskActor", String.class);
+  }
+
   @NonNull
   private Optional<Negotiation> updateStateForResource(
       State<String, String> state,
       Transition<String, String> transition,
       Negotiation negotiation,
-      String resourceId) {
+      String resourceId,
+      String helpdeskActor) {
     NegotiationResourceState fromState = negotiation.getCurrentStateForResource(resourceId);
-    negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
+    negotiation.setStateForResource(
+        resourceId, NegotiationResourceState.valueOf(state.getId()), helpdeskActor);
     NegotiationResourceState toState = negotiation.getCurrentStateForResource(resourceId);
     NegotiationResourceEvent resourceEvent =
         Optional.ofNullable(transition)

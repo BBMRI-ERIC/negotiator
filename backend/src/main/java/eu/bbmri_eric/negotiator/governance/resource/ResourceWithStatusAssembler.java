@@ -161,7 +161,7 @@ public class ResourceWithStatusAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .sendEventForNegotiationResource(
-                        entity.getNegotiationId(), entity.getSourceId(), event))
+                        entity.getNegotiationId(), entity.getSourceId(), event, null))
             .withRel(event.toString())
             .withTitle("Next Lifecycle event")
             .withName(event.getLabel()));

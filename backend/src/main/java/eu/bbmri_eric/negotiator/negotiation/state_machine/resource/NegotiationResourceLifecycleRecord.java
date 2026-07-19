@@ -17,9 +17,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -38,9 +40,12 @@ public class NegotiationResourceLifecycleRecord extends AuditEntity
   @Enumerated(EnumType.STRING)
   private NegotiationResourceState changedTo;
 
+  @Column(name = "helpdesk_actor")
+  private String helpdeskActor;
+
   @Override
   public String getTriggeredBy() {
-    return getCreatedBy().getName();
+    return helpdeskActor != null ? helpdeskActor : getCreatedBy().getName();
   }
 
   @Override
