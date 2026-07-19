@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -238,7 +239,8 @@ public class NegotiationController {
   public ResponseEntity<?> sendEventForNegotiationResource(
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
-      @Valid @PathVariable("event") NegotiationResourceEvent event) {
+      @Valid @PathVariable("event") NegotiationResourceEvent event,
+      @RequestHeader(value = "X-Helpdesk-Actor", required = false) String helpdeskActor) {
     if (!personService.isRepresentativeOfAnyResource(
             AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), List.of(resourceId))
         && !isCreator(negotiationService.findById(negotiationId, false))
@@ -246,7 +248,11 @@ public class NegotiationController {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    resourceLifecycleService.sendEvent(negotiationId, resourceId, event);
+    resourceLifecycleService.sendEvent(
+        negotiationId,
+        resourceId,
+        event,
+        AuthenticatedUserContext.isHelpdeskIntegration() ? helpdeskActor : null);
     NegotiationDTO result = negotiationService.findById(negotiationId, true);
     return ResponseEntity.ok(result);
   }

@@ -161,13 +161,23 @@ public class Negotiation extends AuditEntity {
    * @param state to be set.
    */
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
-    NegotiationResourceLink link =
-        this.resourcesLink.stream()
-            .filter(resourceLink -> resourceLink.getResource().getSourceId().equals(resourceId))
-            .findFirst()
-            .orElseThrow(IllegalArgumentException::new);
-    link.setCurrentState(state);
-    buildResourceStateChangeRecord(link.getResource(), state);
+    NegotiationResourceLink link = updateResourceLinkState(resourceId, state);
+    buildResourceStateChangeRecord(link.getResource(), state, null);
+  }
+
+  /**
+   * Sets the current state for a linked Resource, recording the identity of the help desk actor who
+   * triggered the transition.
+   *
+   * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   * @param state to be set.
+   * @param helpdeskActor display name or email of the representative who triggered the transition
+   *     via the help desk integration, or null if not applicable.
+   */
+  public void setStateForResource(
+      String resourceId, NegotiationResourceState state, String helpdeskActor) {
+    NegotiationResourceLink link = updateResourceLinkState(resourceId, state);
+    buildResourceStateChangeRecord(link.getResource(), state, helpdeskActor);
   }
 
   public Set<Resource> getResources() {
@@ -222,12 +232,25 @@ public class Negotiation extends AuditEntity {
     return this.resourcesLink.removeIf(link -> link.getResource().getId().equals(resource.getId()));
   }
 
-  private void buildResourceStateChangeRecord(Resource resource, NegotiationResourceState state) {
+  private NegotiationResourceLink updateResourceLinkState(
+      String resourceId, NegotiationResourceState state) {
+    NegotiationResourceLink link =
+        this.resourcesLink.stream()
+            .filter(resourceLink -> resourceLink.getResource().getSourceId().equals(resourceId))
+            .findFirst()
+            .orElseThrow(IllegalArgumentException::new);
+    link.setCurrentState(state);
+    return link;
+  }
+
+  private void buildResourceStateChangeRecord(
+      Resource resource, NegotiationResourceState state, String helpdeskActor) {
     if (!state.equals(NegotiationResourceState.SUBMITTED)) {
       NegotiationResourceLifecycleRecord record =
           NegotiationResourceLifecycleRecord.builder().changedTo(state).resource(resource).build();
       record.setCreationDate(LocalDateTime.now());
       record.setModifiedDate(LocalDateTime.now());
+      record.setHelpdeskActor(helpdeskActor);
       this.negotiationResourceLifecycleRecords.add(record);
     }
   }

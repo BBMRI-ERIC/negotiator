@@ -24,12 +24,17 @@ public interface ResourceLifecycleService {
   /**
    * Send an event to a particular resource negotiation
    *
+   * @param helpdeskActor display name or email of the representative who triggered the transition
+   *     via the help desk integration, or null if not applicable.
    * @return The new state
    * @throws NoSuchElementException In case the combination of Negotiation and Resource was not
    *     found
    */
   NegotiationResourceState sendEvent(
-      String negotiationId, String resourceId, NegotiationResourceEvent negotiationEvent)
+      String negotiationId,
+      String resourceId,
+      NegotiationResourceEvent negotiationEvent,
+      String helpdeskActor)
       throws WrongRequestException, EntityNotFoundException;
 
   /**

@@ -105,7 +105,10 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   @Override
   public NegotiationResourceState sendEvent(
-      String negotiationId, String resourceId, NegotiationResourceEvent negotiationResourceEvent)
+      String negotiationId,
+      String resourceId,
+      NegotiationResourceEvent negotiationResourceEvent,
+      String helpdeskActor)
       throws WrongRequestException, EntityNotFoundException {
     if (requirementRepository.existsByForEvent(negotiationResourceEvent)
         && !requirementSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
@@ -121,6 +124,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
             MessageBuilder.withPayload(negotiationResourceEvent.name())
                 .setHeader("negotiationId", negotiationId)
                 .setHeader("resourceId", resourceId)
+                .setHeader("helpdeskActor", helpdeskActor)
                 .build(),
             getCurrentStateForResource(negotiationId, resourceId).name())
         .subscribe();
