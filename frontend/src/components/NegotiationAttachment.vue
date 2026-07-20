@@ -6,7 +6,7 @@
     <div id="file-info" style="max-width: 71%">
       <div class="text-truncate" :title="name">{{ name }}</div>
       <div class="text-info">
-        {{ getFileTypeName(contentType) + ' ' + getHumanFileSize(size) }}
+        {{ fileInfoText }}
       </div>
     </div>
     <div v-if="!downloadable" id="file-reset" class="ms-auto">
@@ -51,6 +51,12 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+})
+
+const fileInfoText = computed(() => {
+  return [getFileTypeName(props.contentType), getHumanFileSize(props.size)]
+    .filter(Boolean)
+    .join(' ')
 })
 
 const downloadable = computed(() => {
