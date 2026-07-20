@@ -1,5 +1,6 @@
 <template>
   <div
+    :id="id"
     class="modal"
     :class="{ fade: fade }"
     tabindex="-1"
@@ -139,6 +140,10 @@ const searchQuery = ref('')
 const states = ref([])
 const selectedState = ref({})
 const props = defineProps({
+  id: {
+    type: String,
+    required: true,
+  },
   shown: {
     type: Boolean,
     required: true,
@@ -146,6 +151,10 @@ const props = defineProps({
   negotiationId: {
     type: String,
     required: true,
+  },
+  fade: {
+    type: Boolean,
+    default: true,
   },
 })
 const store = useNegotiationPageStore()
@@ -213,10 +222,27 @@ const handleCheckboxChange = () => {
 }
 
 async function fetchPage(url) {
-  const response = await store.dispatch('fetchURL', { url })
-  resources.value = response._embedded.resources
-  pageLinks.value = response._links
-  pageNumber.value = response.page.number
+  if (!url) {
+    return
+  }
+
+  loading.value = true
+
+  try {
+    const response = await store.fetchURL(url)
+
+    if (!response) {
+      return
+    }
+
+    resources.value = response?._embedded?.resources ?? []
+    pageLinks.value = response?._links ?? {}
+    pageNumber.value = response?.page?.number ?? 0
+    totalPages.value = response?.page?.totalPages ?? 0
+    totalElements.value = response?.page?.totalElements ?? 0
+  } finally {
+    loading.value = false
+  }
 }
 // Method to handle search input
 const onSearch = debounce(async () => {
