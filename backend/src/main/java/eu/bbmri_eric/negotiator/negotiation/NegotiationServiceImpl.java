@@ -88,6 +88,13 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
+  public boolean isNegotiationEditor(String negotiationId) {
+    return isNegotiationCreator(negotiationId)
+        || isNegotiationCollaborator(negotiationId)
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  @Override
   public boolean isNegotiationCollaborator(String negotiationId) {
     return negotiationRepository.existsByIdAndCollaborators_Id(
         negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());

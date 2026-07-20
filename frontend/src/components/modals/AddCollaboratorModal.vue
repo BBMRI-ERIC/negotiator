@@ -23,24 +23,23 @@
         </div>
         <div class="modal-body">
           <form id="add-collaborator-form" @submit.prevent="confirm">
-            <output
-              v-if="isSuccess"
-              class="alert alert-success d-flex align-items-center"
-            >
+            <output v-if="isSuccess" class="alert alert-success d-flex align-items-center">
               <i class="bi bi-check-circle-fill me-2"></i>
               <span>{{ collaboratorName }} has been added as a collaborator!</span>
             </output>
             <div v-else>
               <p class="mb-3">
-                Enter the Subject ID of the user you want to add as a collaborator.
-                Collaborators have the same access as the negotiation creator.
+                Enter the Subject ID of the user you want to add as a collaborator. Collaborators
+                have the same access as the negotiation creator.
               </p>
               <p class="text-muted mb-3">
                 <i class="bi bi-info-circle me-1"></i>
                 The Subject ID can be found on the user's profile page.
               </p>
               <div class="mb-3">
-                <label for="collaboratorSubjectIdInput" class="form-label fw-bold">Subject ID</label>
+                <label for="collaboratorSubjectIdInput" class="form-label fw-bold"
+                  >Subject ID</label
+                >
                 <input
                   v-model="localSubjectId"
                   type="text"
@@ -50,7 +49,11 @@
                   :disabled="isLoading"
                   @input="clearError"
                 />
-                <output v-if="errorMessage" for="collaboratorSubjectIdInput" class="text-danger mt-2 d-block">
+                <output
+                  v-if="errorMessage"
+                  for="collaboratorSubjectIdInput"
+                  class="text-danger mt-2 d-block"
+                >
                   {{ errorMessage }}
                 </output>
               </div>
@@ -242,5 +245,3 @@ async function confirm() {
   border-color: #6c757d;
 }
 </style>
-
-
