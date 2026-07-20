@@ -140,6 +140,14 @@ public interface NegotiationService {
   boolean isNegotiationCreator(String negotiationId);
 
   /**
+   * Checks whether the currently authenticated user is authorized to edit the negotiation
+   *
+   * @param negotiationId the id of the negotiation to check
+   * @return {@code true} if the currently authenticated user is authorized to edit the negotiation
+   */
+  boolean isNegotiationEditor(String negotiationId);
+
+  /**
    * Checks whether the currently authenticated user is a collaborator of the negotiation
    *
    * @param negotiationId the id of the negotiation to check

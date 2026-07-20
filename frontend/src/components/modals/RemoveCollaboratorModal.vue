@@ -1,24 +1,24 @@
 <template>
   <div
-      v-if="isOpen && collaborator"
-      class="modal fade show"
-      tabindex="-1"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="remove-collaborator-title"
-      style="display: block; background-color: rgba(0, 0, 0, 0.5)"
-      @click.self="cancel"
+    v-if="isOpen && collaborator"
+    class="modal fade show"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="remove-collaborator-title"
+    style="display: block; background-color: rgba(0, 0, 0, 0.5)"
+    @click.self="cancel"
   >
     <div class="modal-dialog modal-dialog-centered modal-sm" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
           <h6 id="remove-collaborator-title" class="modal-title">Remove Collaborator</h6>
           <button
-              type="button"
-              class="btn-close"
-              aria-label="Close"
-              :disabled="isRemoving"
-              @click="cancel"
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            :disabled="isRemoving"
+            @click="cancel"
           ></button>
         </div>
 
@@ -31,24 +31,24 @@
 
         <div class="modal-footer">
           <button
-              type="button"
-              class="btn btn-outline-secondary btn-sm"
-              :disabled="isRemoving"
-              @click="cancel"
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            :disabled="isRemoving"
+            @click="cancel"
           >
             Cancel
           </button>
 
           <button
-              type="button"
-              class="btn btn-danger btn-sm"
-              :disabled="isRemoving"
-              @click="confirmRemoveCollaborator"
+            type="button"
+            class="btn btn-danger btn-sm"
+            :disabled="isRemoving"
+            @click="confirmRemoveCollaborator"
           >
             <span
-                v-if="isRemoving"
-                class="spinner-border spinner-border-sm me-1"
-                role="status"
+              v-if="isRemoving"
+              class="spinner-border spinner-border-sm me-1"
+              role="status"
             ></span>
             Remove
           </button>
@@ -97,8 +97,8 @@ async function confirmRemoveCollaborator() {
 
   try {
     await axios.delete(
-        `${apiPaths.NEGOTIATION_PATH}/${props.negotiationId}/collaborators/${props.collaborator.id}`,
-        { headers: getBearerHeaders() },
+      `${apiPaths.NEGOTIATION_PATH}/${props.negotiationId}/collaborators/${props.collaborator.id}`,
+      { headers: getBearerHeaders() },
     )
 
     notifications.setNotification(`${props.collaborator.name} has been removed as a collaborator.`)
@@ -107,7 +107,7 @@ async function confirmRemoveCollaborator() {
     emit('update:isOpen', false)
   } catch (error) {
     notifications.setNotification(
-        'Failed to remove collaborator: ' + (error.response?.data?.message ?? error.message),
+      'Failed to remove collaborator: ' + (error.response?.data?.message ?? error.message),
     )
   } finally {
     isRemoving.value = false

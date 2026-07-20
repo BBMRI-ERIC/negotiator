@@ -184,10 +184,10 @@
   </div>
 
   <RemoveCollaboratorModal
-      v-model:is-open="isRemoveCollaboratorModalOpen"
-      :collaborator="collaboratorToRemove"
-      :negotiation-id="negotiation.id"
-      @collaborator-removed="handleCollaboratorRemoved"
+    v-model:is-open="isRemoveCollaboratorModalOpen"
+    :collaborator="collaboratorToRemove"
+    :negotiation-id="negotiation.id"
+    @collaborator-removed="handleCollaboratorRemoved"
   />
 </template>
 
