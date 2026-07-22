@@ -7,6 +7,8 @@ import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /** The ResourceService interface defines the contract for accessing and manipulating resources. */
@@ -42,6 +44,14 @@ public interface ResourceService {
    * @return a list of resources
    */
   List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId);
+
+  /**
+   * Find paginated Resources involved in a specific Negotiation
+   *
+   * @param negotiationId the id of the Negotiation
+   * @return a list of resources
+   */
+  Page<ResourceWithStatusDTO> findPaginatedInNegotiation(String negotiationId, Pageable pageable);
 
   /**
    * Edit resources to a Negotiation. Any Resources in the list that are not already a part of the

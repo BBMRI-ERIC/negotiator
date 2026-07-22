@@ -30,6 +30,11 @@ import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -49,6 +54,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/v3")
@@ -282,7 +290,7 @@ public class NegotiationController {
         .collect(Collectors.toList());
   }
 
-  @GetMapping(value = "/negotiations/{id}/resources")
+  @GetMapping(value = "/negotiations/{id}/resources", params = "!page")
   @Operation(summary = "List all Resources in negotiation")
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiation(
@@ -292,6 +300,29 @@ public class NegotiationController {
           resourceService.findAllInNegotiation(id), id);
     }
     return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
+  }
+
+  @GetMapping(value = "/negotiations/{id}/resources", params = "page")
+  @Operation(summary = "List a page of Resources in negotiation")
+  @SecurityRequirement(name = "security_auth")
+  public PagedModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiationPaginated(
+          @PathVariable String id,
+          @PageableDefault(page = 1, size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+          PagedResourcesAssembler<ResourceWithStatusDTO> pagedAssembler) {
+
+    Page<ResourceWithStatusDTO> page = resourceService.findPaginatedInNegotiation(id, pageable);
+
+    PagedModel<EntityModel<ResourceWithStatusDTO>> pagedModel =
+            pagedAssembler.toModel(page, resourceWithStatusAssembler);
+
+    if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      pagedModel.add(
+              linkTo(methodOn(NegotiationController.class).updateResources(id, null))
+                      .withRel("add_resources")
+      );
+    }
+
+    return pagedModel;
   }
 
   @PatchMapping(value = "/negotiations/{id}/resources")

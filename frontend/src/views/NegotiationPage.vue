@@ -248,7 +248,10 @@
                     :resources="resources"
                     :resource-states="resourceStates"
                     :isAdmin="isAdmin"
+                    :is-loading="isFetchingResources"
+                    :page-info="pageInfo"
                     @reload-resources="reloadResources()"
+                    @change-page="fetchResources"
                   />
                 </div>
               </div>
@@ -332,6 +335,8 @@ const vueTourStore = useVueTourStore()
 const router = useRouter()
 const negotiationPosts = ref(null)
 const timelineEvents = ref([])
+const pageInfo = ref({ number: 0, totalPages: 0, totalElements: 0, size: 20 });
+const isFetchingResources = ref(false)
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
@@ -419,7 +424,7 @@ function isResourceRepresented(resource) {
 }
 
 const numberOfResources = computed(() => {
-  return getResources.value.length
+  return pageInfo.value.totalElements ?? 0
 })
 
 const postsRecipients = computed(() => {
@@ -440,18 +445,42 @@ const loading = computed(() => {
   return negotiation.value === undefined || resources.value.length === 0
 })
 
+//
+//IMPORTANT
+//Make it in OrganizationContainer since the pagination should be for the resources per organization
+//Also causes the bug that on next the organization goes from 2 to 1 and other organization container disappears
+//Maybe introduce an endpoint just to get the number of organizations and total resources for negotiation
+//
+async function fetchResources(targetPage = 0) {
+  if (isFetchingResources.value) return
+
+  isFetchingResources.value = true
+
+  try {
+    const response = await negotiationPageStore.retrieveResourcesByNegotiationIdPaginated(
+        props.negotiationId,
+        { page: targetPage, size: pageInfo.value.size || 20, sort: 'id' }
+    )
+
+    if (response !== undefined) {
+      resources.value = response?._embedded?.resources || []
+
+      if (response?.page) {
+        pageInfo.value = response.page
+      }
+
+      isAddResourcesButtonVisible.value = hasRightsToAddResources(response?._links)
+    }
+  } finally {
+    isFetchingResources.value = false
+  }
+}
+
 onBeforeMount(async () => {
   negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
-  const resourceResponse = await negotiationPageStore.retrieveResourcesByNegotiationId(
-    props.negotiationId,
-  )
-  if (resourceResponse !== undefined) {
-    resources.value = resourceResponse
-    const resourceResponseLinks = await negotiationPageStore.retrieveResourcesByNegotiationIdLinks(
-      props.negotiationId,
-    )
-    isAddResourcesButtonVisible.value = hasRightsToAddResources(resourceResponseLinks._links)
-  }
+
+  await fetchResources(0)
+
   await negotiationPageStore
     .retrieveUserIdRepresentedResources(userStore.userInfo?.id)
     .then((resp) => {
@@ -539,12 +568,7 @@ function translateTrueFalse(value) {
 }
 
 async function reloadResources() {
-  const resourceResponse = await negotiationPageStore.retrieveResourcesByNegotiationId(
-    props.negotiationId,
-  )
-  if (resourceResponse !== undefined) {
-    resources.value = resourceResponse
-  }
+  await fetchResources(pageInfo.value.number)
   negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
   timelineEvents.value = await negotiationPageStore.retrieveNegotiationTimeline(props.negotiationId)
 }
