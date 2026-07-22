@@ -22,6 +22,26 @@
         @update-resource-state="updateResourceState"
         @editInfoSubmission="editInfoSubmission"
       />
+
+      <div v-if="pageInfo && pageInfo.totalPages > 1" class="d-flex justify-content-between align-items-center p-2 border-top">
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            :disabled="pageInfo.number === 0 || isLoading"
+            @click="$emit('change-page', pageInfo.number - 1)"
+        >
+          Previous
+        </button>
+        <span class="small text-muted">
+          Page {{ pageInfo.number + 1 }} of {{ pageInfo.totalPages }}
+        </span>
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            :disabled="pageInfo.number >= pageInfo.totalPages - 1 || isLoading"
+            @click="$emit('change-page', pageInfo.number + 1)"
+        >
+          Next
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -38,6 +58,8 @@ const props = defineProps({
   negotiationId: { type: String, default: undefined },
   uiConfiguration: { type: Object, required: true },
   isAdmin: { type: Boolean, default: false },
+  isLoading: { type: Boolean, default: false },
+  pageInfo: { type: Object, default: () => ({ number: 0, totalPages: 0 }) }
 })
 const emit = defineEmits([
   'open-form-modal',
@@ -45,6 +67,7 @@ const emit = defineEmits([
   'update-resource-state',
   'update-org-status',
   'edit-info-submission',
+  'change-page'
 ])
 
 const dropdownVisible = reactive({})
