@@ -37,11 +37,14 @@
     :negotiation-id="negotiationId"
     :ui-configuration="uiConfiguration"
     :isAdmin="isAdmin"
+    :is-loading="isLoading"
+    :page-info="pageInfo"
     @open-form-modal="openFormModal"
     @open-modal="openModal"
     @update-resource-state="updateResourceState"
     @update-org-status="updateOrgStatus"
     @editInfoSubmission="editInfoSubmission"
+    @change-page="(newPage) => $emit('change-page', newPage)"
   />
 </template>
 
@@ -62,8 +65,10 @@ const props = defineProps({
   resourceStates: { type: Array, default: () => [] },
   negotiationId: { type: String, default: undefined },
   isAdmin: { type: Boolean, default: false },
+  isLoading: { type: Boolean, default: false },
+  pageInfo: { type: Object, default: () => ({ number: 0, totalPages: 0 }) }
 })
-const emit = defineEmits(['reloadResources'])
+const emit = defineEmits(['reloadResources', 'change-page'])
 
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()

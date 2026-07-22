@@ -39,6 +39,7 @@ import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -150,6 +151,19 @@ public class ResourceServiceImpl implements ResourceService {
     return resourceViewDTOS.stream()
         .map(resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class))
         .toList();
+  }
+
+  @Override
+  @Transactional
+  public Page<ResourceWithStatusDTO> findPaginatedInNegotiation(String negotiationId, Pageable pageable) {
+    if (!negotiationRepository.existsById(negotiationId)) {
+      throw new EntityNotFoundException(negotiationId);
+    }
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userId);
+    Page<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiationPaginated(negotiationId, pageable);
+    return resourceViewDTOS
+            .map(resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class));
   }
 
   @Override
