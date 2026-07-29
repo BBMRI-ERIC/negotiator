@@ -1,5 +1,28 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
+import com.jayway.jsonpath.JsonPath;
+import eu.bbmri_eric.negotiator.attachment.Attachment;
+import eu.bbmri_eric.negotiator.attachment.AttachmentController;
+import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.util.Optional;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,28 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.jayway.jsonpath.JsonPath;
-import eu.bbmri_eric.negotiator.attachment.Attachment;
-import eu.bbmri_eric.negotiator.attachment.AttachmentController;
-import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
-import eu.bbmri_eric.negotiator.user.Person;
-import eu.bbmri_eric.negotiator.user.PersonRepository;
-import eu.bbmri_eric.negotiator.util.IntegrationTest;
-import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
-import jakarta.transaction.Transactional;
-import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
 @AutoConfigureMockMvc
@@ -296,6 +297,15 @@ public class AttachmentControllerTests {
             get(String.format("%s/1", WITH_NEGOTIATIONS_ENDPOINT))
                 .with(httpBasic("researcher", "wrong_pass")))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  public void testGetById_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+            .perform(get("%s/%s".formatted(WITHOUT_NEGOTIATIONS_ENDPOINT, "attachment-1")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF));
   }
 
   @Test
