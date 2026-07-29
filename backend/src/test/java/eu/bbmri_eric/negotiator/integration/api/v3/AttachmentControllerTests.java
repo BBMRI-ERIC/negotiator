@@ -303,9 +303,9 @@ public class AttachmentControllerTests {
   @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
   public void testGetById_asHelpdeskIntegration_ok() throws Exception {
     mockMvc
-            .perform(get("%s/%s".formatted(WITHOUT_NEGOTIATIONS_ENDPOINT, "attachment-1")))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_PDF));
+        .perform(get("%s/%s".formatted(WITHOUT_NEGOTIATIONS_ENDPOINT, "attachment-1")))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_PDF));
   }
 
   @Test

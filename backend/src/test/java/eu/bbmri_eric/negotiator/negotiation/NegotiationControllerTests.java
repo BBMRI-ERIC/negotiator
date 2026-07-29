@@ -1714,26 +1714,26 @@ public class NegotiationControllerTests {
   @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
   void getNegotiation_asHelpdeskIntegration_ok() throws Exception {
     mockMvc
-            .perform(
-                    MockMvcRequestBuilders.get(
-                            "%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$.id", is(NEGOTIATION_HELPDESK_ID)))
-            .andExpect(jsonPath("$.status", is("IN_PROGRESS")))
-            .andExpect(jsonPath("$._links.self.href", containsString(NEGOTIATION_HELPDESK_ID)));
+        .perform(
+            MockMvcRequestBuilders.get(
+                "%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.id", is(NEGOTIATION_HELPDESK_ID)))
+        .andExpect(jsonPath("$.status", is("IN_PROGRESS")))
+        .andExpect(jsonPath("$._links.self.href", containsString(NEGOTIATION_HELPDESK_ID)));
   }
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
   void getNegotiationResources_asHelpdeskIntegration_ok() throws Exception {
     mockMvc
-            .perform(
-                    MockMvcRequestBuilders.get(
-                            "%s/%s/resources".formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$._embedded.resources.length()", is(8)));
+        .perform(
+            MockMvcRequestBuilders.get(
+                "%s/%s/resources".formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded.resources.length()", is(8)));
   }
 
   @Test
