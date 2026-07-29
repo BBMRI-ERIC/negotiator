@@ -83,7 +83,6 @@ public class SwaggerConfig {
                 .version("3.0.0"))
         .webhooks(webhookPaths)
             .components(components)
-            .addSecurityItem(
-                    new SecurityRequirement().addList("security_auth").addList("bearerAuth"));
+            .addSecurityItem(new SecurityRequirement().addList("security_auth").addList("bearerAuth"));
   }
 }
