@@ -1,14 +1,5 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
@@ -17,8 +8,6 @@ import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
-import java.net.URI;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,6 +18,18 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.net.URI;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @IntegrationTest(loadTestData = true)
 @AutoConfigureMockMvc
@@ -206,5 +207,39 @@ public class PostControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isUnauthorized());
+  }
+
+  private static final String NEGOTIATION_HELPDESK_ID = "negotiation-helpdesk";
+  private static final String NEGOTIATION_HELPDESK_ORGANIZATION_ID = "biobank:1";
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  @Transactional
+  void createPrivatePost_asHelpdeskIntegration_ok() throws Exception {
+    String postText = "helpdesk message";
+    PostCreateDTO request =
+        TestUtils.createPostDTO(
+            NEGOTIATION_HELPDESK_ORGANIZATION_ID, postText, null, PostType.PRIVATE);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_HELPDESK_ID, POSTS_URI);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(jsonPath("$.text", is(postText)))
+        .andExpect(jsonPath("$.type", is(PostType.PRIVATE.toString())));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void getNegotiationPosts_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(get(NEGOTIATION_POSTS_URL.formatted(NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON));
   }
 }
