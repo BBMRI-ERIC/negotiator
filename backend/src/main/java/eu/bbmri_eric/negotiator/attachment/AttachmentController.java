@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/v3")
 @Tag(name = "Attachments", description = "Upload and download attachments")
 @SecurityRequirement(name = "security_auth")
+@SecurityRequirement(name = "bearerAuth")
 public class AttachmentController {
 
   private final AttachmentService storageService;

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 @Tag(name = "Comments", description = "Submit and retrieve comments")
 @SecurityRequirement(name = "security_auth")
+@SecurityRequirement(name = "bearerAuth")
 public class PostController {
 
   private final PostService postService;

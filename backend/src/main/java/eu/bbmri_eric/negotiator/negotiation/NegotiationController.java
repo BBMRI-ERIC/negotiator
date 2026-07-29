@@ -55,6 +55,7 @@ import org.springframework.web.server.ResponseStatusException;
 @CommonsLog
 @Tag(name = "Negotiations", description = "Submit and manage access negotiations")
 @SecurityRequirement(name = "security_auth")
+@SecurityRequirement(name = "bearerAuth")
 public class NegotiationController {
 
   private final NegotiationService negotiationService;
