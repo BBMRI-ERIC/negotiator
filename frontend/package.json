@@ -42,7 +42,7 @@
     "vue-i18n": "^11.2.8",
     "vue-matomo": "^4.2.0",
     "vue-router": "^5.0.2",
-    "vue3-form-wizard": "^0.2.4",
+    "vue3-form-wizard": "^1.1.1",
     "vue3-tour": "^1.0.3",
     "vuedraggable": "4.1.0",
     "yarn": "^1.22.19"
