@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.UserPrincipal;
 import eu.bbmri_eric.negotiator.common.configuration.security.oauth2.CustomJWTAuthConverter;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -265,7 +266,9 @@ public class CustomJWTAuthConverterTest {
 
     Collection<GrantedAuthority> authorities = converterWithUserInfo.getAuthoritiesFromScope(jwt);
     assertTrue(
-        authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_HELPDESK_INTEGRATION")));
+        authorities.stream()
+            .anyMatch(
+                a -> a.getAuthority().equals(AuthenticatedUserContext.ROLE_HELPDESK_INTEGRATION)));
   }
 
   @Test
