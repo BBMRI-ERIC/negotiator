@@ -45,5 +45,21 @@
     "Claims": [],
     "IdentityTokenLifetime": 1,
     "AccessTokenLifetime": 1
+  },
+  {
+    "ClientId": "helpdesk-client",
+    "ClientSecrets": [
+      "helpdesk-secret"
+    ],
+    "Description": "Client for helpdesk integration testing",
+    "AllowedGrantTypes": [
+      "client_credentials"
+    ],
+    "AllowedScopes": [
+      "negotiator_helpdesk"
+    ],
+    "ClientClaimsPrefix": "",
+    "Claims": [],
+    "AccessTokenLifetime": 3600
   }
 ]
