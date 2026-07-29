@@ -6,5 +6,6 @@
     - negotiator_authz_management
     - negotiator_resource_management
     - negotiator_monitoring
+    - negotiator_helpdesk
   ApiSecrets:
     - negotiator-secret
