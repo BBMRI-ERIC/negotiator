@@ -29,6 +29,7 @@
         class="d-flex justify-content-between align-items-center p-2 border-top"
       >
         <button
+          type="button"
           class="btn btn-sm btn-outline-secondary"
           :disabled="pageInfo.number === 0 || isFetchingResources"
           @click="fetchResources(pageInfo.number - 1)"
@@ -39,6 +40,7 @@
           Page {{ pageInfo.number + 1 }} of {{ pageInfo.totalPages }}
         </span>
         <button
+          type="button"
           class="btn btn-sm btn-outline-secondary"
           :disabled="pageInfo.number >= pageInfo.totalPages - 1 || isFetchingResources"
           @click="fetchResources(pageInfo.number + 1)"
