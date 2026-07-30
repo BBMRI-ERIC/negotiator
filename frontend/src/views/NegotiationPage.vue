@@ -254,6 +254,7 @@
           </li>
         </ul>
         <NegotiationPosts
+          data-cy="negotiation-posts"
           ref="negotiationPosts"
           v-if="negotiation"
           :negotiation="negotiation"
