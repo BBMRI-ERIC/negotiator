@@ -226,14 +226,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   private void verifyWriteAccessToNegotiation(Negotiation negotiationEntity) {
-    Long currentUserId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
-    boolean isCreator = currentUserId.equals(negotiationEntity.getCreatedBy().getId());
-    boolean isCollaborator =
-        negotiationRepository.existsByIdAndCollaborators_Id(
-            negotiationEntity.getId(), currentUserId);
-    if (!isCreator
-        && !isCollaborator
-        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+    if (!isNegotiationEditor(negotiationEntity.getId())) {
       throw new ForbiddenRequestException("You are not allowed to update this entity");
     }
   }
@@ -443,9 +436,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public void addCollaborator(String negotiationId, Long personId) {
-    if (!isNegotiationCreator(negotiationId)
-        && !isNegotiationCollaborator(negotiationId)
-        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+    if (!isNegotiationEditor(negotiationId)) {
       throw new ForbiddenRequestException(
           "Only the negotiation creator, an existing collaborator, or an admin can add collaborators");
     }
@@ -466,9 +457,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public void addCollaboratorBySubjectId(String negotiationId, String subjectId) {
-    if (!isNegotiationCreator(negotiationId)
-        && !isNegotiationCollaborator(negotiationId)
-        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+    if (!isNegotiationEditor(negotiationId)) {
       throw new ForbiddenRequestException(
           "Only the negotiation creator, an existing collaborator, or an admin can add collaborators");
     }

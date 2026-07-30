@@ -163,9 +163,8 @@ public class NegotiationController {
   @GetMapping("/negotiations/{id}")
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
-    boolean isAdmin = AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
     if (negotiationService.isNegotiationEditor(id)) {
-      return assembler.toModelWithRequirementLink(negotiationDTO, isAdmin);
+      return assembler.toModelWithRequirementLink(negotiationDTO);
     }
     return assembler.toModel(negotiationDTO);
   }

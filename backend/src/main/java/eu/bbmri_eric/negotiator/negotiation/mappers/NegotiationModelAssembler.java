@@ -5,6 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.attachment.AttachmentController;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementService;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionController;
@@ -39,11 +40,12 @@ public class NegotiationModelAssembler
   }
 
   public @NonNull EntityModel<NegotiationDTO> toModelWithRequirementLink(
-      @NonNull NegotiationDTO entity, boolean isAdmin) {
+      @NonNull NegotiationDTO entity) {
     EntityModel<NegotiationDTO> entityModel = toModel(entity);
     for (InformationRequirementDTO requirement :
         requirementService.getAllInformationRequirements()) {
-      if (requirement.isViewableOnlyByAdmin() && !isAdmin) {
+      if (requirement.isViewableOnlyByAdmin()
+          && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
         continue;
       }
       entityModel.add(
