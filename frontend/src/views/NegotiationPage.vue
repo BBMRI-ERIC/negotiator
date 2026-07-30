@@ -223,10 +223,10 @@
                     :org-id="orgId"
                     :org="org"
                     :negotiation-id="negotiationId"
-                    :resources="resources"
                     :resource-states="resourceStates"
                     :isAdmin="isAdmin"
-                    @reload-resources="reloadResources()"
+                    :resources-last-updated="resourcesLastUpdated"
+                    @reload-resource-info="reloadResources()"
                   />
                 </div>
               </div>
@@ -245,13 +245,10 @@
                     :org-id="orgId"
                     :org="org"
                     :negotiation-id="negotiationId"
-                    :resources="resources"
                     :resource-states="resourceStates"
                     :isAdmin="isAdmin"
-                    :is-loading="isFetchingResources"
-                    :page-info="pageInfo"
-                    @reload-resources="reloadResources()"
-                    @change-page="fetchResources"
+                    :resources-last-updated="resourcesLastUpdated"
+                    @reload-resource-info="reloadResources()"
                   />
                 </div>
               </div>
@@ -262,7 +259,6 @@
           ref="negotiationPosts"
           v-if="negotiation"
           :negotiation="negotiation"
-          :resources="resources"
           :organizations="organizationsById"
           :recipients="postsRecipients"
           :external-posts="posts"
@@ -337,55 +333,25 @@ const negotiationPosts = ref(null)
 const timelineEvents = ref([])
 const pageInfo = ref({ number: 0, totalPages: 0, totalElements: 0, size: 20 });
 const isFetchingResources = ref(false)
+const currentNumberOfResources = ref(0)
+const isFetchingResourceInfo = ref(false)
+const resourcesLastUpdated = ref(Date.now())
+const rawOrganizations = ref([])
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
 })
-const getResources = computed(() => {
-  return resources.value
-})
+
 const organizations = computed(() => {
   return Object.entries(organizationsById.value).map(([k, v]) => {
     return { externalId: k, name: v.name }
   })
 })
+
 const organizationsById = computed(() => {
-  // Create a map of state ordinals for quick lookup
-  const stateOrdinalMap = resourceStates.value.reduce((map, state) => {
-    map[state.value] = state.ordinal
-    return map
-  }, {})
-
-  return getResources.value.reduce((organizations, resource) => {
-    const currentState = resource.currentState
-    const currentOrdinal = stateOrdinalMap[currentState] || 0 // Default to 0 if no match found
-
-    const orgId = resource.organization.externalId
-
-    if (orgId in organizations) {
-      // Push the resource to the organization's resources array
-      organizations[orgId].resources.push(resource)
-
-      // Check if the current resource state has a higher ordinal
-      const orgStatusOrdinal = stateOrdinalMap[organizations[orgId].status] || 0
-      if (currentOrdinal > orgStatusOrdinal) {
-        organizations[orgId].status = currentState // Update org status to the one with the highest ordinal
-      }
-
-      // Check if the organization has at least one represented resource
-      if (isResourceRepresented(resource)) {
-        organizations[orgId].updatable = true
-      }
-    } else {
-      // Add a new organization entry
-      organizations[orgId] = {
-        name: resource.organization.name,
-        resources: [resource],
-        status: currentState, // Set initial status
-        updatable: isResourceRepresented(resource), // Set updateable to true if any resource is represented
-      }
-    }
-    return organizations
+  return rawOrganizations.value.reduce((acc, org) => {
+    acc[org.externalId] = org
+    return acc
   }, {})
 })
 
@@ -413,18 +379,8 @@ const notRepresentedOrganizationsById = computed(() => {
     .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
 })
 
-// Helper function to check if a resource is represented
-function isResourceRepresented(resource) {
-  for (const key in resource._links) {
-    if (resource._links[key].title === 'Next Lifecycle event') {
-      return true
-    }
-  }
-  return false
-}
-
 const numberOfResources = computed(() => {
-  return pageInfo.value.totalElements ?? 0
+  return currentNumberOfResources ?? 0
 })
 
 const postsRecipients = computed(() => {
@@ -442,44 +398,39 @@ const author = computed(() => {
 })
 
 const loading = computed(() => {
-  return negotiation.value === undefined || resources.value.length === 0
+  return negotiation.value === undefined || rawOrganizations.value.length === 0
 })
 
-//
-//IMPORTANT
-//Make it in OrganizationContainer since the pagination should be for the resources per organization
-//Also causes the bug that on next the organization goes from 2 to 1 and other organization container disappears
-//Maybe introduce an endpoint just to get the number of organizations and total resources for negotiation
-//
-async function fetchResources(targetPage = 0) {
-  if (isFetchingResources.value) return
+async function fetchOrganizations() {
+  const response = await negotiationPageStore.retrieveOrganizationsByNegotiationId(props.negotiationId)
+  if (response?._embedded?.organizations) {
+    rawOrganizations.value = response._embedded.organizations
+  }
+}
 
-  isFetchingResources.value = true
+async function fetchResourceInfo() {
+  if (isFetchingResourceInfo.value) return
+
+  isFetchingResourceInfo.value = true
 
   try {
-    const response = await negotiationPageStore.retrieveResourcesByNegotiationIdPaginated(
-        props.negotiationId,
-        { page: targetPage, size: pageInfo.value.size || 20, sort: 'id' }
-    )
+    const response = await negotiationPageStore.retrieveResourcesByNegotiationInfo(props.negotiationId)
 
     if (response !== undefined) {
-      resources.value = response?._embedded?.resources || []
-
-      if (response?.page) {
-        pageInfo.value = response.page
-      }
+      currentNumberOfResources.value = response?.count
 
       isAddResourcesButtonVisible.value = hasRightsToAddResources(response?._links)
     }
   } finally {
-    isFetchingResources.value = false
+    isFetchingResourceInfo.value = false
   }
 }
 
 onBeforeMount(async () => {
   negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
 
-  await fetchResources(0)
+  await fetchResourceInfo()
+  await fetchOrganizations()
 
   await negotiationPageStore
     .retrieveUserIdRepresentedResources(userStore.userInfo?.id)
@@ -568,7 +519,9 @@ function translateTrueFalse(value) {
 }
 
 async function reloadResources() {
-  await fetchResources(pageInfo.value.number)
+  await fetchResourceInfo()
+  await fetchOrganizations()
+  resourcesLastUpdated.value = Date.now()
   negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
   timelineEvents.value = await negotiationPageStore.retrieveNegotiationTimeline(props.negotiationId)
 }
