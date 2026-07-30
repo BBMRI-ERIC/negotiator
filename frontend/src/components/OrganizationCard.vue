@@ -1,3 +1,5 @@
+<script setup>
+</script>
 <template>
   <div class="card mb-2">
     <OrganizationHeader
@@ -12,7 +14,7 @@
     />
     <div :id="`card-body-block-${sanitizeId(orgId)}`" class="collapse multi-collapse">
       <ResourceItem
-        v-for="resource in org.resources"
+        v-for="resource in resources"
         :key="resource.id"
         :resource="resource"
         :ui-configuration="uiConfiguration"
@@ -26,8 +28,8 @@
       <div v-if="pageInfo && pageInfo.totalPages > 1" class="d-flex justify-content-between align-items-center p-2 border-top">
         <button
             class="btn btn-sm btn-outline-secondary"
-            :disabled="pageInfo.number === 0 || isLoading"
-            @click="$emit('change-page', pageInfo.number - 1)"
+            :disabled="pageInfo.number === 0 || isFetchingResources"
+            @click="fetchResources(pageInfo.number - 1)"
         >
           Previous
         </button>
@@ -36,8 +38,8 @@
         </span>
         <button
             class="btn btn-sm btn-outline-secondary"
-            :disabled="pageInfo.number >= pageInfo.totalPages - 1 || isLoading"
-            @click="$emit('change-page', pageInfo.number + 1)"
+            :disabled="pageInfo.number >= pageInfo.totalPages - 1 || isFetchingResources"
+            @click="fetchResources(pageInfo.number + 1)"
         >
           Next
         </button>
@@ -47,9 +49,10 @@
 </template>
 
 <script setup>
-import { computed, reactive } from 'vue'
+import { computed, reactive, onBeforeMount, ref, watch } from 'vue'
 import OrganizationHeader from './OrganizationHeader.vue'
 import ResourceItem from './ResourceItem.vue'
+import { useNegotiationPageStore } from '../store/negotiationPage.js'
 
 const props = defineProps({
   orgId: { type: String, default: undefined },
@@ -58,8 +61,7 @@ const props = defineProps({
   negotiationId: { type: String, default: undefined },
   uiConfiguration: { type: Object, required: true },
   isAdmin: { type: Boolean, default: false },
-  isLoading: { type: Boolean, default: false },
-  pageInfo: { type: Object, default: () => ({ number: 0, totalPages: 0 }) }
+  resourcesLastUpdated: { type: Number, default: 0 },
 })
 const emit = defineEmits([
   'open-form-modal',
@@ -67,8 +69,13 @@ const emit = defineEmits([
   'update-resource-state',
   'update-org-status',
   'edit-info-submission',
-  'change-page'
+  'toggle-collapse',
 ])
+
+const resources = ref([])
+const isFetchingResources = ref( false )
+const pageInfo = ref({ number: 0, totalPages: 0, size: 20 })
+const negotiationPageStore = useNegotiationPageStore()
 
 const dropdownVisible = reactive({})
 
@@ -109,6 +116,46 @@ const updateResourceState = (link) => {
 function editInfoSubmission(href) {
   emit('edit-info-submission', href)
 }
+
+async function fetchResources(targetPage = 0) {
+  if (isFetchingResources.value) return
+
+  isFetchingResources.value = true
+
+  try {
+    const response = await negotiationPageStore.retrieveResourcesByNegotiationIdAndOrganizationIdPaginated(
+        props.negotiationId,
+        props.orgId,
+        { page: targetPage, size: pageInfo.value.size || 20, sort: 'id' }
+    )
+
+    if (response !== undefined) {
+      resources.value = response?._embedded?.resources || []
+
+      if (response?.page) {
+        pageInfo.value = response.page
+      }
+    }
+  } finally {
+    isFetchingResources.value = false
+  }
+}
+
+watch(
+    () => props.resourcesLastUpdated,
+    () => {
+      fetchResources(pageInfo.value.number)
+    }
+)
+
+onBeforeMount(async () => {
+  await fetchResources(0)
+})
+
+defineExpose({
+  fetchResources,
+})
+
 </script>
 
 <style scoped>

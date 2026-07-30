@@ -154,14 +154,16 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
-  @Transactional
-  public Page<ResourceWithStatusDTO> findPaginatedInNegotiation(String negotiationId, Pageable pageable) {
+  public Page<ResourceWithStatusDTO> findPaginatedInNegotiationByOrganization(String negotiationId, String organizationId, Pageable pageable) {
     if (!negotiationRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException(negotiationId);
     }
+    if (!organizationRepository.existsByExternalId(organizationId)) {
+      throw new EntityNotFoundException(organizationId);
+    }
     Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userId);
-    Page<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiationPaginated(negotiationId, pageable);
+    Page<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiationAndOrganizationPaginated(negotiationId, organizationId, pageable);
     return resourceViewDTOS
             .map(resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class));
   }
@@ -226,6 +228,16 @@ public class ResourceServiceImpl implements ResourceService {
     modelMapper.map(updateDTO, resource);
     resource = repository.saveAndFlush(resource);
     return modelMapper.map(resource, ResourceWithOrgDTO.class);
+  }
+
+  @Override
+  public Integer countResourcesByNegotiationId(String negotiationId) {
+    if (!negotiationRepository.existsById(negotiationId)) {
+      throw new EntityNotFoundException(negotiationId);
+    }
+    Long userID = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userID);
+    return repository.countDistinctByNegotiation(negotiationId);
   }
 
   @Override
