@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.common.FilterDTO;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
@@ -51,7 +52,7 @@ public interface ResourceService {
    * @param negotiationId the id of the Negotiation
    * @return a list of resources
    */
-  Page<ResourceWithStatusDTO> findPaginatedInNegotiation(String negotiationId, Pageable pageable);
+  Page<ResourceWithStatusDTO> findPaginatedInNegotiationByOrganization(String negotiationId, String organizationId, Pageable pageable);
 
   /**
    * Edit resources to a Negotiation. Any Resources in the list that are not already a part of the
@@ -82,4 +83,14 @@ public interface ResourceService {
    * @return the output DTO of the updated resource
    */
   ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO resource);
+
+  /**
+   * Counts the number of resources linked to a negotiation.
+   *
+   * @param negotiationId the id of the negotiation
+   * @throws EntityNotFoundException if the negotiation is not found
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException if the user is not
+   *     authorized
+   */
+  Integer countResourcesByNegotiationId(String negotiationId);
 }
