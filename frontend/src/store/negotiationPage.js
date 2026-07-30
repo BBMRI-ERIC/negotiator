@@ -183,15 +183,15 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
 
   async function retrieveResourcesByNegotiationInfo(negotiationId) {
     return await axios
-        .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources/info`, {
-          headers: getBearerHeaders(),
-        })
-        .then((response) => {
-          return response.data
-        })
-        .catch(() => {
-          notifications.setNotification('Error fetching Resources', 'danger')
-        })
+      .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources/info`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error fetching Resources', 'danger')
+      })
   }
 
   async function retrieveResourcesByNegotiationId(negotiationId) {
@@ -207,18 +207,22 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function retrieveResourcesByNegotiationIdAndOrganizationIdPaginated(negotiationId, organizationId, { page = 0, size = 20, sort = 'id' } = {}) {
+  async function retrieveResourcesByNegotiationIdAndOrganizationIdPaginated(
+    negotiationId,
+    organizationId,
+    { page = 0, size = 20, sort = 'id' } = {},
+  ) {
     return await axios
-        .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources`, {
-          headers: getBearerHeaders(),
-          params: { organizationId, page, size, sort }
-        })
-        .then((response) => {
-          return response.data
-        })
-        .catch(() => {
-          notifications.setNotification('Error fetching Resources', 'danger')
-        })
+      .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources`, {
+        headers: getBearerHeaders(),
+        params: { organizationId, page, size, sort },
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error fetching Resources', 'danger')
+      })
   }
 
   function downloadAttachmentFromLink(href) {
@@ -406,14 +410,14 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
 
   async function retrieveOrganizationsByNegotiationId(negotiationId) {
     return await axios
-        .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/organizations`, {
-          headers: getBearerHeaders(),
-        })
-        .then((response) => response.data)
-        .catch(() => {
-          notifications.setNotification('Error fetching Organizations', 'danger')
-          return null
-        })
+      .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/organizations`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => response.data)
+      .catch(() => {
+        notifications.setNotification('Error fetching Organizations', 'danger')
+        return null
+      })
   }
 
   return {
