@@ -44,8 +44,8 @@ order by rs.source_id;
   List<ResourceViewDTO> findByNegotiation(String negotiationId);
 
   @Query(
-          value =
-                  """
+      value =
+          """
         select
             rs.id              as id,
             nrl.negotiation_id as negotiationId,
@@ -67,8 +67,9 @@ order by rs.source_id;
         where
             nrl.negotiation_id = :negotiationId and o.external_id = :organizationId
         """,
-          nativeQuery = true)
-  Page<ResourceViewDTO> findByNegotiationAndOrganizationPaginated(String negotiationId, String organizationId, Pageable pageable);
+      nativeQuery = true)
+  Page<ResourceViewDTO> findByNegotiationAndOrganizationPaginated(
+      String negotiationId, String organizationId, Pageable pageable);
 
   Optional<Resource> findByName(String name);
 
@@ -92,8 +93,8 @@ order by rs.source_id;
   Set<Resource> findByRepresentativeAndOrganization(Long representativeId, Long organizationId);
 
   @Query(
-          value =
-                  """
+      value =
+          """
         select
             COUNT(DISTINCT rs.id)
         from resource rs
@@ -101,6 +102,6 @@ order by rs.source_id;
         where
             nrl.negotiation_id = :negotiationId
         """,
-          nativeQuery = true)
+      nativeQuery = true)
   Integer countDistinctByNegotiation(String negotiationId);
 }

@@ -8,9 +8,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -83,11 +80,13 @@ public interface NegotiationRepository
   @Query(value = "SELECT n FROM Negotiation n WHERE FUNCTION('DATE', n.creationDate) = :targetDate")
   Set<Negotiation> findAllCreatedOn(LocalDateTime targetDate);
 
-  @Query(value =
+  @Query(
+      value =
           "SELECT DISTINCT rs.organization "
-                  + "FROM Negotiation n "
-                  + "JOIN n.resourcesLink rl "
-                  + "JOIN rl.id.resource rs "
-                  + "WHERE n.id = :negotiationId")
-  List<Organization> findAllOrganizationsLinkedToNegotiation(@Param("negotiationId") String negotiationId);
+              + "FROM Negotiation n "
+              + "JOIN n.resourcesLink rl "
+              + "JOIN rl.id.resource rs "
+              + "WHERE n.id = :negotiationId")
+  List<Organization> findAllOrganizationsLinkedToNegotiation(
+      @Param("negotiationId") String negotiationId);
 }

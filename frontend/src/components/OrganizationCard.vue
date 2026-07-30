@@ -1,5 +1,4 @@
-<script setup>
-</script>
+<script setup></script>
 <template>
   <div class="card mb-2">
     <OrganizationHeader
@@ -25,11 +24,14 @@
         @editInfoSubmission="editInfoSubmission"
       />
 
-      <div v-if="pageInfo && pageInfo.totalPages > 1" class="d-flex justify-content-between align-items-center p-2 border-top">
+      <div
+        v-if="pageInfo && pageInfo.totalPages > 1"
+        class="d-flex justify-content-between align-items-center p-2 border-top"
+      >
         <button
-            class="btn btn-sm btn-outline-secondary"
-            :disabled="pageInfo.number === 0 || isFetchingResources"
-            @click="fetchResources(pageInfo.number - 1)"
+          class="btn btn-sm btn-outline-secondary"
+          :disabled="pageInfo.number === 0 || isFetchingResources"
+          @click="fetchResources(pageInfo.number - 1)"
         >
           Previous
         </button>
@@ -37,9 +39,9 @@
           Page {{ pageInfo.number + 1 }} of {{ pageInfo.totalPages }}
         </span>
         <button
-            class="btn btn-sm btn-outline-secondary"
-            :disabled="pageInfo.number >= pageInfo.totalPages - 1 || isFetchingResources"
-            @click="fetchResources(pageInfo.number + 1)"
+          class="btn btn-sm btn-outline-secondary"
+          :disabled="pageInfo.number >= pageInfo.totalPages - 1 || isFetchingResources"
+          @click="fetchResources(pageInfo.number + 1)"
         >
           Next
         </button>
@@ -73,7 +75,7 @@ const emit = defineEmits([
 ])
 
 const resources = ref([])
-const isFetchingResources = ref( false )
+const isFetchingResources = ref(false)
 const pageInfo = ref({ number: 0, totalPages: 0, size: 20 })
 const negotiationPageStore = useNegotiationPageStore()
 
@@ -123,11 +125,12 @@ async function fetchResources(targetPage = 0) {
   isFetchingResources.value = true
 
   try {
-    const response = await negotiationPageStore.retrieveResourcesByNegotiationIdAndOrganizationIdPaginated(
+    const response =
+      await negotiationPageStore.retrieveResourcesByNegotiationIdAndOrganizationIdPaginated(
         props.negotiationId,
         props.orgId,
-        { page: targetPage, size: pageInfo.value.size || 20, sort: 'id' }
-    )
+        { page: targetPage, size: pageInfo.value.size || 20, sort: 'id' },
+      )
 
     if (response !== undefined) {
       resources.value = response?._embedded?.resources || []
@@ -142,10 +145,10 @@ async function fetchResources(targetPage = 0) {
 }
 
 watch(
-    () => props.resourcesLastUpdated,
-    () => {
-      fetchResources(pageInfo.value.number)
-    }
+  () => props.resourcesLastUpdated,
+  () => {
+    fetchResources(pageInfo.value.number)
+  },
 )
 
 onBeforeMount(async () => {
@@ -155,7 +158,6 @@ onBeforeMount(async () => {
 defineExpose({
   fetchResources,
 })
-
 </script>
 
 <style scoped>

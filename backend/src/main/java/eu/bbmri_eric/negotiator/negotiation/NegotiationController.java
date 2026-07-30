@@ -1,10 +1,11 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
-import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationForNegotiationDTO;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationForNegotiationModelAssembler;
-import eu.bbmri_eric.negotiator.governance.organization.OrganizationModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -58,9 +58,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/v3")
@@ -312,9 +309,8 @@ public class NegotiationController {
 
     if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       entityModel.add(
-              linkTo(methodOn(NegotiationController.class).updateResources(id, null))
-                      .withRel("add_resources")
-      );
+          linkTo(methodOn(NegotiationController.class).updateResources(id, null))
+              .withRel("add_resources"));
     }
 
     return entityModel;
@@ -332,16 +328,20 @@ public class NegotiationController {
     return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
   }
 
-  @GetMapping(value = "/negotiations/{id}/resources", params = {"page", "organizationId"})
+  @GetMapping(
+      value = "/negotiations/{id}/resources",
+      params = {"page", "organizationId"})
   @Operation(summary = "List a page of Resources in negotiation for a specific organization")
   @SecurityRequirement(name = "security_auth")
   public PagedModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiationAndOrgPaginated(
-          @PathVariable String id,
-          @RequestParam String organizationId,
-          @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
-          PagedResourcesAssembler<ResourceWithStatusDTO> pagedAssembler) {
+      @PathVariable String id,
+      @RequestParam String organizationId,
+      @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.ASC)
+          Pageable pageable,
+      PagedResourcesAssembler<ResourceWithStatusDTO> pagedAssembler) {
 
-    Page<ResourceWithStatusDTO> page = resourceService.findPaginatedInNegotiationByOrganization(id, organizationId, pageable);
+    Page<ResourceWithStatusDTO> page =
+        resourceService.findPaginatedInNegotiationByOrganization(id, organizationId, pageable);
 
     return pagedAssembler.toModel(page, resourceWithStatusAssembler);
   }
@@ -370,9 +370,10 @@ public class NegotiationController {
   @GetMapping(value = "/negotiations/{id}/organizations")
   @Operation(summary = "List all Organizations involved in a negotiation")
   @SecurityRequirement(name = "security_auth")
-  public CollectionModel<EntityModel<OrganizationForNegotiationDTO>> findOrganizationsForNegotiation(
-          @PathVariable String id) {
-    return organizationForNegotiationModelAssembler.toCollectionModel(negotiationService.findDistinctOrganizationsInNegotiation(id));
+  public CollectionModel<EntityModel<OrganizationForNegotiationDTO>>
+      findOrganizationsForNegotiation(@PathVariable String id) {
+    return organizationForNegotiationModelAssembler.toCollectionModel(
+        negotiationService.findDistinctOrganizationsInNegotiation(id));
   }
 
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)

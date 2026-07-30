@@ -331,7 +331,7 @@ const vueTourStore = useVueTourStore()
 const router = useRouter()
 const negotiationPosts = ref(null)
 const timelineEvents = ref([])
-const pageInfo = ref({ number: 0, totalPages: 0, totalElements: 0, size: 20 });
+const pageInfo = ref({ number: 0, totalPages: 0, totalElements: 0, size: 20 })
 const isFetchingResources = ref(false)
 const currentNumberOfResources = ref(0)
 const isFetchingResourceInfo = ref(false)
@@ -402,7 +402,9 @@ const loading = computed(() => {
 })
 
 async function fetchOrganizations() {
-  const response = await negotiationPageStore.retrieveOrganizationsByNegotiationId(props.negotiationId)
+  const response = await negotiationPageStore.retrieveOrganizationsByNegotiationId(
+    props.negotiationId,
+  )
   if (response?._embedded?.organizations) {
     rawOrganizations.value = response._embedded.organizations
   }
@@ -414,7 +416,9 @@ async function fetchResourceInfo() {
   isFetchingResourceInfo.value = true
 
   try {
-    const response = await negotiationPageStore.retrieveResourcesByNegotiationInfo(props.negotiationId)
+    const response = await negotiationPageStore.retrieveResourcesByNegotiationInfo(
+      props.negotiationId,
+    )
 
     if (response !== undefined) {
       currentNumberOfResources.value = response?.count
