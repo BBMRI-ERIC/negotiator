@@ -6,7 +6,6 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationForNegotiationDTO;
-import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
@@ -205,7 +204,8 @@ public interface NegotiationService {
   void removeResourceFromNegotiation(String negotiationId, Long resourceId);
 
   /**
-   * Get all organizations involved in a negotiation through the resources linked to the negotiation.
+   * Get all organizations involved in a negotiation through the resources linked to the
+   * negotiation.
    *
    * @param negotiationId the id of the negotiation
    * @throws EntityNotFoundException if the negotiation is not found

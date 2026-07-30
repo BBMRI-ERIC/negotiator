@@ -8,7 +8,6 @@ import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -52,7 +51,8 @@ public interface ResourceService {
    * @param negotiationId the id of the Negotiation
    * @return a list of resources
    */
-  Page<ResourceWithStatusDTO> findPaginatedInNegotiationByOrganization(String negotiationId, String organizationId, Pageable pageable);
+  Page<ResourceWithStatusDTO> findPaginatedInNegotiationByOrganization(
+      String negotiationId, String organizationId, Pageable pageable);
 
   /**
    * Edit resources to a Negotiation. Any Resources in the list that are not already a part of the

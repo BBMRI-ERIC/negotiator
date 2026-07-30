@@ -153,7 +153,8 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
-  public Page<ResourceWithStatusDTO> findPaginatedInNegotiationByOrganization(String negotiationId, String organizationId, Pageable pageable) {
+  public Page<ResourceWithStatusDTO> findPaginatedInNegotiationByOrganization(
+      String negotiationId, String organizationId, Pageable pageable) {
     if (!negotiationRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException(negotiationId);
     }
@@ -162,9 +163,11 @@ public class ResourceServiceImpl implements ResourceService {
     }
     Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userId);
-    Page<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiationAndOrganizationPaginated(negotiationId, organizationId, pageable);
-    return resourceViewDTOS
-            .map(resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class));
+    Page<ResourceViewDTO> resourceViewDTOS =
+        repository.findByNegotiationAndOrganizationPaginated(
+            negotiationId, organizationId, pageable);
+    return resourceViewDTOS.map(
+        resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class));
   }
 
   @Override

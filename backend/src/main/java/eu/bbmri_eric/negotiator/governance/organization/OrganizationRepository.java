@@ -61,7 +61,6 @@ public interface OrganizationRepository
                       END DESC
                   LIMIT 1;
                   """,
-          nativeQuery = true)
+      nativeQuery = true)
   NegotiationResourceState getCurrentOrganizationState(Long organizationId, String negotiationId);
-
 }
