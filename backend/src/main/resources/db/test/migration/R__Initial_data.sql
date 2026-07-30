@@ -166,7 +166,7 @@ insert into network_person_link (network_id, person_id)
 values (1, 101),
        (1, 102);
 
-insert into negotiator_collaborator_link (negotiation_id, person_id)
+insert into negotiation_collaborator_link (negotiation_id, person_id)
 values ('negotiation-1', 110);
 
 INSERT INTO ui_parameter (id,category,"name","type",value) VALUES (1001, 'theme', 'activeThemeFile', 'STRING',
