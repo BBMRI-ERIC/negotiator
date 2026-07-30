@@ -127,7 +127,7 @@ public class Negotiation extends AuditEntity {
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
-      name = "negotiator_collaborator_link",
+      name = "negotiation_collaborator_link",
       joinColumns = @JoinColumn(name = "negotiation_id"),
       inverseJoinColumns = @JoinColumn(name = "person_id"))
   @Builder.Default
