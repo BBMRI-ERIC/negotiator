@@ -331,8 +331,6 @@ const vueTourStore = useVueTourStore()
 const router = useRouter()
 const negotiationPosts = ref(null)
 const timelineEvents = ref([])
-const pageInfo = ref({ number: 0, totalPages: 0, totalElements: 0, size: 20 })
-const isFetchingResources = ref(false)
 const currentNumberOfResources = ref(0)
 const isFetchingResourceInfo = ref(false)
 const resourcesLastUpdated = ref(Date.now())
@@ -380,7 +378,7 @@ const notRepresentedOrganizationsById = computed(() => {
 })
 
 const numberOfResources = computed(() => {
-  return currentNumberOfResources ?? 0
+  return currentNumberOfResources.value ?? 0
 })
 
 const postsRecipients = computed(() => {
