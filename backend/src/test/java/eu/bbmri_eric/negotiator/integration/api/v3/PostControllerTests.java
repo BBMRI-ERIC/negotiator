@@ -388,8 +388,8 @@ public class PostControllerTests {
   @Test
   @WithMockNegotiatorUser(id = 103L)
   void getPostById_isPartOfOrganizationFromNegotiatedResource_ok() throws Exception {
-    // Person 103 represents resource 4 (biobank:1, org id 4) — post-3-researcher is private for org
-    // 4
+    // Person 103 represents resource 4 (biobank:1, org id 4) — post-3-researcher is private for
+    // organization 4
     mockMvc
         .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_3_RESEARCHER_ID)))
         .andExpect(status().isOk())
