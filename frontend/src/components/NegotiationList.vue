@@ -226,7 +226,6 @@ import {
   transformStatus,
   formatTimestampToLocalDateTime,
 } from '../composables/utils.js'
-import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import SortButton from '@/components/ui/SortButton.vue'
