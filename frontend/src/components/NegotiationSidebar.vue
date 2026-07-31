@@ -174,7 +174,7 @@ import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 const config = inject('config')
 
-const negotiationStore = useNegotiationPageStore()
+useNegotiationPageStore()
 const notifications = useNotificationsStore()
 
 const isEditingDisplayId = ref(false)
