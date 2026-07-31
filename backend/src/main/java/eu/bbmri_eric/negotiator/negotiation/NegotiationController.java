@@ -1,17 +1,13 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationTimelineEventDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateLifecycleDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.*;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.pdf.NegotiationPdfService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
@@ -29,6 +25,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -94,6 +91,9 @@ public class NegotiationController {
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
     this.negotiationPdfService = negotiationPdfService;
   }
+
+  @Value("${negotiator.export.enabled:false}")
+  private boolean exportEnabled;
 
   /** Create a negotiation */
   @PostMapping(
@@ -315,6 +315,18 @@ public class NegotiationController {
     negotiationService.removeResourceFromNegotiation(id, resourceId);
   }
 
+  @GetMapping(value = "/negotiations/pdf/config")
+  @Operation(
+      summary = "Check PDF download configuration",
+      description = "Returns system configuration indicating whether PDF downloads are enabled.")
+  @SecurityRequirement(name = "security_auth")
+  public EntityModel<PdfConfigDTO> getPdfConfig() {
+    PdfConfigDTO config = new PdfConfigDTO(exportEnabled);
+
+    return EntityModel.of(
+        config, linkTo(methodOn(NegotiationController.class).getPdfConfig()).withSelfRel());
+  }
+
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(
       summary = "Generate a PDF for a negotiation",
@@ -328,7 +340,7 @@ public class NegotiationController {
                   "Whether to include attachments to the generated PDF or not. By default it's false")
           @RequestParam(value = "includeAttachments", required = false, defaultValue = "false")
           boolean includeAttachments) {
-    if (!negotiationService.isAuthorizedForNegotiation(id)) {
+    if (!exportEnabled || !negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
