@@ -217,7 +217,10 @@ public class PostControllerTests {
       throws Exception {
     PostCreateDTO request =
         TestUtils.createPostDTO(
-            "message from helpdesk", PostType.PUBLIC, "john.smith@helpdesk.org");
+            NEGOTIATION_HELPDESK_ORGANIZATION_ID,
+            "message from helpdesk",
+            PostType.PRIVATE,
+            "john.smith@helpdesk.org");
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, "negotiation-helpdesk", POSTS_URI);
 
@@ -242,7 +245,9 @@ public class PostControllerTests {
   @Transactional
   public void testCreatePost_asRegularUser_withHelpdeskActorInBody_doesNotPersistActor()
       throws Exception {
-    PostCreateDTO request = TestUtils.createPostDTO("message", PostType.PUBLIC, "injected-actor");
+    PostCreateDTO request =
+        TestUtils.createPostDTO(
+            NEGOTIATION_1_ORGANIZATION_ID, "message", PostType.PUBLIC, "injected-actor");
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 

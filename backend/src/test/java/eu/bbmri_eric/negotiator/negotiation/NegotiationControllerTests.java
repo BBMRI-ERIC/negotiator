@@ -5,6 +5,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -34,6 +35,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
@@ -2022,5 +2024,53 @@ public class NegotiationControllerTests {
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements").value(0));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  @Transactional
+  void sendEventForResource_asHelpdeskIntegration_withXHelpdeskActorHeader_persistsActorOnRecord()
+      throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                    "%s/negotiation-helpdesk/resources/biobank:1:collection:3/lifecycle/MARK_AS_CHECKING_AVAILABILITY"
+                        .formatted(NEGOTIATIONS_URL))
+                .header("X-Helpdesk-Actor", "john.smith@helpdesk.org"))
+        .andExpect(status().isOk());
+
+    Negotiation negotiation = negotiationRepository.findDetailedById("negotiation-helpdesk").get();
+    NegotiationResourceLifecycleRecord record =
+        negotiation.getNegotiationResourceLifecycleRecords().stream()
+            .filter(
+                r ->
+                    r.getChangedTo().equals(NegotiationResourceState.CHECKING_AVAILABILITY)
+                        && r.getResource().getSourceId().equals("biobank:1:collection:3"))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("john.smith@helpdesk.org", record.getHelpdeskActor());
+    assertEquals("john.smith@helpdesk.org", record.getTriggeredBy());
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  @Transactional
+  void sendEventForResource_asRegularUser_withXHelpdeskActorHeader_doesNotPersistActor()
+      throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                    "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/CONTACT"
+                        .formatted(NEGOTIATIONS_URL))
+                .header("X-Helpdesk-Actor", "injected-actor"))
+        .andExpect(status().isOk());
+
+    Negotiation negotiation = negotiationRepository.findDetailedById("negotiation-1").get();
+    NegotiationResourceLifecycleRecord record =
+        negotiation.getNegotiationResourceLifecycleRecords().stream()
+            .filter(r -> r.getChangedTo().equals(NegotiationResourceState.REPRESENTATIVE_CONTACTED))
+            .findFirst()
+            .orElseThrow();
+    assertNull(record.getHelpdeskActor());
   }
 }

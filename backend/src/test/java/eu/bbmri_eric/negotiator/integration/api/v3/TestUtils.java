@@ -208,8 +208,14 @@ public class TestUtils {
     return PostCreateDTO.builder().organizationId(organizationId).text(text).type(type).build();
   }
 
-  public static PostCreateDTO createPostDTO(String text, PostType type, String helpdeskActor) {
-    return PostCreateDTO.builder().text(text).type(type).helpdeskActor(helpdeskActor).build();
+  public static PostCreateDTO createPostDTO(
+      String organizationId, String text, PostType type, String helpdeskActor) {
+    return PostCreateDTO.builder()
+        .organizationId(organizationId)
+        .text(text)
+        .type(type)
+        .helpdeskActor(helpdeskActor)
+        .build();
   }
 
   public static Post createPost(

@@ -308,7 +308,8 @@ public class NegotiationLifecycleServiceImplTest {
             resourceLifecycleService.sendEvent(
                 negotiationDTO.getId(),
                 "biobank:1:collection:2",
-                NegotiationResourceEvent.CONTACT));
+                NegotiationResourceEvent.CONTACT,
+                null));
   }
 
   @Test
@@ -320,7 +321,10 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
-            negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
+            negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.CONTACT,
+            null));
     transactionTemplate.executeWithoutResult(
         status ->
             checkNegotiationResourceRecordPresenceWithAssignedState(
@@ -340,7 +344,8 @@ public class NegotiationLifecycleServiceImplTest {
         resourceLifecycleService.sendEvent(
             negotiationDTO.getId(),
             "biobank:1:collection:2",
-            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS,
+            null));
   }
 
   @Test
@@ -354,19 +359,24 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
-            negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
+            negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.CONTACT,
+            null));
     assertEquals(
         NegotiationResourceState.CHECKING_AVAILABILITY,
         resourceLifecycleService.sendEvent(
             negotiationDTO.getId(),
             "biobank:1:collection:2",
-            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY,
+            null));
     assertEquals(
         NegotiationResourceState.RESOURCE_AVAILABLE,
         resourceLifecycleService.sendEvent(
             negotiationDTO.getId(),
             "biobank:1:collection:2",
-            NegotiationResourceEvent.MARK_AS_AVAILABLE));
+            NegotiationResourceEvent.MARK_AS_AVAILABLE,
+            null));
     transactionTemplate.executeWithoutResult(
         status -> {
           Negotiation negotiation =
@@ -387,7 +397,8 @@ public class NegotiationLifecycleServiceImplTest {
         resourceLifecycleService.sendEvent(
             negotiation.getId(),
             "biobank:1:collection:1",
-            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS,
+            null));
   }
 
   @Test
@@ -458,7 +469,8 @@ public class NegotiationLifecycleServiceImplTest {
             resourceLifecycleService.sendEvent(
                 negotiationDTO.getId(),
                 "biobank:1:collection:2",
-                NegotiationResourceEvent.CONTACT));
+                NegotiationResourceEvent.CONTACT,
+                null));
   }
 
   @Test
@@ -487,7 +499,8 @@ public class NegotiationLifecycleServiceImplTest {
         resourceLifecycleService.sendEvent(
             negotiationDTO.getId(),
             "biobank:1:collection:2",
-            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY,
+            null));
   }
 
   @Test
@@ -576,5 +589,52 @@ public class NegotiationLifecycleServiceImplTest {
                   NegotiationState.CONCLUDED,
                   negotiationRepository.findNegotiationStateById(negotiation.getId()).get());
             });
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 109L)
+  @Transactional
+  void
+      sendEventForResource_asHelpdeskIntegration_withHelpdeskActor_persistsActorOnLifecycleRecord() {
+    resourceLifecycleService.sendEvent(
+        "negotiation-1",
+        "biobank:1:collection:1",
+        NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY,
+        "john.smith@helpdesk.org");
+
+    Negotiation negotiation = negotiationRepository.findDetailedById("negotiation-1").get();
+    NegotiationResourceLifecycleRecord record =
+        negotiation.getNegotiationResourceLifecycleRecords().stream()
+            .filter(
+                r ->
+                    r.getChangedTo().equals(NegotiationResourceState.CHECKING_AVAILABILITY)
+                        && r.getResource().getSourceId().equals("biobank:1:collection:1"))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("john.smith@helpdesk.org", record.getHelpdeskActor());
+    assertEquals("john.smith@helpdesk.org", record.getTriggeredBy());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 109L)
+  @Transactional
+  void
+      sendEventForResource_asHelpdeskIntegration_withoutHelpdeskActor_triggeredByFallsBackToCreatedBy() {
+    resourceLifecycleService.sendEvent(
+        "negotiation-helpdesk",
+        "biobank:1:collection:3",
+        NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY,
+        null);
+    Negotiation negotiation = negotiationRepository.findDetailedById("negotiation-helpdesk").get();
+    NegotiationResourceLifecycleRecord record =
+        negotiation.getNegotiationResourceLifecycleRecords().stream()
+            .filter(
+                r ->
+                    r.getChangedTo().equals(NegotiationResourceState.CHECKING_AVAILABILITY)
+                        && r.getResource().getSourceId().equals("biobank:1:collection:3"))
+            .findFirst()
+            .orElseThrow();
+    Assertions.assertNull(record.getHelpdeskActor());
+    assertFalse(record.getTriggeredBy().isEmpty());
   }
 }
