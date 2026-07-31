@@ -1736,6 +1736,31 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void sendResourceEvent_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/%s/resources/biobank:1:collection:3/lifecycle/MARK_AS_CHECKING_AVAILABILITY"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", is(NEGOTIATION_HELPDESK_ID)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void getResourceLifecycleEvents_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "%s/%s/resources/biobank:1:collection:3/lifecycle"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[*]", org.hamcrest.Matchers.hasItem("MARK_AS_CHECKING_AVAILABILITY")))
+        .andExpect(jsonPath("$[*]", org.hamcrest.Matchers.hasItem("STEP_AWAY")));
+  }
+
+  @Test
   public void testDelete_Unauthorized() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
