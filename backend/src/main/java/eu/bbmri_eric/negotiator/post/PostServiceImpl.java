@@ -114,8 +114,11 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
+  @Transactional
   public PostDTO findById(String id) {
-    return null;
+    Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    verifyReadAccess(post.getNegotiation().getId());
+    return modelMapper.map(post, PostDTO.class);
   }
 
   @NonNull
