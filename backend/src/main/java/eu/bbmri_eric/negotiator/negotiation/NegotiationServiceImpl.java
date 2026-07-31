@@ -98,7 +98,8 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Deprecated(forRemoval = true)
   public boolean isAuthorizedForNegotiation(String negotiationId) {
     Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
-    return isNegotiationCreator(negotiationId)
+    return AuthenticatedUserContext.isHelpdeskIntegration()
+        || isNegotiationCreator(negotiationId)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(userId, negotiationId)
         || personRepository.isManagerOfAnyResourceOfNegotiation(userId, negotiationId)
         || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();

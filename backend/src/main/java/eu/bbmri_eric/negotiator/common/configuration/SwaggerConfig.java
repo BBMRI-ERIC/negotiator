@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.Scopes;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +46,13 @@ public class SwaggerConfig {
                                 new io.swagger.v3.oas.models.security.OAuthFlow()
                                     .authorizationUrl(authorizationUrl)
                                     .tokenUrl(tokenUrl)
-                                    .scopes(oauthScopes))));
+                                    .scopes(oauthScopes))))
+            .addSecuritySchemes(
+                "bearerAuth",
+                new io.swagger.v3.oas.models.security.SecurityScheme()
+                    .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
+                    .scheme("bearer")
+                    .bearerFormat("JWT"));
 
     Map<String, PathItem> webhookPaths =
         webhookOpenApiDocumentationFactory.buildWebhookPaths(components);
@@ -74,6 +81,7 @@ public class SwaggerConfig {
                         .url("https://www.bbmri-eric.eu/bbmri-eric/common-service-it/"))
                 .version("3.0.0"))
         .webhooks(webhookPaths)
-        .components(components);
+        .components(components)
+        .addSecurityItem(new SecurityRequirement().addList("security_auth").addList("bearerAuth"));
   }
 }

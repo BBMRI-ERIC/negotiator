@@ -21,6 +21,7 @@ public class NegotiationAccessManagerImpl implements NegotiationAccessManager {
   @Override
   public void verifyReadAccessForNegotiation(String negotiationId, Long userID) {
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !AuthenticatedUserContext.isHelpdeskIntegration()
         && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userID)
         && !personRepository.isRepresentativeOfAnyResourceOfNegotiation(userID, negotiationId)
         && !personRepository.isManagerOfAnyResourceOfNegotiation(userID, negotiationId)) {

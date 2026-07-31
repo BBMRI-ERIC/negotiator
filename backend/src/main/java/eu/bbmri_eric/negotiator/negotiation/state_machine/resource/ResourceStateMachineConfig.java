@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -15,8 +16,12 @@ import org.springframework.statemachine.security.SecurityRule;
 
 /** Configuration for the Resource State Machine. */
 @Configuration
+@Profile("!minimal-workflow")
 @EnableStateMachine(name = "resourceStateMachine")
 public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {
+
+  private static final String IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION =
+      "isRepresentativeOrHelpdeskIntegration";
 
   @Override
   public void configure(StateMachineConfigurationConfigurer<String, String> config)
@@ -58,43 +63,43 @@ public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<St
         .source(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())
         .event(NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY.name())
         .target(NegotiationResourceState.CHECKING_AVAILABILITY.name())
-        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
+        .secured(IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION, SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())
         .event(NegotiationResourceEvent.STEP_AWAY.name())
         .target(NegotiationResourceState.RESOURCE_UNAVAILABLE.name())
-        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
+        .secured(IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION, SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
         .event(NegotiationResourceEvent.MARK_AS_UNAVAILABLE.name())
         .target(NegotiationResourceState.RESOURCE_UNAVAILABLE.name())
-        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
+        .secured(IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION, SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
         .event(NegotiationResourceEvent.MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT.name())
         .target(NegotiationResourceState.RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT.name())
-        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
+        .secured(IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION, SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
         .event(NegotiationResourceEvent.MARK_AS_AVAILABLE.name())
         .target(NegotiationResourceState.RESOURCE_AVAILABLE.name())
-        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
+        .secured(IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION, SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.RESOURCE_AVAILABLE.name())
         .event(NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS.name())
         .target(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
-        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
+        .secured(IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION, SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT.name())
         .event(NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS.name())
         .target(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
-        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL)
+        .secured(IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION, SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
@@ -112,7 +117,7 @@ public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<St
         .source(NegotiationResourceState.ACCESS_CONDITIONS_MET.name())
         .event(NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE.name())
         .target(NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name())
-        .secured("isRepresentativeOrHelpdeskIntegration", SecurityRule.ComparisonType.ALL);
+        .secured(IS_REPRESENTATIVE_OR_HELPDESK_INTEGRATION, SecurityRule.ComparisonType.ALL);
 
     transitions.withExternal().guard(negotiationIsApproved());
   }

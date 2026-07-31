@@ -210,6 +210,40 @@ public class PostControllerTests {
         .andExpect(status().isUnauthorized());
   }
 
+  private static final String NEGOTIATION_HELPDESK_ID = "negotiation-helpdesk";
+  private static final String NEGOTIATION_HELPDESK_ORGANIZATION_ID = "biobank:1";
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  @Transactional
+  void createPrivatePost_asHelpdeskIntegration_ok() throws Exception {
+    String postText = "helpdesk message";
+    PostCreateDTO request =
+        TestUtils.createPostDTO(
+            NEGOTIATION_HELPDESK_ORGANIZATION_ID, postText, null, PostType.PRIVATE);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_HELPDESK_ID, POSTS_URI);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(jsonPath("$.text", is(postText)))
+        .andExpect(jsonPath("$.type", is(PostType.PRIVATE.toString())));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void getNegotiationPosts_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(get(NEGOTIATION_POSTS_URL.formatted(NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+  }
+
   @Test
   @WithMockNegotiatorUser(id = 110L, authorities = "ROLE_HELPDESK_INTEGRATION")
   @Transactional

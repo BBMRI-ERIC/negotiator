@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1708,6 +1709,57 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/posts"))
         .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void getNegotiation_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.id", is(NEGOTIATION_HELPDESK_ID)))
+        .andExpect(jsonPath("$.status", is("IN_PROGRESS")))
+        .andExpect(jsonPath("$._links.self.href", containsString(NEGOTIATION_HELPDESK_ID)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void getNegotiationResources_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "%s/%s/resources".formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded.resources.length()", is(8)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void sendResourceEvent_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/%s/resources/biobank:1:collection:3/lifecycle/MARK_AS_CHECKING_AVAILABILITY"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", is(NEGOTIATION_HELPDESK_ID)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void getResourceLifecycleEvents_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "%s/%s/resources/biobank:1:collection:3/lifecycle"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[*]", org.hamcrest.Matchers.hasItem("MARK_AS_CHECKING_AVAILABILITY")))
+        .andExpect(jsonPath("$[*]", org.hamcrest.Matchers.hasItem("STEP_AWAY")));
   }
 
   @Test

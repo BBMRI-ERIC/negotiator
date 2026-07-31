@@ -384,7 +384,7 @@ public class PostServiceTest {
   @ParameterizedTest
   @EnumSource(PostType.class)
   @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION")
-  public void test_createPublicPost_asHelpdeskIntegration_Ok(PostType postType) {
+  public void test_createPublicAndPrivatePost_asHelpdeskIntegration_Ok(PostType postType) {
     negotiation.setPublicPostsEnabled(true);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     when(personRepository.findById(any())).thenReturn(Optional.of(researcher));

@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.common.configuration.security.oauth2;
 
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongJWTException;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
@@ -123,7 +124,8 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
         authorities.add(new SimpleGrantedAuthority("ROLE_PROMETHEUS"));
       }
       if (scopes.contains(NEGOTIATOR_HELPDESK)) {
-        authorities.add(new SimpleGrantedAuthority("ROLE_HELPDESK_INTEGRATION"));
+        authorities.add(
+            new SimpleGrantedAuthority(AuthenticatedUserContext.ROLE_HELPDESK_INTEGRATION));
       }
     }
     return authorities;

@@ -29,12 +29,15 @@
             {{ org.status?.replace(/_/g, ' ') || '' }}
           </UiBadge>
           <i
-            v-if="org.updatable"
+            v-if="org.updatable && orgResourceStateOverride"
             class="bi icon-smaller mx-1"
             :class="dropdownVisible[orgId] ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"
           />
         </button>
-        <ul v-if="org.updatable && dropdownVisible[orgId]" class="dropdown-menu show">
+        <ul
+          v-if="org.updatable && orgResourceStateOverride && dropdownVisible[orgId]"
+          class="dropdown-menu show"
+        >
           <li
             v-for="state in sortedStates"
             :key="state.value"
@@ -56,6 +59,9 @@
 import UiBadge from '@/components/ui/UiBadge.vue'
 import { ref } from 'vue'
 import { getStatusColor, getStatusIcon } from '../composables/utils.js'
+import { useFeatureFlags } from '../composables/useFeatureFlags.js'
+
+const { orgResourceStateOverride } = useFeatureFlags()
 
 const props = defineProps({
   orgId: { type: String, required: true },

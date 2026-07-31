@@ -23,6 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 @CommonsLog
 public class AuthenticatedUserContext {
 
+  public static final String ROLE_HELPDESK_INTEGRATION = "ROLE_HELPDESK_INTEGRATION";
+
   private final PersonRepository personRepository;
 
   public AuthenticatedUserContext(PersonRepository personRepository) {
@@ -94,7 +96,7 @@ public class AuthenticatedUserContext {
    * @return true if the caller holds the ROLE_HELPDESK_INTEGRATION authority
    */
   public static boolean isHelpdeskIntegration() {
-    return hasRole("ROLE_HELPDESK_INTEGRATION");
+    return hasRole(ROLE_HELPDESK_INTEGRATION);
   }
 
   private static boolean hasRole(String role) {
