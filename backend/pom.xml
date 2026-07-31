@@ -26,6 +26,7 @@
         <!-- Third-party libraries -->
         <awaitility.version>4.3.0</awaitility.version>
         <commons-csv.version>1.14.0</commons-csv.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-validator.version>1.10.1</commons-validator.version>
         <docx4j.version>11.5.14</docx4j.version>
@@ -159,6 +160,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
