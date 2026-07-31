@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -15,6 +16,7 @@ import org.springframework.statemachine.security.SecurityRule;
 
 /** Configuration for the Resource State Machine. */
 @Configuration
+@Profile("!minimal-workflow")
 @EnableStateMachine(name = "resourceStateMachine")
 public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {
 
