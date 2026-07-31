@@ -43,6 +43,8 @@ public class PostControllerTests {
   private static final String NEGOTIATION_HELPDESK_ID = "negotiation-helpdesk";
   private static final String NEGOTIATION_HELPDESK_ORGANIZATION_ID = "biobank:1";
   public static final String NEGOTIATION_POSTS_URL = "/v3/negotiations/%s/posts";
+  private static final String POSTS_ENDPOINT_URI = "/v3/posts";
+  private static final String POST_1_RESEARCHER_ID = "post-1-researcher";
   @Autowired private PostRepository postRepository;
   @Autowired private MockMvc mockMvc;
 
@@ -114,7 +116,7 @@ public class PostControllerTests {
     String postId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     Optional<Post> post = postRepository.findById(postId);
     assert post.isPresent();
-    assertEquals(post.get().getCreatedBy().getName(), "TheResearcher");
+    assertEquals("TheResearcher", post.get().getCreatedBy().getName());
   }
 
   @Test
@@ -300,5 +302,23 @@ public class PostControllerTests {
     Optional<Post> post = postRepository.findById(postId);
     assertTrue(post.isPresent());
     assertNull(post.get().getHelpdeskActor());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void getPostById_asHelpdeskIntegration_ok() throws Exception {
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$.id", is(POST_1_RESEARCHER_ID)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 104L)
+  void getPostById_notParticipant_forbidden() throws Exception {
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
+        .andExpect(status().isForbidden());
   }
 }
