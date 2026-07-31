@@ -423,9 +423,9 @@ public class NegotiationLifecycleServiceImplTest {
   @Transactional
   void getPossibleEventsForResource_asHelpdeskIntegration_returnsRepresentativeEvents() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-helpdesk").get();
-    Set<NegotiationResourceEvent> events =
+    Set<NegotiationResourceEvent> possibleEvents =
         resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:3");
-    assertTrue(events.contains(NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+    assertTrue(possibleEvents.contains(NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
   }
 
   @Test
