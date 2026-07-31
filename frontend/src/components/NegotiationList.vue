@@ -1,8 +1,7 @@
 <template>
   <div v-if="!loading" class="container">
-    <NewRequestButton v-if="!networkActivated" />
     <div class="pt-1">
-      <div class="row mt-5 pt-3">
+      <div class="row mt-2 pt-3">
         <div class="col-12 mb-3">
           <div class="input-group">
             <span class="input-group-text">
