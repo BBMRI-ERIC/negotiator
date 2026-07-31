@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -238,6 +239,9 @@ public class PostControllerTests {
     mockMvc
         .perform(get(NEGOTIATION_POSTS_URL.formatted(NEGOTIATION_HELPDESK_ID)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$._embedded.posts.length()", is(2)))
+        .andExpect(jsonPath("$._embedded.posts[?(@.type == 'PUBLIC')]", hasSize(1)))
+        .andExpect(jsonPath("$._embedded.posts[?(@.type == 'PRIVATE')]", hasSize(1)));
   }
 }

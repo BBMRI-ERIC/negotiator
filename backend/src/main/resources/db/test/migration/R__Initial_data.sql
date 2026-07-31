@@ -162,7 +162,11 @@ values ('post-1-researcher', '2023-06-19 10:15:00', '2023-06-19 10:15:00', 'post
        ('post-3-representative', '2023-06-19 15:10:00', '2023-06-19 15:10:00', 'post-3-representative-message', 109,
         109, 'negotiation-1', 4, 'PRIVATE'),
        ('post-4-representative', '2023-06-19 16:05:00', '2023-06-19 16:05:00', 'post-4-representative-message', 109,
-        109, 'negotiation-1', 5, 'PRIVATE');
+        109, 'negotiation-1', 5, 'PRIVATE'),
+       ('post-1-helpdesk-public', '2024-12-01 10:30:00', '2024-12-01 10:30:00', 'post-1-helpdesk-public-message', 110,
+        110, 'negotiation-helpdesk', null, 'PUBLIC'),
+       ('post-2-helpdesk-private', '2024-12-01 11:00:00', '2024-12-01 11:00:00', 'post-2-helpdesk-private-message', 110,
+        110, 'negotiation-helpdesk', 4, 'PRIVATE');
 
 
 insert into attachment (id, creation_date, modified_date, content_type, name, payload, size, created_by, modified_by,
