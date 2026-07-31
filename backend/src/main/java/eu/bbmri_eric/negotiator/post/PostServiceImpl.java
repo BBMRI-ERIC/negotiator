@@ -117,7 +117,15 @@ public class PostServiceImpl implements PostService {
   @Transactional
   public PostDTO findById(String id) {
     Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    verifyReadAccess(post.getNegotiation().getId());
+    String negotiationId = post.getNegotiation().getId();
+    verifyReadAccess(negotiationId);
+    if (!post.isPublic() && !isNegotiationCreatorOrAdminOrHelpdeskIntegration(negotiationId)) {
+      Person user = getCurrentUser();
+      Set<Organization> accessibleOrganizations = getUserAccessibleOrganizations(user);
+      if (!accessibleOrganizations.contains(post.getOrganization())) {
+        throw new ForbiddenRequestException("You are not authorized to read this post");
+      }
+    }
     return modelMapper.map(post, PostDTO.class);
   }
 
