@@ -152,7 +152,7 @@ public class PostControllerTests {
   @WithUserDetails("TheResearcher")
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testGetAll_authOk_correctOrderByDate() throws Exception {
-    int numberOfPosts = (int) postRepository.count();
+    int numberOfPosts = postRepository.findByNegotiationId(NEGOTIATION_1_ID).size();
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
     mockMvc
