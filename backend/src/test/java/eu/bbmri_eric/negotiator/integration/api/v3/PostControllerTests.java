@@ -40,6 +40,8 @@ public class PostControllerTests {
   private static final String NEGOTIATION_1_ORGANIZATION_ID = "biobank:1";
   private static final String NEGOTIATIONS_URI = "/v3/negotiations";
   private static final String POSTS_URI = "posts";
+  private static final String NEGOTIATION_HELPDESK_ID = "negotiation-helpdesk";
+  private static final String NEGOTIATION_HELPDESK_ORGANIZATION_ID = "biobank:1";
   public static final String NEGOTIATION_POSTS_URL = "/v3/negotiations/%s/posts";
   @Autowired private PostRepository postRepository;
   @Autowired private MockMvc mockMvc;
@@ -209,9 +211,6 @@ public class PostControllerTests {
                 .content(requestBody))
         .andExpect(status().isUnauthorized());
   }
-
-  private static final String NEGOTIATION_HELPDESK_ID = "negotiation-helpdesk";
-  private static final String NEGOTIATION_HELPDESK_ORGANIZATION_ID = "biobank:1";
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
