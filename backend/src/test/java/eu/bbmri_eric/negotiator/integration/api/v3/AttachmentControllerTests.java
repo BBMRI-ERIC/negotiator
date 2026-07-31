@@ -57,14 +57,19 @@ public class AttachmentControllerTests {
     repository.deleteAll();
   }
 
+  private MockMultipartFile createMockFile(String fileName, byte[] data) {
+    return new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+  }
+
+  private MockMultipartFile createDefaultMockFile() {
+    return createMockFile("text.txt", "Hello, World!".getBytes());
+  }
+
   @Test
   @WithUserDetails("TheResearcher")
   @Transactional
   public void test_CreateForNegotiation_Ok() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+    MockMultipartFile file = createDefaultMockFile();
 
     MvcResult result =
         mockMvc
@@ -72,40 +77,31 @@ public class AttachmentControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isString())
-            .andExpect(jsonPath("$.name", is(fileName)))
+            .andExpect(jsonPath("$.name", is(file.getOriginalFilename())))
             .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
-            .andExpect(jsonPath("$.size", is(data.length)))
+            .andExpect(jsonPath("$.size", is((int) file.getSize())))
             .andReturn();
 
     String attachmentId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     Optional<Attachment> attachment = repository.findById(attachmentId);
     assert attachment.isPresent();
-    assertEquals(attachment.get().getCreatedBy().getName(), "TheResearcher");
+    assertEquals("TheResearcher", attachment.get().getCreatedBy().getName());
   }
 
   @Test
   public void testCreateWithoutNegotiation_IsUnauthorized_whenNoAuth() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
-
     mockMvc
-        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file).with(anonymous()))
+        .perform(
+            multipart(WITH_NEGOTIATIONS_ENDPOINT).file(createDefaultMockFile()).with(anonymous()))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
   public void testCreateWithoutNegotiation_IsUnauthorized_whenBasicAuth() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
-
     mockMvc
         .perform(
             multipart(WITH_NEGOTIATIONS_ENDPOINT)
-                .file(file)
+                .file(createDefaultMockFile())
                 .with(httpBasic("researcher", "wrong_pass")))
         .andExpect(status().isUnauthorized());
   }
@@ -114,10 +110,7 @@ public class AttachmentControllerTests {
   @WithUserDetails("TheResearcher")
   @Transactional
   public void test_CreateWithoutNegotiation_Ok() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+    MockMultipartFile file = createDefaultMockFile();
 
     MvcResult result =
         mockMvc
@@ -125,30 +118,24 @@ public class AttachmentControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isString())
-            .andExpect(jsonPath("$.name", is(fileName)))
+            .andExpect(jsonPath("$.name", is(file.getOriginalFilename())))
             .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
-            .andExpect(jsonPath("$.size", is(data.length)))
+            .andExpect(jsonPath("$.size", is((int) file.getSize())))
             .andReturn();
 
     String attachmentId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     Optional<Attachment> attachment = repository.findById(attachmentId);
     assert attachment.isPresent();
-    assertEquals(attachment.get().getCreatedBy().getName(), "TheResearcher");
+    assertEquals("TheResearcher", attachment.get().getCreatedBy().getName());
   }
 
   @Test
   @WithUserDetails("TheResearcher")
   @Transactional
   public void test_DeleteAttachment_Ok() throws Exception {
-    // First, create an attachment to delete
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
-
     MvcResult creationResult =
         mockMvc
-            .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file))
+            .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(createDefaultMockFile()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").isString())
             .andReturn();
@@ -156,10 +143,8 @@ public class AttachmentControllerTests {
     String attachmentId = JsonPath.read(creationResult.getResponse().getContentAsString(), "$.id");
     assertTrue(repository.findById(attachmentId).isPresent());
 
-    // Now delete the attachment
     mockMvc.perform(delete("/v3/attachments/{id}", attachmentId)).andExpect(status().isNoContent());
 
-    // Assert the attachment is no longer in the repository
     assertFalse(repository.findById(attachmentId).isPresent());
   }
 
@@ -167,10 +152,7 @@ public class AttachmentControllerTests {
   @WithUserDetails("TheResearcher")
   @Transactional
   public void test_DeleteNegotiationAttachment_Ok() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+    MockMultipartFile file = createDefaultMockFile();
 
     MvcResult result =
         mockMvc
@@ -178,9 +160,9 @@ public class AttachmentControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isString())
-            .andExpect(jsonPath("$.name", is(fileName)))
+            .andExpect(jsonPath("$.name", is(file.getOriginalFilename())))
             .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
-            .andExpect(jsonPath("$.size", is(data.length)))
+            .andExpect(jsonPath("$.size", is((int) file.getSize())))
             .andReturn();
 
     String attachmentId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
@@ -194,7 +176,6 @@ public class AttachmentControllerTests {
   @WithUserDetails("TheResearcher")
   @Transactional
   public void test_DeleteAttachment_CreatedByAnotherUser_Forbidden() throws Exception {
-    // Simulate another user who creates the attachment
     Person otherUser = personRepository.findByName("TheBiobanker").orElseThrow();
 
     Attachment attachment =
@@ -224,26 +205,20 @@ public class AttachmentControllerTests {
 
   @Test
   public void testCreateForNegotiation_IsUnauthorized_whenNoAuth() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
-
     mockMvc
-        .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file).with(anonymous()))
+        .perform(
+            multipart(WITHOUT_NEGOTIATIONS_ENDPOINT)
+                .file(createDefaultMockFile())
+                .with(anonymous()))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
   public void testCreateForNegotiation_IsUnauthorized_whenBasicAuth() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
     mockMvc
         .perform(
             multipart(WITHOUT_NEGOTIATIONS_ENDPOINT)
-                .file(file)
+                .file(createDefaultMockFile())
                 .with(httpBasic("researcher", "wrong_pass")))
         .andExpect(status().isUnauthorized());
   }
@@ -251,10 +226,7 @@ public class AttachmentControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testGetById_Ok() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+    MockMultipartFile file = createDefaultMockFile();
 
     MvcResult result =
         mockMvc
@@ -268,7 +240,7 @@ public class AttachmentControllerTests {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isString())
-        .andExpect(jsonPath("$.name", is(fileName)))
+        .andExpect(jsonPath("$.name", is(file.getOriginalFilename())))
         .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
         .andExpect(jsonPath("$.size", is((int) file.getSize())));
   }
@@ -301,22 +273,26 @@ public class AttachmentControllerTests {
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
   public void testGetById_asHelpdeskIntegration_ok() throws Exception {
+    MockMultipartFile file = createDefaultMockFile();
+
+    MvcResult result =
+        mockMvc
+            .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
+            .andExpect(status().isCreated())
+            .andReturn();
+
+    String id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     mockMvc
-        .perform(get("%s/%s".formatted(WITHOUT_NEGOTIATIONS_ENDPOINT, "attachment-1")))
+        .perform(get("%s/%s".formatted(WITHOUT_NEGOTIATIONS_ENDPOINT, id)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_PDF));
+        .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE));
   }
 
   @Test
   @WithUserDetails("researcher")
   void createAttachmentForNegotiation_notPartOfNegotiation_forbidden() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
-
     mockMvc
-        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
+        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(createDefaultMockFile()))
         .andExpect(status().isForbidden());
   }
 
@@ -341,21 +317,20 @@ public class AttachmentControllerTests {
   @Transactional
   public void test_CreateWithExeFile_ShouldReject() throws Exception {
     byte[] data = new byte[] {0x4D, 0x5A, (byte) 0x90, 0x00};
-    String fileName = "malicious_file.exe";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
     mockMvc
-        .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file))
+        .perform(
+            multipart(WITHOUT_NEGOTIATIONS_ENDPOINT)
+                .file(createMockFile("malicious_file.exe", data)))
         .andDo(print())
-        .andExpect(status().isBadRequest()) // Expecting bad request if validation fails
+        .andExpect(status().isBadRequest())
         .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.detail", containsString("not supported")));
-    fileName = "malicious_file.exe.pdf";
-    file = new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
     mockMvc
-        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
+        .perform(
+            multipart(WITH_NEGOTIATIONS_ENDPOINT)
+                .file(createMockFile("malicious_file.exe.pdf", data)))
         .andDo(print())
-        .andExpect(status().isBadRequest()) // Expecting bad request if validation fails
+        .andExpect(status().isBadRequest())
         .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.detail", containsString("not supported")));
   }
@@ -364,10 +339,7 @@ public class AttachmentControllerTests {
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
   @Transactional
   void uploadAttachmentForNegotiation_asAdmin_ok() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+    MockMultipartFile file = createDefaultMockFile();
 
     MvcResult result =
         mockMvc
@@ -375,9 +347,9 @@ public class AttachmentControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isString())
-            .andExpect(jsonPath("$.name", is(fileName)))
+            .andExpect(jsonPath("$.name", is(file.getOriginalFilename())))
             .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
-            .andExpect(jsonPath("$.size", is(data.length)))
+            .andExpect(jsonPath("$.size", is((int) file.getSize())))
             .andReturn();
 
     String attachmentId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
