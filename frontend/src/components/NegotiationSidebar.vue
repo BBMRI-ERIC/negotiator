@@ -111,6 +111,7 @@
       </li>
       <li class="list-group-item p-2 btn-sm border-bottom-0 v-step-negotiation-7">
         <PDFButton
+          v-if="config.exportEnabled"
           id="pdf-button"
           class="mt-2 v-step-negotiation-8"
           :negotiation-pdf-data="negotiation"
@@ -119,6 +120,7 @@
           :include-attachments="false"
         />
         <PDFButton
+          v-if="config.exportEnabled"
           id="merged-pdf-button"
           class="mt-2"
           :negotiation-pdf-data="negotiation"
@@ -152,7 +154,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import axios from 'axios'
 import UiBadge from '@/components/ui/UiBadge.vue'
 import PDFButton from '@/components/PDFButton.vue'
@@ -170,7 +172,9 @@ import { useNotificationsStore } from '../store/notifications'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
-useNegotiationPageStore()
+const config = inject('config')
+
+const negotiationStore = useNegotiationPageStore()
 const notifications = useNotificationsStore()
 
 const isEditingDisplayId = ref(false)

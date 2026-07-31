@@ -23,7 +23,9 @@ public class HTTPRegistryConfigurer {
   public void configure(
       AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
           auth) {
-    auth.requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/negotiations"))
+    auth.requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/negotiations/pdf/config"))
+        .permitAll()
+        .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/negotiations"))
         .hasRole("ADMIN")
         .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/negotiation-lifecycle/**"))
         .permitAll()
