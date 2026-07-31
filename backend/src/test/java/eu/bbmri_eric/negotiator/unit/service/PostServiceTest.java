@@ -77,6 +77,7 @@ public class PostServiceTest {
   private static final String ORG_1 = "Organization_1";
   private static final String ORG_2 = "Organization_2";
   private static final String NEG_1 = "negotiationId";
+  private static final String NEGOTIATION_HELPDESK_ORGANIZATION_ID = "biobank:1";
   @Mock PostRepository postRepository;
   @Mock NegotiationRepository negotiationRepository;
   @Mock OrganizationRepository organizationRepository;
@@ -420,7 +421,11 @@ public class PostServiceTest {
               return savedPost;
             });
     PostCreateDTO postCreateDTO =
-        TestUtils.createPostDTO("message", PostType.PUBLIC, "john.smith@helpdesk.org");
+        TestUtils.createPostDTO(
+            NEGOTIATION_HELPDESK_ORGANIZATION_ID,
+            "message",
+            PostType.PUBLIC,
+            "john.smith@helpdesk.org");
     when(modelMapper.map(savedPost, PostDTO.class))
         .thenReturn(
             PostDTO.builder()
@@ -450,7 +455,7 @@ public class PostServiceTest {
             });
     when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
     PostCreateDTO postCreateDTO =
-        TestUtils.createPostDTO("message", PostType.PUBLIC, "injected-actor");
+        TestUtils.createPostDTO(null, "message", PostType.PUBLIC, "injected-actor");
     when(modelMapper.map(publicPost1, PostDTO.class))
         .thenReturn(
             PostDTO.builder()
