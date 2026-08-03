@@ -160,7 +160,11 @@ public class ResourceServiceImpl implements ResourceService {
     Set<Resource> resourcesToUpdate = fetchResourcesFromDB(updateResourcesDTO.getResourceIds());
     addAnyNewResourcesToNegotiation(resourcesToUpdate, negotiation);
     if (!negotiation.getCurrentState().equals(NegotiationState.DRAFT)) {
-      setStatusForUpdatedResources(negotiation, resourcesToUpdate, updateResourcesDTO.getState());
+      setStatusForUpdatedResources(
+          negotiation,
+          resourcesToUpdate,
+          updateResourcesDTO.getState(),
+          updateResourcesDTO.getHelpdeskActor());
     }
     negotiationRepository.saveAndFlush(negotiation);
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
@@ -170,19 +174,26 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   private void setStatusForUpdatedResources(
-      Negotiation negotiation, Set<Resource> resourcesToUpdate, NegotiationResourceState state) {
+      Negotiation negotiation,
+      Set<Resource> resourcesToUpdate,
+      NegotiationResourceState state,
+      String helpdeskActor) {
     verifyAuthForStatusUpdate(resourcesToUpdate);
-    resourcesToUpdate.forEach(resource -> updateResourceStatus(negotiation, state, resource));
+    resourcesToUpdate.forEach(
+        resource -> updateResourceStatus(negotiation, state, resource, helpdeskActor));
   }
 
   private void updateResourceStatus(
-      Negotiation negotiation, NegotiationResourceState state, Resource resource) {
+      Negotiation negotiation,
+      NegotiationResourceState state,
+      Resource resource,
+      String helpdeskActor) {
     NegotiationResourceState before =
         negotiation.getCurrentStateForResource(resource.getSourceId());
     if (isUninitialized(state, before)) {
-      negotiation.setStateForResource(resource.getSourceId(), state);
+      negotiation.setStateForResource(resource.getSourceId(), state, helpdeskActor);
     } else if (isStateMachineInitialized(state)) {
-      negotiation.setStateForResource(resource.getSourceId(), state);
+      negotiation.setStateForResource(resource.getSourceId(), state, helpdeskActor);
       applicationEventPublisher.publishEvent(
           new ResourceStateChangeEvent(
               this,
@@ -199,6 +210,7 @@ public class ResourceServiceImpl implements ResourceService {
     Person representative =
         personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !AuthenticatedUserContext.isHelpdeskIntegration()
         && !representative.getResources().containsAll(resourcesToUpdate)) {
       throw new ForbiddenRequestException("You do not have permission to update these resources");
     }
