@@ -2,9 +2,11 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
+import { getGovernanceClient } from '../utils/governance'
 
 export const useResourcesStore = defineStore('resources', () => {
   const notifications = useNotificationsStore()
+  const governanceClient = getGovernanceClient()
 
   function getResourceById(id) {
     return axios
@@ -77,13 +79,9 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function addRepresentativeToResource(userId, resourceId, silent = false) {
-    return axios
-      .patch(
-        `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
-        { id: resourceId },
-        { headers: getBearerHeaders() },
-      )
+  function addRepresentativeToResource(userId, resource, silent = false) {
+    return governanceClient
+      .addRepresentativeToResource(userId, resource)
       .then((response) => {
         if (!silent) {
           notifications.setNotification('Representative added successfully', 'success')
@@ -98,11 +96,9 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function removeRepresentativeFromResource(userId, resourceId, silent = false) {
-    return axios
-      .delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resourceId}`, {
-        headers: getBearerHeaders(),
-      })
+  function removeRepresentativeFromResource(userId, resource, silent = false) {
+    return governanceClient
+      .removeRepresentativeFromResource(userId, resource)
       .then((response) => {
         if (!silent) {
           notifications.setNotification('Representative removed successfully', 'success')
@@ -117,21 +113,10 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function getRepresentedResources(userId, silent = false, filters = {}) {
-    let url = `${apiPaths.BASE_API_PATH}/users/${userId}/organizations?expand=resources`
-
-    if (filters.name && filters.name.trim()) {
-      url += `&name=${encodeURIComponent(filters.name.trim())}`
-    }
-
-    if (typeof filters.withdrawn === 'boolean') {
-      url += `&withdrawn=${filters.withdrawn}`
-    }
-
-    return axios
-      .get(url, {
-        headers: getBearerHeaders(),
-      })
+  function getRepresentedResources(userId, silent = false, page = 0, size = 20, filters = {}) {
+    console.log(filters)
+    return governanceClient
+      .getRepresentedResources(userId, page, size, filters)
       .then((response) => {
         return response.data
       })
