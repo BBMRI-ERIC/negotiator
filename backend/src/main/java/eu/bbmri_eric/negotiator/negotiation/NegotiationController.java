@@ -110,7 +110,7 @@ public class NegotiationController {
     this.negotiationPdfService = negotiationPdfService;
   }
 
-  public record CountResponse(int count) {}
+  public record ResourceCountResponse(int count) {}
 
   @Value("${negotiator.feature-flags.pdf-export-enabled:false}")
   private boolean pdfExportEnabled;
@@ -304,13 +304,13 @@ public class NegotiationController {
   @GetMapping(value = "/negotiations/{id}/resources/info")
   @Operation(summary = "Get the number of resources linked to a negotiation")
   @SecurityRequirement(name = "security_auth")
-  public EntityModel<CountResponse> getNumberOfResourcesInNegotiation(@PathVariable String id) {
+  public EntityModel<ResourceCountResponse> getNumberOfResourcesInNegotiation(
+      @PathVariable String id) {
 
     int numberOfResources = resourceService.countResourcesByNegotiationId(id);
 
-    CountResponse payload = new CountResponse(numberOfResources);
-
-    EntityModel<CountResponse> entityModel = EntityModel.of(payload);
+    EntityModel<ResourceCountResponse> entityModel =
+        EntityModel.of(new ResourceCountResponse(numberOfResources));
 
     if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       entityModel.add(
