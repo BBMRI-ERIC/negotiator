@@ -439,6 +439,6 @@ public class NegotiationServiceImpl implements NegotiationService {
 
               return dto;
             })
-        .collect(Collectors.toList());
+        .toList();
   }
 }
