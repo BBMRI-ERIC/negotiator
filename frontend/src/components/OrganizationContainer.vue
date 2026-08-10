@@ -149,7 +149,10 @@ const updateOrganization = async () => {
     resourceIds: getRepresentedResources(selectedOrganization.value.resources),
     state: orgStatus.value.value,
   }
-  await negotiationPageStore.addResources(data, props.negotiationId)
+  const wasSuccessful = await negotiationPageStore.addResources(data, props.negotiationId)
+  if (!wasSuccessful) {
+    return
+  }
   reloadLocalCardResources()
 }
 
