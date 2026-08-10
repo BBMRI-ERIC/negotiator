@@ -61,10 +61,8 @@ public interface ResourceService {
    *
    * @param negotiationId a specific Negotiation
    * @param updateResourcesDTO a list of resource IDs to be added or updated
-   * @return an updated list of resources
    */
-  List<ResourceWithStatusDTO> updateResourcesInANegotiation(
-      String negotiationId, UpdateResourcesDTO updateResourcesDTO);
+  void updateResourcesInANegotiation(String negotiationId, UpdateResourcesDTO updateResourcesDTO);
 
   /**
    * Add a batch of resources. This method is uses from a specific synchronization servvice that

@@ -1432,8 +1432,12 @@ public class NegotiationControllerTests {
                         .writeValueAsString(
                             new UpdateResourcesDTO(
                                 resources.stream().map(Resource::getId).toList()))))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size() + count)));
+        .andExpect(status().isNoContent());
+
+    entityManager.clear();
+    Negotiation updatedNegotiation =
+        negotiationRepository.findById(negotiation.getId()).orElseThrow();
+    assertEquals(resources.size() + count, updatedNegotiation.getResources().size());
   }
 
   @Test
@@ -1442,25 +1446,28 @@ public class NegotiationControllerTests {
   void addResources_correctPayload_resourcesAddedAndWithStatus() throws Exception {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     List<Resource> resources = resourceRepository.findAll();
-    MvcResult result =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch(
-                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        new ObjectMapper()
-                            .writeValueAsString(
-                                new UpdateResourcesDTO(
-                                    resources.stream().map(Resource::getId).toList()))))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size())))
-            .andReturn();
-    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
-    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
-    for (JsonNode resourceAsJson : resourcesAsJson) {
-      assertNotNull(resourceAsJson.get("currentState"));
-    }
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    new ObjectMapper()
+                        .writeValueAsString(
+                            new UpdateResourcesDTO(
+                                resources.stream().map(Resource::getId).toList()))))
+        .andExpect(status().isNoContent());
+
+    entityManager.clear();
+    Negotiation updatedNegotiation =
+        negotiationRepository.findById(negotiation.getId()).orElseThrow();
+    assertEquals(resources.size(), updatedNegotiation.getResources().size());
+    updatedNegotiation
+        .getResources()
+        .forEach(
+            resource ->
+                assertNotNull(
+                    updatedNegotiation.getCurrentStateForResource(resource.getSourceId())));
   }
 
   @Test
@@ -1468,33 +1475,30 @@ public class NegotiationControllerTests {
   @Transactional
   void addResources_resourcesAlreadyPresent_noChange() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
+    Resource markedResource = negotiation.getResources().iterator().next();
     negotiation.setStateForResource(
-        negotiation.getResources().iterator().next().getSourceId(),
-        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
-    MvcResult result =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch(
-                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        new ObjectMapper()
-                            .writeValueAsString(
-                                new UpdateResourcesDTO(
-                                    negotiation.getResources().stream()
-                                        .map(Resource::getId)
-                                        .toList()))))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.resources.length()", is(negotiation.getResources().size())))
-            .andReturn();
-    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
-    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
-    for (JsonNode resourceAsJson : resourcesAsJson) {
-      assertEquals(
-          negotiation.getCurrentStateForResource(resourceAsJson.get("sourceId").asText()),
-          NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
-    }
+        markedResource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    new ObjectMapper()
+                        .writeValueAsString(
+                            new UpdateResourcesDTO(
+                                negotiation.getResources().stream()
+                                    .map(Resource::getId)
+                                    .toList()))))
+        .andExpect(status().isNoContent());
+
+    entityManager.clear();
+    Negotiation updatedNegotiation =
+        negotiationRepository.findById(negotiation.getId()).orElseThrow();
+    assertEquals(negotiation.getResources().size(), updatedNegotiation.getResources().size());
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
+        updatedNegotiation.getCurrentStateForResource(markedResource.getSourceId()));
   }
 
   /**
@@ -1577,24 +1581,24 @@ public class NegotiationControllerTests {
     NegotiationResourceState expectedState = NegotiationResourceState.RESOURCE_MADE_AVAILABLE;
     List<Long> resourceIds = negotiation.getResources().stream().map(Resource::getId).toList();
     UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds, expectedState);
-    MvcResult result =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch(
-                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.resources.length()", is(negotiation.getResources().size())))
-            .andReturn();
-    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
-    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
-    for (JsonNode resourceAsJson : resourcesAsJson) {
-      assertEquals(
-          expectedState,
-          NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
-    }
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+        .andExpect(status().isNoContent());
+
+    entityManager.clear();
+    Negotiation updatedNegotiation =
+        negotiationRepository.findById(negotiation.getId()).orElseThrow();
+    updatedNegotiation
+        .getResources()
+        .forEach(
+            resource ->
+                assertEquals(
+                    expectedState,
+                    updatedNegotiation.getCurrentStateForResource(resource.getSourceId())));
   }
 
   @Test
@@ -1668,10 +1672,8 @@ public class NegotiationControllerTests {
                     "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
-        .andExpect(status().isOk())
-        .andExpect(
-            jsonPath(
-                "$._embedded.resources.length()", is(initialResourceCount + newResources.size())));
+        .andExpect(status().isNoContent())
+        .andExpect(content().string(""));
 
     // Verify the resources were actually added
     Negotiation updatedNegotiation = negotiationRepository.findById(NEGOTIATION_1_ID).get();
