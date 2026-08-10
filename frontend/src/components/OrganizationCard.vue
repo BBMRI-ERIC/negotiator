@@ -1,4 +1,3 @@
-<script setup></script>
 <template>
   <div class="card mb-2">
     <OrganizationHeader
