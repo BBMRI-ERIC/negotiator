@@ -314,16 +314,14 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
 
   async function addResources(data, negotiationId, silent = false) {
     try {
-      const response = await axios.patch(
-        `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources`,
-        data,
-        { headers: getBearerHeaders() },
-      )
+      await axios.patch(`${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources`, data, {
+        headers: getBearerHeaders(),
+      })
       if (!silent) notifications.setNotification('Resources were successfully updated')
-      return response.data
+      return true
     } catch {
       if (!silent) notifications.setNotification('There was an error saving the attachment')
-      return undefined
+      return false
     }
   }
 

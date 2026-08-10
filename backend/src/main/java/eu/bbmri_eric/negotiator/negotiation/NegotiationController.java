@@ -349,10 +349,10 @@ public class NegotiationController {
   @PatchMapping(value = "/negotiations/{id}/resources")
   @Operation(summary = "Edit Resources linked to a Negotiation")
   @SecurityRequirement(name = "security_auth")
-  public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
+  public ResponseEntity<Void> updateResources(
       @PathVariable String id, @RequestBody @Valid UpdateResourcesDTO updateResourcesDTO) {
-    return resourceWithStatusAssembler.toCollectionModel(
-        resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
+    resourceService.updateResourcesInANegotiation(id, updateResourcesDTO);
+    return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping(value = "/negotiations/{id}/resources/{resourceId}")

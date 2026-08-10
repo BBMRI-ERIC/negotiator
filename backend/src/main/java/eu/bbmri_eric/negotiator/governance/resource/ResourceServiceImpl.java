@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.NonNull;
-import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -46,7 +45,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
-@CommonsLog
 public class ResourceServiceImpl implements ResourceService {
 
   private final NetworkRepository networkRepository;
@@ -173,7 +171,7 @@ public class ResourceServiceImpl implements ResourceService {
 
   @Override
   @Transactional
-  public List<ResourceWithStatusDTO> updateResourcesInANegotiation(
+  public void updateResourcesInANegotiation(
       String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
     Negotiation negotiation = fetchNegotiationFromDB(negotiationId);
     Set<Resource> resourcesToUpdate = fetchResourcesFromDB(updateResourcesDTO.getResourceIds());
@@ -185,7 +183,6 @@ public class ResourceServiceImpl implements ResourceService {
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
     }
-    return getResourceWithStatusDTOS(negotiationId);
   }
 
   private void setStatusForUpdatedResources(
@@ -267,16 +264,6 @@ public class ResourceServiceImpl implements ResourceService {
     List<Resource> savedResources = repository.saveAll(resources);
     return savedResources.stream()
         .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
-        .toList();
-  }
-
-  private @NonNull List<ResourceWithStatusDTO> getResourceWithStatusDTOS(String negotiationId) {
-    List<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiation(negotiationId);
-    log.debug(
-        "Negotiation %s now has %s resources after modification"
-            .formatted(negotiationId, resourceViewDTOS.size()));
-    return resourceViewDTOS.stream()
-        .map(resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class))
         .toList();
   }
 
