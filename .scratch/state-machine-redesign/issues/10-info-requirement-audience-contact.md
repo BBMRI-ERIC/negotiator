@@ -2,6 +2,8 @@
 
 Type: grilling
 
+Status: claimed
+
 Blocked by: 01, 05, 07
 
 ## Question
@@ -26,6 +28,6 @@ Full reasoning (the whole iteration, the persistence-asymmetry argument, and the
 
 ### Deferred upgrade path (design so it's additive, don't build)
 
-**Multiple outcomes** (e.g. Ethics `APPROVED` vs `REJECTED` routing the parent down different transitions) is the one thing that would graduate the IR from a derived boolean to a derived multi-terminal-state machine, with the `child terminal state → parent event` map from [ticket 09](09-lifecycle-coupling.md). Keep the audience/guard seam shaped so this is a later addition, not a migration. Same for reminders/expiry (needs a `contacted_at` record → derivable `CONTACTED`) — additive when needed, out of scope now.
+**Multiple outcomes** (e.g. Ethics `APPROVED` vs `REJECTED` routing the parent down different transitions) is the one thing that would graduate the IR from a derived boolean to a derived multi-terminal-state machine, with the `child terminal state → parent event` map from [ticket 09](09-lifecycle-coupling.md). Keep the audience/guard seam shaped so this is a later addition, not a migration. Same for reminders/expiry (needs a `contacted_at` record → derivable `CONTACTED`) — additive when needed, out of scope now. *Note: [ticket 09](09-lifecycle-coupling.md) has since defined the self-firing primitive (an orchestration trigger attempts a definition's `SYSTEM`-authority events from the current state; guards decide) and named a **clock tick** as its second trigger source specifically for IR reminders/expiry — so when that feature is built, its trigger reuses ticket 09's primitive; only the scheduler plumbing remains to design.*
 
 `InformationSubmission.submittedBy` (added by ticket 05) is what lets a submission be matched against a resolved audience — depended on here.
