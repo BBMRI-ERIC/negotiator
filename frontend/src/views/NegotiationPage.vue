@@ -336,6 +336,7 @@ const currentNumberOfResources = ref(0)
 const isFetchingResourceInfo = ref(false)
 const resourcesLastUpdated = ref(Date.now())
 const rawOrganizations = ref([])
+const organizationsLoaded = ref(false)
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
@@ -397,15 +398,17 @@ const author = computed(() => {
 })
 
 const loading = computed(() => {
-  return negotiation.value === undefined || rawOrganizations.value.length === 0
+  return negotiation.value === undefined || !organizationsLoaded.value
 })
 
 async function fetchOrganizations() {
-  const response = await negotiationPageStore.retrieveOrganizationsByNegotiationId(
-    props.negotiationId,
-  )
-  if (response?._embedded?.organizations) {
-    rawOrganizations.value = response._embedded.organizations
+  try {
+    const response = await negotiationPageStore.retrieveOrganizationsByNegotiationId(
+      props.negotiationId,
+    )
+    rawOrganizations.value = response?._embedded?.organizations ?? []
+  } finally {
+    organizationsLoaded.value = true
   }
 }
 
