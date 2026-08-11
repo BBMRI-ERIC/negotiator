@@ -1,5 +1,5 @@
 # Build jar file with dependencies
-FROM maven:3.9.16-eclipse-temurin-21-noble@sha256:d7e7f57407437c014571f1ad5a9955f03fc3edcb1d964067ef351fa38e798665 AS build_image
+FROM maven:3-eclipse-temurin-26-noble@sha256:6206ae5e460fbc803743b53addc31c5caca04582cf6a99f0f91df29c54954b52 AS build_image
 ARG ARTIFACT_VERSION=unknown
 COPY src /app/src
 COPY pom.xml /app
