@@ -2,6 +2,16 @@ export function capitalizeFirstLetter(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1)
 }
 
+export function capitalizeAllWords(val) {
+  const str = String(val ?? '').trim()
+  if (!str) return ''
+  return str
+    .split(/[\s_-]+/)
+    .filter(Boolean) // remove empty strings from edge cases
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ')
+}
+
 export function transformStatus(status) {
   if (status === 'SUBMITTED') {
     return 'UNDER REVIEW'
