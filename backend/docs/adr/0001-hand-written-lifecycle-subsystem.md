@@ -2,14 +2,14 @@
 status: accepted
 ---
 
-# 0001 — Replace Spring Statemachine with a hand-written Transition Evaluator
+# 0001 — Replace Spring Statemachine with a hand-written lifecycle subsystem
 
 _Source tickets: [Engine landscape research](../../../.scratch/state-machine-redesign/issues/02-engine-landscape-research.md), [Engine choice](../../../.scratch/state-machine-redesign/issues/03-engine-choice.md)._
 _Implementation is follow-on work — nothing here is built yet, and Spring Statemachine is still in place in the code._
 
 Both Lifecycles run today on Spring Statemachine, configured in Java by `NegotiationStateMachineConfig` and `ResourceStateMachineConfig`. Spring Statemachine is end-of-life: the project is archived to `spring-attic`, Maven Central is frozen at `4.0.0` (Dec 2023), and future releases are commercial-only. Staying is not an option, and a 2026 survey of the landscape found nothing to move to.
 
-**We write the Transition Evaluator ourselves rather than adopting a library.** The definition model this redesign commits to is a bespoke relational schema plus a named strategy catalogue for Guards and Actions; no surveyed library reads such a schema, so adopting one means bending its execution model to ours. And it would only cover the cheap part — the evaluation loop — while the persisted definition model, the admin CRUD surface and the strategy catalogue dominate the cost regardless of which engine sits underneath. A hand-written, data-driven implementation is sized at roughly **2,500–4,000 LOC** against today's 1,493 across 25 files: 1.5–2.5×, for a subsystem we then own outright.
+**We write the whole lifecycle subsystem ourselves rather than adopting a library.** What gets hand-written is more than the Transition Evaluator: the persisted definition model, the strategy catalogue for Guards and Actions, the admin CRUD surface over all of it, and the orchestration around commits — with the evaluator at the centre as the one piece a library could plausibly have supplied. That is the crux of the choice. The definition model this redesign commits to is a bespoke relational schema plus a named strategy catalogue; no surveyed library reads such a schema, so adopting one means bending its execution model to ours — and it would cover only the cheap part, the evaluation loop, while everything around it dominates the cost regardless of what sits underneath. A hand-written, data-driven implementation is sized at roughly **2,500–4,000 LOC** against today's 1,493 across 25 files: 1.5–2.5×, for a subsystem we then own outright.
 
 **One evaluator core serves both Definition Scopes.** A single scope-parameterized component replaces both configuration classes. The Negotiation and Resource lifecycle services stay separate — they own different JPA entities and different persistence wiring — but they call one shared evaluation path, so the two Lifecycles can never drift in how a move is judged.
 
