@@ -38,11 +38,11 @@ The new engine is data-driven and Spring Statemachine is deleted outright (ticke
 
 The two hardcoded lifecycles are seeded as **explicit INSERTs in a committed Flyway `V*.sql` file** (wiring FKs via name/family-key subqueries — see §7). Rationale: matches the repo's 50 existing SQL migrations, fully deterministic, and self-contained so it won't rot when entity code evolves (the classic Flyway-Java-migration trap). Any future "canonical default-definition file for admin import/export" is a separate downstream feature; the seed SQL may be *generated* from such a file but is committed as frozen SQL.
 
-### 3. Dead states — kept as inactive audit-only `State` rows (amends ticket 01)
+### 3. Dead states — kept as transition-less audit-only `State` rows (amends ticket 01)
 
 Facts: `NegotiationState.APPROVED` and `NegotiationResourceState.RETURNED_FOR_RESUBMISSION` are **unreachable in current code** but are **enshrined in live/audit CHECK constraints** (`APPROVED` in `negotiation_current_state_check`; `RETURNED_FOR_RESUBMISSION` in `resource_state_per_negotiation_current_state_check` and the resource-lifecycle-record check) — meaning older code once wrote them, so production audit history (and possibly live state) very likely still holds them.
 
-- **"Dropped" (ticket 01) is refined to "removed from the active transition graph," not "physically absent as a `State` row."** The v1 seed keeps `APPROVED` and `RETURNED_FOR_RESUBMISSION` as **transition-less, non-initial, inactive `State` rows** — exactly the pattern ticket 01 already uses for the `OVERRIDE` audit-only `Event`. This keeps history faithful (no rewriting), lets ticket 06's `state_id` FK resolve, lets live-state strings resolve, and never blocks the deploy.
+- **"Dropped" (ticket 01) is refined to "removed from the active transition graph," not "physically absent as a `State` row."** The v1 seed keeps `APPROVED` and `RETURNED_FOR_RESUBMISSION` as **transition-less, non-initial `State` rows** (no flag marks them — what makes them unreachable is simply that no Transition targets them) — exactly the pattern ticket 01 already uses for the `OVERRIDE` audit-only `Event`. This keeps history faithful (no rewriting), lets ticket 06's `state_id` FK resolve, lets live-state strings resolve, and never blocks the deploy.
 - **Dropped *events*** (`NegotiationEvent.START`, the `RETURN_FOR_RESUBMISSION` event) are **fully omitted** — events leave no data residue (audit stores the resulting state, not the firing event, per ticket 06's deferral).
 - Alternatives rejected: remapping dead values onto survivors distorts immutable history; assert-and-fail-only just blocks the deploy since the data almost certainly exists.
 
@@ -65,7 +65,7 @@ Legacy `information_requirement(required_access_form_id, for_event VARCHAR)` →
 
 ### 6. Audit history backfill
 
-Each `*_lifecycle_record.changed_to` string → the `state_id` of the same-named `State` in the **matching v1 definition** (negotiation records → Negotiation v1 States, resource records → Resource v1 States; the inactive dead states from §3 included). "Which version did history run under?" is trivial — there is exactly one seeded version, v1 — so no per-record version reasoning, consistent with ticket 06 carrying **no version column** on the audit tables.
+Each `*_lifecycle_record.changed_to` string → the `state_id` of the same-named `State` in the **matching v1 definition** (negotiation records → Negotiation v1 States, resource records → Resource v1 States; the dead states from §3 included). "Which version did history run under?" is trivial — there is exactly one seeded version, v1 — so no per-record version reasoning, consistent with ticket 06 carrying **no version column** on the audit tables.
 
 ### 7. Deploy choreography — stop-the-world cutover
 
@@ -80,7 +80,7 @@ The migration is **breaking for old code** (it drops `information_requirement.fo
 - **Additive DDL first**, its own migration: create the definition/`State`/`Event`/`Transition`/wiring/requirement-addition tables and add the new columns *nullable* (pins, audit `state_id`, IR `event_id`/`audience`/quantifier, `submitted_by`). Harmless on its own.
 - **The data cutover as one atomic `V*.sql` file** (Postgres DDL+DML is transactional → all-or-nothing; never half-migrated), ordered:
   1. **Pre-flight asserts** (`DO` block `RAISE EXCEPTION`) — no live/audit/IR value falls outside what the seed will provide; runs first, before anything destructive, so a surprise aborts with the snapshot intact.
-  2. **Seed v1** — both families (Resource = global-default), all states (active + inactive dead), events, transitions, `required_authority`, `initial`/`terminal` flags, guard wiring (incl. `NEGOTIATION_APPROVED`), the `SPAWN_RESOURCE_LIFECYCLES` action on the approval transition — a faithful transcription of the current `NegotiationStateMachineConfig`/`ResourceStateMachineConfig`.
+  2. **Seed v1** — both families (Resource = global-default), all states (reachable + the dead ones from §3), events, transitions, `required_authority`, `initial`/`terminal` flags, guard wiring (incl. `NEGOTIATION_APPROVED`), the `SPAWN_RESOURCE_LIFECYCLES` action on the approval transition — a faithful transcription of the current `NegotiationStateMachineConfig`/`ResourceStateMachineConfig`.
   3. **Backfill** pins → audit `state_id` → IR rehome.
   4. `SET NOT NULL` on the now-populated required columns.
   5. **Drop** `for_event`, the obsolete CHECK constraints, and the converted audit `changed_to` VARCHAR.
@@ -88,7 +88,7 @@ The migration is **breaking for old code** (it drops `information_requirement.fo
 
 ### Amendments to prior tickets
 
-- **Ticket 01** — "dropped" dead **states** (`APPROVED`, `RETURNED_FOR_RESUBMISSION`) are refined to "removed from the active transition graph," surviving in the v1 seed as inactive transition-less audit-only `State` rows (like `OVERRIDE`). Dropped **events** remain fully omitted.
+- **Ticket 01** — "dropped" dead **states** (`APPROVED`, `RETURNED_FOR_RESUBMISSION`) are refined to "removed from the active transition graph," surviving in the v1 seed as transition-less audit-only `State` rows (like `OVERRIDE`). Dropped **events** remain fully omitted.
 - **Ticket 06** — clarified: the `state_id` FK conversion is the **audit** column only; live `current_state` stays a plain string.
 - **Ticket 04** — the seeded Resource family is the one carrying `is_global_default = true`.
 

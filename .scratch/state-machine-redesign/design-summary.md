@@ -83,7 +83,7 @@ Eight decisions are locked; two remain open (§4). At a glance:
 | [04](issues/04-resource-network-association.md) | Resource↔Network association | Versioned families, direct-wins resolution, pin-at-start | ✅ Locked |
 | [05](issues/05-info-requirements-model.md) | Information requirements | First-class model, evaluated as a guard | ✅ Locked |
 | [06](issues/06-audit-history-model.md) | Audit / history | `enum column → state_id FK`, minimal change | ✅ Locked |
-| [07](issues/07-event-requirement-guard-wiring.md) | Requirement guard wiring | Built-in engine stage + machine-level guard scope | ✅ Locked |
+| [07](issues/07-event-requirement-guard-wiring.md) | Requirement guard wiring | Built-in pipeline stage + definition-level guard scope | ✅ Locked |
 | [08](issues/08-version-identity-reconciliation.md) | Version identity | Row id = machine identity; `version` = display sequence | ✅ Locked |
 | [09](issues/09-lifecycle-coupling.md) | **Lifecycle coupling (fan-out/fan-in)** | How Negotiation↔Resource lifecycles couple | 🔲 **Open** |
 | [10](issues/10-info-requirement-audience-contact.md) | **IR audience, aggregation & contact** | Who is asked, how many, how they're notified | 🔲 **Open** |
@@ -126,7 +126,7 @@ One **unified relational schema** for both lifecycles (normalized rows with FKs,
 
 - Realized as a Spring strategy-bean registry (mirrors the existing `WebhookEventMapper` pattern: inject `List<Strategy>`, fold to a `Map`, fail at startup on duplicate keys). Each strategy declares its own key and its own `params` DTO type; `params` persists as jsonb via `@Type(JsonType.class)` (already the idiom for `InformationSubmission.payload`).
 - **Two separate wiring tables** (guards and actions never interleave — guards run pre-commit, actions run only after a transition succeeds):
-  - **Guard wiring** spans two scopes via a nullable `transition_id`: `null` = machine-level (applies to every transition of the definition), set = transition-specific. Per-scope ordering via partial unique indexes (PostgreSQL-only, so no portability caveat).
+  - **Guard wiring** spans two scopes via a nullable `transition_id`: `null` = definition-level (applies to every transition of the definition), set = transition-specific. Per-scope ordering via partial unique indexes (PostgreSQL-only, so no portability caveat).
   - **Action wiring** is transition-scoped only.
 - Example collapse: one `SET_POST_VISIBILITY` action with `{scope, enabled}` params replaces today's three hardcoded action classes.
 
@@ -167,8 +167,8 @@ Today `InformationRequirement` ties an `AccessForm` to a `NegotiationResourceEve
 
 - **Attachment:** 0..N unordered `Requirement`s per `Event`. Because `Event` is scope-agnostic, Negotiation-scope events can carry requirements with no extra modeling. (Implication: `InformationSubmission.resource` becomes optional.)
 - **Enforcement is a built-in engine stage, not wiring.** Ticket 07 settled that requirement-satisfaction is **not** an admin-wireable guard row — the engine *always* checks the firing Event's requirements as a fixed pipeline stage. It cannot be omitted, so the "applies wherever this event fires" guarantee is structural and the dead-click bug can't be reintroduced by misconfiguration. It shares the guard contract and emits a normal `GuardResult`.
-- **One evaluation pipeline** used both for the real gate (`sendEvent`) and the "possible next events" dry-run — killing today's double-enforcement bug (the security rule is checked once by hand to build `getPossibleEvents()` and again by SSM's interceptor on fire). Pipeline order, short-circuiting: **`required_authority` → requirements check → guard rows** (machine-level then transition-level), ordered by expected failure likelihood, with monotonic failure categories (403 → 422 → 409).
-- **Machine-level guards** are now a first-class wiring scope (ticket 07): `NEGOTIATION_APPROVED` becomes one definition-level guard entry instead of today's dangling source-less `.withExternal().guard(...)` hack.
+- **One evaluation pipeline** used both for the real gate (`sendEvent`) and the "possible next events" dry-run — killing today's double-enforcement bug (the security rule is checked once by hand to build `getPossibleEvents()` and again by SSM's interceptor on fire). Pipeline order, short-circuiting: **`required_authority` → requirements check → guard rows** (definition-level then transition-level), ordered by expected failure likelihood, with monotonic failure categories (403 → 422 → 409).
+- **Definition-level guards** are now a first-class wiring scope (ticket 07): `NEGOTIATION_APPROVED` becomes one definition-level guard entry instead of today's dangling source-less `.withExternal().guard(...)` hack.
 - **Guard contract returns structure:** `GuardResult { satisfied, reasonCode, details }` — the requirement guard populates `details` with the missing `AccessForm`(s) and assignee.
 - **API: no new endpoint/DTO.** `getPossibleEvents` keeps today's shape; a blocked event is simply omitted. The existing `requirement-{id}` / `submission-{id}` hint links carry over with three fixes: (1) include the hint based on *structural reachability* not "a lifecycle link already exists"; (2) show the event's human label instead of the raw enum key; (3) HAL cleanup to array-valued `requirement` / `submission` rels.
 - **`InformationSubmission` gains `submittedBy` (`Person`)** — needed to match a submission against an audience.
