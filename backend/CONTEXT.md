@@ -133,9 +133,9 @@ _Avoid_: valid submission, accepted submission
 How many of an Audience must have submitted before an Information Requirement counts as satisfied: any one of them, all of them, or a set number.
 _Avoid_: aggregation mode, cardinality, completion condition
 
-**Audience Contact**:
+**Audience Notification**:
 Telling an Audience that an Information Requirement is waiting on them. Nothing configures it — it follows from a Lifecycle entering a State one step away from the Event the requirement guards, and reaches only the members who have not submitted yet. That it happened is never recorded.
-_Avoid_: notify action, contact event, invitation
+_Avoid_: contact, invitation
 
 ### Lifecycle history
 
