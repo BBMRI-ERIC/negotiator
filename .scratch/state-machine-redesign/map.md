@@ -29,7 +29,9 @@ A complete design spec (decisions + ADRs) for a replacement lifecycle state-mach
 
 ## Not yet specified
 
-_(none — the map is **fully charted and resolved**. Every ticket is closed, all fog has graduated or been ruled out of scope, and [Migration / rollout path](issues/11-migration-rollout-path.md) — the last core in-scope ticket — is now resolved. The spec (decisions + ADRs across tickets 01–11) is hand-off-ready; implementation happens in separate follow-on efforts.)_
+_(none — the map is **fully charted and resolved**. Every ticket is closed, all fog has graduated or been ruled out of scope, and [Migration / rollout path](issues/11-migration-rollout-path.md) — the last core in-scope ticket — is now resolved.)_
+
+The settled decisions across tickets 01–11 have graduated into **nine ADRs in [`backend/docs/adr/`](../../backend/docs/adr/)** (0001–0009, per [the ADR plan](adr-plan.md)), which are now the record; the tickets remain as the full reasoning behind them, linked from each ADR. Domain vocabulary lives in [`backend/CONTEXT.md`](../../backend/CONTEXT.md). The spec is hand-off-ready — implementation happens in separate follow-on efforts, and nothing in it is built yet.
 
 ## Out of scope
 
