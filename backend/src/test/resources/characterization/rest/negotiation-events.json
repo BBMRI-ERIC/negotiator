@@ -1,0 +1,110 @@
+{
+  "_embedded" : {
+    "events" : [
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events/ABANDON"
+          }
+        },
+        "description" : "Abandon the negotiation",
+        "label" : "Abandon",
+        "value" : "ABANDON"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events/APPROVE"
+          }
+        },
+        "description" : "Approve the negotiation",
+        "label" : "Approve",
+        "value" : "APPROVE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events/CONCLUDE"
+          }
+        },
+        "description" : "Conclude the negotiation",
+        "label" : "Conclude",
+        "value" : "CONCLUDE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events/DECLINE"
+          }
+        },
+        "description" : "Decline the negotiation",
+        "label" : "Decline",
+        "value" : "DECLINE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events/PAUSE"
+          }
+        },
+        "description" : "Pause the negotiation",
+        "label" : "Pause",
+        "value" : "PAUSE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events/START"
+          }
+        },
+        "description" : "Start the negotiation",
+        "label" : "Start",
+        "value" : "START"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events/SUBMIT"
+          }
+        },
+        "description" : "Submit the negotiation",
+        "label" : "Submit",
+        "value" : "SUBMIT"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/events/UNPAUSE"
+          }
+        },
+        "description" : "Unpause the negotiation",
+        "label" : "Unpause",
+        "value" : "UNPAUSE"
+      }
+    ]
+  }
+}
