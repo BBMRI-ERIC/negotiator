@@ -1,0 +1,174 @@
+{
+  "_embedded" : {
+    "states" : [
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/ACCESS_CONDITIONS_INDICATED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "A representative has indicated access conditions for the resource",
+        "label" : "Access Conditions Indicated",
+        "ordinal" : 8,
+        "value" : "ACCESS_CONDITIONS_INDICATED"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/ACCESS_CONDITIONS_MET"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "Access conditions for the resource have been met by the requester",
+        "label" : "Access Conditions Met",
+        "ordinal" : 9,
+        "value" : "ACCESS_CONDITIONS_MET"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/CHECKING_AVAILABILITY"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "Currently checking availability of the resource",
+        "label" : "Checking Availability",
+        "ordinal" : 4,
+        "value" : "CHECKING_AVAILABILITY"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/REPRESENTATIVE_CONTACTED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "Representative of the given resource was notified about this new request",
+        "label" : "Representative Contacted",
+        "ordinal" : 2,
+        "value" : "REPRESENTATIVE_CONTACTED"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/REPRESENTATIVE_UNREACHABLE"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "This resource does not have any representatives in the system",
+        "label" : "Representative Unreachable",
+        "ordinal" : 1,
+        "value" : "REPRESENTATIVE_UNREACHABLE"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/RESOURCE_AVAILABLE"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "The resource is available for access",
+        "label" : "Resource Available",
+        "ordinal" : 7,
+        "value" : "RESOURCE_AVAILABLE"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/RESOURCE_MADE_AVAILABLE"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "The resource has been made available",
+        "label" : "Resource Made Available",
+        "ordinal" : 11,
+        "value" : "RESOURCE_MADE_AVAILABLE"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/RESOURCE_NOT_MADE_AVAILABLE"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "The resource has not been made available",
+        "label" : "Resource Not Made Available",
+        "ordinal" : 10,
+        "value" : "RESOURCE_NOT_MADE_AVAILABLE"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/RESOURCE_UNAVAILABLE"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "The resource is unavailable for access",
+        "label" : "Resource Unavailable",
+        "ordinal" : 6,
+        "value" : "RESOURCE_UNAVAILABLE"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "The resource is unavailable at this time, but the organization is willing to collect it and make it available for access",
+        "label" : "Resource Unavailable, Willing to Collect",
+        "ordinal" : 5,
+        "value" : "RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/RETURNED_FOR_RESUBMISSION"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "A representative has asked for further clarification of the request",
+        "label" : "Returned for Resubmission",
+        "ordinal" : 3,
+        "value" : "RETURNED_FOR_RESUBMISSION"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states/SUBMITTED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/resource-lifecycle/states"
+          }
+        },
+        "description" : "Initial state",
+        "label" : "Submitted",
+        "ordinal" : 0,
+        "value" : "SUBMITTED"
+      }
+    ]
+  }
+}
