@@ -62,3 +62,22 @@ guard in both directions as originally written.
 
 - [Lifecycle graph dump generator and frozen v1 artifacts](01-graph-dump-generator.md)
 - [String-keyed lifecycle test adapter and forbidden-import guard](02-string-adapter-and-import-guard.md)
+
+## WIP — halted mid-implementation, and incomplete
+
+An agent was implementing this ticket and was killed by a session limit while it was still adding
+refusal cases. **The tests have never been executed and the ticket was not finished.** Nothing was
+merged.
+
+- Branch `worktree-agent-a3dab4653dd6c2484`, commit `7f0226c8`, based on `556958f7` (which already
+  carries tickets 01 and 02).
+- Adds `ResourceTransitionParityTest` and `ResourcePossibleEventsAuthorityTest` under
+  `characterization/service`. No findings were written and no criteria were ticked.
+- Its last action was described as "adding one more refusal edge: sending to a Resource with no
+  recorded State" — so at minimum that case, and everything after it in the criteria list, is
+  missing.
+
+**To resume:** land ticket 03 first (it adds a shared `NegotiationGraphV1` helper to the same
+package). Then check this branch out, run the suite, work through the acceptance criteria above from
+scratch rather than trusting coverage to be complete, and record the findings — including the
+`NegotiationIsApprovedGuard` path, which ticket 01 already settled as *dead code, take path two*.
