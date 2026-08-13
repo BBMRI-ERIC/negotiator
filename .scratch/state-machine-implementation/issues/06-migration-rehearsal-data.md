@@ -5,9 +5,13 @@ Status: open
 
 ## Question
 
-The destination requires ADR 0009's cutover to be "replayed against production-shaped data in Testcontainers". **There is no such data, and nothing in the repo resembles it** — 50 `V*.sql` migrations and zero fixtures: no `data.sql`, no `import.sql`, no seed or demo SQL, no test SQL of any kind. Where does the rehearsal dataset come from?
+The destination requires ADR 0009's cutover to be "replayed against production-shaped data in Testcontainers". Where does the rehearsal dataset come from?
 
 This is the user's decision because it involves data access and possibly anonymization, not just engineering.
+
+> **Premise corrected 2026-08-13** (while charting the Freeze-current-behaviour slab). This ticket originally opened "There is no such data, and nothing in the repo resembles it — 50 `V*.sql` migrations and zero fixtures: no `data.sql`, no `import.sql`, no seed or demo SQL, no test SQL of any kind." **That was false.** Two repeatable Flyway seeds exist: `backend/src/main/resources/db/test/migration/R__Initial_data.sql` (193 lines) and `db/dev/migration/R__Initial_data.sql` (139 lines), selected by `@IntegrationTest(loadTestData = true)` via `application-test.yaml:3`. They already populate `negotiation.current_state`, `negotiation_resource_link.current_state`, `negotiation_lifecycle_record` and `negotiation_resource_lifecycle_record`.
+>
+> This **narrows the ticket rather than closing it**. The starting point is now "extend an existing seed", not "build a fixture from nothing" — so sharpening item 2 below is cheaper than it looked. But the load-bearing questions are untouched: the existing seed is small, hand-written **developer** data, not production-*shaped* data, and it contains none of the pathologies the rehearsal exists to catch — no Legacy State values, no orphan `for_event`, no realistic cardinalities or state distribution. Item 3 (a read-only distinct-value query against production) remains the highest-value item and is entirely unaffected.
 
 ### Why a rehearsal is load-bearing here
 

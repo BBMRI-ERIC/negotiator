@@ -1,7 +1,7 @@
 # Freeze current behaviour
 
 Type: task
-Status: open
+Status: claimed
 
 ## Question
 
@@ -40,3 +40,25 @@ Record both as **intended deltas** with a test asserting the *new* behaviour is 
 - Baseline: 138 test files, only 4 touch lifecycle (`integration/service/NegotiationLifecycleServiceImplTest`, `integration/api/v3/LifecycleInfoTests`, two `unit/model/*LifecycleRecordTest`).
 - 26 of 138 test files reference the four enums and will churn in a later slab — that is expected and not this slab's problem.
 - Frontend is out of this slab: standing decision 5 puts FE fixes in the slab that breaks them, verified manually.
+
+## Progress
+
+**Claimed and charted 2026-08-13.** The slab's inner tracker is [`.scratch/freeze-current-behaviour/`](../../freeze-current-behaviour/PRD.md) — a PRD plus 11 commit-sized issues. Work resumes there; do not re-plan this slab. Branch: `feat/state-machine-implementation`, off `plan/state-machine-redesign` per standing decision 4.
+
+Three decisions taken with the user while charting, not up for relitigation inside the slab:
+
+1. **Seams:** the two lifecycle service interfaces (primary), the two lifecycle controllers, and the two state-change application events via `@RecordApplicationEvents`. All three already exist in the test tree; no new production seam.
+2. **The string-and-adapter rule.** A suite that must pass *unchanged* cannot name the four deleted enums, so characterization tests name States and Events as **string literals** and call through one test-scope adapter — the only test file permitted to reference the enums. At cutover the adapter is rewritten once and every assertion is untouched. This deliberately decouples the parity gate from ticket [03](03-state-event-identity-downstream.md)'s identity decision, which is why the gate can be built before that decision exists. A forbidden-import test enforces it mechanically.
+3. **Dump fidelity:** guard/action identity recovered by reflective unwrap of SSM 4.0's wrapped lambdas, throwing rather than emitting a half-faithful artifact. Output is canonical JSON plus a Mermaid view generated from it, which also gives `docs/negotiation_state_machine.png` a regeneration path.
+
+Two structural findings to confirm during the slab, not fix:
+
+- **`NegotiationIsApprovedGuard` is probably dead.** Attached only by `transitions.withExternal().guard(negotiationIsApproved())` at `ResourceStateMachineConfig.java:117` — a fragment with no source, event or target. The real IN_PROGRESS check is imperative in `ResourceLifecycleServiceImpl.getPossibleEventsForCurrentStateMachine`. If dead, this ticket's "every guard outcome, including `NegotiationIsApprovedGuard` in both directions" is satisfied by pinning the imperative gate instead — and the Guard must not be reimplemented in ADR 0002's registry.
+- **`DRAFT` may be unreachable as an entry state** — the graph declares SUBMITTED initial while also defining `DRAFT → SUBMIT → SUBMITTED`. ADR 0009's seed must reproduce whichever is true.
+
+Two corrections to this ticket's own text, made from the code:
+
+- The "**seven** `NotificationStrategy` handlers" is wrong on both counts: there are **eight** strategies, of which **five** key on lifecycle identity (in-progress, submission, status-change, resource-state-change, and pending-reminder on `REPRESENTATIVE_CONTACTED`). Only those five are pinned.
+- The baseline note "no seed SQL exists" — inherited from the map's verified facts — was **false**; see the corrected fact on the map. `@IntegrationTest(loadTestData = true)` loads a real seed that already contains lifecycle state and history rows, and the suite builds on it.
+
+Also newly owned by this slab: `GET /v3/resource-lifecycle` publicly returns a graph diagram built by recursively walking SSM's transition set. No ADR owns it; it is pinned in the REST-seam issue.
