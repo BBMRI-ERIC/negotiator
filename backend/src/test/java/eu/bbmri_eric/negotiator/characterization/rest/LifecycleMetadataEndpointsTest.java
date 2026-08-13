@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.characterization.rest;
 
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -237,7 +239,8 @@ public class LifecycleMetadataEndpointsTest {
         .perform(MockMvcRequestBuilders.get(RESOURCE_EVENTS + "/STEP_AWAY"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._links.length()").value(2))
-        .andExpect(jsonPath("$._links.events.href").value("http://localhost/v3/resource-lifecycle/events"))
+        .andExpect(
+            jsonPath("$._links.events.href").value("http://localhost/v3/resource-lifecycle/events"))
         .andExpect(
             jsonPath("$._links.self.href")
                 .value("http://localhost/v3/resource-lifecycle/events/STEP_AWAY"));
@@ -248,7 +251,8 @@ public class LifecycleMetadataEndpointsTest {
   @Test
   @DisplayName("The endpoints are anonymous: an unauthenticated client gets the payload")
   void endpoints_areReachableWithoutAuthentication() throws Exception {
-    for (String url : new String[] {NEGOTIATION_STATES, NEGOTIATION_EVENTS, RESOURCE_STATES, RESOURCE_EVENTS}) {
+    for (String url :
+        new String[] {NEGOTIATION_STATES, NEGOTIATION_EVENTS, RESOURCE_STATES, RESOURCE_EVENTS}) {
       mockMvc.perform(MockMvcRequestBuilders.get(url)).andExpect(status().isOk());
     }
   }
@@ -263,44 +267,41 @@ public class LifecycleMetadataEndpointsTest {
 
   // ---------------------------------------------------------------- failure mode
 
-  @Test
-  @DisplayName("Unrecognised Negotiation state: 400 naming the Java enum class in the detail")
-  void unrecognisedNegotiationState_isPinned() throws Exception {
+  /**
+   * The state path variables bind straight to a Java enum, so an unrecognised name fails during
+   * binding rather than in the handler, and {@code Enum.valueOf}'s message is surfaced verbatim as
+   * the problem detail.
+   *
+   * <p>That message names the enum's fully-qualified class — a class the redesign deletes. So the
+   * detail text is the one part of this response that <em>cannot</em> survive the cutover
+   * unchanged, and pinning it verbatim would be pinning a delta as if it were parity. What is
+   * pinned here is everything that can hold: the status, the content type, the problem shape, and
+   * the fact that the detail is derived from the rejected name rather than from a fixed message.
+   *
+   * <p>The exact text today is recorded as a finding in the ticket, not asserted here. Recovering
+   * it is a one-line change to this test if a later slab wants the before-picture.
+   */
+  private void assertUnrecognisedStateIsRejected(String collectionPath) throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(NEGOTIATION_STATES + "/NOT_A_STATE"))
+        .perform(MockMvcRequestBuilders.get(collectionPath + "/NOT_A_STATE"))
         .andExpect(status().isBadRequest())
         .andExpect(content().contentType("application/json"))
-        .andExpect(
-            content()
-                .json(
-                    """
-                    {
-                      "title": "Bad request.",
-                      "detail": "No enum constant eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState.NOT_A_STATE",
-                      "status": 400
-                    }
-                    """,
-                    true));
+        .andExpect(jsonPath("$.title").value("Bad request."))
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.detail").value(startsWith("No enum constant ")))
+        .andExpect(jsonPath("$.detail").value(endsWith(".NOT_A_STATE")));
   }
 
   @Test
-  @DisplayName("Unrecognised Resource state: 400 naming the Java enum class in the detail")
+  @DisplayName("Unrecognised Negotiation state: 400 with a detail derived from the rejected name")
+  void unrecognisedNegotiationState_isPinned() throws Exception {
+    assertUnrecognisedStateIsRejected(NEGOTIATION_STATES);
+  }
+
+  @Test
+  @DisplayName("Unrecognised Resource state: 400 with a detail derived from the rejected name")
   void unrecognisedResourceState_isPinned() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(RESOURCE_STATES + "/NOT_A_STATE"))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().contentType("application/json"))
-        .andExpect(
-            content()
-                .json(
-                    """
-                    {
-                      "title": "Bad request.",
-                      "detail": "No enum constant eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState.NOT_A_STATE",
-                      "status": 400
-                    }
-                    """,
-                    true));
+    assertUnrecognisedStateIsRejected(RESOURCE_STATES);
   }
 
   @Test
