@@ -1,0 +1,117 @@
+{
+  "graph" : "negotiation",
+  "beanName" : "negotiationStateMachine",
+  "initialState" : "SUBMITTED",
+  "states" : [
+    "ABANDONED",
+    "APPROVED",
+    "CONCLUDED",
+    "DECLINED",
+    "DRAFT",
+    "IN_PROGRESS",
+    "PAUSED",
+    "SUBMITTED"
+  ],
+  "events" : [
+    "ABANDON",
+    "APPROVE",
+    "CONCLUDE",
+    "DECLINE",
+    "PAUSE",
+    "SUBMIT",
+    "UNPAUSE"
+  ],
+  "transitionCount" : 8,
+  "transitions" : [
+    {
+      "source" : "DRAFT",
+      "event" : "SUBMIT",
+      "target" : "SUBMITTED",
+      "kind" : "EXTERNAL",
+      "securityRule" : null,
+      "guard" : null,
+      "actions" : [
+        "EnablePublicPostsAction"
+      ]
+    },
+    {
+      "source" : "IN_PROGRESS",
+      "event" : "ABANDON",
+      "target" : "ABANDONED",
+      "kind" : "EXTERNAL",
+      "securityRule" : null,
+      "guard" : null,
+      "actions" : [
+        "DisablePostsAction"
+      ]
+    },
+    {
+      "source" : "IN_PROGRESS",
+      "event" : "CONCLUDE",
+      "target" : "CONCLUDED",
+      "kind" : "EXTERNAL",
+      "securityRule" : null,
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "IN_PROGRESS",
+      "event" : "PAUSE",
+      "target" : "PAUSED",
+      "kind" : "EXTERNAL",
+      "securityRule" : null,
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "PAUSED",
+      "event" : "ABANDON",
+      "target" : "ABANDONED",
+      "kind" : "EXTERNAL",
+      "securityRule" : null,
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "PAUSED",
+      "event" : "UNPAUSE",
+      "target" : "IN_PROGRESS",
+      "kind" : "EXTERNAL",
+      "securityRule" : null,
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "SUBMITTED",
+      "event" : "APPROVE",
+      "target" : "IN_PROGRESS",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "ROLE_ADMIN"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [
+        "EnablePrivatePostsAction"
+      ]
+    },
+    {
+      "source" : "SUBMITTED",
+      "event" : "DECLINE",
+      "target" : "DECLINED",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "ROLE_ADMIN"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    }
+  ]
+}
