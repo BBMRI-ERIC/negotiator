@@ -265,7 +265,7 @@ public class CustomJWTAuthConverterTest {
 
     Collection<GrantedAuthority> authorities = CustomJWTAuthConverter.getAuthoritiesFromScope(jwt);
     assertTrue(
-            authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_HELPDESK_INTEGRATION")));
+        authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_HELPDESK_INTEGRATION")));
   }
 
   @Test
