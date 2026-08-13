@@ -55,6 +55,7 @@ services:
     restart: always
     environment:
       - DEV_MODE=true
+      - FEATURE_FLAG_PDF_EXPORT_ENABLED=${FEATURE_FLAG_PDF_EXPORT_ENABLED:-false}
       - AUTH_URL=http://localhost:4011
       - CLIENT_ID=auth-code-client
       - REDIRECT_URI=http://localhost:8080/logged-in
