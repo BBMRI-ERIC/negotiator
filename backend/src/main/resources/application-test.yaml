@@ -21,6 +21,8 @@ spring:
     prefix: "file:../config/templates/"
 negotiator:
   frontend-url: "http://localhost"
+  feature-flags:
+    pdf-export-enabled: true
   webhook:
     secret-encryption:
       enabled: false

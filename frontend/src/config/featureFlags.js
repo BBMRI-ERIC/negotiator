@@ -4,7 +4,7 @@ const devSettings = {
   networks: true,
   dev_mode: true,
   orgResourceStateOverride: true,
-  pdfExportEnabled: false,
+  pdfExportEnabled: true,
 }
 
 const prodSettings = {
