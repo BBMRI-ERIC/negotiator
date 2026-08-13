@@ -9,6 +9,7 @@ Snapshot taken when the session stopped. Update or delete this file once the sla
 | 01 graph dump generator | **done** | dump + drift test green |
 | 02 string adapter + import guard | **done** | guard demonstrated failing on a real violation, then reverted |
 | 09 REST seam | **done** | 26 tests green after one cross-ticket fix (see below) |
+| 03 Negotiation parity | **done** | 63 tests green; all 12 criteria re-verified against surefire output |
 
 Parity gate as it stands:
 
@@ -16,32 +17,31 @@ Parity gate as it stands:
 scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
-Green at commit `164b0c30`.
+**106 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator) after 03
+landed.
 
 ## Halted mid-flight — work preserved, NOT merged
 
-Two agents were stopped by a session limit before they could verify their work. Their tests are
-written but **have never been executed**, so nothing was merged.
+One agent was stopped by a session limit before it could verify its work. Its tests are written but
+**have never been executed**, so nothing was merged.
 
 | Ticket | Branch | Commit | What is missing |
 |---|---|---|---|
-| 03 Negotiation parity | `worktree-agent-a1bde8bb418aa19fd` | `234c7325` | suite never run; ticket file drafted but criteria not verified |
 | 04 Resource parity | `worktree-agent-a3dab4653dd6c2484` | `7f0226c8` | still adding refusal cases; ticket file never updated; suite never run |
 
-Both branches are based on `556958f7`, which already contains tickets 01 and 02, so they rebase or
-cherry-pick cleanly onto the current tip. Files:
+That branch is based on `556958f7`, which already contains tickets 01 and 02. It adds
+`ResourceTransitionParityTest` and `ResourcePossibleEventsAuthorityTest` into
+`eu.bbmri_eric.negotiator.characterization.service` — the same package ticket 03 has now landed
+`NegotiationGraphV1` into. Class names are disjoint, so the conflict risk 03 was landed first to
+avoid is gone, but 04 must now rebase onto a tip that already contains that package.
 
-- 03 — `NegotiationTransitionParityTest`, `NegotiationAuthorityParityTest`,
-  `NegotiationDraftReachabilityTest`, `NegotiationGraphV1` (a shared table of the dumped graph).
-- 04 — `ResourceTransitionParityTest`, `ResourcePossibleEventsAuthorityTest`.
+**Two things ticket 04's agent must read** in `issues/03-negotiation-transition-parity.md`: the
+test-ordering hazard note (any class that drives a Lifecycle must dirty the context after each test
+method, or it breaks ticket 03 by ordering alone) and finding 3 (a hand-transcribed graph table must
+be bound to the committed dump, or its assertions state nothing about the system).
 
-Both write into `eu.bbmri_eric.negotiator.characterization.service`. They were told to keep class
-names disjoint, and they did — but 03 introduced a shared helper (`NegotiationGraphV1`) in that
-package, so **land 03 before 04** to avoid a merge conflict over it.
-
-**To resume:** verify each branch with the selector above, finish 04's remaining acceptance
-criteria, fill in both ticket files' findings, then cherry-pick onto
-`feat/state-machine-implementation`.
+**To resume:** verify the branch with the selector above, finish 04's remaining acceptance criteria,
+fill in its ticket file's findings, then cherry-pick onto `feat/state-machine-implementation`.
 
 ## Not started
 
@@ -69,7 +69,21 @@ Recorded in full in the individual ticket files. The load-bearing ones:
   ADR 0009's seed must carry them or existing rows naming them stop resolving.
 - **`DRAFT` is occupied but not enterable.** `negotiation-6` is seeded in `DRAFT`, yet the initial
   State is `SUBMITTED` and no Transition targets `DRAFT`. "Occupied" and "reachable" are different
-  questions and the seed must reproduce both. The service-seam half is ticket 03's, unverified.
+  questions and the seed must reproduce both. Confirmed at the service seam by ticket 03, which also
+  read the occupied set straight out of the table: exactly
+  `{DRAFT, SUBMITTED, IN_PROGRESS, ABANDONED}`, so `APPROVED` has no live occupant at all.
+- **The Event universe is one wider than the dump.** The dump's `events` array lists only the seven
+  Events that trigger a Transition; `START` is declared, published by the metadata endpoint and
+  nameable by a caller, but carries no Transition. A candidate Override Event in the new model, not
+  a name to drop. (Ticket 03.)
+- **Two dead branches, not one.** Alongside `NegotiationIsApprovedGuard`,
+  `NegotiationLifecycleServiceImpl`'s `catch (ClassCastException)` refusal is unreachable: with no
+  authenticated caller, resolving the internal id throws
+  `AuthenticationCredentialsNotFoundException` first. (Ticket 03.)
+- **A hand-transcribed graph table must be bound to the dump.** Ticket 03 shipped its parity table
+  as a transcription; two of its findings were assertions over that constant and could not fail.
+  `NegotiationGraphV1BindingTest` now equates the table to the committed dump and to the committed
+  Event metadata. Any later ticket adding such a table owes the same binding.
 - **The diagram endpoint has no visited set.** It terminates only because the Resource Lifecycle is
   acyclic; adding any cycle produces `StackOverflowError`, not a larger response. 13 Transitions
   render as 29 nodes, nesting 14 deep. A reimplementation needs a visited set or a depth bound.
