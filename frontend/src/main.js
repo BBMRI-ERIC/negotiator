@@ -20,8 +20,6 @@ import '@fontsource/open-sans/400.css'
 import '@fontsource/open-sans/500.css'
 import '@fontsource/open-sans/600.css'
 import '@fontsource/open-sans/700.css'
-import axios from 'axios'
-import { apiPaths } from '@/config/apiPaths.js'
 
 const pinia = createPinia()
 const app = createApp(App)
@@ -112,9 +110,5 @@ oidcStore.addOidcEventListener({
 })
 
 router.beforeEach(piniaOidcCreateRouterMiddleware(oidcStore))
-
-const response = await axios.get(`${apiPaths.BASE_API_PATH}/negotiations/pdf/config`)
-
-app.provide('config', response.data)
 
 app.mount('#app')

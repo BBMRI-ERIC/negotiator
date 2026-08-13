@@ -111,7 +111,7 @@
       </li>
       <li class="list-group-item p-2 btn-sm border-bottom-0 v-step-negotiation-7">
         <PDFButton
-          v-if="config.exportEnabled"
+          v-if="pdfExportEnabled"
           id="pdf-button"
           class="mt-2 v-step-negotiation-8"
           :negotiation-pdf-data="negotiation"
@@ -120,7 +120,7 @@
           :include-attachments="false"
         />
         <PDFButton
-          v-if="config.exportEnabled"
+          v-if="pdfExportEnabled"
           id="merged-pdf-button"
           class="mt-2"
           :negotiation-pdf-data="negotiation"
@@ -154,7 +154,7 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { ref } from 'vue'
 import axios from 'axios'
 import UiBadge from '@/components/ui/UiBadge.vue'
 import PDFButton from '@/components/PDFButton.vue'
@@ -171,8 +171,9 @@ import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from '../store/notifications'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
+import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
 
-const config = inject('config')
+const { pdfExportEnabled } = useFeatureFlags()
 
 useNegotiationPageStore()
 const notifications = useNotificationsStore()

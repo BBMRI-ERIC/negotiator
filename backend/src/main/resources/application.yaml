@@ -111,8 +111,8 @@ negotiator:
       enabled: true
   email:
     frequency-cron-expression: "0 0 * * * *"
-  export:
-    enabled: true
+  feature-flags:
+    pdf-export-enabled: false
 logging:
   pattern:
     level: "%p"

@@ -1,8 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
@@ -92,8 +89,8 @@ public class NegotiationController {
     this.negotiationPdfService = negotiationPdfService;
   }
 
-  @Value("${negotiator.export.enabled:false}")
-  private boolean exportEnabled;
+  @Value("${negotiator.feature-flags.pdf-export-enabled:${negotiator.export.enabled:false}}")
+  private boolean pdfExportEnabled;
 
   /** Create a negotiation */
   @PostMapping(
@@ -315,18 +312,6 @@ public class NegotiationController {
     negotiationService.removeResourceFromNegotiation(id, resourceId);
   }
 
-  @GetMapping(value = "/negotiations/pdf/config")
-  @Operation(
-      summary = "Check PDF download configuration",
-      description = "Returns system configuration indicating whether PDF downloads are enabled.")
-  @SecurityRequirement(name = "security_auth")
-  public EntityModel<PdfConfigDTO> getPdfConfig() {
-    PdfConfigDTO config = new PdfConfigDTO(exportEnabled);
-
-    return EntityModel.of(
-        config, linkTo(methodOn(NegotiationController.class).getPdfConfig()).withSelfRel());
-  }
-
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(
       summary = "Generate a PDF for a negotiation",
@@ -340,7 +325,7 @@ public class NegotiationController {
                   "Whether to include attachments to the generated PDF or not. By default it's false")
           @RequestParam(value = "includeAttachments", required = false, defaultValue = "false")
           boolean includeAttachments) {
-    if (!exportEnabled || !negotiationService.isAuthorizedForNegotiation(id)) {
+    if (!pdfExportEnabled || !negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
