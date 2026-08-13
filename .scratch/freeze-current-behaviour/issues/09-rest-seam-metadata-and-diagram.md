@@ -99,6 +99,22 @@ The Event endpoints go through `NegotiationEventConverter` / `NegotiationResourc
 which swallow the `IllegalArgumentException` and throw a bare
 `ResponseStatusException(HttpStatus.BAD_REQUEST)` with no reason, producing an empty body.
 
+#### Why the detail text is recorded here rather than asserted
+
+The first draft of `LifecycleMetadataEndpointsTest` asserted those two bodies verbatim, and the
+forbidden-reference guard rejected it — correctly. An assertion containing
+`...NegotiationState.NOT_A_STATE` names an enum the redesign deletes, so it can only ever go red at
+cutover. Pinning it as parity would have dressed a guaranteed delta up as a guarantee.
+
+What the test asserts instead is everything that can actually hold across the cutover: status 400,
+`application/json`, `title` and `status`, and that `detail` is derived from the rejected name
+(`startsWith("No enum constant ")`, `endsWith(".NOT_A_STATE")`) rather than being a fixed message.
+The verbatim text lives in the table above, which is the before-picture a later slab needs; putting
+it back into the test is a one-line change if anyone wants it.
+
+This is the first case where the guard caught something a reviewer plausibly would not have, which
+is the argument for having built it.
+
 Same converters, second consequence: they call `valueOf(source.toUpperCase())`, so
 `/v3/negotiation-lifecycle/events/approve` returns **200** while
 `/v3/negotiation-lifecycle/states/submitted` returns **400**. Pinned.
