@@ -1,8 +1,8 @@
 <template>
   <div v-if="!loading" class="container">
     <div class="pt-1">
-      <div class="row mt-2 pt-3">
-        <div class="col-12 mb-3">
+      <div class="row my-3">
+        <div class="col-12 mb-0">
           <div class="input-group">
             <span class="input-group-text">
               <i class="bi bi-search"></i>
@@ -25,7 +25,7 @@
           </div>
         </div>
       </div>
-      <div class="row row-cols-2 align-items-center">
+      <div class="row row-cols-2 align-items-center my-3">
         <p class="mb-0">
           <span
             class="negotiations-number"
