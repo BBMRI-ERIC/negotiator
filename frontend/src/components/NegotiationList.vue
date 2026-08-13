@@ -25,15 +25,8 @@
           </div>
         </div>
       </div>
-      <div class="row row-cols-2 d-grid-row">
-        <p>
-          <span
-            class="negotiations-search-results"
-            :style="{ color: 'var(--bs-search-results-text)' }"
-          >
-            <strong>Search results: </strong>
-          </span>
-          <br />
+      <div class="row row-cols-2 align-items-center">
+        <p class="mb-0">
           <span
             class="negotiations-number"
             :style="{ color: 'var(--bs-search-results-text)', opacity: 0.5 }"
@@ -41,7 +34,7 @@
           >
         </p>
 
-        <div class="text-end my-2">
+        <div class="text-end">
           <button
             v-if="negotiations.length > 0"
             type="button"
