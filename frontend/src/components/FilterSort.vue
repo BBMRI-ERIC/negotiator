@@ -2,7 +2,7 @@
   <div
     class="container d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center gap-3 my-2"
   >
-    <div class="d-flex flex-wrap align-items-center gap-2 v-step-20">
+    <div class="d-flex flex-wrap align-items-center gap-2 v-step-20 w-100">
       <div class="sort-by v-step-21">
         <FilterButton
           :customStyle="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
@@ -188,10 +188,12 @@
           Clear all filters
         </FilterButton>
       </div>
-    </div>
 
-    <div v-if="!networkActivated" class="flex-shrink-0 ms-xl-auto">
-      <NewRequestButton />
+      <div class="flex-grow-1 d-flex justify-content-end">
+        <div v-if="!networkActivated" class="flex-shrink-0">
+          <NewRequestButton />
+        </div>
+      </div>
     </div>
   </div>
 </template>
