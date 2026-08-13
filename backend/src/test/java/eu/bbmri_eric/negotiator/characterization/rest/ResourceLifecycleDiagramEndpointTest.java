@@ -31,9 +31,9 @@ import org.springframework.web.context.WebApplicationContext;
  *
  * <p>The endpoint is built by walking the transition set from the initial State and descending into
  * each target as it goes. Because a target can be reached along several paths, the response is
- * <em>path-shaped rather than graph-shaped</em>: it is a nested tree in which whole subtrees repeat,
- * and its size grows with the number of paths through the Lifecycle rather than with the number of
- * transitions. The 13 configured transitions render as 29 nodes.
+ * <em>path-shaped rather than graph-shaped</em>: it is a nested tree in which whole subtrees
+ * repeat, and its size grows with the number of paths through the Lifecycle rather than with the
+ * number of transitions. The 13 configured transitions render as 29 nodes.
  *
  * <p>Two consequences are pinned below because a reimplementation from relational configuration has
  * to decide about both: the walk keeps no visited set, so it terminates only because the Resource
