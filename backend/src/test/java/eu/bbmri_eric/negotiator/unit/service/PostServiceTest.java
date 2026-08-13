@@ -380,12 +380,14 @@ public class PostServiceTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION")
+  @WithMockNegotiatorUser(id = BIOBANKER_1_ID, authorities = "ROLE_HELPDESK_INTEGRATION")
   public void test_createPost_asHelpdeskIntegration_withHelpdeskActor_setsHelpdeskActorOnEntity() {
-    negotiation.setPublicPostsEnabled(true);
+    negotiation.setPrivatePostsEnabled(true);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
-    Post savedPost = Post.builder().text("message").type(PostType.PUBLIC).build();
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
+
+    Post savedPost = Post.builder().text("message").type(PostType.PRIVATE).build();
     savedPost.setCreatedBy(researcher);
     when(postRepository.save(any()))
         .thenAnswer(
@@ -395,7 +397,7 @@ public class PostServiceTest {
               return savedPost;
             });
     PostCreateDTO postCreateDTO =
-        TestUtils.createPostDTO("message", PostType.PUBLIC, "john.smith@helpdesk.org");
+        TestUtils.createPostDTO("message", PostType.PRIVATE, "john.smith@helpdesk.org");
     when(modelMapper.map(savedPost, PostDTO.class))
         .thenReturn(
             PostDTO.builder()
@@ -403,7 +405,7 @@ public class PostServiceTest {
                 .createdBy(new UserResponseModel())
                 .creationDate(LocalDateTime.now())
                 .text("message")
-                .type(PostType.PUBLIC)
+                .type(PostType.PRIVATE)
                 .helpdeskActor("john.smith@helpdesk.org")
                 .build());
     PostDTO result = postService.create(postCreateDTO, negotiation.getId());
@@ -411,11 +413,12 @@ public class PostServiceTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = RESEARCHER_ID)
+  @WithMockNegotiatorUser(id = BIOBANKER_1_ID)
   public void test_createPost_asRegularUser_withHelpdeskActor_doesNotSetHelpdeskActorOnEntity() {
-    negotiation.setPublicPostsEnabled(true);
+    negotiation.setPrivatePostsEnabled(true);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
     when(postRepository.save(any()))
         .thenAnswer(
             invocation -> {
@@ -423,9 +426,9 @@ public class PostServiceTest {
               assertNull(p.getHelpdeskActor());
               return publicPost1;
             });
-    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
+
     PostCreateDTO postCreateDTO =
-        TestUtils.createPostDTO("message", PostType.PUBLIC, "injected-actor");
+        TestUtils.createPostDTO("message", PostType.PRIVATE, "injected-actor");
     when(modelMapper.map(publicPost1, PostDTO.class))
         .thenReturn(
             PostDTO.builder()
@@ -433,7 +436,7 @@ public class PostServiceTest {
                 .createdBy(new UserResponseModel())
                 .creationDate(LocalDateTime.now())
                 .text("message")
-                .type(PostType.PUBLIC)
+                .type(PostType.PRIVATE)
                 .build());
     PostDTO result = postService.create(postCreateDTO, negotiation.getId());
     assertNull(result.getHelpdeskActor());
