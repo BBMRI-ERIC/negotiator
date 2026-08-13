@@ -51,6 +51,8 @@ springdoc:
         }
 negotiator:
   frontend-url: "http://localhost:8080"
+  feature-flags:
+    pdf-export-enabled: true
   webhook:
     secret-encryption:
       enabled: false
