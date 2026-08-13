@@ -221,7 +221,7 @@ jobs:
         run: docker load --input /tmp/negotiator-frontend.tar
 
       - name: Setup API server
-        run: docker compose up -d
+        run: FEATURE_FLAG_PDF_EXPORT_ENABLED=true docker compose up -d
 
       - name: Wait
         run: sleep 30
