@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center gap-3 my-3"
+    class="container d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center gap-3"
   >
     <div class="d-flex flex-wrap align-items-center gap-2 v-step-20 w-100">
       <div class="sort-by v-step-21">
