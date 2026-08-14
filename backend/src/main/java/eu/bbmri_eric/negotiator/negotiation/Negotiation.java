@@ -247,7 +247,11 @@ public class Negotiation extends AuditEntity {
       Resource resource, NegotiationResourceState state, String helpdeskActor) {
     if (!state.equals(NegotiationResourceState.SUBMITTED)) {
       NegotiationResourceLifecycleRecord record =
-          NegotiationResourceLifecycleRecord.builder().changedTo(state).resource(resource).helpdeskActor(helpdeskActor).build();
+          NegotiationResourceLifecycleRecord.builder()
+              .changedTo(state)
+              .resource(resource)
+              .helpdeskActor(helpdeskActor)
+              .build();
       record.setCreationDate(LocalDateTime.now());
       record.setModifiedDate(LocalDateTime.now());
       this.negotiationResourceLifecycleRecords.add(record);
