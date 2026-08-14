@@ -1,12 +1,18 @@
 package eu.bbmri_eric.negotiator.characterization.adapter;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,14 +34,17 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
   private final NegotiationLifecycleService negotiationLifecycleService;
   private final ResourceLifecycleService resourceLifecycleService;
   private final NegotiationRepository negotiationRepository;
+  private final ResourceService resourceService;
 
   EnumBackedLifecycleTestAdapter(
       NegotiationLifecycleService negotiationLifecycleService,
       ResourceLifecycleService resourceLifecycleService,
-      NegotiationRepository negotiationRepository) {
+      NegotiationRepository negotiationRepository,
+      ResourceService resourceService) {
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceLifecycleService = resourceLifecycleService;
     this.negotiationRepository = negotiationRepository;
+    this.resourceService = resourceService;
   }
 
   @Override
@@ -88,6 +97,21 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
   }
 
   @Override
+  public Map<String, String> overrideResourceStates(
+      String negotiationId, List<Long> resourceRowIds, String state) {
+    List<ResourceWithStatusDTO> resources =
+        resourceService.updateResourcesInANegotiation(
+            negotiationId, new UpdateResourcesDTO(resourceRowIds, resourceState(state)));
+    Map<String, String> statesBySourceId = new HashMap<>();
+    for (ResourceWithStatusDTO resource : resources) {
+      statesBySourceId.put(
+          resource.getSourceId(),
+          resource.getCurrentState() == null ? null : resource.getCurrentState().name());
+    }
+    return statesBySourceId;
+  }
+
+  @Override
   public Map<String, Object> resourceLifecycleDiagram() {
     return resourceLifecycleService.getStateMachineDiagram();
   }
@@ -105,6 +129,14 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
       return NegotiationResourceEvent.valueOf(event);
     } catch (IllegalArgumentException | NullPointerException e) {
       throw unknownName(event, "Resource Event", NegotiationResourceEvent.values());
+    }
+  }
+
+  private static NegotiationResourceState resourceState(String state) {
+    try {
+      return NegotiationResourceState.valueOf(state);
+    } catch (IllegalArgumentException | NullPointerException e) {
+      throw unknownName(state, "Resource State", NegotiationResourceState.values());
     }
   }
 
