@@ -11,6 +11,7 @@ Snapshot taken when the session stopped. Update or delete this file once the sla
 | 09 REST seam | **done** | 26 tests green after one cross-ticket fix (see below) |
 | 03 Negotiation parity | **done** | 63 tests green; all 12 criteria re-verified against surefire output |
 | 04 Resource parity | **done** | 52 tests green; all 14 criteria re-verified against surefire output |
+| 05 Information Requirement gate | **done** | 11 tests green; all criteria re-verified against surefire output |
 
 Parity gate as it stands:
 
@@ -18,7 +19,8 @@ Parity gate as it stands:
 /home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
-**157 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator). It was 158
+**168 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator) as of ticket
+05. It was 157 before 05, and 158
 when 04 landed; a follow-up review of `26da8c45` and `fd7d0385` deleted one strictly weaker duplicate
 test — `NegotiationDraftReachabilityTest.approved_isDeclaredButNeverEntered`, whose statement
 `NegotiationGraphV1BindingTest.legacyState_isDeclaredButUnusedInTheDump` already makes against the
@@ -42,15 +44,19 @@ by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The bran
   hand-rolled authentication), `service/LifecyclePersistence` (the one bounded post-send wait and
   the one `PERSIST_TIMEOUT`), and `rest/CanonicalJson` (now also the suite's one reader of committed
   artifacts: `artifact`, `namesIn`, `publishedValues`). A ticket that needs any of these should use
-  them rather than write a fourth copy.
+  them rather than write a fourth copy. Ticket 05 extended `SeededResourceSubject` again, with
+  `requireInformationFor`, `submitInformationFor` and `ANOTHER_RESOURCE_ROW_ID` — Information
+  Requirement and Submission fixtures are inserted as SQL, not JPA, because
+  `InformationRequirement.forEvent` is one of the four deleted enums and an entity-level fixture
+  could not avoid naming it.
 
 ## Not started
 
-05 (Information Requirement gate), 06 (post side effects), 07 (history rows),
-08 (event seam: spawn, conclusion, notifications), 10 (intended deltas), 11 (parity gate + findings).
+06 (post side effects), 07 (history rows), 08 (event seam: spawn, conclusion, notifications),
+10 (intended deltas), 11 (parity gate + findings).
 
-With 03 and 04 landed, **05, 06, 07 and 08 are all unblocked simultaneously** and can be fanned out in
-one wave. 10 needs 04 and 09 (both done). 11 needs everything.
+06, 07 and 08 are unblocked and independent of each other. 10 needs 04 and 09 (both done). 11 needs
+everything.
 
 ## Findings so far
 
@@ -136,6 +142,28 @@ Recorded in full in the individual ticket files. The load-bearing ones:
   ADR 0002 deletes — see below.
 - **`ResourceStateMetadataDto` alone carries an `ordinal` field** (0–11, the enum's declaration
   order, documented as significant). Relational configuration must reproduce it.
+- **The Information Requirement gate outranks everything, not just availability.** It is the first
+  statement of `ResourceLifecycleServiceImpl.sendEvent` (`:110-115`), before the Resource's State is
+  even read, so it outranks the parent-Negotiation IN_PROGRESS gate, the Required Authority rules,
+  and "this Event has no Transition anywhere". Consequences ADR 0005's Built-in Stage inherits: a
+  Requirement recorded for `OVERRIDE` or `RETURN_FOR_RESUBMISSION` turns those silent no-ops into
+  user-facing errors, and an unauthorised caller gets the Requirement error rather than the silent
+  refusal — which leaks that a Requirement exists. (Ticket 05.)
+- **The gate's refusal is a Spring *data access* exception.** `StateMachineException` extends
+  `org.springframework.dao.NonTransientDataAccessException`, so any `catch (DataAccessException)` on
+  the path would swallow it. That is the strongest argument for changing the type at cutover rather
+  than renaming it. It surfaces via `NegotiatorExceptionHandler.java:441-447` as 400 with title
+  `"Could not advance the state machine"` and the message as `detail`. Ticket 05 pins the observable
+  half — message text, unchecked, causeless, distinct from the service's own refusal types, plus the
+  HTTP shape — and **documents the type name rather than asserting it**, per ticket 09's rule. The
+  title is engine-flavoured prose, so rewording it at cutover reddens that test by design.
+- **The gate's requirement lookup is global.** `existsByForEvent(event)` is scoped by nothing else:
+  one `information_requirement` row blocks that Event for every Resource of every Negotiation. This
+  gives `@DirtiesContext` a second load-bearing role beyond the ordering rule — a leaked fixture row
+  would block that Event for the remainder of the run. Note also that the correctly scoped query
+  already exists (`existsByResource_SourceIdAndNegotiation_IdAndRequirement_Id`, used at
+  `InformationSubmissionServiceImpl.java:76`) and is deliberately not called by the gate, so the
+  unscoped check is one method call away from being "fixed" by accident at cutover. (Ticket 05.)
 
 ## One cross-ticket fix worth knowing about
 
