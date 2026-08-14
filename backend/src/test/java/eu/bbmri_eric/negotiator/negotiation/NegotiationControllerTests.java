@@ -89,6 +89,7 @@ public class NegotiationControllerTests {
   private static final String POSTS_LINK_TPL = "http://localhost/v3/negotiations/%s/posts";
   private static final String ATTACHMENTS_LINK_TPL =
       "http://localhost/v3/negotiations/%s/attachments";
+  private static final String HELPDESK_ACTOR = "john.smith@helpdesk.org";
   @Autowired PersonRepository personRepository;
   @Autowired ResourceRepository resourceRepository;
   @Autowired RequestRepository requestRepository;
@@ -2035,7 +2036,7 @@ public class NegotiationControllerTests {
       throws Exception {
     UpdateResourcesDTO dto =
         new UpdateResourcesDTO(List.of(11L, 12L), NegotiationResourceState.RESOURCE_AVAILABLE);
-    dto.setHelpdeskActor("jane.doe@helpdesk.org");
+    dto.setHelpdeskActor(HELPDESK_ACTOR);
     mockMvc
         .perform(
             MockMvcRequestBuilders.patch(
@@ -2050,8 +2051,8 @@ public class NegotiationControllerTests {
         .filter(r -> r.getChangedTo().equals(NegotiationResourceState.RESOURCE_AVAILABLE))
         .forEach(
             r -> {
-              assertEquals("jane.doe@helpdesk.org", r.getHelpdeskActor());
-              assertEquals("jane.doe@helpdesk.org", r.getTriggeredBy());
+              assertEquals(HELPDESK_ACTOR, r.getHelpdeskActor());
+              assertEquals(HELPDESK_ACTOR, r.getTriggeredBy());
             });
   }
 
@@ -2092,7 +2093,7 @@ public class NegotiationControllerTests {
                             NEGOTIATION_7_ID,
                             resourceSourceId,
                             NegotiationResourceEvent.MARK_AS_AVAILABLE))
-                .header("X-Helpdesk-Actor", "john.smith@helpdesk.org"))
+                .header("X-Helpdesk-Actor", HELPDESK_ACTOR))
         .andExpect(status().isOk());
 
     Negotiation negotiation =
@@ -2105,8 +2106,8 @@ public class NegotiationControllerTests {
                         && r.getResource().getSourceId().equals(resourceSourceId))
             .findFirst()
             .orElseThrow();
-    assertEquals("john.smith@helpdesk.org", record.getHelpdeskActor());
-    assertEquals("john.smith@helpdesk.org", record.getTriggeredBy());
+    assertEquals(HELPDESK_ACTOR, record.getHelpdeskActor());
+    assertEquals(HELPDESK_ACTOR, record.getTriggeredBy());
   }
 
   @Test
