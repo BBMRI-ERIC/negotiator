@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -130,6 +131,24 @@ public final class CanonicalJson {
     return StreamSupport.stream(array.spliterator(), false)
         .map(JsonNode::asText)
         .collect(Collectors.toUnmodifiableSet());
+  }
+
+  /**
+   * The user-facing {@code label} of every member of a committed HAL collection, keyed by its
+   * {@code value}.
+   *
+   * <p>Labels are data the redesign carries forward rather than names it deletes, and they reach
+   * users through more than the metadata endpoint - a notification body is built out of two of
+   * them. Reading them from the committed artifact rather than transcribing them keeps that one
+   * statement of the labels, so a label edit shows up in one place instead of two.
+   */
+  public static Map<String, String> publishedLabels(String classpathResource, String rel) {
+    Map<String, String> labels = new LinkedHashMap<>();
+    artifact(classpathResource)
+        .get("_embedded")
+        .get(rel)
+        .forEach(member -> labels.put(member.get("value").asText(), member.get("label").asText()));
+    return labels;
   }
 
   /**

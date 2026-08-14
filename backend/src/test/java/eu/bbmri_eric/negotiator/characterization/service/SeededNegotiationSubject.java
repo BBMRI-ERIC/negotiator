@@ -2,7 +2,9 @@ package eu.bbmri_eric.negotiator.characterization.service;
 
 import eu.bbmri_eric.negotiator.characterization.service.NegotiationGraphV1.PostFlags;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -36,6 +38,40 @@ final class SeededNegotiationSubject {
 
   /** The only Negotiation the seed places in {@code DRAFT}. */
   static final String SEEDED_IN_DRAFT = "negotiation-6";
+
+  /**
+   * Seeded {@code SUBMITTED} with two Resources and no State recorded for either, which is what
+   * makes it the subject of the spawn tests: it is the only seeded Negotiation that still has
+   * Resources waiting to be initialised.
+   *
+   * <p>Its two seeded Resources are represented by two different people - {@link
+   * #REPRESENTATIVE_OF_FIRST_RESOURCE} and {@link #REPRESENTATIVE_OF_SECOND_RESOURCE} - and it is
+   * created by {@link #CREATOR}, so who was notified is a question with a discriminating answer.
+   * {@link #UNREPRESENTED_RESOURCE_ROW_ID} is attached by hand where the third case matters.
+   */
+  static final String WITH_UNINITIALISED_RESOURCES = "negotiation-5";
+
+  /** {@code biobank:1:collection:2}, one of {@link #WITH_UNINITIALISED_RESOURCES}'s Resources. */
+  static final String FIRST_RESOURCE = "biobank:1:collection:2";
+
+  /** The database row id of {@link #FIRST_RESOURCE}, which only the link table needs. */
+  static final long FIRST_RESOURCE_ROW_ID = 5L;
+
+  /** {@code biobank:3:collection:1}, the other seeded Resource of that Negotiation. */
+  static final String SECOND_RESOURCE = "biobank:3:collection:1";
+
+  static final long REPRESENTATIVE_OF_FIRST_RESOURCE = 109L;
+  static final long REPRESENTATIVE_OF_SECOND_RESOURCE = 105L;
+
+  /**
+   * The only seeded Resource with no representative at all, linked to no Negotiation by the seed.
+   * Attached by {@link #linkResource} where "a Resource nobody can be told about" is the case under
+   * test.
+   */
+  static final long UNREPRESENTED_RESOURCE_ROW_ID = 10L;
+
+  /** The {@code source_id} of {@link #UNREPRESENTED_RESOURCE_ROW_ID}. */
+  static final String UNREPRESENTED_RESOURCE = "biobank:3:collection:4";
 
   /** The caller every driving test uses: the one caller offered every Transition. */
   static final long ADMIN = 101L;
@@ -85,6 +121,63 @@ final class SeededNegotiationSubject {
   static int postCount(JdbcTemplate jdbcTemplate, String negotiationId) {
     return jdbcTemplate.queryForObject(
         "select count(*) from post where negotiation_id = ?", Integer.class, negotiationId);
+  }
+
+  /** Attaches a Resource to a Negotiation in a nominated State, {@code null} meaning "no State". */
+  static void linkResource(
+      JdbcTemplate jdbcTemplate, String negotiationId, long resourceRowId, String state) {
+    jdbcTemplate.update(
+        "insert into negotiation_resource_link (negotiation_id, resource_id, current_state)"
+            + " values (?, ?, ?)",
+        negotiationId,
+        resourceRowId,
+        state);
+  }
+
+  /**
+   * Puts every Resource of a Negotiation back to having no recorded State, which is the only
+   * condition under which spawn does anything at all - so a walk that fires more than one
+   * Transition has to restore it between arms or every arm after the first is vacuous.
+   */
+  static void clearResourceStates(JdbcTemplate jdbcTemplate, String negotiationId) {
+    jdbcTemplate.update(
+        "update negotiation_resource_link set current_state = null where negotiation_id = ?",
+        negotiationId);
+  }
+
+  /** Writes a State onto one link row of a Negotiation, naming it as a string. */
+  static void putResourceInState(
+      JdbcTemplate jdbcTemplate, String negotiationId, long resourceRowId, String state) {
+    jdbcTemplate.update(
+        "update negotiation_resource_link set current_state = ?"
+            + " where negotiation_id = ? and resource_id = ?",
+        state,
+        negotiationId,
+        resourceRowId);
+  }
+
+  /** The State of every Resource of a Negotiation, keyed by the Resource's source id. */
+  static Map<String, String> resourceStates(JdbcTemplate jdbcTemplate, String negotiationId) {
+    Map<String, String> states = new HashMap<>();
+    jdbcTemplate
+        .query(
+            "select resource.source_id, link.current_state from negotiation_resource_link link"
+                + " join resource on resource.id = link.resource_id where link.negotiation_id = ?",
+            (row, index) -> Map.entry(row.getString(1), String.valueOf(row.getString(2))),
+            negotiationId)
+        .forEach(
+            entry ->
+                states.put(
+                    entry.getKey(), "null".equals(entry.getValue()) ? null : entry.getValue()));
+    return states;
+  }
+
+  /** Backdates a Negotiation, which is how the pending reminder's own lookup is satisfied. */
+  static void setCreationDateDaysAgo(JdbcTemplate jdbcTemplate, String negotiationId, int days) {
+    jdbcTemplate.update(
+        "update negotiation set creation_date = now() - make_interval(days => ?) where id = ?",
+        days,
+        negotiationId);
   }
 
   static LocalDateTime creationDate(JdbcTemplate jdbcTemplate, String negotiationId) {
