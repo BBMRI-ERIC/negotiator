@@ -10,7 +10,10 @@
       @toggle-collapse="toggleCollapse"
       @update-org-status="handleUpdateOrgStatus"
     />
-    <div :id="`card-body-block-${sanitizeId(orgId)}`" class="collapse multi-collapse">
+    <div
+      :id="`card-body-block-${sanitizeId(orgId)}`"
+      class="collapse multi-collapse"
+    >
       <ResourceItem
         v-for="resource in resources"
         :key="resource.id"
@@ -52,7 +55,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, onBeforeMount, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import OrganizationHeader from './OrganizationHeader.vue'
 import ResourceItem from './ResourceItem.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
@@ -79,6 +82,9 @@ const resources = ref([])
 const isFetchingResources = ref(false)
 const pageInfo = ref({ number: 0, totalPages: 0, size: 20 })
 const negotiationPageStore = useNegotiationPageStore()
+const isExpanded = ref(false)
+const currentPage = ref(0)
+const resourcesCache = new Map()
 
 const dropdownVisible = reactive({})
 
@@ -93,6 +99,9 @@ const toggleDropdown = (orgId) => {
 }
 
 const toggleCollapse = (orgId) => {
+  const willExpand = !isExpanded.value
+  isExpanded.value = willExpand
+
   emit('toggle-collapse', orgId)
 }
 
@@ -120,25 +129,43 @@ function editInfoSubmission(href) {
   emit('edit-info-submission', href)
 }
 
-async function fetchResources(targetPage = 0) {
+async function fetchResources(targetPage = currentPage.value, { force = false } = {}) {
+  const pageToLoad = targetPage ?? currentPage.value
+
+  if (!force && resourcesCache.has(pageToLoad)) {
+    const cachedPage = resourcesCache.get(pageToLoad)
+    currentPage.value = pageToLoad
+    resources.value = cachedPage.resources
+    pageInfo.value = cachedPage.pageInfo
+    return cachedPage.response
+  }
+
   if (isFetchingResources.value) return
 
   isFetchingResources.value = true
+  currentPage.value = pageToLoad
 
   try {
     const response =
       await negotiationPageStore.retrieveResourcesByNegotiationIdAndOrganizationIdPaginated(
         props.negotiationId,
         props.orgId,
-        { page: targetPage, size: pageInfo.value.size || 20, sort: 'id' },
+        { page: pageToLoad, size: pageInfo.value.size || 20, sort: 'id' },
       )
 
     if (response !== undefined) {
-      resources.value = response?._embedded?.resources || []
+      const loadedResources = response?._embedded?.resources || []
+      const loadedPageInfo = response?.page ? { ...response.page } : { ...pageInfo.value }
 
-      if (response?.page) {
-        pageInfo.value = response.page
-      }
+      resources.value = loadedResources
+      pageInfo.value = loadedPageInfo
+      resourcesCache.set(pageToLoad, {
+        resources: loadedResources,
+        pageInfo: loadedPageInfo,
+        response,
+      })
+
+      return response
     }
   } finally {
     isFetchingResources.value = false
@@ -148,12 +175,16 @@ async function fetchResources(targetPage = 0) {
 watch(
   () => props.resourcesLastUpdated,
   () => {
-    fetchResources(pageInfo.value.number)
+    resourcesCache.clear()
+
+    if (isExpanded.value) {
+      void fetchResources(currentPage.value, { force: true })
+    }
   },
 )
 
-onBeforeMount(async () => {
-  await fetchResources(0)
+onMounted(() => {
+  void fetchResources(0)
 })
 
 defineExpose({
