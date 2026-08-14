@@ -96,7 +96,7 @@ public class NegotiationController {
     this.negotiationPdfService = negotiationPdfService;
   }
 
-  @Value("${negotiator.feature-flags.pdf-export-enabled:${negotiator.export.enabled:false}}")
+  @Value("${negotiator.feature-flags.pdf-export-enabled:false}")
   private boolean pdfExportEnabled;
 
   /** Create a negotiation */
