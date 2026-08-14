@@ -398,7 +398,11 @@ public class PostServiceTest {
               return savedPost;
             });
     PostCreateDTO postCreateDTO =
-        TestUtils.createPostDTO(NEGOTIATION_HELPDESK_ORGANIZATION_ID, "message", PostType.PRIVATE, "john.smith@helpdesk.org");
+        TestUtils.createPostDTO(
+            NEGOTIATION_HELPDESK_ORGANIZATION_ID,
+            "message",
+            PostType.PRIVATE,
+            "john.smith@helpdesk.org");
     when(modelMapper.map(savedPost, PostDTO.class))
         .thenReturn(
             PostDTO.builder()
