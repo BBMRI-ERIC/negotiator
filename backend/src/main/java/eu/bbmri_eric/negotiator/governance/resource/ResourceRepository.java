@@ -67,6 +67,15 @@ order by rs.source_id;
         where
             nrl.negotiation_id = :negotiationId and o.external_id = :organizationId
         """,
+      countQuery =
+          """
+        select count(*)
+        from resource rs
+            join public.negotiation_resource_link nrl on rs.id = nrl.resource_id
+            join public.organization o on o.id = rs.organization_id
+        where
+            nrl.negotiation_id = :negotiationId and o.external_id = :organizationId
+        """,
       nativeQuery = true)
   Page<ResourceViewDTO> findByNegotiationAndOrganizationPaginated(
       String negotiationId, String organizationId, Pageable pageable);
