@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading" class="container">
-    <div class="pt-1">
-      <div class="row my-3">
+    <div class="d-flex flex-column gap-3">
+      <div class="row">
         <div class="col-12 mb-0">
           <div class="input-group">
             <span class="input-group-text">
@@ -25,7 +25,7 @@
           </div>
         </div>
       </div>
-      <div class="row row-cols-2 align-items-center my-3">
+      <div class="row row-cols-2 align-items-center">
         <p class="mb-0">
           <span
             class="negotiations-number"
