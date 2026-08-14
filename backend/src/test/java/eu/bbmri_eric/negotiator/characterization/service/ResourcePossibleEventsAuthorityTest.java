@@ -1,18 +1,20 @@
 package eu.bbmri_eric.negotiator.characterization.service;
 
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.ADMIN;
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.CREATOR;
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.NEGOTIATION;
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.REPRESENTATIVE;
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.RESOURCE;
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.authenticateAs;
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.clearResourceState;
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.putNegotiationInState;
+import static eu.bbmri_eric.negotiator.characterization.service.SeededResourceSubject.putResourceInState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.bbmri_eric.negotiator.characterization.adapter.LifecycleTestAdapter;
 import eu.bbmri_eric.negotiator.characterization.adapter.LifecycleTestAdapterConfig;
-import eu.bbmri_eric.negotiator.common.configuration.security.oauth2.NegotiatorJwtAuthenticationToken;
-import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +33,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.annotation.DirtiesContext;
 
 /**
@@ -61,27 +60,20 @@ import org.springframework.test.annotation.DirtiesContext;
  * ticket 03 left behind - a class that <em>drives</em> a Lifecycle must dirty the context after
  * each test method - is met by {@link ResourceTransitionParityTest}, which is the driving class.)
  *
- * <p>The subject is {@code negotiation-1} - IN_PROGRESS, created by 108 - and its Resource {@code
- * biobank:1:collection:1} (row 4), represented by 109 and 103. Caller 104 has none of those
- * relationships and is not an admin; caller 105 represents Resources of another organization only.
+ * <p>The subject, and the three callers that satisfy the graph's three Required Authority rules,
+ * are {@link SeededResourceSubject}. Two more callers appear only here: 104 has none of those
+ * relationships and is not an admin, and 105 represents Resources of another organization only.
  */
 @IntegrationTest(loadTestData = true)
 @Import(LifecycleTestAdapterConfig.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class ResourcePossibleEventsAuthorityTest {
 
-  private static final String NEGOTIATION = "negotiation-1";
-  private static final String RESOURCE = "biobank:1:collection:1";
-  private static final long RESOURCE_ROW_ID = 4L;
-
   /** ABANDONED in the seed, holding Resource {@code biobank:3:collection:1} in SUBMITTED. */
   private static final String ABANDONED_NEGOTIATION = "negotiation-v2";
 
   private static final String RESOURCE_OF_ANOTHER_NEGOTIATION = "biobank:3:collection:1";
 
-  private static final long ADMIN = 101L;
-  private static final long REPRESENTATIVE = 109L;
-  private static final long CREATOR = 108L;
   private static final long UNRELATED = 104L;
 
   /** Represents {@code biobank:3:*} and so no Resource of the subject Negotiation. */
@@ -92,8 +84,8 @@ class ResourcePossibleEventsAuthorityTest {
 
   @BeforeEach
   void resetSubject() {
-    putNegotiationInState(NEGOTIATION, ResourceGraphV1.REQUIRED_PARENT_STATE);
-    putResourceInState(ResourceGraphV1.INITIAL_STATE);
+    putNegotiationInState(jdbcTemplate, ResourceGraphV1.REQUIRED_PARENT_STATE);
+    putResourceInState(jdbcTemplate, ResourceGraphV1.INITIAL_STATE);
   }
 
   @AfterEach
@@ -120,8 +112,8 @@ class ResourcePossibleEventsAuthorityTest {
 
     Map<String, Set<String>> observed = new LinkedHashMap<>();
     Map<String, Set<String>> expected = new LinkedHashMap<>();
-    for (String state : ResourceGraphV1.ALL_STATE_NAMES) {
-      putResourceInState(state);
+    for (String state : ResourceGraphV1.allStateNames().stream().sorted().toList()) {
+      putResourceInState(jdbcTemplate, state);
       observed.put(state, adapter.possibleResourceEvents(NEGOTIATION, RESOURCE));
       expected.put(state, ResourceGraphV1.eventsFor(state, authorityRule));
     }
@@ -159,7 +151,7 @@ class ResourcePossibleEventsAuthorityTest {
   @DisplayName("Events are offered only while the parent Negotiation is IN_PROGRESS")
   void possibleEvents_areGatedOnTheParentBeingInProgress(String parentState) {
     authenticateAs(ADMIN);
-    putNegotiationInState(NEGOTIATION, parentState);
+    putNegotiationInState(jdbcTemplate, parentState);
 
     Set<String> offered = adapter.possibleResourceEvents(NEGOTIATION, RESOURCE);
 
@@ -218,7 +210,7 @@ class ResourcePossibleEventsAuthorityTest {
   @DisplayName("a linked Resource with no recorded State is offered nothing")
   void possibleEvents_forResourceWithNoRecordedState_isEmpty() {
     authenticateAs(ADMIN);
-    clearResourceState();
+    clearResourceState(jdbcTemplate);
 
     assertThat(adapter.currentResourceState(NEGOTIATION, RESOURCE)).isNull();
     assertThat(adapter.possibleResourceEvents(NEGOTIATION, RESOURCE)).isEmpty();
@@ -288,49 +280,5 @@ class ResourcePossibleEventsAuthorityTest {
     } else {
       assertThat(offered).isEmpty();
     }
-  }
-
-  private void putResourceInState(String state) {
-    jdbcTemplate.update(
-        "update negotiation_resource_link set current_state = ?"
-            + " where negotiation_id = ? and resource_id = ?",
-        state,
-        NEGOTIATION,
-        RESOURCE_ROW_ID);
-  }
-
-  private void clearResourceState() {
-    jdbcTemplate.update(
-        "update negotiation_resource_link set current_state = null"
-            + " where negotiation_id = ? and resource_id = ?",
-        NEGOTIATION,
-        RESOURCE_ROW_ID);
-  }
-
-  private void putNegotiationInState(String negotiationId, String state) {
-    jdbcTemplate.update(
-        "update negotiation set current_state = ? where id = ?", state, negotiationId);
-  }
-
-  private void authenticateAs(long personId) {
-    authenticateAs(personId, personId == ADMIN ? List.of("ROLE_ADMIN") : List.of());
-  }
-
-  private void authenticateAs(long personId, List<String> authorities) {
-    Person principal = Person.builder().id(personId).name("caller-" + personId).build();
-    Collection<GrantedAuthority> granted = new ArrayList<>();
-    authorities.forEach(authority -> granted.add(new SimpleGrantedAuthority(authority)));
-    SecurityContext context = SecurityContextHolder.createEmptyContext();
-    context.setAuthentication(new NegotiatorJwtAuthenticationToken(principal, testJwt(), granted));
-    SecurityContextHolder.setContext(context);
-  }
-
-  private static Jwt testJwt() {
-    HashMap<String, Object> headers = new HashMap<>();
-    headers.put("typ", "JWT");
-    HashMap<String, Object> claims = new HashMap<>();
-    claims.put("sub", "characterization");
-    return new Jwt(
-        "testToken", Instant.now(), Instant.now().plus(3L, ChronoUnit.HOURS), headers, claims);
   }
 }

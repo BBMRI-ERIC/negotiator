@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.characterization.rest;
 
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -14,10 +15,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
- * Turns a JSON payload into a canonical, human-readable string so that a characterization test can
- * compare bytes on the wire against a committed fixture without depending on incidental ordering.
+ * The suite's one reader of committed artifacts, and the one place that knows how to compare a JSON
+ * payload without depending on incidental ordering.
  *
  * <p>Two orderings in these payloads are incidental and would otherwise make the assertions flaky:
  *
@@ -31,8 +35,13 @@ import java.util.Objects;
  *
  * <p>Nothing else is normalised: field presence, field values, nesting and repetition all survive
  * into the compared string, which is what the freeze is about.
+ *
+ * <p>{@link #artifact}, {@link #namesIn} and {@link #publishedValues} serve the other half of the
+ * suite: the classes that bind a hand-written graph table to the mechanical dump and to the
+ * published metadata. They read the same committed files this package compares against, so they
+ * live here rather than being written out again per binding test.
  */
-final class CanonicalJson {
+public final class CanonicalJson {
 
   private static final String FIXTURE_ROOT = "/characterization/rest/";
 
@@ -89,5 +98,48 @@ final class CanonicalJson {
     } catch (IOException e) {
       throw new IllegalStateException("could not read fixture " + name, e);
     }
+  }
+
+  /**
+   * Reads a committed artifact anywhere on the test classpath as a JSON tree - the mechanical graph
+   * dumps under {@code lifecycle/} as well as the metadata fixtures under {@code
+   * characterization/rest/}.
+   *
+   * @throws IllegalStateException if the artifact is not on the classpath, which must never be
+   *     mistaken for "the binding holds"
+   */
+  public static JsonNode artifact(String classpathResource) {
+    try (InputStream in =
+        CanonicalJson.class.getClassLoader().getResourceAsStream(classpathResource)) {
+      if (in == null) {
+        throw new IllegalStateException(
+            "Committed artifact "
+                + classpathResource
+                + " is missing from the test classpath. The pinned graph has nothing to be bound to,"
+                + " and a table nothing binds must never be treated as a statement about the"
+                + " system.");
+      }
+      return MAPPER.readTree(new String(in.readAllBytes(), StandardCharsets.UTF_8));
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not read committed artifact " + classpathResource, e);
+    }
+  }
+
+  /** The text values of a JSON array of names, as a set. */
+  public static Set<String> namesIn(JsonNode array) {
+    return StreamSupport.stream(array.spliterator(), false)
+        .map(JsonNode::asText)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  /**
+   * The {@code value} of every member of a committed HAL collection - the shape both lifecycle
+   * metadata endpoints publish their States and Events in.
+   */
+  public static Set<String> publishedValues(String classpathResource, String rel) {
+    return StreamSupport.stream(
+            artifact(classpathResource).get("_embedded").get(rel).spliterator(), false)
+        .map(member -> member.get("value").asText())
+        .collect(Collectors.toUnmodifiableSet());
   }
 }

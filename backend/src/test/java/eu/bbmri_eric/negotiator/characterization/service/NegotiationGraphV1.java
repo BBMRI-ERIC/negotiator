@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The Negotiation Definition graph as it stands today, named entirely in strings.
@@ -27,9 +28,12 @@ import java.util.stream.Collectors;
  * <p>Two facts about the graph are worth stating here because they shape every table below:
  *
  * <ul>
- *   <li>the Definition declares eight States but only seven can ever hold a Negotiation - {@code
- *       APPROVED} is a Legacy State, declared because the configuration registers the whole set at
- *       once, with no Transition leading into it and no seeded Negotiation sitting in it;
+ *   <li>the Definition declares eight States, and {@code APPROVED} is a Legacy State: declared
+ *       because the configuration registers the whole set at once, entered by no Transition, and
+ *       occupied by no seeded Negotiation. That is a narrower claim than "only seven States can
+ *       ever hold a Negotiation" - as the next point shows, a State can be occupied from outside
+ *       the Lifecycle without being enterable through it, and nothing here pins that {@code
+ *       APPROVED} could not be occupied the same way;
  *   <li>{@code DRAFT} is a source with no way in: {@code DRAFT --SUBMIT--> SUBMITTED} exists, no
  *       Transition anywhere targets {@code DRAFT}, and the initial State is {@code SUBMITTED}. That
  *       it is nevertheless *occupied* by seeded data is a separate fact, pinned by {@link
@@ -99,10 +103,9 @@ final class NegotiationGraphV1 {
    * {@link ResourcePossibleEventsAuthorityTest}.
    */
   static Set<String> allStateNames() {
-    return java.util.stream.Stream.concat(
-            TRANSITIONS.stream()
-                .flatMap(edge -> java.util.stream.Stream.of(edge.source(), edge.target())),
-            java.util.stream.Stream.of(LEGACY_STATE))
+    return Stream.concat(
+            TRANSITIONS.stream().flatMap(edge -> Stream.of(edge.source(), edge.target())),
+            Stream.of(LEGACY_STATE))
         .collect(Collectors.toUnmodifiableSet());
   }
 
