@@ -92,9 +92,6 @@ const formViewModalInstance = ref(null)
 const isFormEditable = ref(false)
 
 async function reloadLocalCardResources() {
-  if (organizationCardRef.value) {
-    await organizationCardRef.value.fetchResources()
-  }
   emit('reloadResourceInfo')
 }
 
