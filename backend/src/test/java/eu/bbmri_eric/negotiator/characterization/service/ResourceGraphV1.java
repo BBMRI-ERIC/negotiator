@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.characterization.service;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The Resource Definition graph as it stands today, named entirely in strings.
@@ -123,21 +124,23 @@ final class ResourceGraphV1 {
   /** Declared by the Definition, named by no Transition - see the class comment. */
   static final String LEGACY_STATE = "RETURNED_FOR_RESUBMISSION";
 
-  /** The twelve declared States, in the order the dump lists them. */
-  static final List<String> ALL_STATE_NAMES =
-      List.of(
-          "ACCESS_CONDITIONS_INDICATED",
-          "ACCESS_CONDITIONS_MET",
-          "CHECKING_AVAILABILITY",
-          "REPRESENTATIVE_CONTACTED",
-          "REPRESENTATIVE_UNREACHABLE",
-          "RESOURCE_AVAILABLE",
-          "RESOURCE_MADE_AVAILABLE",
-          "RESOURCE_NOT_MADE_AVAILABLE",
-          "RESOURCE_UNAVAILABLE",
-          "RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT",
-          "RETURNED_FOR_RESUBMISSION",
-          "SUBMITTED");
+  /**
+   * The twelve States the Definition declares: the eleven the Transitions name, plus the Legacy
+   * State no Transition mentions.
+   *
+   * <p>Derived rather than listed, for the reason its sibling {@link
+   * NegotiationGraphV1#allStateNames()} gives - so there is one statement of the graph and not two.
+   * {@link ResourceGraphV1BindingTest#allStateNames_areTheDumpsStatesAndThePublishedStates} is what
+   * makes the derivation safe: it equates exactly this set to the dump's {@code states} array and
+   * to the States the metadata endpoint publishes. Unordered, because nothing pins an order for it
+   * - unlike {@link #TRANSITIONS}, whose order the binding test does pin.
+   */
+  static Set<String> allStateNames() {
+    return Stream.concat(
+            TRANSITIONS.stream().flatMap(edge -> Stream.of(edge.source(), edge.target())),
+            Stream.of(LEGACY_STATE))
+        .collect(Collectors.toUnmodifiableSet());
+  }
 
   /**
    * The Event universe the Definition publishes: thirteen names, two more than the dump's triggers.
@@ -178,14 +181,6 @@ final class ResourceGraphV1 {
    * to reproduce. Harmless today only because every rule carries exactly one attribute.
    */
   static final String COMPARISON_TYPE = "ANY";
-
-  /** The Events leaving {@code state}, whoever is asking. */
-  static Set<String> eventsFrom(String state) {
-    return TRANSITIONS.stream()
-        .filter(edge -> edge.source().equals(state))
-        .map(Edge::event)
-        .collect(Collectors.toUnmodifiableSet());
-  }
 
   /**
    * The Events a caller satisfying {@code authorityRule} - and no other rule - is offered from

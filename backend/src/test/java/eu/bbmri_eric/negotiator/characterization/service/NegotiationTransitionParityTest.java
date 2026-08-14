@@ -8,11 +8,8 @@ import eu.bbmri_eric.negotiator.characterization.adapter.LifecycleTestAdapter;
 import eu.bbmri_eric.negotiator.characterization.adapter.LifecycleTestAdapterConfig;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
-import java.time.Duration;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -58,9 +55,6 @@ class NegotiationTransitionParityTest {
 
   /** Person 108, who created both Negotiations above and holds no admin role. */
   private static final String CREATOR = "TheResearcher";
-
-  /** Bounded, and generous enough that a slow container is not mistaken for a lost Transition. */
-  private static final Duration PERSIST_TIMEOUT = Duration.ofSeconds(15);
 
   @Autowired LifecycleTestAdapter adapter;
 
@@ -109,32 +103,32 @@ class NegotiationTransitionParityTest {
    * than in the authority suite because reaching them means driving a Negotiation there first, and
    * an empty offering is exactly how a terminal State is observable from outside.
    *
-   * <p>Each row carries both offerings, because the two are pinned from the same driven Negotiation
-   * and the pairing is itself the point: none of the three States is left by an admin-secured
-   * Transition, so in all three the creator sees exactly what the admin sees. That is the opposite
-   * of {@code SUBMITTED}, where the whole offering is admin-only.
+   * <p>The same rows serve both callers, because the pairing is itself the point: none of the three
+   * States is left by an admin-secured Transition, so in all three the creator is offered exactly
+   * what the admin is. That is the opposite of {@code SUBMITTED}, where the whole offering is
+   * admin-only.
+   *
+   * <p>What each caller is expected to be offered is computed from {@link NegotiationGraphV1}
+   * rather than typed out, which is this suite's convention throughout: the table is bound edge for
+   * edge to the committed mechanical dump by {@link NegotiationGraphV1BindingTest}, so the
+   * expectation is anchored to an artifact nobody transcribed, and it stays complete if the graph
+   * turns out to be larger than the rows someone remembered to type.
    */
   static Stream<Arguments> statesReachedOnlyByDriving() {
     return Stream.of(
-        arguments(
-            List.of("APPROVE", "PAUSE"),
-            "PAUSED",
-            Set.of("UNPAUSE", "ABANDON"),
-            Set.of("UNPAUSE", "ABANDON")),
-        arguments(List.of("DECLINE"), "DECLINED", Set.of(), Set.of()),
-        arguments(List.of("APPROVE", "CONCLUDE"), "CONCLUDED", Set.of(), Set.of()));
+        arguments(List.of("APPROVE", "PAUSE"), "PAUSED"),
+        arguments(List.of("DECLINE"), "DECLINED"),
+        arguments(List.of("APPROVE", "CONCLUDE"), "CONCLUDED"));
   }
 
-  @ParameterizedTest(name = "an admin at {1} is offered {2}")
+  @ParameterizedTest(name = "an admin at {1}")
   @MethodSource("statesReachedOnlyByDriving")
   @DisplayName("Possible Events as an admin, in the States no seeded Negotiation occupies")
   @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
-  void possibleEvents_inDrivenState_matchTheGraph(
-      List<String> pathToState, String state, Set<String> expected, Set<String> ignoredForCreator) {
+  void possibleEvents_inDrivenState_matchTheGraph(List<String> pathToState, String state) {
     pathToState.forEach(step -> drive(NO_RESOURCES, step));
 
     assertEquals(state, adapter.currentNegotiationState(NO_RESOURCES));
-    assertEquals(expected, adapter.possibleNegotiationEvents(NO_RESOURCES));
     assertEquals(
         NegotiationGraphV1.possibleEventsForAdmin(state),
         adapter.possibleNegotiationEvents(NO_RESOURCES),
@@ -153,24 +147,22 @@ class NegotiationTransitionParityTest {
    * way {@code @WithUserDetails} does, from the same {@code UserDetailsService} the annotation
    * resolves, so the caller the service sees is the same either way.
    */
-  @ParameterizedTest(name = "the creator at {1} is offered {3}")
+  @ParameterizedTest(name = "the creator at {1}")
   @MethodSource("statesReachedOnlyByDriving")
   @DisplayName("Possible Events as the creator, in the States no seeded Negotiation occupies")
   @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
   void possibleEvents_inDrivenState_asCreator_matchTheGraph(
-      List<String> pathToState, String state, Set<String> ignoredForAdmin, Set<String> expected) {
+      List<String> pathToState, String state) {
     pathToState.forEach(step -> drive(NO_RESOURCES, step));
     assertEquals(state, adapter.currentNegotiationState(NO_RESOURCES));
 
     asCreator(
-        () -> {
-          assertEquals(expected, adapter.possibleNegotiationEvents(NO_RESOURCES));
-          assertEquals(
-              NegotiationGraphV1.possibleEventsForCreator(state),
-              adapter.possibleNegotiationEvents(NO_RESOURCES),
-              "the creator is offered the Transitions leaving '%s' less the admin-secured ones"
-                  .formatted(state));
-        });
+        () ->
+            assertEquals(
+                NegotiationGraphV1.possibleEventsForCreator(state),
+                adapter.possibleNegotiationEvents(NO_RESOURCES),
+                "the creator is offered the Transitions leaving '%s' less the admin-secured ones"
+                    .formatted(state)));
   }
 
   /**
@@ -205,9 +197,6 @@ class NegotiationTransitionParityTest {
   }
 
   private void awaitState(String negotiationId, String expected) {
-    Awaitility.await()
-        .atMost(PERSIST_TIMEOUT)
-        .untilAsserted(
-            () -> assertEquals(expected, adapter.currentNegotiationState(negotiationId)));
+    LifecyclePersistence.awaitState(expected, () -> adapter.currentNegotiationState(negotiationId));
   }
 }

@@ -65,6 +65,28 @@ an observable question — pin whatever actually happens and report it. Do not f
 - [ ] Every State and Event is named as a string; the forbidden-import guard passes.
 - [ ] No production code is modified.
 
+## Note from ticket 04 — the event seam has a second producer
+
+Read before starting: this ticket's premise, that a `ResourceStateChangeEvent` is the trace of a
+Resource Transition, is not true in general.
+
+`ResourceServiceImpl.updateResourceStatus`
+(`backend/src/main/java/eu/bbmri_eric/negotiator/governance/resource/ResourceServiceImpl.java:178-194`)
+writes an arbitrary State straight onto the link row, bypassing the Lifecycle entirely — no
+Transition, no Required Authority rule of the graph, no IN_PROGRESS gate — and then publishes a
+`ResourceStateChangeEvent` stamped with the `OVERRIDE` Event. It is reachable from
+`PATCH /negotiations/{id}/resources` (`NegotiationController.java:297-304`), gated by
+`verifyAuthForStatusUpdate` (admin, or representative of every Resource in the payload).
+
+Nothing in the slab pins that path today. Ticket 04 recorded it as finding 10 and deliberately left
+it alone, because its own seam is the Lifecycle service. Two things follow for this ticket:
+
+- when pinning the Resource state change event payload, say which producer the assertion is about,
+  and do not phrase it as "every `ResourceStateChangeEvent` carries the Transition that caused it";
+- when pinning the five lifecycle-keyed handlers, remember they can be reached by a state change
+  that never went through a Transition. Whether that is worth pinning here, or belongs to a later
+  slab, is this ticket's call — but it should be a call, not an omission.
+
 ## Blocked by
 
 - [Negotiation transition and authority parity](03-negotiation-transition-parity.md)
