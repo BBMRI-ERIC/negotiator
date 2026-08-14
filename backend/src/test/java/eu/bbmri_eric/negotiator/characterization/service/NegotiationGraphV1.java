@@ -85,6 +85,27 @@ final class NegotiationGraphV1 {
   static final Set<String> ALL_EVENT_NAMES =
       Set.of("SUBMIT", "APPROVE", "DECLINE", "START", "PAUSE", "UNPAUSE", "ABANDON", "CONCLUDE");
 
+  /**
+   * The eight States the Definition declares: the seven the Transitions name, plus the Legacy State
+   * no Transition mentions.
+   *
+   * <p>Derived rather than listed so there is one statement of the graph and not two. {@link
+   * NegotiationGraphV1BindingTest#statesNamedByTheTable_areDeclaredEverywhere} is what makes the
+   * derivation safe - it equates exactly this set to the dump's {@code states} array and to the
+   * States the metadata endpoint publishes.
+   *
+   * <p>Exposed because the Resource graph's IN_PROGRESS gate has to be walked across every
+   * Negotiation State, and that universe belongs here rather than transcribed a second time into
+   * {@link ResourcePossibleEventsAuthorityTest}.
+   */
+  static Set<String> allStateNames() {
+    return java.util.stream.Stream.concat(
+            TRANSITIONS.stream()
+                .flatMap(edge -> java.util.stream.Stream.of(edge.source(), edge.target())),
+            java.util.stream.Stream.of(LEGACY_STATE))
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
   /** The Events an admin is offered from {@code state}: every Transition leaving it. */
   static Set<String> possibleEventsForAdmin(String state) {
     return TRANSITIONS.stream()

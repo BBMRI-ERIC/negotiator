@@ -275,8 +275,11 @@ and `NewNegotiationHandler` keys on a non-lifecycle event. Ticket 01 says "seven
 accurate count of lifecycle-keyed ones is five, and only those are pinned.
 
 **Runnable as one selector.** The whole suite lives under a single test package so the parity gate
-is one `scripts/test-backend.sh` invocation at every later slab boundary. Use
-`/focused-backend-tests` for runs; no full-suite runs unless asked.
+is one test-runner invocation at every later slab boundary. Use `/focused-backend-tests` for runs;
+no full-suite runs unless asked. **There is no `scripts/test-backend.sh` at the repository root** —
+that path appears in several early tickets and exits 127. The script ships with the
+`focused-backend-tests` skill, at
+`/home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh`.
 
 ## Out of Scope
 
