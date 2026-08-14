@@ -9,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -195,6 +197,113 @@ class NegotiationGraphV1BindingTest {
         NegotiationGraphV1.allStateNames(),
         "allStateNames() is derived from the table, and other tests take the Negotiation State"
             + " universe from it, so it must be the dump's States exactly");
+  }
+
+  /**
+   * The effect each Action bean in the dump has, which is the one place the suite is allowed to
+   * know an Action's class name.
+   *
+   * <p>It belongs here and nowhere else. The dump is a frozen committed artifact, so reading a bean
+   * name out of it is a statement about a file rather than about code ADR 0002 rewrites; a
+   * behavioural assertion phrased over the same name would instead be guaranteed to go red at
+   * cutover, which is the mistake ticket 09 recorded. Everything downstream of this map - {@link
+   * NegotiationGraphV1#POST_EFFECTS} and {@link NegotiationPostEffectsTest} - speaks only of
+   * effects.
+   */
+  private static final Map<String, NegotiationGraphV1.PostEffect> EFFECT_OF_ACTION =
+      Map.of(
+          "EnablePublicPostsAction", NegotiationGraphV1.PostEffect.ENABLE_PUBLIC_POSTS,
+          "EnablePrivatePostsAction", NegotiationGraphV1.PostEffect.ENABLE_PRIVATE_POSTS,
+          "DisablePostsAction", NegotiationGraphV1.PostEffect.DISABLE_POSTS);
+
+  @Test
+  @DisplayName("POST_EFFECTS is the dump's actions arrays, Transition for Transition")
+  void postEffects_areTheDumpsActions() {
+    Map<NegotiationGraphV1.Edge, Set<NegotiationGraphV1.PostEffect>> fromDump =
+        new LinkedHashMap<>();
+    for (JsonNode transition : artifact(DUMP).get("transitions")) {
+      NegotiationGraphV1.Edge edge =
+          new NegotiationGraphV1.Edge(
+              transition.get("source").asText(),
+              transition.get("event").asText(),
+              transition.get("target").asText());
+      assertTrue(
+          namesIn(transition.get("actions")).size() <= 1,
+          ("%s carries more than one Action, so the order its effects are applied in would start"
+                  + " to matter and PostFlags.after would have to say which wins")
+              .formatted(edge));
+      fromDump.put(edge, effectsOf(transition));
+    }
+
+    assertEquals(
+        fromDump,
+        NegotiationGraphV1.POST_EFFECTS,
+        "the pinned post effects must be exactly the Actions the mechanical dump attaches, for"
+            + " every Transition of the graph and not only the ones that do something");
+  }
+
+  /**
+   * The asymmetry ticket 06 exists to record, read straight off the dump rather than off the
+   * builder chain: a Negotiation abandoned from {@code IN_PROGRESS} has its posts disabled and a
+   * Negotiation abandoned from {@code PAUSED} does not. Same Event, same target State, different
+   * effect. {@link NegotiationPostEffectsTest} fires both routes and observes it.
+   */
+  @Test
+  @DisplayName("the dump attaches an Action to ABANDON from IN_PROGRESS and none to it from PAUSED")
+  void theTwoAbandonRoutes_areNotEquivalentInTheDump() {
+    assertEquals(
+        Set.of(NegotiationGraphV1.PostEffect.DISABLE_POSTS),
+        effectsOf(dumped("IN_PROGRESS", "ABANDON")),
+        "abandoning a Negotiation that is running is what disables its posts");
+    assertEquals(
+        Set.of(),
+        effectsOf(dumped("PAUSED", "ABANDON")),
+        "abandoning a paused Negotiation reaches the same State by a Transition carrying no Action"
+            + " at all, so the posts of the two are left in different places");
+    assertEquals(
+        NegotiationGraphV1.target("IN_PROGRESS", "ABANDON"),
+        NegotiationGraphV1.target("PAUSED", "ABANDON"),
+        "the two routes are only worth contrasting because they end in the same State");
+  }
+
+  @Test
+  @DisplayName("every Action the dump names is one whose effect this suite knows")
+  void everyDumpedAction_hasAPinnedEffect() {
+    Set<String> dumped =
+        transitions()
+            .flatMap(transition -> namesIn(transition.get("actions")).stream())
+            .collect(Collectors.toUnmodifiableSet());
+
+    assertEquals(
+        EFFECT_OF_ACTION.keySet(),
+        dumped,
+        "a fourth Action, or one fewer, would be a post side effect nothing in this suite pins;"
+            + " map it to a PostEffect and add it to POST_EFFECTS rather than widening this test");
+  }
+
+  private static Set<NegotiationGraphV1.PostEffect> effectsOf(JsonNode transition) {
+    return namesIn(transition.get("actions")).stream()
+        .map(
+            action -> {
+              NegotiationGraphV1.PostEffect effect = EFFECT_OF_ACTION.get(action);
+              if (effect == null) {
+                throw new IllegalStateException(
+                    "The dump attaches an Action this suite has no effect for: " + action);
+              }
+              return effect;
+            })
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private static JsonNode dumped(String source, String event) {
+    return transitions()
+        .filter(transition -> transition.get("source").asText().equals(source))
+        .filter(transition -> transition.get("event").asText().equals(event))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "The dump has no Transition '%s' from '%s'".formatted(event, source)));
   }
 
   private static Stream<JsonNode> transitions() {

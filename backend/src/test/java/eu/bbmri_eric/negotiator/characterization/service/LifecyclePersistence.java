@@ -7,7 +7,8 @@ import java.time.Duration;
 import java.util.function.Supplier;
 
 /**
- * The one bounded wait every class in this package reads a post-send State through.
+ * The one bounded wait every class in this package reads a post-send State through - and, since a
+ * Transition writes more than a State, every other observable one leaves behind.
  *
  * <p>Sending an Event drives an asynchronous persist path - {@code
  * handleEventWithStateReactively(...).subscribe()} - so the call returns before the new State is
@@ -22,7 +23,23 @@ final class LifecyclePersistence {
 
   /** Waits for {@code currentState} to read back as {@code expected}. */
   static void awaitState(String expected, Supplier<String> currentState) {
-    await().atMost(PERSIST_TIMEOUT).untilAsserted(() -> assertEquals(expected, currentState.get()));
+    awaitValue(expected, currentState);
+  }
+
+  /**
+   * Waits for any observable of a Transition to read back as {@code expected} - a State, a post
+   * flag, a row count. The same bound as {@link #awaitState}, because they are all written by the
+   * same asynchronous path.
+   */
+  static <T> void awaitValue(T expected, Supplier<T> observed) {
+    awaitValue(expected, observed, null);
+  }
+
+  /** {@link #awaitValue(Object, Supplier)}, saying what the observable is when it never arrives. */
+  static <T> void awaitValue(T expected, Supplier<T> observed, String describedAs) {
+    await()
+        .atMost(PERSIST_TIMEOUT)
+        .untilAsserted(() -> assertEquals(expected, observed.get(), describedAs));
   }
 
   /**
@@ -32,10 +49,21 @@ final class LifecyclePersistence {
    */
   static void awaitStateAfterSettling(
       Duration settle, String expected, Supplier<String> currentState) {
+    awaitValueAfterSettling(settle, expected, currentState);
+  }
+
+  /** {@link #awaitStateAfterSettling} for any observable, for the same reason. */
+  static <T> void awaitValueAfterSettling(Duration settle, T expected, Supplier<T> observed) {
+    awaitValueAfterSettling(settle, expected, observed, null);
+  }
+
+  /** {@link #awaitValueAfterSettling(Duration, Object, Supplier)}, with a description. */
+  static <T> void awaitValueAfterSettling(
+      Duration settle, T expected, Supplier<T> observed, String describedAs) {
     await()
         .pollDelay(settle)
         .atMost(PERSIST_TIMEOUT)
-        .untilAsserted(() -> assertEquals(expected, currentState.get()));
+        .untilAsserted(() -> assertEquals(expected, observed.get(), describedAs));
   }
 
   private LifecyclePersistence() {}
