@@ -41,6 +41,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * whose principal wraps the Person, which is what {@code AuthenticatedUserContext} unwraps to an
  * internal id. It is set programmatically rather than by annotation because the caller varies per
  * row of a table-driven test, and an annotation would fix one caller for the whole method.
+ *
+ * <p><b>Information Requirements and Submissions.</b> The seed carries none of either, so the
+ * Information Requirement gate is set up row by row here. Both inserts go through SQL for the same
+ * reason the State does: the requirement's {@code for_event} column is an Event name, and writing
+ * it as a string keeps the gate's tests free of the Lifecycle enums.
  */
 final class SeededResourceSubject {
 
@@ -50,6 +55,12 @@ final class SeededResourceSubject {
   static final String RESOURCE = "biobank:1:collection:1";
 
   private static final long RESOURCE_ROW_ID = 4L;
+
+  /**
+   * A second seeded Resource, used only as "some other Resource" - it is represented by the same
+   * Person as the subject and is not linked to {@link #NEGOTIATION} at all.
+   */
+  static final long ANOTHER_RESOURCE_ROW_ID = 5L;
 
   static final long ADMIN = 101L;
   static final long REPRESENTATIVE = 109L;
@@ -78,6 +89,40 @@ final class SeededResourceSubject {
   static void putNegotiationInState(JdbcTemplate jdbcTemplate, String state) {
     jdbcTemplate.update(
         "update negotiation set current_state = ? where id = ?", state, NEGOTIATION);
+  }
+
+  /**
+   * Declares that {@code event} requires a form to have been filled in, and returns the new
+   * Information Requirement's id.
+   *
+   * <p>The Requirement is attached to whichever seeded Access Form comes first: the gate never
+   * looks at the form, only at whether a Requirement for the Event exists at all.
+   */
+  static long requireInformationFor(JdbcTemplate jdbcTemplate, String event) {
+    Long accessFormId = jdbcTemplate.queryForObject("select min(id) from access_form", Long.class);
+    return jdbcTemplate.queryForObject(
+        "insert into information_requirement (required_access_form_id, for_event)"
+            + " values (?, ?) returning id",
+        Long.class,
+        accessFormId,
+        event);
+  }
+
+  /** Records an Information Submission against {@code requirementId} for the subject Resource. */
+  static void submitInformationFor(JdbcTemplate jdbcTemplate, long requirementId) {
+    submitInformationFor(jdbcTemplate, requirementId, RESOURCE_ROW_ID);
+  }
+
+  /** Records an Information Submission for a nominated Resource of {@link #NEGOTIATION}. */
+  static void submitInformationFor(
+      JdbcTemplate jdbcTemplate, long requirementId, long resourceRowId) {
+    jdbcTemplate.update(
+        "insert into information_submission (requirement_id, resource_id, negotiation_id, payload)"
+            + " values (?, ?, ?, cast(? as json))",
+        requirementId,
+        resourceRowId,
+        NEGOTIATION,
+        "{}");
   }
 
   /** Authenticates as a seeded Person, with the admin authority only for {@link #ADMIN}. */
