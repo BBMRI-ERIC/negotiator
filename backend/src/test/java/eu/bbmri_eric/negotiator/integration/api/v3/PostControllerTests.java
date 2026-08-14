@@ -39,6 +39,10 @@ public class PostControllerTests {
   private static final String NEGOTIATIONS_URI = "/v3/negotiations";
   private static final String POSTS_URI = "posts";
   public static final String NEGOTIATION_POSTS_URL = "/v3/negotiations/%s/posts";
+  private static final String POSTS_ENDPOINT_URI = "/v3/posts";
+  private static final String POST_1_RESEARCHER_ID = "post-1-researcher";
+  private static final String POST_3_RESEARCHER_ID = "post-3-researcher";
+  private static final String POST_4_REPRESENTATIVE_ID = "post-4-representative";
   @Autowired private PostRepository postRepository;
   @Autowired private MockMvc mockMvc;
 
@@ -110,7 +114,7 @@ public class PostControllerTests {
     String postId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     Optional<Post> post = postRepository.findById(postId);
     assert post.isPresent();
-    assertEquals(post.get().getCreatedBy().getName(), "TheResearcher");
+    assertEquals("TheResearcher", post.get().getCreatedBy().getName());
   }
 
   @Test
@@ -206,5 +210,78 @@ public class PostControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 104L)
+  void getPostById_notParticipant_forbidden() throws Exception {
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  void getPostById_notParticipantWithHelpdeskIntegrationRole_forbidden() throws Exception {
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
+  void getPostById_asAdmin_publicPost_ok() throws Exception {
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
+  void getPostById_asAdmin_privatePost_ok() throws Exception {
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_3_RESEARCHER_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 108L)
+  void getPostById_asCreator_publicPost_ok() throws Exception {
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 108L)
+  void getPostById_asCreator_privatePost_ok() throws Exception {
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_3_RESEARCHER_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 103L)
+  void getPostById_isParticipantButNotPartOfOrganization_forbidden() throws Exception {
+    // Person 103 is a participant of negotiation-1 (represents resource 4 / biobank:1)
+    // but post-4-representative is private and addressed to org 5 (biobank:2)
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_4_REPRESENTATIVE_ID)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 103L)
+  void getPostById_isPartOfOrganizationFromNegotiatedResource_ok() throws Exception {
+    // Person 103 represents resource 4 (biobank:1, org id 4) — post-3-researcher is private for
+    // organization 4
+    mockMvc
+        .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_3_RESEARCHER_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON));
   }
 }
