@@ -12,6 +12,7 @@ Snapshot taken when the session stopped. Update or delete this file once the sla
 | 03 Negotiation parity | **done** | 63 tests green; all 12 criteria re-verified against surefire output |
 | 04 Resource parity | **done** | 52 tests green; all 14 criteria re-verified against surefire output |
 | 05 Information Requirement gate | **done** | 11 tests green; all criteria re-verified against surefire output |
+| 06 Post side effects | **done** | 21 tests green; all criteria re-verified against surefire output |
 
 Parity gate as it stands:
 
@@ -19,8 +20,8 @@ Parity gate as it stands:
 /home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
-**168 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator) as of ticket
-05. It was 157 before 05, and 158
+**189 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator) as of ticket
+06. It was 168 after 05, 157 before it, and 158
 when 04 landed; a follow-up review of `26da8c45` and `fd7d0385` deleted one strictly weaker duplicate
 test — `NegotiationDraftReachabilityTest.approved_isDeclaredButNeverEntered`, whose statement
 `NegotiationGraphV1BindingTest.legacyState_isDeclaredButUnusedInTheDump` already makes against the
@@ -48,14 +49,17 @@ by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The bran
   `requireInformationFor`, `submitInformationFor` and `ANOTHER_RESOURCE_ROW_ID` — Information
   Requirement and Submission fixtures are inserted as SQL, not JPA, because
   `InformationRequirement.forEvent` is one of the four deleted enums and an entity-level fixture
-  could not avoid naming it.
+  could not avoid naming it. Ticket 06 added `service/SeededNegotiationSubject` — the Negotiation-side
+  counterpart, carrying the subjects, callers, State and post-flag SQL, and the post and
+  creation-date readers — and generalised the waits into `LifecyclePersistence.awaitValue` /
+  `awaitValueAfterSettling`, which take any observable rather than just a State.
 
 ## Not started
 
-06 (post side effects), 07 (history rows), 08 (event seam: spawn, conclusion, notifications),
-10 (intended deltas), 11 (parity gate + findings).
+07 (history rows), 08 (event seam: spawn, conclusion, notifications), 10 (intended deltas),
+11 (parity gate + findings).
 
-06, 07 and 08 are unblocked and independent of each other. 10 needs 04 and 09 (both done). 11 needs
+07 and 08 are unblocked and independent of each other. 10 needs 04 and 09 (both done). 11 needs
 everything.
 
 ## Findings so far
@@ -164,6 +168,33 @@ Recorded in full in the individual ticket files. The load-bearing ones:
   already exists (`existsByResource_SourceIdAndNegotiation_IdAndRequirement_Id`, used at
   `InformationSubmissionServiceImpl.java:76`) and is deliberately not called by the gate, so the
   unscoped check is one method call away from being "fixed" by accident at cutover. (Ticket 05.)
+- **The two abandon routes really are not equivalent, and the ticket's account of all three post
+  Actions is accurate.** Confirmed against the dump and then fired for real: `DRAFT→SUBMIT` enables
+  public posts, `SUBMITTED→APPROVE` enables private, `IN_PROGRESS→ABANDON` disables both, and the
+  other five Transitions carry no Action — `(true,true)` survives an abandon from `PAUSED` intact.
+  Action bean class names live in exactly one place, `EFFECT_OF_ACTION` in
+  `NegotiationGraphV1BindingTest`, which reads the frozen dump; every behavioural assertion speaks
+  only of a `PostEffect` enum, so ADR 0002 re-registering the beans reddens nothing. (Ticket 06.)
+- **The message-borne post is not an Action and must not be registered as one.** It is written
+  unconditionally on the same path as the new State, so it appears on Transitions with and without
+  Actions — pinned across `APPROVE`, `DECLINE` and `ABANDON`-from-`PAUSED`. Registering it
+  per-Transition in ADR 0002 would be wrong in both directions. The emptiness check is `isEmpty`,
+  not `isBlank`: a single-space message creates a post. The author is
+  `personRepository.findById(...).orElse(null)`, so a principal with no Person row would yield an
+  authorless post rather than a refusal — read from source, not reachable through the Lifecycle
+  seam, documented rather than pinned. (Ticket 06.)
+- **Effects run ahead of the State being written.** Confirmed across 16 fired arms: awaiting the
+  target State is sufficient to observe an Action's effect, and only "nothing moved" claims need a
+  settling period. Later tickets should not add a second wait per observable. (Ticket 06.)
+- **Seeded post flags make a naive walk vacuous.** `negotiation-2` and `negotiation-6` are seeded
+  public-enabled, so a test that fires `SUBMIT` and asserts "public enabled" can pass without the
+  Action running. Ticket 06 writes a known flag setting first and fires each Transition twice, from
+  `(false,false)` and from `(true,true)`. Corpus facts worth reusing: `negotiation-2` has zero
+  seeded posts and zero Resources (all seeded posts are on `negotiation-1`), and `negotiation-6` is
+  the only `DRAFT` row, with a creation date in the past.
+- **The creation-date reset keys on the State arrived in, not the Event.** Not separable today,
+  because exactly one Transition targets `SUBMITTED`; if ADR 0009's seed adds a second, this becomes
+  two distinct behaviours. (Ticket 06.)
 
 ## One cross-ticket fix worth knowing about
 
