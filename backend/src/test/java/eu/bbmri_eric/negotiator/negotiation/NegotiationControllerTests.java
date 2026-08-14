@@ -35,6 +35,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.post.Post;
@@ -81,6 +82,7 @@ public class NegotiationControllerTests {
   private static final String NEGOTIATION_4_ID = "negotiation-4";
   private static final String NEGOTIATION_5_ID = "negotiation-5";
   private static final String NEGOTIATION_6_ID = "negotiation-6";
+  private static final String NEGOTIATION_7_ID = "negotiation-7";
   private static final String NEGOTIATION_1_CREATION_DATE = "2024-10-12T00:00:00";
   private static final String NEGOTIATIONS_URL = "/v3/negotiations";
   private static final String SELF_LINK_TPL = "http://localhost/v3/negotiations/%s";
@@ -2027,25 +2029,25 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 109L)
   @Transactional
   void updateResources_asHelpdeskIntegration_withHelpdeskActor_persistsActorOnRecords()
       throws Exception {
     UpdateResourcesDTO dto =
-        new UpdateResourcesDTO(List.of(11L, 12L), NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+        new UpdateResourcesDTO(List.of(11L, 12L), NegotiationResourceState.RESOURCE_AVAILABLE);
     dto.setHelpdeskActor("jane.doe@helpdesk.org");
     mockMvc
         .perform(
             MockMvcRequestBuilders.patch(
-                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID))
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, NEGOTIATION_7_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(dto)))
         .andExpect(status().isOk());
 
     Negotiation negotiation =
-        negotiationRepository.findDetailedById(NEGOTIATION_HELPDESK_ID).orElseThrow();
+        negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
     negotiation.getNegotiationResourceLifecycleRecords().stream()
-        .filter(r -> r.getChangedTo().equals(NegotiationResourceState.RESOURCE_MADE_AVAILABLE))
+        .filter(r -> r.getChangedTo().equals(NegotiationResourceState.RESOURCE_AVAILABLE))
         .forEach(
             r -> {
               assertEquals("jane.doe@helpdesk.org", r.getHelpdeskActor());
@@ -2054,48 +2056,53 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @WithUserDetails("TheBiobanker")
   @Transactional
   void updateResources_asRegularUser_withHelpdeskActor_doesNotPersistActor() throws Exception {
     UpdateResourcesDTO dto =
-        new UpdateResourcesDTO(List.of(11L, 12L), NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+        new UpdateResourcesDTO(List.of(11L, 12L), NegotiationResourceState.RESOURCE_AVAILABLE);
     dto.setHelpdeskActor("injected-actor");
     mockMvc
         .perform(
             MockMvcRequestBuilders.patch(
-                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, NEGOTIATION_HELPDESK_ID))
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, NEGOTIATION_7_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(dto)))
         .andExpect(status().isOk());
 
     Negotiation negotiation =
-        negotiationRepository.findDetailedById(NEGOTIATION_HELPDESK_ID).orElseThrow();
+        negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
     negotiation.getNegotiationResourceLifecycleRecords().stream()
-        .filter(r -> r.getChangedTo().equals(NegotiationResourceState.RESOURCE_MADE_AVAILABLE))
+        .filter(r -> r.getChangedTo().equals(NegotiationResourceState.RESOURCE_AVAILABLE))
         .forEach(r -> assertNull(r.getHelpdeskActor()));
   }
 
   @Test
-  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 109L)
   @Transactional
   void sendEventForResource_asHelpdeskIntegration_withXHelpdeskActorHeader_persistsActorOnRecord()
       throws Exception {
+    var resourceSourceId = "biobank:1:collection:1";
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
-                    "%s/negotiation-helpdesk/resources/biobank:1:collection:3/lifecycle/MARK_AS_CHECKING_AVAILABILITY"
-                        .formatted(NEGOTIATIONS_URL))
+                    "%s/%s/resources/%s/lifecycle/%s"
+                        .formatted(
+                            NEGOTIATIONS_URL,
+                            NEGOTIATION_7_ID,
+                            resourceSourceId,
+                            NegotiationResourceEvent.MARK_AS_AVAILABLE))
                 .header("X-Helpdesk-Actor", "john.smith@helpdesk.org"))
         .andExpect(status().isOk());
 
     Negotiation negotiation =
-        negotiationRepository.findDetailedById("negotiation-helpdesk").orElseThrow();
+        negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
     NegotiationResourceLifecycleRecord record =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(
                 r ->
-                    r.getChangedTo().equals(NegotiationResourceState.CHECKING_AVAILABILITY)
-                        && r.getResource().getSourceId().equals("biobank:1:collection:3"))
+                    r.getChangedTo().equals(NegotiationResourceState.RESOURCE_AVAILABLE)
+                        && r.getResource().getSourceId().equals(resourceSourceId))
             .findFirst()
             .orElseThrow();
     assertEquals("john.smith@helpdesk.org", record.getHelpdeskActor());
@@ -2107,18 +2114,24 @@ public class NegotiationControllerTests {
   @Transactional
   void sendEventForResource_asRegularUser_withXHelpdeskActorHeader_doesNotPersistActor()
       throws Exception {
+    var resourceSourceId = "biobank:1:collection:1";
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
-                    "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/CONTACT"
-                        .formatted(NEGOTIATIONS_URL))
+                    "%s/%s/resources/%s/lifecycle/%s"
+                        .formatted(
+                            NEGOTIATIONS_URL,
+                            NEGOTIATION_7_ID,
+                            resourceSourceId,
+                            NegotiationResourceEvent.MARK_AS_UNAVAILABLE))
                 .header("X-Helpdesk-Actor", "injected-actor"))
         .andExpect(status().isOk());
 
-    Negotiation negotiation = negotiationRepository.findDetailedById("negotiation-1").orElseThrow();
+    Negotiation negotiation =
+        negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
     NegotiationResourceLifecycleRecord record =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
-            .filter(r -> r.getChangedTo().equals(NegotiationResourceState.REPRESENTATIVE_CONTACTED))
+            .filter(r -> r.getChangedTo().equals(NegotiationResourceState.RESOURCE_UNAVAILABLE))
             .findFirst()
             .orElseThrow();
     assertNull(record.getHelpdeskActor());

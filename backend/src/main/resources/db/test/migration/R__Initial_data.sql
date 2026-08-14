@@ -79,13 +79,17 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108, '#
         false, true, 1),
        ('negotiation-6', '2024-11-12', 'DRAFT', '2024-04-12', 108, 108, '#1 Material Type: RNA',
         '{"project":{"title":"Not yet completed","description":"This is a draft negotiation"}}',
-        false, true, 1);
+        false, true, 1),
+       ('negotiation-7', '2025-01-15', 'IN_PROGRESS', '2025-01-15', 108, 108, '#1 Material Type: Plasma',
+        '{"project":{"title":"Plasma Collection Study","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 20,"num-of-sample": "200","volume":5},"ethics-vote":{"ethics-vote":"My ethics"}}',
+        true, true, 1);
 
 insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)
 values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-1', 4),
        (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-3', 5),
        (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_AVAILABLE', 'negotiation-3', 5);
 insert into negotiation_lifecycle_record (changed_to, creation_date, negotiation_id, modified_date, created_by, modified_by) VALUES ('IN_PROGRESS', '2023-06-19 10:15:00', 'negotiation-1', '2023-06-19 10:15:00', 101, 101);
+insert into negotiation_lifecycle_record (changed_to, creation_date, negotiation_id, modified_date, created_by, modified_by) VALUES ('IN_PROGRESS', '2025-01-15 09:00:00', 'negotiation-7', '2025-01-15 09:00:00', 101, 101);
 insert into request (id, url, human_readable, discovery_service_id)
 values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1),
        ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1),
@@ -94,7 +98,8 @@ values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1),
        ('request-3', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
        ('request-4', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
        ('request-unassigned', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
-       ('request-6', 'http://discoveryservice.dev', '#1: Blood Samples', 1);;
+       ('request-6', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
+       ('request-7', 'http://discoveryservice.dev', '#1: Plasma Samples', 1);;
 
 insert into request_resources_link (request_id, resource_id)
 values ('request-1', 4),
@@ -106,7 +111,9 @@ values ('request-1', 4),
        ('request-4', 7),
        ('request-5', 5),
        ('request-5', 7),
-       ('request-6', 4);
+       ('request-6', 4),
+       ('request-7', 4),
+       ('request-7', 5);
 
 insert into negotiation_resource_link (negotiation_id, resource_id, current_state)
 values ('negotiation-1', 4, 'SUBMITTED'),
@@ -116,7 +123,9 @@ values ('negotiation-1', 4, 'SUBMITTED'),
        ('negotiation-4', 7, null),
        ('negotiation-5', 5, null),
        ('negotiation-5', 7, null),
-       ('negotiation-6', 4, null);
+       ('negotiation-6', 4, null),
+       ('negotiation-7', 4, 'CHECKING_AVAILABILITY'),
+       ('negotiation-7', 5, 'CHECKING_AVAILABILITY');
 
 insert into post (id, creation_date, modified_date, text, created_by, modified_by, negotiation_id, organization_id,
                   type)

@@ -65,6 +65,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NegotiationLifecycleServiceImplTest {
 
+  private static final String NEGOTIATION_7_ID = "negotiation-7";
+  private static final String RESOURCE_SOURCE_1_ID = "biobank:1:collection:1";
+  private static final String HELPDESK_ACTOR = "john.smith@helpdesk.org";
+
   @Autowired NegotiationLifecycleServiceImpl negotiationLifecycleService;
   @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired NegotiationRepository negotiationRepository;
@@ -597,22 +601,23 @@ public class NegotiationLifecycleServiceImplTest {
   void
       sendEventForResource_asHelpdeskIntegration_withHelpdeskActor_persistsActorOnLifecycleRecord() {
     resourceLifecycleService.sendEvent(
-        "negotiation-1",
-        "biobank:1:collection:1",
-        NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY,
-        "john.smith@helpdesk.org");
+        NEGOTIATION_7_ID,
+        RESOURCE_SOURCE_1_ID,
+        NegotiationResourceEvent.MARK_AS_AVAILABLE,
+        HELPDESK_ACTOR);
 
-    Negotiation negotiation = negotiationRepository.findDetailedById("negotiation-1").get();
+    Negotiation negotiation =
+        negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
     NegotiationResourceLifecycleRecord record =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(
                 r ->
-                    r.getChangedTo().equals(NegotiationResourceState.CHECKING_AVAILABILITY)
-                        && r.getResource().getSourceId().equals("biobank:1:collection:1"))
+                    r.getChangedTo().equals(NegotiationResourceState.RESOURCE_AVAILABLE)
+                        && r.getResource().getSourceId().equals(RESOURCE_SOURCE_1_ID))
             .findFirst()
             .orElseThrow();
-    assertEquals("john.smith@helpdesk.org", record.getHelpdeskActor());
-    assertEquals("john.smith@helpdesk.org", record.getTriggeredBy());
+    assertEquals(HELPDESK_ACTOR, record.getHelpdeskActor());
+    assertEquals(HELPDESK_ACTOR, record.getTriggeredBy());
   }
 
   @Test
@@ -621,17 +626,15 @@ public class NegotiationLifecycleServiceImplTest {
   void
       sendEventForResource_asHelpdeskIntegration_withoutHelpdeskActor_triggeredByFallsBackToCreatedBy() {
     resourceLifecycleService.sendEvent(
-        "negotiation-helpdesk",
-        "biobank:1:collection:3",
-        NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY,
-        null);
-    Negotiation negotiation = negotiationRepository.findDetailedById("negotiation-helpdesk").get();
+        NEGOTIATION_7_ID, RESOURCE_SOURCE_1_ID, NegotiationResourceEvent.MARK_AS_AVAILABLE, null);
+    Negotiation negotiation =
+        negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
     NegotiationResourceLifecycleRecord record =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(
                 r ->
-                    r.getChangedTo().equals(NegotiationResourceState.CHECKING_AVAILABILITY)
-                        && r.getResource().getSourceId().equals("biobank:1:collection:3"))
+                    r.getChangedTo().equals(NegotiationResourceState.RESOURCE_AVAILABLE)
+                        && r.getResource().getSourceId().equals(RESOURCE_SOURCE_1_ID))
             .findFirst()
             .orElseThrow();
     Assertions.assertNull(record.getHelpdeskActor());

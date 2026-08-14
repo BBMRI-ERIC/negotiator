@@ -75,7 +75,7 @@ public class PostServiceTest {
   private static final String ORG_1 = "Organization_1";
   private static final String ORG_2 = "Organization_2";
   private static final String NEG_1 = "negotiationId";
-  private static final String NEGOTIATION_HELPDESK_ORGANIZATION_ID = "biobank:1";
+  private static final String HELPDESK_ACTOR = "john.smith@helpdesk.org";
   @Mock PostRepository postRepository;
   @Mock NegotiationRepository negotiationRepository;
   @Mock OrganizationRepository organizationRepository;
@@ -383,26 +383,22 @@ public class PostServiceTest {
   @Test
   @WithMockNegotiatorUser(id = BIOBANKER_1_ID, authorities = "ROLE_HELPDESK_INTEGRATION")
   public void test_createPost_asHelpdeskIntegration_withHelpdeskActor_setsHelpdeskActorOnEntity() {
-    negotiation.setPrivatePostsEnabled(true);
+    negotiation.setPublicPostsEnabled(true);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
     when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
 
-    Post savedPost = Post.builder().text("message").type(PostType.PRIVATE).build();
+    Post savedPost = Post.builder().text("message").type(PostType.PUBLIC).build();
     savedPost.setCreatedBy(researcher);
     when(postRepository.save(any()))
         .thenAnswer(
             invocation -> {
               Post p = invocation.getArgument(0);
-              assertEquals("john.smith@helpdesk.org", p.getHelpdeskActor());
+              assertEquals(HELPDESK_ACTOR, p.getHelpdeskActor());
               return savedPost;
             });
     PostCreateDTO postCreateDTO =
-        TestUtils.createPostDTO(
-            NEGOTIATION_HELPDESK_ORGANIZATION_ID,
-            "message",
-            PostType.PRIVATE,
-            "john.smith@helpdesk.org");
+        TestUtils.createPostDTO(null, "message", PostType.PUBLIC, HELPDESK_ACTOR);
     when(modelMapper.map(savedPost, PostDTO.class))
         .thenReturn(
             PostDTO.builder()
@@ -411,10 +407,11 @@ public class PostServiceTest {
                 .creationDate(LocalDateTime.now())
                 .text("message")
                 .type(PostType.PRIVATE)
-                .helpdeskActor("john.smith@helpdesk.org")
+                .helpdeskActor(HELPDESK_ACTOR)
                 .build());
+
     PostDTO result = postService.create(postCreateDTO, negotiation.getId());
-    assertEquals("john.smith@helpdesk.org", result.getHelpdeskActor());
+    assertEquals(HELPDESK_ACTOR, result.getHelpdeskActor());
   }
 
   @Test
@@ -443,6 +440,7 @@ public class PostServiceTest {
                 .text("message")
                 .type(PostType.PRIVATE)
                 .build());
+
     PostDTO result = postService.create(postCreateDTO, negotiation.getId());
     assertNull(result.getHelpdeskActor());
   }

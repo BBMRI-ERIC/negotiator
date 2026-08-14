@@ -217,12 +217,12 @@ public class PostControllerTests {
       throws Exception {
     PostCreateDTO request =
         TestUtils.createPostDTO(
-            NEGOTIATION_HELPDESK_ORGANIZATION_ID,
+            NEGOTIATION_1_ORGANIZATION_ID,
             "message from helpdesk",
             PostType.PRIVATE,
             "john.smith@helpdesk.org");
     String requestBody = TestUtils.jsonFromRequest(request);
-    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, "negotiation-helpdesk", POSTS_URI);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
     MvcResult result =
         mockMvc
