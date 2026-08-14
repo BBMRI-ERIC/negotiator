@@ -9,6 +9,10 @@ values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 
         '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, false)
 on conflict do nothing;
 
+insert into person (id, email, name, subject_id, is_service_account)
+values (4, 'no_email', 'helpdesk-client', 'helpdesk-client', true)
+on conflict do nothing;
+
 insert into organization (ID, external_id, name)
 values (1, 'bbmri-eric:ID:SE_890', 'Biobank Väst'),
        (2, 'bbmri-eric:ID:CZ_MMCI',
