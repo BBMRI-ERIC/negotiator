@@ -57,6 +57,90 @@ final class NegotiationGraphV1 {
           new Edge("SUBMITTED", "APPROVE", "IN_PROGRESS"),
           new Edge("SUBMITTED", "DECLINE", "DECLINED"));
 
+  /**
+   * What a Transition does to the Negotiation's two post flags, named by the effect rather than by
+   * the bean that carries it out today.
+   *
+   * <p>The dump records an Action by its bean class name, and those class names belong to code ADR
+   * 0002 re-registers; naming one in a parity assertion would be a guaranteed delta dressed as
+   * parity. The mapping from bean name to effect therefore lives in {@link
+   * NegotiationGraphV1BindingTest}, next to the committed dump it reads, and everything downstream
+   * of it speaks only of effects.
+   */
+  enum PostEffect {
+    /** Public posts become possible on this Negotiation. */
+    ENABLE_PUBLIC_POSTS,
+    /** Private posts become possible on this Negotiation. */
+    ENABLE_PRIVATE_POSTS,
+    /** Both kinds of post stop being possible. One effect, because one Action does both. */
+    DISABLE_POSTS
+  }
+
+  /** The two flags a {@link PostEffect} moves, as a caller can read them back. */
+  record PostFlags(boolean publicPostsEnabled, boolean privatePostsEnabled) {
+
+    /**
+     * These flags as they stand once {@code effects} have been applied. No Transition carries more
+     * than one effect - {@link NegotiationGraphV1BindingTest} pins that - so the order the loop
+     * applies them in cannot matter.
+     */
+    PostFlags after(Set<PostEffect> effects) {
+      boolean publicPosts = publicPostsEnabled;
+      boolean privatePosts = privatePostsEnabled;
+      for (PostEffect effect : effects) {
+        switch (effect) {
+          case ENABLE_PUBLIC_POSTS -> publicPosts = true;
+          case ENABLE_PRIVATE_POSTS -> privatePosts = true;
+          case DISABLE_POSTS -> {
+            publicPosts = false;
+            privatePosts = false;
+          }
+        }
+      }
+      return new PostFlags(publicPosts, privatePosts);
+    }
+  }
+
+  /**
+   * The post effect of every Transition, including the five that have none.
+   *
+   * <p>Listed for all eight edges rather than only the three that do something, because the empty
+   * entries are the interesting ones: {@code PAUSED --ABANDON--> ABANDONED} carries no effect while
+   * {@code IN_PROGRESS --ABANDON--> ABANDONED} disables both kinds of post, so the two ways of
+   * abandoning a Negotiation are not equivalent. Bound edge for edge to the dump's {@code actions}
+   * arrays by {@link NegotiationGraphV1BindingTest} and fired for real by {@link
+   * NegotiationPostEffectsTest}.
+   */
+  static final Map<Edge, Set<PostEffect>> POST_EFFECTS =
+      Map.ofEntries(
+          Map.entry(
+              new Edge("DRAFT", "SUBMIT", "SUBMITTED"), Set.of(PostEffect.ENABLE_PUBLIC_POSTS)),
+          Map.entry(
+              new Edge("IN_PROGRESS", "ABANDON", "ABANDONED"), Set.of(PostEffect.DISABLE_POSTS)),
+          Map.entry(new Edge("IN_PROGRESS", "CONCLUDE", "CONCLUDED"), Set.of()),
+          Map.entry(new Edge("IN_PROGRESS", "PAUSE", "PAUSED"), Set.of()),
+          Map.entry(new Edge("PAUSED", "ABANDON", "ABANDONED"), Set.of()),
+          Map.entry(new Edge("PAUSED", "UNPAUSE", "IN_PROGRESS"), Set.of()),
+          Map.entry(
+              new Edge("SUBMITTED", "APPROVE", "IN_PROGRESS"),
+              Set.of(PostEffect.ENABLE_PRIVATE_POSTS)),
+          Map.entry(new Edge("SUBMITTED", "DECLINE", "DECLINED"), Set.of()));
+
+  /**
+   * The post effect of firing {@code event} from {@code state}.
+   *
+   * @throws IllegalArgumentException when the graph has no such Transition, for the same reason
+   *     {@link #target} does
+   */
+  static Set<PostEffect> postEffects(String state, String event) {
+    Edge edge = new Edge(state, event, target(state, event));
+    Set<PostEffect> effects = POST_EFFECTS.get(edge);
+    if (effects == null) {
+      throw new IllegalArgumentException("The pinned graph records no post effect for " + edge);
+    }
+    return effects;
+  }
+
   /** The Spring role a secured Transition of this graph names, as the dump spells it. */
   static final String ADMIN = "ROLE_ADMIN";
 
