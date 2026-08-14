@@ -13,6 +13,7 @@ Snapshot taken when the session stopped. Update or delete this file once the sla
 | 04 Resource parity | **done** | 52 tests green; all 14 criteria re-verified against surefire output |
 | 05 Information Requirement gate | **done** | 11 tests green; all criteria re-verified against surefire output |
 | 06 Post side effects | **done** | 21 tests green; all criteria re-verified against surefire output |
+| 07 Lifecycle history rows | **done** | 37 tests green; all criteria re-verified against surefire output |
 
 Parity gate as it stands:
 
@@ -20,8 +21,8 @@ Parity gate as it stands:
 /home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
-**189 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator) as of ticket
-06. It was 168 after 05, 157 before it, and 158
+**226 tests in 20 classes, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator)
+as of ticket 07. It was 189 after 06, 168 after 05, 157 before it, and 158
 when 04 landed; a follow-up review of `26da8c45` and `fd7d0385` deleted one strictly weaker duplicate
 test — `NegotiationDraftReachabilityTest.approved_isDeclaredButNeverEntered`, whose statement
 `NegotiationGraphV1BindingTest.legacyState_isDeclaredButUnusedInTheDump` already makes against the
@@ -52,15 +53,17 @@ by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The bran
   could not avoid naming it. Ticket 06 added `service/SeededNegotiationSubject` — the Negotiation-side
   counterpart, carrying the subjects, callers, State and post-flag SQL, and the post and
   creation-date readers — and generalised the waits into `LifecyclePersistence.awaitValue` /
-  `awaitValueAfterSettling`, which take any observable rather than just a State.
+  `awaitValueAfterSettling`, which take any observable rather than just a State. Ticket 07 added
+  `service/LifecycleHistory`, the suite's only reader of the two Record tables: it is the single
+  place that knows the State comes out of `changed_to`, and it resolves `resource_id` to `source_id`
+  so no row id leaks into an assertion. Same shape of argument as the adapter — one cutover point.
 
 ## Not started
 
-07 (history rows), 08 (event seam: spawn, conclusion, notifications), 10 (intended deltas),
+08 (event seam: spawn, conclusion, notifications), 10 (intended deltas),
 11 (parity gate + findings).
 
-07 and 08 are unblocked and independent of each other. 10 needs 04 and 09 (both done). 11 needs
-everything.
+10 needs 04 and 09 (both done). 11 needs everything.
 
 ## Findings so far
 
@@ -195,6 +198,39 @@ Recorded in full in the individual ticket files. The load-bearing ones:
 - **The creation-date reset keys on the State arrived in, not the Event.** Not separable today,
   because exactly one Transition targets `SUBMITTED`; if ADR 0009's seed adds a second, this becomes
   two distinct behaviours. (Ticket 06.)
+- **A Record captures the destination State only** — not the origin, not the Event. Settled by
+  firing: `ABANDON` into `ABANDONED` from `IN_PROGRESS` versus from `PAUSED`, and `CONTACT` into
+  `REPRESENTATIVE_CONTACTED` from `SUBMITTED` versus from `REPRESENTATIVE_UNREACHABLE`, leave rows
+  that are *equal* once id and timestamps are stripped. Row order is therefore load-bearing and the
+  only ordering key is the identity `id`; `creation_date` agreed with it on every path pinned, but
+  nothing enforces that. The first row of a trail has no recoverable origin at all. This matches
+  ADR 0008's own deferrals — the ADR is accurate, and now tested. (Ticket 07.)
+- **The trail records State *assignments*, not Transitions.** Rows are written by
+  `Negotiation.setCurrentState` / `setStateForResource`, i.e. by the entity on any write. Three
+  producers no Transition accounts for: spawn (`ResourceNotificationService`, writing
+  `REPRESENTATIVE_CONTACTED` / `REPRESENTATIVE_UNREACHABLE`), the Override path
+  (`ResourceServiceImpl.updateResourceStatus`), and automatic conclusion — which runs through
+  `runAsSystemUser`, so that Negotiation Record is attributed to **Person 0**, not to the caller
+  whose Resource Event triggered it. Ticket 07 documented these rather than pinning them; they are
+  ticket 08's seam. (Ticket 07.)
+- **`buildResourceStateChangeRecord` silently drops `SUBMITTED`** (`Negotiation.java:226`).
+  Unreachable through the Lifecycle seam — no Resource Transition targets `SUBMITTED` and spawn does
+  not use it — so only an Override to `SUBMITTED` reaches it. A reimplementation that drops the
+  special case would start writing rows this trail has never contained. Documented, not pinned.
+- **Records are not deduplicated and must not become so.** Both collections are `HashSet`s and
+  neither Record type overrides `equals`. Giving a Record value-based equality after ADR 0008's FK
+  conversion — `state_id` + `negotiation_id` looks like a natural key — would silently lose every
+  revisit. Pinned by driving a path through `IN_PROGRESS` twice. (Ticket 07.)
+- **Every recorded State name is one the Definition declares, Legacy States included** — pinned over
+  the whole table in both graphs. That is the precondition ADR 0009's backfill rests on.
+- **A third place the State universe is written down.** Both Record tables carry a `CHECK` constraint
+  enumerating State names (`negotiation_lifecycle_record_changed_to_check`, 8 names after `V22.0`;
+  `negotiation_resource_changed_to_check`, 12 names). ADR 0009's conversion has to drop them.
+  Recorded as a before-picture rather than asserted, per ticket 09's rule.
+- **Corpus trap on the Resource history side.** The seeded Record for the subject Resource already
+  names `REPRESENTATIVE_CONTACTED` — the exact target of the obvious first Transition — so a wait on
+  "the last row names X" passes *before* the send. Ticket 07's Resource waits are all on row count.
+  `negotiation-2` has no Negotiation Record, which is what makes the Negotiation half baseline-free.
 
 ## One cross-ticket fix worth knowing about
 
