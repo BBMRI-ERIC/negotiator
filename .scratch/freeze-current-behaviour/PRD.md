@@ -301,6 +301,9 @@ that path appears in several early tickets and exits 127. The script ships with 
   freezes behaviour; it does not improve it.
 - **Generating ADR 0009's seed SQL.** The dump is its reference; whether the SQL is generated from
   the dump belongs to the migration slab.
+- **The `minimal-workflow` Spring profile.** It exists only because workflows are not yet
+  customizable, declares no new State, and is replaced by customizable workflows during the rollout.
+  The dump and the parity suite cover the default graph only, deliberately. See `STATUS.md`.
 
 ## Further Notes
 
