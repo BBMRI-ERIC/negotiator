@@ -70,7 +70,7 @@ the selector both cover any depth.
 **Selector for the whole suite:**
 
 ```
-scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
+/home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
 ### Wiring the adapter into a test

@@ -109,7 +109,7 @@ Five files under `backend/src/test/java/eu/bbmri_eric/negotiator/characterizatio
 ## Verification
 
 ```
-scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
+/home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
 Green on `feat/state-machine-implementation`. **106 tests, 0 failures, 0 errors, 1 skipped** — the

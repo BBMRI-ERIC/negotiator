@@ -199,6 +199,11 @@ class NegotiationGraphV1BindingTest {
             .filter(state -> !namedByTheTable.contains(state))
             .collect(Collectors.toUnmodifiableSet()),
         "APPROVED is the only declared State no Transition mentions");
+    assertEquals(
+        declaredByTheDump,
+        NegotiationGraphV1.allStateNames(),
+        "allStateNames() is derived from the table, and other tests take the Negotiation State"
+            + " universe from it, so it must be the dump's States exactly");
   }
 
   private static java.util.stream.Stream<JsonNode> transitions() {

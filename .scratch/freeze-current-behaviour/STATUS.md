@@ -10,55 +10,40 @@ Snapshot taken when the session stopped. Update or delete this file once the sla
 | 02 string adapter + import guard | **done** | guard demonstrated failing on a real violation, then reverted |
 | 09 REST seam | **done** | 26 tests green after one cross-ticket fix (see below) |
 | 03 Negotiation parity | **done** | 63 tests green; all 12 criteria re-verified against surefire output |
+| 04 Resource parity | **done** | 52 tests green; all 14 criteria re-verified against surefire output |
 
 Parity gate as it stands:
 
 ```
-scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
+/home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
-**106 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator) after 03
-landed.
+**158 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator) after 04
+landed. There is **no `scripts/test-backend.sh` at the repository root** — the early tickets recorded
+that path and it exits 127; the script ships with the `focused-backend-tests` skill.
 
-## Halted mid-flight — work preserved, NOT merged
-
-One agent was stopped by a session limit before it could verify its work. Its tests are written but
-**have never been executed**, so nothing was merged.
-
-| Ticket | Branch | Commit | What is missing |
-|---|---|---|---|
-| 04 Resource parity | `worktree-agent-a3dab4653dd6c2484` | `7f0226c8` | still adding refusal cases; ticket file never updated; suite never run |
-
-That branch is based on `556958f7`, which already contains tickets 01 and 02. It adds
-`ResourceTransitionParityTest` and `ResourcePossibleEventsAuthorityTest` into
-`eu.bbmri_eric.negotiator.characterization.service` — the same package ticket 03 has now landed
-`NegotiationGraphV1` into. Class names are disjoint, so the conflict risk 03 was landed first to
-avoid is gone, but 04 must now rebase onto a tip that already contains that package.
-
-**Two things ticket 04's agent must read** in `issues/03-negotiation-transition-parity.md`: the
-test-ordering hazard note (any class that drives a Lifecycle must dirty the context after each test
-method, or it breaks ticket 03 by ordering alone) and finding 3 (a hand-transcribed graph table must
-be bound to the committed dump, or its assertions state nothing about the system).
-
-**To resume:** verify the branch with the selector above, finish 04's remaining acceptance criteria,
-fill in its ticket file's findings, then cherry-pick onto `feat/state-machine-implementation`.
+Ticket 04's WIP branch (`worktree-agent-a3dab4653dd6c2484`, commit `7f0226c8`) was cherry-picked, made
+to compile, and then reworked — its hand-transcribed graph tables are now bound to the committed dump
+by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The branch is spent.
 
 ## Not started
 
 05 (Information Requirement gate), 06 (post side effects), 07 (history rows),
 08 (event seam: spawn, conclusion, notifications), 10 (intended deltas), 11 (parity gate + findings).
 
-Once 03 and 04 land, **05, 06, 07 and 08 are all unblocked simultaneously** and can be fanned out in
-one wave. 10 needs 04 and 09 (09 is done). 11 needs everything.
+With 03 and 04 landed, **05, 06, 07 and 08 are all unblocked simultaneously** and can be fanned out in
+one wave. 10 needs 04 and 09 (both done). 11 needs everything.
 
 ## Findings so far
 
 Recorded in full in the individual ticket files. The load-bearing ones:
 
-- **`NegotiationIsApprovedGuard` is dead code.** All 21 Transitions across both graphs dump
-  `"guard": null`; the `withExternal().guard(...)` fragment produces no Transition at all. Verified
-  not to be an unwrap failure in disguise. Reimplementing it in ADR 0002's registry would introduce
-  a check that has never fired.
+- **`NegotiationIsApprovedGuard` is dead code, and ticket 04 took path two.** All 21 Transitions
+  across both graphs dump `"guard": null`; the `withExternal().guard(...)` fragment produces no
+  Transition at all. Verified not to be an unwrap failure in disguise. What is pinned instead is the
+  imperative gate at `ResourceLifecycleServiceImpl.java:143-145` — no Resource Event is offered
+  unless the parent Negotiation is IN_PROGRESS — walked across all 8 Negotiation States by ticket
+  04. Reimplementing the Guard in ADR 0002's registry would introduce a check that has never fired.
 - **`secured(..., ComparisonType.ALL)` is silently `ANY`.** SSM 4.0's
   `AbstractTransitionConfigurer.setSecurityRule` ignores its `ComparisonType` argument. Harmless
   today because every rule carries exactly one attribute; ADR 0002's Required Authority model should
@@ -72,18 +57,43 @@ Recorded in full in the individual ticket files. The load-bearing ones:
   questions and the seed must reproduce both. Confirmed at the service seam by ticket 03, which also
   read the occupied set straight out of the table: exactly
   `{DRAFT, SUBMITTED, IN_PROGRESS, ABANDONED}`, so `APPROVED` has no live occupant at all.
-- **The Event universe is one wider than the dump.** The dump's `events` array lists only the seven
-  Events that trigger a Transition; `START` is declared, published by the metadata endpoint and
-  nameable by a caller, but carries no Transition. A candidate Override Event in the new model, not
-  a name to drop. (Ticket 03.)
-- **Two dead branches, not one.** Alongside `NegotiationIsApprovedGuard`,
-  `NegotiationLifecycleServiceImpl`'s `catch (ClassCastException)` refusal is unreachable: with no
-  authenticated caller, resolving the internal id throws
-  `AuthenticationCredentialsNotFoundException` first. (Ticket 03.)
+- **Both Event universes are wider than their dump.** The Negotiation dump's `events` array lists
+  only the seven Events that trigger a Transition; `START` is declared, published by the metadata
+  endpoint and nameable by a caller, but carries no Transition (ticket 03). The Resource graph has
+  two such Events, `RETURN_FOR_RESUBMISSION` and `OVERRIDE` — and `OVERRIDE`, whose published
+  description is "Override current state, ignoring state machine guards", is refused as silently as
+  any other unoffered Event. **There is no override path in the system today.** All three are
+  candidate Override Events in the new model, not names to drop. (Ticket 04.)
+- **Five dead branches, and one shape behind all of them.** Alongside `NegotiationIsApprovedGuard`:
+  `NegotiationLifecycleServiceImpl`'s `catch (ClassCastException)` refusal (ticket 03), and all
+  three advertised sharp edges of `ResourceLifecycleServiceImpl.isSecurityRuleMet` — absent
+  `Authentication` counting as admin, `catch (ClassCastException) → false`, and
+  `catch (NullPointerException) → creatorId = 0L` (ticket 04). Every one sits after a call to
+  `AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()`, which wraps *every* failure
+  in `AuthenticationCredentialsNotFoundException`, so nothing downstream ever sees the exception it
+  was written to catch. Defensive branches written around a helper that already normalises its
+  failures. None should be carried into the new evaluator. Ticket 04's criterion 9 was reworded to
+  pin the escaping exception instead, which is what a caller actually observes.
+- **The Resource service is silent only when it has something to be silent about.** Its refusal
+  returns `getCurrentStateForResource(...)`, which `orElseThrow`s — so a refused Event on a Resource
+  with no recorded State (blank link row or no link row) raises `EntityNotFoundException` carrying
+  the *Negotiation's* id. The read path swallows the same lookup failure into `Set.of()`. "The
+  Resource service never throws" is the summary everyone will carry into the redesign and it is
+  false. (Ticket 04.)
+- **Required Authority is exactly one rule per Resource Transition, and no caller can drive a
+  Resource alone.** 3 `isAdmin`, 8 `isRepresentative`, 2 `isCreator`, none unsecured, none with two
+  attributes. The delivery chain from `SUBMITTED` to `RESOURCE_MADE_AVAILABLE` changes identity
+  three times. `isAdmin` means the `ROLE_ADMIN` authority on the token, not the `admin` column of
+  the Person row; and representing a Resource is scoped to that Resource, not to its Negotiation —
+  the mirror of ticket 03's finding that representing a Resource confers nothing over the
+  Negotiation. (Ticket 04.)
 - **A hand-transcribed graph table must be bound to the dump.** Ticket 03 shipped its parity table
   as a transcription; two of its findings were assertions over that constant and could not fail.
   `NegotiationGraphV1BindingTest` now equates the table to the committed dump and to the committed
-  Event metadata. Any later ticket adding such a table owes the same binding.
+  Event metadata. Ticket 04 found its inherited WIP in exactly the same state and added
+  `ResourceGraphV1BindingTest`, and takes the Negotiation State universe from
+  `NegotiationGraphV1.allStateNames()` rather than transcribing it a second time. Any later ticket
+  adding such a table owes the same binding.
 - **The diagram endpoint has no visited set.** It terminates only because the Resource Lifecycle is
   acyclic; adding any cycle produces `StackOverflowError`, not a larger response. 13 Transitions
   render as 29 nodes, nesting 14 deep. A reimplementation needs a visited set or a depth bound.
@@ -105,6 +115,19 @@ recorded in ticket 09's findings as the before-picture.
 
 This is the guard catching something neither agent could see alone, which is the argument for having
 built it.
+
+## The ordering rule every later ticket inherits
+
+Established by ticket 03, honoured by ticket 04, and binding on 05–08, which all drive Lifecycles:
+
+**Any characterization class that fires an Event must declare
+`@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)`.** The Flyway strategy is clean-and-migrate on
+every context build, so dirtying after each method restores the seed for whoever runs next. The
+corpus is shared: `NegotiationAuthorityParityTest` reads `negotiation-1` expecting IN_PROGRESS, and
+driving `negotiation-1`'s only Resource to a terminal State concludes that Negotiation. A driving
+class that does not dirty turns another ticket red by test ordering alone, which no single class's
+own run would reveal. Read-only classes may use `BEFORE_CLASS` or `AFTER_CLASS`. The full-selector
+run is the check.
 
 ## Environment notes
 
