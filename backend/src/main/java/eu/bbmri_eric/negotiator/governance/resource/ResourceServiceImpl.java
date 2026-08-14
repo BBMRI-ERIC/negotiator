@@ -210,7 +210,6 @@ public class ResourceServiceImpl implements ResourceService {
     Person representative =
         personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
-        && !AuthenticatedUserContext.isHelpdeskIntegration()
         && !representative.getResources().containsAll(resourcesToUpdate)) {
       throw new ForbiddenRequestException("You do not have permission to update these resources");
     }
