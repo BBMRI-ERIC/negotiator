@@ -128,8 +128,9 @@ it named cannot be observed.
 - [x] Every State and Event is named as a string; the forbidden-import guard passes.
       `CharacterizationImportGuardTest` 3/3 green in the same run. The three files added here name no
       Lifecycle enum and no Spring Statemachine type.
-- [x] No production code is modified. `git diff --stat` over `backend/src/main` is empty; the commit
-      touches five test files and this ticket.
+- [x] No production code is modified. `git diff --stat` over `backend/src/main` is empty; commit
+      `fd7d0385` touches six test files (four new, two edited) and six markdown files — this ticket,
+      the PRD, `STATUS.md` and tickets 01, 02 and 03 — and nothing else.
 
 ## Blocked by
 
@@ -188,6 +189,10 @@ Ticket 03's four classes are green in the same run, which is the check on the or
 `MailConnectException` noise in the output is expected — there is no SMTP server in the test
 environment — and is not a failure.
 
+The table above is the run at which this ticket landed. After the follow-up review below the same
+selector is **157 tests, 0 failures, 0 errors, 1 skipped**: `NegotiationDraftReachabilityTest` drops
+from 8 to 7, and every other class keeps its count.
+
 ## Findings
 
 **1. `NegotiationIsApprovedGuard` is dead, and the check it looks like it performs lives somewhere
@@ -236,13 +241,16 @@ has to reproduce. Harmless today only because every rule carries exactly one att
 `everyTransition_carriesExactlyOneOfTheThreeKnownRules` also pins, so the day that stops being true
 is a failing test rather than a silent behaviour change.
 
-**5. Required Authority is exactly one rule per Transition, and the three partitions are disjoint.**
-Three Transitions are `isAdmin`, eight `isRepresentative`, two `isCreator`; no Transition carries
-two rules and none is unsecured. That has a practical consequence the delivery chain makes visible:
-**no single caller can drive a Resource from `SUBMITTED` to `RESOURCE_MADE_AVAILABLE`.** The walk in
-`deliveryChain_reachesResourceMadeAvailable` changes identity three times — admin, representative,
-creator, representative. It also means the whole authority model is a function of one column, which
-is why the expected offerings in this suite are computed rather than typed out.
+**5. Required Authority is exactly one rule per Transition, and the three rules are disjoint per
+Transition.** Three Transitions are `isAdmin`, eight `isRepresentative`, two `isCreator`; no
+Transition carries two rules and none is unsecured. That has a practical consequence the delivery
+chain makes visible: **the chain from `SUBMITTED` to `RESOURCE_MADE_AVAILABLE` requires three
+distinct rules, not three distinct people.** Nothing partitions *callers*: `isAdmin` is an authority
+on the token, `isRepresentative` is a link row, `isCreator` is a column of the Negotiation, and one
+Person can hold all three at once. The walk in `deliveryChain_reachesResourceMadeAvailable` changes
+identity three times only because the seeded callers 101, 109 and 108 happen to be disjoint — that is
+a property of the seed, not of the system. It also means the whole authority model is a function of
+one column, which is why the expected offerings in this suite are computed rather than typed out.
 
 **6. The Resource table had nothing binding it either.** Ticket 03's finding 3 applied to the WIP
 verbatim: its thirteen-row transition table, its `ALL_STATES` and its `ALL_NEGOTIATION_STATES` were
@@ -257,9 +265,16 @@ Transition-less Events.** The Resource graph's version of ticket 03's finding 4,
 Definition declares twelve States and publishes thirteen Events, while the graph uses eleven States
 and eleven Events. `OVERRIDE` is the one worth flagging — its own published description is "Override
 current state, ignoring state machine guards", and it is refused today as silently as any other
-unoffered Event. **There is no override path in the system at all.** Both names are candidate
-Override Events in the new model, not names to drop; ADR 0009's seed must carry the Legacy State or
-existing rows naming it stop resolving.
+unoffered Event: **`OVERRIDE` carries no Transition, so sending it through
+`ResourceLifecycleService.sendEvent` is silently refused.** That is a statement about the Lifecycle
+seam only. An out-of-Lifecycle override path does exist elsewhere — see finding 10 — and it stamps
+this same Event name onto the domain event it publishes. Both names are candidate Override Events in
+the new model, not names to drop; ADR 0009's seed must carry the Legacy State or existing rows naming
+it stop resolving.
+
+*(Corrected. This finding originally read "There is no override path in the system at all", which is
+false: `ResourceServiceImpl.updateResourceStatus` is one. The narrower claim above — no Transition,
+therefore refused at the Lifecycle seam — is what this ticket's tests actually pin.)*
 
 **8. `isAdmin` means the `ROLE_ADMIN` authority on the token, not the `admin` column of the Person
 row.** Seeded caller 101 has `admin = true`, and without the authority is offered nothing at all —
@@ -273,6 +288,70 @@ ticket 03's finding 6 from the other direction — there, representing a Resourc
 conferred no authority over the Negotiation; here, representing *some* Resource confers none over
 another one. The two together say the Audience of a Resource Transition is scoped to that Resource
 exactly.
+
+**10. `ResourceStateChangeEvent` has a second producer, outside the Lifecycle entirely — and this
+slab pins nothing about it.** `ResourceServiceImpl.updateResourceStatus`
+(`backend/src/main/java/eu/bbmri_eric/negotiator/governance/resource/ResourceServiceImpl.java:178-194`)
+writes an arbitrary State straight onto the link row through `negotiation.setStateForResource(...)`,
+consulting no Transition, no Required Authority rule of the graph and no IN_PROGRESS gate, and then
+publishes a `ResourceStateChangeEvent` stamped with the `OVERRIDE` Event. It is reachable from
+`PATCH /negotiations/{id}/resources` (`NegotiationController.java:297-304`) and gated by
+`verifyAuthForStatusUpdate` — admin, or representative of *every* Resource in the payload. So the
+override path exists; it simply does not go through the Lifecycle, which is why finding 7's original
+"there is no override path in the system at all" was wrong.
+
+Two consequences for later slabs. First, **`ResourceStateChangeEvent` does not always originate from
+a Transition.** The PRD's event seam (stories 13 and 19) and ticket 08 both read that event as the
+observable trace of a Lifecycle move; a handler keyed on it will also see writes that never went
+through one. Second, ADR 0002's Override Event has a live precedent to reproduce: the same Event
+name, a state written directly, and an audit trail carrying it. Pinning this second producer is
+**out of scope here** — this ticket's seam is the Lifecycle service — and is flagged to ticket 08 as
+input rather than silently inherited.
+
+## Follow-up review corrections
+
+Applied after a two-axis review of `26da8c45` and `fd7d0385`. Findings 5 and 7 above were corrected
+in place and finding 10 added; the code changes were these.
+
+- **`SeededResourceSubject`, a new package-private helper.** `ResourceTransitionParityTest` and
+  `ResourcePossibleEventsAuthorityTest` held byte-identical copies of `putResourceInState`,
+  `clearResourceState`, both `authenticateAs` overloads and `testJwt()`, plus the six constants
+  naming the subject and its callers — and the javadoc explaining *why* the authentication is
+  hand-rolled, and why the identifier is the `source_id` and never the row id, existed on one copy
+  only. Both now delegate, and the prose is stated once.
+- **`ResourceGraphV1.ALL_STATE_NAMES` is now `allStateNames()`, derived.** It transcribed the twelve
+  States a second time, against its sibling's own stated principle ("derived rather than listed so
+  there is one statement of the graph and not two"). Its "in the order the dump lists them" comment
+  was also unpinned — the binding test compared sorted lists, unlike `TRANSITIONS`, whose order *is*
+  pinned by list equality — so the claim is dropped rather than left standing. The Legacy-State
+  assertion in `ResourceGraphV1BindingTest` now filters the *dump's* declared States instead of the
+  table's, which would have become vacuous under the derivation.
+- **`ResourceGraphV1.eventsFrom(String)` deleted** — no callers anywhere in the characterization
+  tree.
+- **The two nested `assertThatCode(() -> assertEquals(...))` refusals are split in two.** A wrong
+  returned State used to be reported as "expected no throwable but caught AssertionFailedError";
+  `assertSilentlyRefused` now asserts the no-throw and the returned State separately, each with its
+  own message.
+- **The delivery chain's closing assertion earns its place.** It re-read the State that the
+  preceding `fire(REPRESENTATIVE, "GRANT_ACCESS_TO_RESOURCE")` had already awaited, so it restated
+  the walk's last step. It now asserts what the walk had not yet said: the graph offers nothing out
+  of the delivered State, which is what makes it the end of the chain.
+- **The magic `13` in `noTransition_carriesAGuard` is `ResourceGraphV1.TRANSITIONS.size()`**, which
+  the same class already binds to the dump's `transitionCount`.
+- Shared with the Negotiation half: the inlined `await()` blocks and the thrice-declared
+  `PERSIST_TIMEOUT` moved behind `LifecyclePersistence`; the duplicated artifact reader and
+  `namesIn` moved into `characterization/rest/CanonicalJson`, which already owned committed-fixture
+  reading, rather than a third copy being written; `publishedValues` is now shared rather than
+  inlined in the Negotiation binding test.
+
+Deliberately **not** converged: `NegotiationGraphV1.ADMIN_ONLY_EVENTS` and `ResourceGraphV1.Edge`'s
+rule column stay different shapes. Six of the Negotiation graph's eight Transitions dump
+`securityRule: null`, so a nullable fourth column would be worse than the set the Negotiation half
+uses.
+
+The convention for expected offerings — computed from the bound table, never typed out — is now
+applied on both sides; the reasoning is written up in ticket 03's own follow-up section, since the
+Negotiation half is where the typed literals were.
 
 ## Ordering rule, honoured
 

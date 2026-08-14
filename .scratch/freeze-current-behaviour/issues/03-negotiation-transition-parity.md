@@ -87,8 +87,8 @@ against the source.
 - [x] Every State and Event is named as a string; the forbidden-import guard passes.
       `CharacterizationImportGuardTest` 3/3 green in the same run. The four files added here name no
       Lifecycle enum and no Spring Statemachine type.
-- [x] No production code is modified. `git diff --stat` over `backend/src/main` is empty; the commit
-      touches five test files and this ticket.
+- [x] No production code is modified. `git diff --stat` over `backend/src/main` is empty; commit
+      `26da8c45` touches five test files, this ticket and `STATUS.md`, and nothing else.
 
 ## Blocked by
 
@@ -196,6 +196,49 @@ it; after that, pause, unpause, abandon and conclude are all yours.
 optional message argument, and it reaches the frontend verbatim. Today every label happens to be its
 Event name in title case; the table spells the labels out rather than deriving them, so that
 coincidence is not what the suite is testing.
+
+## Follow-up review corrections
+
+Applied after a two-axis review of `26da8c45` and `fd7d0385`. No assertion about the system was
+weakened; one strictly weaker duplicate test was deleted, which is why the suite total moved.
+
+- **The class comment's "only seven States can ever hold a Negotiation" is gone.** Nothing pinned
+  it, and the paragraph immediately below it argues the opposite for `DRAFT` — a State can be
+  occupied from outside the Lifecycle without being enterable through it, which ticket 04's finding
+  10 shows is a general pattern rather than a quirk of `DRAFT`. What is pinned is narrower and now
+  what the comment says: no Transition enters `APPROVED`, and nothing in the seed occupies it.
+- **`approved_isDeclaredButNeverEntered` deleted** (`NegotiationDraftReachabilityTest`). Its
+  `@DisplayName` claimed "declared but neither entered nor occupied"; its body checked only that no
+  `Edge` of the in-test table named the State, which is a strictly weaker duplicate of
+  `NegotiationGraphV1BindingTest.legacyState_isDeclaredButUnusedInTheDump` — the same statement made
+  against the mechanical dump. "Occupied" was already pinned by
+  `seededCorpus_occupiesDraftAndNotTheLegacyState`, whose javadoc now carries the pointer to both
+  halves. Both stronger statements survive; the suite total drops from 158 to 157.
+- `seededCorpus_occupiesDraftAndNotTheLegacyState` lost two assertions that its exact-set assertion
+  already implied, and gained their explanations as that assertion's failure message.
+- Shared with the Resource half: `Awaitility.await()` and a thrice-declared `PERSIST_TIMEOUT` moved
+  behind `LifecyclePersistence`; the committed-artifact reader and its "a table nothing binds must
+  never be treated as a statement about the system" message moved into
+  `characterization/rest/CanonicalJson`, which already owned fixture reading, instead of being a
+  third copy; `java.util.stream.Stream` is imported rather than written out inline.
+
+### Expected offerings: computed, not typed
+
+`NegotiationTransitionParityTest.statesReachedOnlyByDriving` used to carry typed expectations
+(`Set.of("UNPAUSE", "ABANDON")`, …) *and* assert the computed `possibleEventsForAdmin/Creator`
+alongside them. The typed columns are gone; the whole suite now computes expectations from the
+pinned table, which is what `NegotiationAuthorityParityTest` and both Resource classes already did.
+
+The argument for typed literals is that they cannot go tautological. That risk is already closed
+here by a different mechanism: `NegotiationGraphV1BindingTest` equates the table edge for edge to the
+committed mechanical dump, and `LifecycleGraphDumpDriftTest` regenerates that dump from the live
+beans on every run — so a computed expectation is anchored to an artifact nobody transcribed, while a
+typed one is anchored to text an agent typed once. The observation is independent of both, since it
+comes from the service. For a suite whose job is to fail when *behaviour* changes, the computed form
+is also the one that stays complete: if the graph turns out to be larger than the rows someone
+remembered to type, the expectation grows with it rather than quietly covering less. The typed
+columns additionally forced two dead parameters (`ignoredForCreator`, `ignoredForAdmin`) through both
+parameterized methods, which is a fair sign the redundancy was not paying for itself.
 
 ## Note for ticket 04 — a test-ordering hazard
 

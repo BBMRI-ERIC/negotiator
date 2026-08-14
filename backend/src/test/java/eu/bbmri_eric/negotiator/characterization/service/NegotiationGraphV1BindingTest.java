@@ -1,17 +1,18 @@
 package eu.bbmri_eric.negotiator.characterization.service;
 
+import static eu.bbmri_eric.negotiator.characterization.rest.CanonicalJson.artifact;
+import static eu.bbmri_eric.negotiator.characterization.rest.CanonicalJson.namesIn;
+import static eu.bbmri_eric.negotiator.characterization.rest.CanonicalJson.publishedValues;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,13 +46,11 @@ class NegotiationGraphV1BindingTest {
   private static final String PUBLISHED_EVENTS = "characterization/rest/negotiation-events.json";
   private static final String PUBLISHED_STATES = "characterization/rest/negotiation-states.json";
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
-
   @Test
   @DisplayName("TRANSITIONS is the dump's transitions array, edge for edge and in the same order")
   void transitions_areTheDumpsTransitions() {
     List<NegotiationGraphV1.Edge> fromDump = new ArrayList<>();
-    for (JsonNode transition : read(DUMP).get("transitions")) {
+    for (JsonNode transition : artifact(DUMP).get("transitions")) {
       fromDump.add(
           new NegotiationGraphV1.Edge(
               transition.get("source").asText(),
@@ -64,7 +63,7 @@ class NegotiationGraphV1BindingTest {
         NegotiationGraphV1.TRANSITIONS,
         "the pinned table must be exactly what the mechanical dump says the graph is");
     assertEquals(
-        read(DUMP).get("transitionCount").asInt(),
+        artifact(DUMP).get("transitionCount").asInt(),
         NegotiationGraphV1.TRANSITIONS.size(),
         "the dump counts its own Transitions, and the table must not have gained or lost one");
   }
@@ -72,7 +71,7 @@ class NegotiationGraphV1BindingTest {
   @Test
   @DisplayName("INITIAL_STATE is the dump's initialState")
   void initialState_isTheDumpsInitialState() {
-    assertEquals(read(DUMP).get("initialState").asText(), NegotiationGraphV1.INITIAL_STATE);
+    assertEquals(artifact(DUMP).get("initialState").asText(), NegotiationGraphV1.INITIAL_STATE);
   }
 
   @Test
@@ -99,7 +98,7 @@ class NegotiationGraphV1BindingTest {
   @DisplayName("LEGACY_STATE is declared by the dump and named by no Transition of it")
   void legacyState_isDeclaredButUnusedInTheDump() {
     assertTrue(
-        namesIn(read(DUMP).get("states")).contains(NegotiationGraphV1.LEGACY_STATE),
+        namesIn(artifact(DUMP).get("states")).contains(NegotiationGraphV1.LEGACY_STATE),
         "a Legacy State must still be declared, or nothing would resolve the value in old data");
     assertFalse(
         transitions()
@@ -116,7 +115,7 @@ class NegotiationGraphV1BindingTest {
   @Test
   @DisplayName("no Transition of the dump targets DRAFT, and the dump declares DRAFT all the same")
   void draft_isDeclaredByTheDumpButTargetedByNoTransitionOfIt() {
-    assertTrue(namesIn(read(DUMP).get("states")).contains("DRAFT"));
+    assertTrue(namesIn(artifact(DUMP).get("states")).contains("DRAFT"));
     assertFalse(
         transitions().anyMatch(transition -> transition.get("target").asText().equals("DRAFT")),
         "DRAFT is not enterable through the graph, which is what makes the seeded Negotiation in"
@@ -135,18 +134,14 @@ class NegotiationGraphV1BindingTest {
   @DisplayName(
       "ALL_EVENT_NAMES is the published Event universe, one wider than the dump's triggers")
   void allEventNames_areThePublishedUniverse_andTheDumpsTriggersAreTheRest() {
-    Set<String> published =
-        StreamSupport.stream(
-                read(PUBLISHED_EVENTS).get("_embedded").get("events").spliterator(), false)
-            .map(event -> event.get("value").asText())
-            .collect(Collectors.toUnmodifiableSet());
+    Set<String> published = publishedValues(PUBLISHED_EVENTS, "events");
 
     assertEquals(
         published,
         NegotiationGraphV1.ALL_EVENT_NAMES,
         "every Event a caller can name is one the metadata endpoint publishes");
 
-    Set<String> triggering = namesIn(read(DUMP).get("events"));
+    Set<String> triggering = namesIn(artifact(DUMP).get("events"));
     assertEquals(
         published.stream()
             .filter(event -> !event.equals("START"))
@@ -165,7 +160,7 @@ class NegotiationGraphV1BindingTest {
   @Test
   @DisplayName("every refusal message is built from that Event's published label, lowercased")
   void refusalMessages_useThePublishedEventLabels() {
-    for (JsonNode event : read(PUBLISHED_EVENTS).get("_embedded").get("events")) {
+    for (JsonNode event : artifact(PUBLISHED_EVENTS).get("_embedded").get("events")) {
       String name = event.get("value").asText();
       assertEquals(
           "You are not allowed to %s the Negotiation"
@@ -178,18 +173,14 @@ class NegotiationGraphV1BindingTest {
   @Test
   @DisplayName("every State the table names is a State the dump and the metadata both declare")
   void statesNamedByTheTable_areDeclaredEverywhere() {
-    Set<String> declaredByTheDump = namesIn(read(DUMP).get("states"));
-    Set<String> published =
-        StreamSupport.stream(
-                read(PUBLISHED_STATES).get("_embedded").get("states").spliterator(), false)
-            .map(state -> state.get("value").asText())
-            .collect(Collectors.toUnmodifiableSet());
+    Set<String> declaredByTheDump = namesIn(artifact(DUMP).get("states"));
+    Set<String> published = publishedValues(PUBLISHED_STATES, "states");
 
     assertEquals(declaredByTheDump, published, "the published States are the Definition's States");
 
     Set<String> namedByTheTable =
         NegotiationGraphV1.TRANSITIONS.stream()
-            .flatMap(edge -> java.util.stream.Stream.of(edge.source(), edge.target()))
+            .flatMap(edge -> Stream.of(edge.source(), edge.target()))
             .collect(Collectors.toUnmodifiableSet());
     assertTrue(declaredByTheDump.containsAll(namedByTheTable));
     assertTrue(declaredByTheDump.contains(NegotiationGraphV1.INITIAL_STATE));
@@ -206,36 +197,11 @@ class NegotiationGraphV1BindingTest {
             + " universe from it, so it must be the dump's States exactly");
   }
 
-  private static java.util.stream.Stream<JsonNode> transitions() {
-    return StreamSupport.stream(read(DUMP).get("transitions").spliterator(), false);
+  private static Stream<JsonNode> transitions() {
+    return StreamSupport.stream(artifact(DUMP).get("transitions").spliterator(), false);
   }
 
   private static Set<String> attributesOf(JsonNode securityRule) {
     return namesIn(securityRule.get("attributes"));
-  }
-
-  private static Set<String> namesIn(JsonNode array) {
-    return StreamSupport.stream(array.spliterator(), false)
-        .map(JsonNode::asText)
-        .collect(Collectors.toUnmodifiableSet());
-  }
-
-  private static JsonNode read(String classpathResource) {
-    try (InputStream in =
-        NegotiationGraphV1BindingTest.class
-            .getClassLoader()
-            .getResourceAsStream(classpathResource)) {
-      if (in == null) {
-        throw new IllegalStateException(
-            "Committed artifact "
-                + classpathResource
-                + " is missing from the test classpath. The pinned graph has nothing to be bound to,"
-                + " and a table nothing binds must never be treated as a statement about the"
-                + " system.");
-      }
-      return MAPPER.readTree(new String(in.readAllBytes(), StandardCharsets.UTF_8));
-    } catch (Exception e) {
-      throw new IllegalStateException("Could not read committed artifact " + classpathResource, e);
-    }
   }
 }

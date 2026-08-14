@@ -8,9 +8,7 @@ import eu.bbmri_eric.negotiator.characterization.adapter.LifecycleTestAdapter;
 import eu.bbmri_eric.negotiator.characterization.adapter.LifecycleTestAdapterConfig;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
-import java.time.Duration;
 import java.util.Set;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +45,6 @@ class NegotiationDraftReachabilityTest {
   /** The one Negotiation the seeded corpus leaves in {@code DRAFT}. Its creator is person 108. */
   private static final String SEEDED_IN_DRAFT = "negotiation-6";
 
-  private static final Duration PERSIST_TIMEOUT = Duration.ofSeconds(15);
-
   @Autowired LifecycleTestAdapter adapter;
 
   @Autowired JdbcTemplate jdbcTemplate;
@@ -65,6 +61,11 @@ class NegotiationDraftReachabilityTest {
    * straight out of the table the Lifecycle persists into rather than inferred from the four
    * Negotiations this suite happens to name. It settles both halves of the finding at once - {@code
    * DRAFT} is occupied, {@code APPROVED} is not.
+   *
+   * <p>That {@code APPROVED} is also declared by the Definition and named by no Transition is the
+   * same finding from the Definition's side, and it is checked against the mechanical dump by
+   * {@link NegotiationGraphV1BindingTest#legacyState_isDeclaredButUnusedInTheDump()} rather than
+   * restated over the pinned table here.
    */
   @Test
   @DisplayName("the seed occupies four States: DRAFT among them, the Legacy State not")
@@ -74,12 +75,12 @@ class NegotiationDraftReachabilityTest {
             jdbcTemplate.queryForList(
                 "select distinct current_state from negotiation", String.class));
 
-    assertEquals(Set.of("DRAFT", "SUBMITTED", "IN_PROGRESS", "ABANDONED"), occupied);
-    assertTrue(occupied.contains("DRAFT"), "something must be able to put a Negotiation in DRAFT");
-    assertFalse(
-        occupied.contains(NegotiationGraphV1.LEGACY_STATE),
-        "a Legacy State with a live occupant could not be dropped from the graph; this one has"
-            + " none, which is what makes it free to model as Legacy");
+    assertEquals(
+        Set.of("DRAFT", "SUBMITTED", "IN_PROGRESS", "ABANDONED"),
+        occupied,
+        ("DRAFT is occupied, so something must be able to put a Negotiation there; the Legacy State"
+                + " %s is not, and a Legacy State with a live occupant could not be modelled as one")
+            .formatted(NegotiationGraphV1.LEGACY_STATE));
   }
 
   /**
@@ -133,35 +134,12 @@ class NegotiationDraftReachabilityTest {
 
     adapter.sendNegotiationEvent(SEEDED_IN_DRAFT, "SUBMIT");
 
-    Awaitility.await()
-        .atMost(PERSIST_TIMEOUT)
-        .untilAsserted(
-            () -> assertEquals("SUBMITTED", adapter.currentNegotiationState(SEEDED_IN_DRAFT)));
+    LifecyclePersistence.awaitState(
+        "SUBMITTED", () -> adapter.currentNegotiationState(SEEDED_IN_DRAFT));
 
     assertTrue(
         NegotiationGraphV1.possibleEventsForCreator("SUBMITTED").isEmpty(),
         "a creator has nothing left to fire once their Negotiation is SUBMITTED");
     assertEquals(Set.of(), adapter.possibleNegotiationEvents(SEEDED_IN_DRAFT));
-  }
-
-  /**
-   * {@code APPROVED} is the other half of the same distinction, from the opposite side: declared by
-   * the Definition, named by no Transition, and occupied by nothing either. A Legacy State with no
-   * live occupant is free to be modelled as one; {@code DRAFT} is not.
-   *
-   * <p>Its declaration and its absence from every Transition are checked against the mechanical
-   * dump by {@link NegotiationGraphV1BindingTest}; that nothing occupies it is checked against the
-   * seed by {@link #seededCorpus_occupiesDraftAndNotTheLegacyState()}. This method pins the
-   * remaining consequence: the pinned table the whole suite reasons over never mentions the State.
-   */
-  @Test
-  @DisplayName("APPROVED is declared but neither entered nor occupied")
-  void approved_isDeclaredButNeverEntered() {
-    assertFalse(
-        NegotiationGraphV1.TRANSITIONS.stream()
-            .anyMatch(
-                edge ->
-                    edge.target().equals(NegotiationGraphV1.LEGACY_STATE)
-                        || edge.source().equals(NegotiationGraphV1.LEGACY_STATE)));
   }
 }

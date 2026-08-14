@@ -1,13 +1,13 @@
 package eu.bbmri_eric.negotiator.characterization.service;
 
+import static eu.bbmri_eric.negotiator.characterization.rest.CanonicalJson.artifact;
+import static eu.bbmri_eric.negotiator.characterization.rest.CanonicalJson.namesIn;
+import static eu.bbmri_eric.negotiator.characterization.rest.CanonicalJson.publishedValues;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -48,13 +48,11 @@ class ResourceGraphV1BindingTest {
   private static final String PUBLISHED_STATES = "characterization/rest/resource-states.json";
   private static final String PUBLISHED_EVENTS = "characterization/rest/resource-events.json";
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
-
   @Test
   @DisplayName("TRANSITIONS is the dump's transitions array, edge for edge and in the same order")
   void transitions_areTheDumpsTransitions() {
     List<ResourceGraphV1.Edge> fromDump = new ArrayList<>();
-    for (JsonNode transition : read(DUMP).get("transitions")) {
+    for (JsonNode transition : artifact(DUMP).get("transitions")) {
       fromDump.add(
           new ResourceGraphV1.Edge(
               transition.get("source").asText(),
@@ -68,7 +66,7 @@ class ResourceGraphV1BindingTest {
         ResourceGraphV1.TRANSITIONS,
         "the pinned table must be exactly what the mechanical dump says the graph is");
     assertEquals(
-        read(DUMP).get("transitionCount").asInt(),
+        artifact(DUMP).get("transitionCount").asInt(),
         ResourceGraphV1.TRANSITIONS.size(),
         "the dump counts its own Transitions, and the table must not have gained or lost one");
   }
@@ -76,22 +74,28 @@ class ResourceGraphV1BindingTest {
   @Test
   @DisplayName("INITIAL_STATE is the dump's initialState")
   void initialState_isTheDumpsInitialState() {
-    assertEquals(read(DUMP).get("initialState").asText(), ResourceGraphV1.INITIAL_STATE);
+    assertEquals(artifact(DUMP).get("initialState").asText(), ResourceGraphV1.INITIAL_STATE);
   }
 
+  /**
+   * {@code allStateNames()} is derived from the Transition table plus the Legacy State rather than
+   * transcribed, so this is what makes the derivation safe: the twelve it produces have to be the
+   * twelve the dump declares and the twelve the metadata publishes, or the Definition declares a
+   * State no Transition names and nothing accounts for it.
+   */
   @Test
-  @DisplayName("ALL_STATE_NAMES is the dump's States and the States the metadata publishes")
+  @DisplayName("allStateNames() is the dump's States and the States the metadata publishes")
   void allStateNames_areTheDumpsStatesAndThePublishedStates() {
     assertEquals(
-        namesIn(read(DUMP).get("states")).stream().sorted().toList(),
-        ResourceGraphV1.ALL_STATE_NAMES.stream().sorted().toList(),
-        "the Definition declares the whole enum, so the table has to carry all twelve");
+        namesIn(artifact(DUMP).get("states")),
+        ResourceGraphV1.allStateNames(),
+        "the Definition declares the whole enum, so the derived set has to carry all twelve");
     assertEquals(
         publishedValues(PUBLISHED_STATES, "states"),
-        Set.copyOf(ResourceGraphV1.ALL_STATE_NAMES),
+        ResourceGraphV1.allStateNames(),
         "the published States are the Definition's States");
     assertTrue(
-        ResourceGraphV1.ALL_STATE_NAMES.contains(ResourceGraphV1.INITIAL_STATE),
+        ResourceGraphV1.allStateNames().contains(ResourceGraphV1.INITIAL_STATE),
         "the initial State must be one of the declared States");
   }
 
@@ -112,7 +116,7 @@ class ResourceGraphV1BindingTest {
         ResourceGraphV1.ALL_EVENT_NAMES,
         "every Event a caller can name is one the metadata endpoint publishes");
 
-    Set<String> triggering = namesIn(read(DUMP).get("events"));
+    Set<String> triggering = namesIn(artifact(DUMP).get("events"));
     assertEquals(
         published.stream()
             .filter(event -> !ResourceGraphV1.EVENTS_ON_NO_TRANSITION.contains(event))
@@ -196,8 +200,8 @@ class ResourceGraphV1BindingTest {
   @DisplayName("no Transition of the graph carries a Guard, and there is no fourteenth orphan one")
   void noTransition_carriesAGuard() {
     assertEquals(
-        13,
-        read(DUMP).get("transitionCount").asInt(),
+        ResourceGraphV1.TRANSITIONS.size(),
+        artifact(DUMP).get("transitionCount").asInt(),
         "the guard(...) fragment produces no Transition of its own; a fourteenth entry would mean"
             + " NegotiationIsApprovedGuard is live after all");
     transitions()
@@ -230,7 +234,7 @@ class ResourceGraphV1BindingTest {
   @DisplayName("LEGACY_STATE is declared by the dump and named by no Transition of it")
   void legacyState_isDeclaredButUnusedInTheDump() {
     assertTrue(
-        namesIn(read(DUMP).get("states")).contains(ResourceGraphV1.LEGACY_STATE),
+        namesIn(artifact(DUMP).get("states")).contains(ResourceGraphV1.LEGACY_STATE),
         "a Legacy State must still be declared, or nothing would resolve the value in old data");
     assertFalse(
         transitions()
@@ -241,10 +245,12 @@ class ResourceGraphV1BindingTest {
         "a Transition naming it would stop it being a Legacy State");
     assertEquals(
         Set.of(ResourceGraphV1.LEGACY_STATE),
-        ResourceGraphV1.ALL_STATE_NAMES.stream()
+        namesIn(artifact(DUMP).get("states")).stream()
             .filter(state -> !statesNamedByTransitions().contains(state))
             .collect(Collectors.toUnmodifiableSet()),
-        "RETURNED_FOR_RESUBMISSION is the only declared State no Transition mentions");
+        "RETURNED_FOR_RESUBMISSION is the only declared State no Transition mentions - asked of the"
+            + " dump's own States, since the table's are derived from its Transitions and could not"
+            + " answer otherwise");
   }
 
   /**
@@ -272,36 +278,6 @@ class ResourceGraphV1BindingTest {
   }
 
   private static Stream<JsonNode> transitions() {
-    return StreamSupport.stream(read(DUMP).get("transitions").spliterator(), false);
-  }
-
-  private static Set<String> publishedValues(String artifact, String collection) {
-    return StreamSupport.stream(
-            read(artifact).get("_embedded").get(collection).spliterator(), false)
-        .map(entry -> entry.get("value").asText())
-        .collect(Collectors.toUnmodifiableSet());
-  }
-
-  private static Set<String> namesIn(JsonNode array) {
-    return StreamSupport.stream(array.spliterator(), false)
-        .map(JsonNode::asText)
-        .collect(Collectors.toUnmodifiableSet());
-  }
-
-  private static JsonNode read(String classpathResource) {
-    try (InputStream in =
-        ResourceGraphV1BindingTest.class.getClassLoader().getResourceAsStream(classpathResource)) {
-      if (in == null) {
-        throw new IllegalStateException(
-            "Committed artifact "
-                + classpathResource
-                + " is missing from the test classpath. The pinned graph has nothing to be bound to,"
-                + " and a table nothing binds must never be treated as a statement about the"
-                + " system.");
-      }
-      return MAPPER.readTree(new String(in.readAllBytes(), StandardCharsets.UTF_8));
-    } catch (Exception e) {
-      throw new IllegalStateException("Could not read committed artifact " + classpathResource, e);
-    }
+    return StreamSupport.stream(artifact(DUMP).get("transitions").spliterator(), false);
   }
 }

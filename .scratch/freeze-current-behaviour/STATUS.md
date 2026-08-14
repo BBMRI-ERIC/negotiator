@@ -18,13 +18,31 @@ Parity gate as it stands:
 /home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
-**158 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator) after 04
-landed. There is **no `scripts/test-backend.sh` at the repository root** — the early tickets recorded
-that path and it exits 127; the script ships with the `focused-backend-tests` skill.
+**157 tests, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator). It was 158
+when 04 landed; a follow-up review of `26da8c45` and `fd7d0385` deleted one strictly weaker duplicate
+test — `NegotiationDraftReachabilityTest.approved_isDeclaredButNeverEntered`, whose statement
+`NegotiationGraphV1BindingTest.legacyState_isDeclaredButUnusedInTheDump` already makes against the
+mechanical dump. No assertion about the system was weakened. There is **no `scripts/test-backend.sh`
+at the repository root** — the early tickets recorded that path and it exits 127; the script ships
+with the `focused-backend-tests` skill.
 
 Ticket 04's WIP branch (`worktree-agent-a3dab4653dd6c2484`, commit `7f0226c8`) was cherry-picked, made
 to compile, and then reworked — its hand-transcribed graph tables are now bound to the committed dump
 by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The branch is spent.
+
+## Conventions the later tickets inherit from the follow-up review
+
+- **Expected offerings are computed from the pinned graph table, never typed out.** The table is
+  bound edge for edge to the committed mechanical dump, which the drift test regenerates from the
+  live beans, so a computed expectation is anchored to an artifact nobody transcribed — and it stays
+  complete if the graph is larger than the rows anyone remembered to type. Reasoning in ticket 03's
+  follow-up section.
+- **Three shared helpers now exist in the characterization tree, and a fourth was extended.**
+  `service/SeededResourceSubject` (the seeded Resource, its three callers, the link-row SQL and the
+  hand-rolled authentication), `service/LifecyclePersistence` (the one bounded post-send wait and
+  the one `PERSIST_TIMEOUT`), and `rest/CanonicalJson` (now also the suite's one reader of committed
+  artifacts: `artifact`, `namesIn`, `publishedValues`). A ticket that needs any of these should use
+  them rather than write a fourth copy.
 
 ## Not started
 
@@ -61,9 +79,21 @@ Recorded in full in the individual ticket files. The load-bearing ones:
   only the seven Events that trigger a Transition; `START` is declared, published by the metadata
   endpoint and nameable by a caller, but carries no Transition (ticket 03). The Resource graph has
   two such Events, `RETURN_FOR_RESUBMISSION` and `OVERRIDE` — and `OVERRIDE`, whose published
-  description is "Override current state, ignoring state machine guards", is refused as silently as
-  any other unoffered Event. **There is no override path in the system today.** All three are
+  description is "Override current state, ignoring state machine guards", carries no Transition and
+  is therefore refused at the Lifecycle seam as silently as any other unoffered Event. That is a
+  statement about `ResourceLifecycleService.sendEvent` only: an out-of-Lifecycle override path does
+  exist elsewhere, and stamps the same Event name — see the next finding. All three names are
   candidate Override Events in the new model, not names to drop. (Ticket 04.)
+- **`ResourceStateChangeEvent` has a second producer, and nothing pins it.**
+  `ResourceServiceImpl.updateResourceStatus`
+  (`governance/resource/ResourceServiceImpl.java:178-194`) writes an arbitrary State straight onto
+  the link row via `negotiation.setStateForResource(...)` — no Transition, no Required Authority
+  rule of the graph, no IN_PROGRESS gate — and publishes a `ResourceStateChangeEvent` stamped
+  `OVERRIDE`. Reachable from `PATCH /negotiations/{id}/resources`
+  (`NegotiationController.java:297-304`), gated by admin-or-representative-of-every-Resource. The
+  PRD's event seam (stories 13 and 19) and ticket 08 both assume that event traces a Transition; it
+  does not always. Out of scope for ticket 04, deliberately left unpinned, and flagged as input in
+  ticket 08's own file. (Ticket 04, finding 10.)
 - **Five dead branches, and one shape behind all of them.** Alongside `NegotiationIsApprovedGuard`:
   `NegotiationLifecycleServiceImpl`'s `catch (ClassCastException)` refusal (ticket 03), and all
   three advertised sharp edges of `ResourceLifecycleServiceImpl.isSecurityRuleMet` — absent
@@ -80,10 +110,13 @@ Recorded in full in the individual ticket files. The load-bearing ones:
   the *Negotiation's* id. The read path swallows the same lookup failure into `Set.of()`. "The
   Resource service never throws" is the summary everyone will carry into the redesign and it is
   false. (Ticket 04.)
-- **Required Authority is exactly one rule per Resource Transition, and no caller can drive a
-  Resource alone.** 3 `isAdmin`, 8 `isRepresentative`, 2 `isCreator`, none unsecured, none with two
-  attributes. The delivery chain from `SUBMITTED` to `RESOURCE_MADE_AVAILABLE` changes identity
-  three times. `isAdmin` means the `ROLE_ADMIN` authority on the token, not the `admin` column of
+- **Required Authority is exactly one rule per Resource Transition.** 3 `isAdmin`,
+  8 `isRepresentative`, 2 `isCreator`, none unsecured, none with two attributes. The delivery chain
+  from `SUBMITTED` to `RESOURCE_MADE_AVAILABLE` therefore requires three distinct *rules* — but not
+  three distinct people: nothing partitions callers, since `isAdmin` is an authority on the token,
+  `isRepresentative` a link row and `isCreator` a column of the Negotiation, and one Person can hold
+  all three. The delivery walk changes identity only because seeded callers 101, 109 and 108 happen
+  to be disjoint. `isAdmin` means the `ROLE_ADMIN` authority on the token, not the `admin` column of
   the Person row; and representing a Resource is scoped to that Resource, not to its Negotiation —
   the mirror of ticket 03's finding that representing a Resource confers nothing over the
   Negotiation. (Ticket 04.)
