@@ -1,6 +1,10 @@
 # String-keyed lifecycle test adapter and forbidden-import guard
 
-Status: ready-for-agent
+Status: resolved
+
+(The five triage roles in `docs/agents/triage-labels.md` all describe work still waiting on someone.
+`resolved` is `docs/agents/issue-tracker.md`'s own closing value and is used here so no later agent
+picks this ticket up again.)
 
 ## Parent
 
