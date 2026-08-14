@@ -72,8 +72,8 @@ Test scope only, all under `eu.bbmri_eric.negotiator.characterization.dump`:
 
 Artifacts: `backend/src/test/resources/lifecycle/{negotiation-graph-v1.json,resource-graph-v1.json,graphs-v1.mmd}`.
 
-Run the gate with `scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'`.
-Regenerate with `scripts/test-backend.sh -f backend 'LifecycleGraphDumpGeneratorTest' -Dlifecycle.dump.regenerate=true`.
+Run the gate with `/home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'`.
+Regenerate with `/home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'LifecycleGraphDumpGeneratorTest' -Dlifecycle.dump.regenerate=true`.
 
 ## Findings
 
