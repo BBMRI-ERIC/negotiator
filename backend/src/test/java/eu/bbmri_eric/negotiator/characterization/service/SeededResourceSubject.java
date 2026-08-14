@@ -54,17 +54,35 @@ final class SeededResourceSubject {
   /** The {@code source_id} of Resource row 4, which is what every Lifecycle path keys on. */
   static final String RESOURCE = "biobank:1:collection:1";
 
-  private static final long RESOURCE_ROW_ID = 4L;
+  /**
+   * The database row id of {@link #RESOURCE}. Needed outside this file only by the Override path,
+   * which is the one surface in the system that identifies a Resource by row id rather than by
+   * source id.
+   */
+  static final long RESOURCE_ROW_ID = 4L;
 
   /**
-   * A second seeded Resource, used only as "some other Resource" - it is represented by the same
-   * Person as the subject and is not linked to {@link #NEGOTIATION} at all.
+   * A second seeded Resource, represented by the same Person as the subject and not linked to
+   * {@link #NEGOTIATION} by the seed. Used both as "some other Resource" and, once {@link
+   * #linkResource} has attached it, as the second Resource a Negotiation needs before "every
+   * Resource is terminal" is a claim about more than one thing.
    */
   static final long ANOTHER_RESOURCE_ROW_ID = 5L;
+
+  /** The {@code source_id} of {@link #ANOTHER_RESOURCE_ROW_ID}. */
+  static final String ANOTHER_RESOURCE = "biobank:1:collection:2";
 
   static final long ADMIN = 101L;
   static final long REPRESENTATIVE = 109L;
   static final long CREATOR = 108L;
+
+  /**
+   * The subject Resource's other representative. It has two, which is what makes "the
+   * representatives of a Resource" a set worth asserting rather than a single id - and Person 103
+   * represents nothing else, so a notification addressed to them can only have come through this
+   * Resource.
+   */
+  static final long SECOND_REPRESENTATIVE = 103L;
 
   /** Writes a starting State straight onto the link row, naming it as a string. */
   static void putResourceInState(JdbcTemplate jdbcTemplate, String state) {
@@ -74,6 +92,24 @@ final class SeededResourceSubject {
         state,
         NEGOTIATION,
         RESOURCE_ROW_ID);
+  }
+
+  /**
+   * Attaches a further Resource to {@link #NEGOTIATION} in a nominated State.
+   *
+   * <p>Written as SQL rather than through the governance service on purpose: that service publishes
+   * a state change of its own and, on a running Negotiation, sets off the very handlers a test
+   * using this is about to observe. A row inserted here changes what the Negotiation contains and
+   * nothing else, which is what a second Resource has to be for a statement about aggregation over
+   * all of them to mean anything.
+   */
+  static void linkResource(JdbcTemplate jdbcTemplate, long resourceRowId, String state) {
+    jdbcTemplate.update(
+        "insert into negotiation_resource_link (negotiation_id, resource_id, current_state)"
+            + " values (?, ?, ?)",
+        NEGOTIATION,
+        resourceRowId,
+        state);
   }
 
   /** Leaves the link row in place with no recorded State, which is a situation of its own. */

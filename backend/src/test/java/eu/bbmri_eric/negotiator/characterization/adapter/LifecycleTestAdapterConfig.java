@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.characterization.adapter;
 
+import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
@@ -20,8 +21,12 @@ public class LifecycleTestAdapterConfig {
   LifecycleTestAdapter lifecycleTestAdapter(
       NegotiationLifecycleService negotiationLifecycleService,
       ResourceLifecycleService resourceLifecycleService,
-      NegotiationRepository negotiationRepository) {
+      NegotiationRepository negotiationRepository,
+      ResourceService resourceService) {
     return new EnumBackedLifecycleTestAdapter(
-        negotiationLifecycleService, resourceLifecycleService, negotiationRepository);
+        negotiationLifecycleService,
+        resourceLifecycleService,
+        negotiationRepository,
+        resourceService);
   }
 }
