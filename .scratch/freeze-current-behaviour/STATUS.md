@@ -173,9 +173,14 @@ run is the check.
 - Agent worktrees are branched from `master`, not from the slab branch. Every agent brief must tell
   the agent to check and `git reset --hard feat/state-machine-implementation` if needed.
 
-## Unresolved question carried up
+## Settled: the `minimal-workflow` profile is out of scope
 
-`master` has `db9019d4 feat: add minimal-workflow Spring profile with simplified resource state
-machine`, which is not on this branch. If that profile defines a second Resource graph, the dump and
-the parity suite describe only the default one, and the cutover would be working from an incomplete
-picture. Check before treating the dump as complete.
+`master` has `db9019d4`, a `minimal-workflow` Spring profile whose
+`SimplifiedResourceStateMachineConfig` registers the `resourceStateMachine` bean with five
+Transitions. It is not on this branch, and the dump and parity suite describe the default graph only.
+
+**That is deliberate and needs no follow-up.** The profile exists only because workflows are not yet
+customizable, and it declares no new State, so ADR 0009's migration is unaffected wherever it is
+deployed. Customizable workflows land during the rollout and replace it. No ticket in this slab, and
+no later slab, owes anything to this profile — later sessions should read the absence of coverage as
+intended rather than as a gap.
