@@ -9,7 +9,10 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.lang.Nullable;
@@ -59,11 +62,14 @@ public class PersistStateChangeListener
     if (Objects.nonNull(postSenderId) && Objects.nonNull(postBody) && !postBody.isEmpty()) {
       createPostFromMessage(postSenderId, negotiation, postBody);
     }
-    publishChangeEvent(state, transition, negotiationId);
+    publishChangeEvent(state, transition, negotiationId, negotiation);
   }
 
   private void publishChangeEvent(
-      State<String, String> state, Transition<String, String> transition, String negotiationId) {
+      State<String, String> state,
+      Transition<String, String> transition,
+      String negotiationId,
+      Negotiation negotiation) {
     NegotiationEvent event;
     NegotiationState fromState;
     NegotiationState toState;
@@ -76,8 +82,16 @@ public class PersistStateChangeListener
       return;
     }
 
+    Set<String> orgExternalIds =
+        negotiation == null
+            ? Collections.emptySet()
+            : negotiation.getResources().stream()
+                .map(r -> r.getOrganization().getExternalId())
+                .collect(Collectors.toSet());
+
     eventPublisher.publishEvent(
-        new NegotiationStateChangeEvent(this, negotiationId, fromState, toState, event));
+        new NegotiationStateChangeEvent(
+            this, negotiationId, fromState, toState, event, orgExternalIds));
   }
 
   private void createPostFromMessage(Long postSenderId, Negotiation negotiation, String postBody) {
