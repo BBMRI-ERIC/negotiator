@@ -15,22 +15,50 @@ Snapshot taken when the session stopped. Update or delete this file once the sla
 | 06 Post side effects | **done** | 21 tests green; all criteria re-verified against surefire output |
 | 07 Lifecycle history rows | **done** | 37 tests green; all criteria re-verified against surefire output |
 | 08 Event seam, spawn, conclusion, handlers | **done** | 29 tests green; all 16 criteria re-verified against surefire output |
+| 10 ADR 0005 intended deltas | **done** | 8 tests green, tagged out of the gate; all 11 criteria re-verified against surefire output |
 
 Parity gate as it stands:
 
 ```
-/home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
+nix develop .#opencode --command \
+  /home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh \
+  -f backend 'eu.bbmri_eric.negotiator.characterization.**' -DexcludedGroups=intended-delta
 ```
 
 **255 tests in 24 classes, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator)
-as of ticket 08; the full run takes about 8.5 minutes. It was 226 after 07, 189 after 06, 168 after
-05, 157 before it, and 158
+as of ticket 08 and unchanged by ticket 10; the full run takes about 8.5 minutes. It was 226 after
+07, 189 after 06, 168 after 05, 157 before it, and 158
 when 04 landed; a follow-up review of `26da8c45` and `fd7d0385` deleted one strictly weaker duplicate
 test — `NegotiationDraftReachabilityTest.approved_isDeclaredButNeverEntered`, whose statement
 `NegotiationGraphV1BindingTest.legacyState_isDeclaredButUnusedInTheDump` already makes against the
 mechanical dump. No assertion about the system was weakened. There is **no `scripts/test-backend.sh`
 at the repository root** — the early tickets recorded that path and it exits 127; the script ships
 with the `focused-backend-tests` skill.
+
+**Two things about that command changed with ticket 10.**
+
+*The `nix develop` prefix.* An agent session does not get the Nix dev shell, so `java`, `mvn` and
+`JAVA_HOME` are absent from `PATH` and a bare `mvn` or a direct call to the script fails with
+command-not-found. Every Maven command must be run from the repository root as `nix develop
+.#opencode --command <command>`. It prints `warning: Git tree ... is dirty` to stderr while there is
+uncommitted work; that is not an error.
+
+*The `-DexcludedGroups=intended-delta` flag.* Ticket 10's two classes of assertion state behaviour
+the cutover is meant to **change**, so they are not parity and must not be in the gate's number. They
+carry the JUnit tag `intended-delta`, which `maven-surefire-plugin` 3.5.5 filters on through the
+plain user properties `excludedGroups` and `groups`, composed with `-Dtest=` rather than replacing it
+— no POM change was needed. To run them alone:
+
+```
+nix develop .#opencode --command \
+  /home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh \
+  -f backend 'eu.bbmri_eric.negotiator.characterization.**' -Dgroups=intended-delta
+```
+
+**8 tests, 0 failures.** Both directions were verified by which surefire reports got written, not by
+pass counts: with the exclusion no report for the delta class exists, with `-Dgroups` no report for
+anything else does. Dropping both flags runs everything — **263 tests in 25 classes, 0 failures, 0
+errors, 1 skipped** — which is the ordering check for the new class.
 
 Ticket 04's WIP branch (`worktree-agent-a3dab4653dd6c2484`, commit `7f0226c8`) was cherry-picked, made
 to compile, and then reworked — its hand-transcribed graph tables are now bound to the committed dump
@@ -63,7 +91,17 @@ by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The bran
   the two state-change events, and `service/HandlerNotifications`, its only reader of the
   `notification` table. It also extended the adapter with `overrideResourceStates`, so the suite can
   reach the Override producer without naming a State enum, and `CanonicalJson` with
-  `publishedLabels`.
+  `publishedLabels`. Ticket 10 added no helper at all — it reuses ticket 05's Requirement and
+  Submission fixtures wholesale, and only widened `SeededResourceSubject` (the class and the six
+  members the new `delta` package uses become public; the rest stays package private, so the public
+  surface says what is shared) and made `submitInformationFor` return the new row's id, which is what
+  the assembler's per-row rel names are built from.
+- **A `@Tag` is how a test earns its way out of the parity number.** Ticket 10's assertions state
+  behaviour ADR 0005 is meant to change, so counting them as parity would have made the fix look like
+  a break. They carry `@Tag("intended-delta")` and the gate command grew
+  `-DexcludedGroups=intended-delta`. Any later ticket that pins a deliberate delta should reuse that
+  tag rather than invent a second mechanism, and should verify it by which surefire reports get
+  written rather than by a pass count.
 - **Handlers are observed by their `notification` rows, not by `NewNotificationEvent`.** The trigger
   is a recorded application event as the PRD requires, but the *effect* is read from the table:
   `NewNotificationEvent` is published on the async dispatcher's thread, where
@@ -74,17 +112,40 @@ by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The bran
   only Resource with no representative, and is linked to nothing. `negotiation-1` has exactly one
   Resource, so any change that counts toward the terminal predicate concludes it — ticket 08's
   Resource-side walks attach a second Resource in a non-counting State purely as a brake.
+- **Corpus facts for anyone working the Resource listing.** `negotiation-1`'s single Resource sits in
+  `SUBMITTED` under an `IN_PROGRESS` Negotiation, where the graph offers `CONTACT` and
+  `MARK_AS_UNREACHABLE`, both `isAdmin`. Its creator 108 is offered nothing there yet still has read
+  access to `GET /v3/negotiations/{id}/resources` as creator, and administrator 101 has it as an
+  admin — that pair is what makes a caller-dependent link condition observable without moving any
+  Resource. `GRANT_ACCESS_TO_RESOURCE` carries a Transition out of `ACCESS_CONDITIONS_MET` but none
+  out of `SUBMITTED`, which is the "Event unreachable from here" case. `min(id)` of `access_form` is
+  1, `'BBMRI Template'`, and it comes from `V3__add_dynamic_access_forms.sql`, not from the test
+  seed — so `SeededResourceSubject.requireInformationFor` attaches to a *production* migration's row.
+  (Ticket 10.)
 
 ## Not started
 
-10 (intended deltas) and 11 (parity gate + findings) — all that remains.
+11 (parity gate + findings) — all that remains. It needs everything, and everything is now landed.
 
-10 needs 04 and 09, both long done, so it is unblocked. 11 needs everything, including 10.
+**Before 11 runs, read ticket 08's findings 1 and 2 below.** Both contradict documents the later
+slabs are written against: PRD story 13 and ticket 08's own description of spawn are wrong about
+which State a spawned Resource starts in, and about spawn announcing itself at all. 11's findings
+report owes an explicit correction of the PRD, not a silent one. Ticket 10, by contrast, found
+nothing to correct — PRD story 23, the PRD's "Intended deltas, not parity" section and ADR 0005's own
+paragraph all match the code, and that is worth stating rather than leaving as silence.
 
-**Before 10 and 11 run, read ticket 08's findings 1 and 2 below.** Both contradict documents the
-later slabs are written against: PRD story 13 and ticket 08's own description of spawn are wrong
-about which State a spawned Resource starts in, and about spawn announcing itself at all. 11's
-findings report owes an explicit correction of the PRD, not a silent one.
+## The one package in the tree that is not parity
+
+Ticket 10 added `characterization/delta/`, holding `IntendedDeltasAdr0005WillInvertTest` (8 tests)
+and a `package-info.java`. Everything else under `characterization` says "this must not change"; that
+package says "this is expected to change, and here is what it does today". **A red test there is the
+cutover working**, and each method's javadoc names the behaviour that should replace it.
+
+It stays *inside* the characterization tree deliberately. The forbidden-reference guard resolves its
+scan root from `src/test/java/eu/bbmri_eric/negotiator/characterization` and walks it whole, so a
+class moved outside would silently escape the string-and-adapter rule — the property these tests need
+most, since they are the ones a later session will be editing. Inside the tree, in its own package,
+tagged out of the gate: the guard covers them and the parity number does not.
 
 ## Findings so far
 
@@ -290,6 +351,48 @@ Recorded in full in the individual ticket files. The load-bearing ones:
   `resource-states.json`. `PendingNegotiationReminderHandler`, for its part, ignores the
   Negotiation's own State: an `ABANDONED` Negotiation whose Resource is still
   `REPRESENTATIVE_CONTACTED` keeps reminding its representatives. (Ticket 08.)
+- **The requirement hint's inclusion condition is caller-dependent, and ADR 0005 makes it
+  caller-independent.** Today `ResourceWithStatusAssembler.addRequirementLink` includes a hint only
+  if a link whose rel equals the Requirement's Event is already in the list — and those links come
+  from `getPossibleEvents`, Required Authority filter included. So a Requirement is hinted at only to
+  callers who could fire the Event: the administrator sees `requirement-<id>` on the seeded Resource,
+  the Negotiation's creator, offered nothing from that State, does not. Structural reachability is a
+  property of the graph, so after the cutover the creator will be told a form is required for an
+  Event they can never fire. That visibility change is a consequence neither ADR 0005 nor ticket 10
+  mentions; it may well be wanted (ADR 0006's Audience is a different question from Required
+  Authority) but it should be a decision. Pinned in both directions. (Ticket 10.)
+- **The frontend does not render the text ADR 0005 changes.** The ADR changes the requirement hint's
+  *display name* — the HAL `name`, today `"CONTACT requirement"`. `ResourceItem.vue:67` renders
+  `link.title`, which is the Access Form's name. So the display-name fix alone changes nothing a user
+  sees on a requirement hint; it does change a Submission link, where line 60 renders `link.name`.
+  Whoever lands ADR 0005 should decide whether the intended change belongs in `name` or `title`.
+  Both texts are now pinned on both link kinds. (Ticket 10.)
+- **`"Next Lifecycle event"` is a load-bearing magic string.** `ResourceItem.vue:108` picks lifecycle
+  links out of `_links` by `link.title === 'Next Lifecycle event'` and never looks at the rel. The
+  cutover may rename lifecycle rels freely; rewording that title silently removes every "Update
+  status" control from the Negotiation page. Nothing pinned it before ticket 10.
+- **`getPossibleEvents` is the single cause of the dead-click bug on both surfaces.** The assembler
+  calls the same method the Lifecycle endpoint does, so fixing the listing inside ADR 0005's
+  Evaluation Pipeline fixes the HAL links at the same time. **No assembler change is needed for the
+  availability delta** — only for the three link fixes. Worth stating because "the assembler
+  advertises it too" reads like a second site to repair. (Ticket 10.)
+- **Three shapes in the assembler that should not survive a rewrite, documented not pinned.**
+  `requirementsCache` is a `static` field on a singleton `@Component` (`:36`) reassigned per
+  `toModel` call, so concurrent requests interleave, and both caches are refreshed once per Resource
+  rendered — 2N service calls for N Resources. Both link loops wrap the whole `for` in `catch
+  (Exception)`, so one bad row silently drops every *remaining* link and the response is still 200;
+  `addLifecycleLink` has the same shape, so a failure inside `getPossibleEvents` renders a Resource
+  with no controls and no error. And `addSubmissionLink` reaches the requirement cache with
+  `.findFirst().get()`, which throws if a Submission outlives its Requirement — into that same catch.
+  Reaching any of them needs corrupted data or concurrency, so a test would be pinning its fixture.
+  (Ticket 10.)
+- **Submission links have no inclusion condition at all** — every Submission of the Negotiation
+  belonging to this Resource is linked, whatever the State and whoever is asking. ADR 0005 collapses
+  the rels for both kinds but changes the inclusion condition for Requirements only; applying
+  structural reachability to Submissions would hide forms people have already filled in. Also, the
+  assembler is one of the few places both Resource identifiers are live at once:
+  `addSubmissionLink` matches on database **row ids** while `addLifecycleLink` four lines away keys
+  on the **source id**, as every Lifecycle surface does. (Ticket 10.)
 - **The administrators the submission handler notifies are the `admin` column, not `ROLE_ADMIN`.**
   Person 0 — the system user automatic conclusion runs as — has `admin = false`, so it is never
   notified of submissions while being treated as admin by every role check. Two notification titles
@@ -335,7 +438,8 @@ built it.
 
 ## The ordering rule every later ticket inherits
 
-Established by ticket 03, honoured by ticket 04, and binding on 05–08, which all drive Lifecycles:
+Established by ticket 03, honoured by ticket 04, and binding on 05–08 and 10, which all drive
+Lifecycles or write globally scoped fixture rows:
 
 **Any characterization class that fires an Event must declare
 `@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)`.** The Flyway strategy is clean-and-migrate on
@@ -348,6 +452,16 @@ run is the check.
 
 ## Environment notes
 
+- **The Nix dev shell is not active in an agent session.** `java`, `mvn` and `JAVA_HOME` are absent
+  from `PATH`, so a bare `mvn`, a bare `java`, or a direct call to the focused-backend-tests script
+  all fail with command-not-found. Run everything from the repository root (where `flake.nix` lives)
+  as `nix develop .#opencode --command <command>`; that gives JDK 21 and Maven 3.9.12 with
+  `JAVA_HOME` set. It prints `warning: Git tree ... is dirty` to stderr while there is uncommitted
+  work, which is not an error, and the first invocation is slower than the rest.
+- The formatter is `com.spotify.fmt:fmt-maven-plugin:2.25`; run
+  `nix develop .#opencode --command mvn -f backend -q com.spotify.fmt:fmt-maven-plugin:2.25:format`
+  before committing, since it is not bound to the `test` phase and will otherwise reformat someone
+  else's diff later.
 - Testcontainers needs docker group membership; the images (`postgres:16-alpine`,
   `testcontainers/ryuk:0.12.0`) are already pulled locally.
 - `backend/target/` gets polluted by the JDT language server compiling without Lombok, which
