@@ -14,6 +14,7 @@ Snapshot taken when the session stopped. Update or delete this file once the sla
 | 05 Information Requirement gate | **done** | 11 tests green; all criteria re-verified against surefire output |
 | 06 Post side effects | **done** | 21 tests green; all criteria re-verified against surefire output |
 | 07 Lifecycle history rows | **done** | 37 tests green; all criteria re-verified against surefire output |
+| 08 Event seam, spawn, conclusion, handlers | **done** | 29 tests green; all 16 criteria re-verified against surefire output |
 
 Parity gate as it stands:
 
@@ -21,8 +22,9 @@ Parity gate as it stands:
 /home/claude/.claude/skills/focused-backend-tests/scripts/test-backend.sh -f backend 'eu.bbmri_eric.negotiator.characterization.**'
 ```
 
-**226 tests in 20 classes, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator)
-as of ticket 07. It was 189 after 06, 168 after 05, 157 before it, and 158
+**255 tests in 24 classes, 0 failures, 0 errors, 1 intentional skip** (ticket 01's opt-in generator)
+as of ticket 08; the full run takes about 8.5 minutes. It was 226 after 07, 189 after 06, 168 after
+05, 157 before it, and 158
 when 04 landed; a follow-up review of `26da8c45` and `fd7d0385` deleted one strictly weaker duplicate
 test — `NegotiationDraftReachabilityTest.approved_isDeclaredButNeverEntered`, whose statement
 `NegotiationGraphV1BindingTest.legacyState_isDeclaredButUnusedInTheDump` already makes against the
@@ -57,13 +59,32 @@ by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The bran
   `service/LifecycleHistory`, the suite's only reader of the two Record tables: it is the single
   place that knows the State comes out of `changed_to`, and it resolves `resource_id` to `source_id`
   so no row id leaks into an assertion. Same shape of argument as the adapter — one cutover point.
+  Ticket 08 added two more of the same shape: `service/StateChangeEvents`, the suite's only reader of
+  the two state-change events, and `service/HandlerNotifications`, its only reader of the
+  `notification` table. It also extended the adapter with `overrideResourceStates`, so the suite can
+  reach the Override producer without naming a State enum, and `CanonicalJson` with
+  `publishedLabels`.
+- **Handlers are observed by their `notification` rows, not by `NewNotificationEvent`.** The trigger
+  is a recorded application event as the PRD requires, but the *effect* is read from the table:
+  `NewNotificationEvent` is published on the async dispatcher's thread, where
+  `@RecordApplicationEvents`' inheritable thread-local is unreliable. No SMTP anywhere. (Ticket 08.)
+- **Corpus facts for anyone driving spawn or conclusion.** `negotiation-5` is the only seeded
+  Negotiation still holding stateless Resources (rows 5 and 7, representatives 109 and 105, creator
+  108), so it is the only usable spawn subject. Resource row 10 (`biobank:3:collection:4`) is the
+  only Resource with no representative, and is linked to nothing. `negotiation-1` has exactly one
+  Resource, so any change that counts toward the terminal predicate concludes it — ticket 08's
+  Resource-side walks attach a second Resource in a non-counting State purely as a brake.
 
 ## Not started
 
-08 (event seam: spawn, conclusion, notifications), 10 (intended deltas),
-11 (parity gate + findings).
+10 (intended deltas) and 11 (parity gate + findings) — all that remains.
 
-10 needs 04 and 09 (both done). 11 needs everything.
+10 needs 04 and 09, both long done, so it is unblocked. 11 needs everything, including 10.
+
+**Before 10 and 11 run, read ticket 08's findings 1 and 2 below.** Both contradict documents the
+later slabs are written against: PRD story 13 and ticket 08's own description of spawn are wrong
+about which State a spawned Resource starts in, and about spawn announcing itself at all. 11's
+findings report owes an explicit correction of the PRD, not a silent one.
 
 ## Findings so far
 
@@ -231,6 +252,74 @@ Recorded in full in the individual ticket files. The load-bearing ones:
   names `REPRESENTATIVE_CONTACTED` — the exact target of the obvious first Transition — so a wait on
   "the last row names X" passes *before* the send. Ticket 07's Resource waits are all on row count.
   `negotiation-2` has no Negotiation Record, which is what makes the Negotiation half baseline-free.
+- **Spawn does not use the Definition's initial State.** It writes `REPRESENTATIVE_CONTACTED` or
+  `REPRESENTATIVE_UNREACHABLE`, never the graph's initial `SUBMITTED`. **PRD story 13 and ticket 08's
+  own description are both wrong on this**, and ADR 0007's `SPAWN_RESOURCE_LIFECYCLES` Action must be
+  written against the observed behaviour: starting a spawned Resource at `SUBMITTED` would re-offer
+  representatives Events that are admin-only from there. Pinned as observed, with
+  `spawn_doesNotUseTheGraphsInitialState` stating the divergence outright. (Ticket 08.)
+- **Spawn publishes no `ResourceStateChangeEvent` at all.** Three Resources change State and nothing
+  is announced — neither the Resource-state-change handler, nor the conclusion listener, nor the
+  webhook subsystem hears it. If ADR 0007 routes spawn through ordinary Transition machinery it
+  starts emitting events to consumers nobody has counted. (Ticket 08.)
+- **The Negotiation-side handlers and spawn all key on the destination State, not the Event.**
+  `PAUSED --UNPAUSE--> IN_PROGRESS` spawns exactly as `APPROVE` does, and the two `ABANDON`
+  Transitions — *not* equivalent in ticket 06's post effects — are indistinguishable here. (Ticket 08.)
+- **The conclusion predicate, empirically.** Counts toward concluding: `RESOURCE_MADE_AVAILABLE` and
+  `RESOURCE_UNAVAILABLE`, and nothing else. The other ten declared Resource States do not, including
+  `RESOURCE_NOT_MADE_AVAILABLE` — where a researcher's own refusal lands — so such a Negotiation
+  stays `IN_PROGRESS` for ever. Walked twice: every Transition, and every declared State via the
+  Override path. This settles PRD story 15 against observation rather than the names' apparent
+  meaning. (Ticket 08.)
+- **The double-annotated conclusion listener runs exactly once.** `EventListenerMethodProcessor`
+  takes the first supporting `EventListenerFactory` and breaks, so the `@TransactionalEventListener`
+  wins and the plain `@EventListener` never produces a listener at all. Deleting `@EventListener` is
+  a no-op; deleting `@TransactionalEventListener` is not. The invocation count itself is
+  **documented, not test-enforced** — a spy would have named `ResourceStateChangeListener`, a class
+  the redesign deletes; what is enforced is the observable consequence, one published `CONCLUDE` and
+  one Record. (Ticket 08.)
+- **No handler is reachable by an event published outside a transaction — and the scheduled pending
+  reminder is published outside one.** `NotificationListener.onNewEvent` is the single dispatcher for
+  all eight strategies and is a `@TransactionalEventListener` with default fallback;
+  `NotificationScheduler.forPendingNegotiations` is a plain `@Scheduled` method. On this evidence the
+  daily reminder has never reached a representative in production. Pinned both ways in
+  `noHandlerIsReached_whenTheEventIsPublishedOutsideATransaction`. (Ticket 08.)
+- **`ResourceStateChangeHandler` has no firing condition** — it fires on every published Resource
+  state change, from either producer. Its lifecycle dependence is entirely in its *content*: the body
+  is built from the two States' labels, so the expected body is computed from the committed
+  `resource-states.json`. `PendingNegotiationReminderHandler`, for its part, ignores the
+  Negotiation's own State: an `ABANDONED` Negotiation whose Resource is still
+  `REPRESENTATIVE_CONTACTED` keeps reminding its representatives. (Ticket 08.)
+- **The administrators the submission handler notifies are the `admin` column, not `ROLE_ADMIN`.**
+  Person 0 — the system user automatic conclusion runs as — has `admin = false`, so it is never
+  notified of submissions while being treated as admin by every role check. Two notification titles
+  are also shared with non-lifecycle-keyed handlers: `"New Request"` with `NewNegotiationHandler`,
+  `"New Negotiation Request"` with `UpdatedResourcesHandler`. (Ticket 08.)
+
+## The Override producer is now pinned, not scoped out
+
+Ticket 04 found it and left it; ticket 08 decided to pin it, and the reasoning is worth keeping.
+
+Two of the twelve declared Resource States have no incoming Transition — the initial State and Legacy
+`RETURNED_FOR_RESUBMISSION` — so a Lifecycle-only walk leaves holes in exactly the table ADR 0007's
+aggregation Guard is configured from. A lifecycle-keyed handler *does* fire on an Override-stamped
+event: `ResourceStateChangeHandler` and the conclusion listener behave identically for both
+producers. And the one pre-existing test of automatic conclusion drives this path rather than the
+Lifecycle. The adapter grew `overrideResourceStates` so the suite reaches it without naming a State
+enum.
+
+Two consequences found by pinning it:
+
+- **The Override path also spawns.** Updating Resources on an `IN_PROGRESS` Negotiation publishes
+  `NewResourcesAddedEvent`, which initialises any stateless Resource exactly as arriving at
+  `IN_PROGRESS` does.
+- **It is silent in exactly one case**: writing the initial State onto a link row that already has
+  one writes nothing and publishes nothing. Making the override uniform would start publishing an
+  event it has never published. This is also why ticket 07's `SUBMITTED`-drop finding stayed
+  untested — the only path to it writes nothing.
+
+Deliberately still unpinned, as the governance service's seam rather than the Lifecycle's: the
+override's own authorisation rule, its DRAFT branch, and its `NewResourcesAddedEvent` branch.
 
 ## One cross-ticket fix worth knowing about
 
