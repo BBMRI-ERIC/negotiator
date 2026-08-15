@@ -608,7 +608,7 @@ public class NegotiationLifecycleServiceImplTest {
 
     Negotiation negotiation =
         negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
-    NegotiationResourceLifecycleRecord record =
+    NegotiationResourceLifecycleRecord persistedRecord =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(
                 r ->
@@ -616,8 +616,8 @@ public class NegotiationLifecycleServiceImplTest {
                         && r.getResource().getSourceId().equals(RESOURCE_SOURCE_1_ID))
             .findFirst()
             .orElseThrow();
-    assertEquals(HELPDESK_ACTOR, record.getHelpdeskActor());
-    assertEquals(HELPDESK_ACTOR, record.getTriggeredBy());
+    assertEquals(HELPDESK_ACTOR, persistedRecord.getHelpdeskActor());
+    assertEquals(HELPDESK_ACTOR, persistedRecord.getTriggeredBy());
   }
 
   @Test
@@ -629,7 +629,7 @@ public class NegotiationLifecycleServiceImplTest {
         NEGOTIATION_7_ID, RESOURCE_SOURCE_1_ID, NegotiationResourceEvent.MARK_AS_AVAILABLE, null);
     Negotiation negotiation =
         negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
-    NegotiationResourceLifecycleRecord record =
+    NegotiationResourceLifecycleRecord persistedRecord =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(
                 r ->
@@ -637,7 +637,7 @@ public class NegotiationLifecycleServiceImplTest {
                         && r.getResource().getSourceId().equals(RESOURCE_SOURCE_1_ID))
             .findFirst()
             .orElseThrow();
-    Assertions.assertNull(record.getHelpdeskActor());
-    assertFalse(record.getTriggeredBy().isEmpty());
+    Assertions.assertNull(persistedRecord.getHelpdeskActor());
+    assertFalse(persistedRecord.getTriggeredBy().isEmpty());
   }
 }

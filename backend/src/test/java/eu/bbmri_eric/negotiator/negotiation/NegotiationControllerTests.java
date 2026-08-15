@@ -2116,7 +2116,7 @@ public class NegotiationControllerTests {
 
     Negotiation negotiation =
         negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
-    NegotiationResourceLifecycleRecord record =
+    NegotiationResourceLifecycleRecord persistedRecord =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(
                 r ->
@@ -2124,8 +2124,8 @@ public class NegotiationControllerTests {
                         && r.getResource().getSourceId().equals(resourceSourceId))
             .findFirst()
             .orElseThrow();
-    assertEquals(HELPDESK_ACTOR, record.getHelpdeskActor());
-    assertEquals(HELPDESK_ACTOR, record.getTriggeredBy());
+    assertEquals(HELPDESK_ACTOR, persistedRecord.getHelpdeskActor());
+    assertEquals(HELPDESK_ACTOR, persistedRecord.getTriggeredBy());
   }
 
   @Test
@@ -2148,11 +2148,11 @@ public class NegotiationControllerTests {
 
     Negotiation negotiation =
         negotiationRepository.findDetailedById(NEGOTIATION_7_ID).orElseThrow();
-    NegotiationResourceLifecycleRecord record =
+    NegotiationResourceLifecycleRecord persistedRecord =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(r -> r.getChangedTo().equals(NegotiationResourceState.RESOURCE_UNAVAILABLE))
             .findFirst()
             .orElseThrow();
-    assertNull(record.getHelpdeskActor());
+    assertNull(persistedRecord.getHelpdeskActor());
   }
 }
