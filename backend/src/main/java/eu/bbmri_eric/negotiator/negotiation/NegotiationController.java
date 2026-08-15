@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -305,7 +306,7 @@ public class NegotiationController {
   @Operation(summary = "Edit Resources linked to a Negotiation")
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
-      @PathVariable String id, @RequestBody @Valid UpdateResourcesDTO updateResourcesDTO) {
+      @PathVariable String id, @RequestBody @NotNull @Valid UpdateResourcesDTO updateResourcesDTO) {
     if (!AuthenticatedUserContext.isHelpdeskIntegration()) {
       updateResourcesDTO.setHelpdeskActor(null);
     }
