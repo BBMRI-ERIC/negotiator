@@ -63,7 +63,14 @@ public class PostServiceImpl implements PostService {
   }
 
   private static Post getPostEntity(PostCreateDTO postRequest) {
-    return Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
+    return Post.builder()
+        .text(postRequest.getText())
+        .type(postRequest.getType())
+        .helpdeskActor(
+            AuthenticatedUserContext.isHelpdeskIntegration()
+                ? postRequest.getHelpdeskActor()
+                : null)
+        .build();
   }
 
   /**
@@ -128,10 +135,6 @@ public class PostServiceImpl implements PostService {
             .findById(authorId)
             .orElseThrow(() -> new EntityNotFoundException(authorId));
     postEntity.setCreatedBy(author);
-    if (AuthenticatedUserContext.isHelpdeskIntegration()
-        && postRequest.getHelpdeskActor() != null) {
-      postEntity.setHelpdeskActor(postRequest.getHelpdeskActor());
-    }
     return postEntity;
   }
 
