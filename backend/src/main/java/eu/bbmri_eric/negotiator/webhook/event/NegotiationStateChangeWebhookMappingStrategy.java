@@ -33,7 +33,11 @@ class NegotiationStateChangeWebhookMappingStrategy
 
     NegotiationStateUpdatedWebhookEvent payload =
         new NegotiationStateUpdatedWebhookEvent(
-            event.getNegotiationId(), event.getFromState(), event.getToState(), event.getEvent());
+            event.getNegotiationId(),
+            event.getFromState(),
+            event.getToState(),
+            event.getEvent(),
+            event.getInvolvedOrganizationExternalIds());
     return Optional.of(
         new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_STATE_UPDATED,

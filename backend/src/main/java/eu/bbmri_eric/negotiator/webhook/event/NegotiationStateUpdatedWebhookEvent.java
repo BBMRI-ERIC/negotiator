@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.webhook.event;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Set;
 
 /**
  * Webhook data payload for a negotiation state transition.
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param fromState source negotiation state before transition
  * @param toState target negotiation state after transition
  * @param event state-machine event that triggered the transition
+ * @param involvedOrganizationExternalIds external IDs of all organizations with resources in this
+ *     negotiation
  */
 @WebhookEventDoc(
     summary = "Negotiation state changed",
@@ -24,4 +27,8 @@ record NegotiationStateUpdatedWebhookEvent(
     @Schema(description = "Target state after transition", example = "SUBMITTED")
         NegotiationState toState,
     @Schema(description = "State-machine event that triggered the transition", example = "SUBMIT")
-        NegotiationEvent event) {}
+        NegotiationEvent event,
+    @Schema(
+            description = "External IDs of all organizations with resources in this negotiation",
+            example = "[\"bbmri:DE:MHH\", \"bbmri:NL:AMC\"]")
+        Set<String> involvedOrganizationExternalIds) {}
