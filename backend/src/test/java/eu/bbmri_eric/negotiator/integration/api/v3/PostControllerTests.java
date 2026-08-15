@@ -211,7 +211,7 @@ public class PostControllerTests {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 110L, authorities = "ROLE_HELPDESK_INTEGRATION")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_HELPDESK_INTEGRATION")
   @Transactional
   public void testCreatePost_asHelpdeskIntegration_withHelpdeskActor_persistsAndReturnsActor()
       throws Exception {
