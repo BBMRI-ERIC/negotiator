@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -151,7 +152,8 @@ class NotificationListenerTest {
             "negotiation-123",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "onNewEvent", event);
@@ -209,7 +211,8 @@ class NotificationListenerTest {
             "negotiation-123",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "onNewEvent", event);
@@ -319,7 +322,8 @@ class NotificationListenerTest {
             "negotiation-123",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "onNewEvent", event);
@@ -376,14 +380,16 @@ class NotificationListenerTest {
             "negotiation-123",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
     NegotiationStateChangeEvent negotiationEvent2 =
         new NegotiationStateChangeEvent(
             this,
             "negotiation-456",
             NegotiationState.SUBMITTED,
             NegotiationState.APPROVED,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            Set.of());
     NewPostEvent postEvent1 = new NewPostEvent(this, "post-123", "negotiation-789", 111L, 222L);
     NewPostEvent postEvent2 = new NewPostEvent(this, "post-456", "negotiation-101", 333L, 444L);
 
@@ -457,7 +463,8 @@ class NotificationListenerTest {
             "negotiation-123",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "onNewEvent", event);
@@ -490,7 +497,8 @@ class NotificationListenerTest {
             "negotiation-123",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "dispatch", negotiationHandler, event);

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,8 @@ class NegotiationInProgressHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            Set.of());
 
     handler.notify(event);
 
@@ -55,7 +57,8 @@ class NegotiationInProgressHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     handler.notify(event);
 
@@ -71,7 +74,8 @@ class NegotiationInProgressHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            Set.of());
 
     handler.notify(event);
 

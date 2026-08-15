@@ -140,6 +140,18 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
     long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
     assertThat(numEvents).isEqualTo(1);
+    Set<String> expectedOrgExternalIds =
+        negotiationRepository
+            .findDetailedById(negotiationDTO.getId())
+            .orElseThrow()
+            .getResources()
+            .stream()
+            .map(r -> r.getOrganization().getExternalId())
+            .collect(Collectors.toSet());
+    NegotiationStateChangeEvent publishedEvent =
+        events.stream(NegotiationStateChangeEvent.class).findFirst().orElseThrow();
+    assertThat(publishedEvent.getInvolvedOrganizationExternalIds())
+        .isEqualTo(expectedOrgExternalIds);
   }
 
   @Test

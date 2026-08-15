@@ -13,6 +13,7 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,7 +54,8 @@ class NegotiationSubmissionHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     Person admin1 = createPerson(1L, "admin1@test.com");
     Person admin2 = createPerson(2L, "admin2@test.com");
@@ -86,7 +88,8 @@ class NegotiationSubmissionHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     when(personRepository.findAllByAdminIsTrue()).thenReturn(Collections.emptyList());
 
@@ -107,7 +110,8 @@ class NegotiationSubmissionHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            Set.of());
 
     // When
     handler.notify(event);
@@ -135,7 +139,12 @@ class NegotiationSubmissionHandlerTest {
     for (NegotiationState state : nonSubmittedStates) {
       NegotiationStateChangeEvent event =
           new NegotiationStateChangeEvent(
-              this, negotiationId, NegotiationState.SUBMITTED, state, NegotiationEvent.APPROVE);
+              this,
+              negotiationId,
+              NegotiationState.SUBMITTED,
+              state,
+              NegotiationEvent.APPROVE,
+              Set.of());
 
       // When
       handler.notify(event);
@@ -151,7 +160,8 @@ class NegotiationSubmissionHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
     handler.notify(submittedEvent);
 
     verify(notificationService, times(1)).createNotifications(any());

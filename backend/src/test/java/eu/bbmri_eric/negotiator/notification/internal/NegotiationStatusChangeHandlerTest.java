@@ -14,6 +14,7 @@ import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +64,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -94,7 +96,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            Set.of());
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -124,7 +127,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.IN_PROGRESS,
             NegotiationState.DECLINED,
-            NegotiationEvent.DECLINE);
+            NegotiationEvent.DECLINE,
+            Set.of());
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -154,7 +158,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.IN_PROGRESS,
             NegotiationState.ABANDONED,
-            NegotiationEvent.ABANDON);
+            NegotiationEvent.ABANDON,
+            Set.of());
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -184,7 +189,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
 
@@ -205,7 +211,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.DRAFT,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     // When
     handler.notify(event);
@@ -227,7 +234,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            Set.of());
     handler.notify(inProgressEvent);
 
     ArgumentCaptor<NotificationCreateDTO> captor =
@@ -248,7 +256,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.IN_PROGRESS,
             NegotiationState.DECLINED,
-            NegotiationEvent.DECLINE);
+            NegotiationEvent.DECLINE,
+            Set.of());
     handler.notify(declinedEvent);
 
     verify(notificationService, times(1)).createNotifications(captor.capture());
@@ -266,7 +275,8 @@ class NegotiationStatusChangeHandlerTest {
             negotiationId,
             NegotiationState.IN_PROGRESS,
             NegotiationState.ABANDONED,
-            NegotiationEvent.ABANDON);
+            NegotiationEvent.ABANDON,
+            Set.of());
     handler.notify(abandonedEvent);
 
     verify(notificationService, times(1)).createNotifications(captor.capture());

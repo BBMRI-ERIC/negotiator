@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEvent;
@@ -71,7 +72,8 @@ class WebhookEventMapperTest {
             "negotiation-2",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            Set.of());
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -90,7 +92,8 @@ class WebhookEventMapperTest {
             "negotiation-2",
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            Set.of("bbmri:DE:MHH"));
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -103,7 +106,8 @@ class WebhookEventMapperTest {
                 "negotiation-2",
                 NegotiationState.SUBMITTED,
                 NegotiationState.IN_PROGRESS,
-                NegotiationEvent.APPROVE));
+                NegotiationEvent.APPROVE,
+                Set.of("bbmri:DE:MHH")));
   }
 
   @Test

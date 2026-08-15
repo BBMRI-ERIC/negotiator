@@ -32,6 +32,7 @@ import eu.bbmri_eric.negotiator.webhook.WebhookHeaders;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import eu.bbmri_eric.negotiator.webhook.event.WebhookEventType;
 import java.time.Duration;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -79,7 +80,8 @@ class WebhookEventListenerIntegrationTest {
             "negotiation-1",
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE));
+            NegotiationEvent.APPROVE,
+            Set.of("bbmri:DE:MHH")));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -98,7 +100,11 @@ class WebhookEventListenerIntegrationTest {
                           matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1")))
                       .withRequestBody(matchingJsonPath("$.data.fromState", equalTo("SUBMITTED")))
                       .withRequestBody(matchingJsonPath("$.data.toState", equalTo("IN_PROGRESS")))
-                      .withRequestBody(matchingJsonPath("$.data.event", equalTo("APPROVE"))));
+                      .withRequestBody(matchingJsonPath("$.data.event", equalTo("APPROVE")))
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.data.involvedOrganizationExternalIds[0]",
+                              equalTo("bbmri:DE:MHH"))));
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/negotiation-two"))
@@ -130,7 +136,8 @@ class WebhookEventListenerIntegrationTest {
             "negotiation-1",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT));
+            NegotiationEvent.SUBMIT,
+            Set.of()));
 
     await()
         .atMost(Duration.ofSeconds(5))
