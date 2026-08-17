@@ -36,6 +36,10 @@ A named position in a Definition Version's graph, carrying a human label plus *i
 A State that exists only because pre-redesign data names it — no Transition leads to one, and new work can never enter one. Kept so that existing history, and any live state still holding an old value, continue to resolve.
 _Avoid_: inactive state, dropped state, dead state, deprecated state
 
+**Well-known State**:
+A State that behaviour outside the Lifecycle names directly instead of reading it from a Definition Version — how effects that are not configured as Actions find their occasion. Nothing in the definition marks one, so it is a dependency held by the depending behaviour and not a property of the State: a Definition Version that omits a Well-known State does not fail, it simply never triggers what depended on it.
+_Avoid_: hardcoded state, special state, magic state
+
 **Event**:
 A named trigger that can be fired at a Lifecycle to move it out of its current State. One Event may drive Transitions from several different States of its Definition Version.
 
