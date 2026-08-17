@@ -2,6 +2,21 @@
 
 Snapshot taken when the session stopped. Update or delete this file once the slab completes.
 
+> **The slab is complete as of 2026-08-17 (ticket 11).** Nothing below is needed to run the gate any
+> more, and **this file is safe to delete** once the work is reviewed and committed. Its two durable
+> halves were moved out, next to the map, precisely because this file is meant to be deleted:
+>
+> - the gate command, counts, environment requirements, ordering rule and coverage gaps →
+>   [`.scratch/state-machine-implementation/parity-gate.md`](../state-machine-implementation/parity-gate.md)
+> - every finding below, consolidated with its evidence, plus the corrections owed upward →
+>   [`.scratch/state-machine-implementation/before-picture-findings.md`](../state-machine-implementation/before-picture-findings.md)
+>
+> Both are linked from [`map.md`](../state-machine-implementation/map.md). A shorter form of the gate
+> also lives in the suite itself, at
+> `backend/src/test/java/eu/bbmri_eric/negotiator/characterization/package-info.java`, so a later
+> session that never opens `.scratch/` still finds it. What remains below is the slab's own working
+> record: per-ticket outcomes, the shared-helper conventions and the corpus facts.
+
 ## Landed on `feat/state-machine-implementation`
 
 | Ticket | State | Evidence |
@@ -16,6 +31,7 @@ Snapshot taken when the session stopped. Update or delete this file once the sla
 | 07 Lifecycle history rows | **done** | 37 tests green; all criteria re-verified against surefire output |
 | 08 Event seam, spawn, conclusion, handlers | **done** | 29 tests green; all 16 criteria re-verified against surefire output |
 | 10 ADR 0005 intended deltas | **done** | 8 tests green, tagged out of the gate; all 11 criteria re-verified against surefire output |
+| 11 parity gate + findings | **done** | both halves re-run cold: 255/24/1 skipped and 8/1, both from an emptied reports directory; all 11 criteria re-verified against surefire output |
 
 Parity gate as it stands:
 
@@ -123,16 +139,31 @@ by a new `ResourceGraphV1BindingTest`, following ticket 03's finding 3. The bran
   seed — so `SeededResourceSubject.requireInformationFor` attaches to a *production* migration's row.
   (Ticket 10.)
 
-## Not started
+## Nothing is left
 
-11 (parity gate + findings) — all that remains. It needs everything, and everything is now landed.
+Ticket 11 landed 2026-08-17 and the slab's gate is green. What it did, beyond re-verifying both halves
+of the gate from a cold start:
 
-**Before 11 runs, read ticket 08's findings 1 and 2 below.** Both contradict documents the later
-slabs are written against: PRD story 13 and ticket 08's own description of spawn are wrong about
-which State a spawned Resource starts in, and about spawn announcing itself at all. 11's findings
-report owes an explicit correction of the PRD, not a silent one. Ticket 10, by contrast, found
-nothing to correct — PRD story 23, the PRD's "Intended deltas, not parity" section and ADR 0005's own
-paragraph all match the code, and that is worth stating rather than leaving as silence.
+- **Moved the gate out of this file** — see the banner at the top. It could not live only here, since
+  this file is meant to be deleted.
+- **Consolidated every finding below into one report with its evidence**, re-checking each cited
+  `file:line` against the working tree rather than trusting the ticket files. All eight findings ticket
+  11 named are recorded; none had to be marked not-applicable.
+- **Corrected the PRD visibly**, per the note this section used to carry. Spawn writes
+  `REPRESENTATIVE_CONTACTED` / `REPRESENTATIVE_UNREACHABLE`, never the graph's initial `SUBMITTED`, and
+  publishes no `ResourceStateChangeEvent` at all. The PRD now has a marked "Correction: what spawn
+  actually does" section and story 13 carries a pointer to it. **The correction has three downstream
+  consumers that were deliberately *not* edited**: ADR 0007 (`:22`) specifies
+  `SPAWN_RESOURCE_LIFECYCLES` as setting "the definition's initial one" *and* wires it to the approval
+  Transition alone, which also loses the `UNPAUSE` spawn; ADR 0009 seeds against that; and
+  `backend/CONTEXT.md`'s **Spawn** entry builds the wrong initial State into the vocabulary itself. The
+  map's binding constraints put an ADR contradiction in its own decision ticket, never a quiet edit.
+- **Recorded the suite's size two ways** — 255 parity invocations over 165 declared methods, plus 8
+  deltas over 8 — so a later slab notices a shrink whichever kind of refactor caused it.
+
+Ticket 10, by contrast, found nothing to correct — PRD story 23, the PRD's "Intended deltas, not
+parity" section and ADR 0005's own paragraph all match the code, and that is worth stating rather than
+leaving as silence.
 
 ## The one package in the tree that is not parity
 
