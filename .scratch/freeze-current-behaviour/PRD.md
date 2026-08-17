@@ -1,6 +1,6 @@
 # Freeze current behaviour
 
-Status: ready-for-agent
+Status: resolved
 
 Slab for map ticket [Freeze current behaviour](../state-machine-implementation/issues/01-freeze-current-behaviour.md)
 of the [State machine implementation](../state-machine-implementation/map.md) map.

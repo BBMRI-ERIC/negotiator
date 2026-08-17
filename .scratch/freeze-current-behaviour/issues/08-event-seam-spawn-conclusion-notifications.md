@@ -1,6 +1,6 @@
 # Event seam: spawn, conclusion, and notification firing conditions
 
-Status: ready-for-human
+Status: resolved
 
 ## Parent
 
