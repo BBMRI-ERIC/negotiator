@@ -1,6 +1,6 @@
 # REST seam: metadata endpoints and the graph diagram endpoint
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 

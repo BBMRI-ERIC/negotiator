@@ -1,6 +1,6 @@
 # ADR 0005 intended-delta tests
 
-Status: ready-for-human
+Status: resolved
 
 ## Parent
 

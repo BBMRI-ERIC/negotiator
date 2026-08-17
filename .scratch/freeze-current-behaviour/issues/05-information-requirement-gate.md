@@ -1,6 +1,6 @@
 # Information Requirement gate parity
 
-Status: ready-for-human
+Status: resolved
 
 ## Parent
 

@@ -1,6 +1,6 @@
 # Lifecycle graph dump generator and frozen v1 artifacts
 
-Status: ready-for-human
+Status: resolved
 
 ## Parent
 

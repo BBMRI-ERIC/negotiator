@@ -84,7 +84,24 @@ These were agreed with the user during charting. They are not ticket resolutions
 
 <!-- one line per closed ticket: enough to judge relevance, then open the link for the detail -->
 
-_(none yet — the map has just been charted.)_
+- **[01 Freeze current behaviour](issues/01-freeze-current-behaviour.md)** — **resolved.** Stage 1's
+  parity gate exists and is green: **255 tests in 24 classes** under
+  `eu.bbmri_eric.negotiator.characterization.**`, plus **8** ADR 0005 intended deltas tagged out of
+  it, with **no production code changed anywhere**. States and Events are named only as strings
+  behind one test-scope adapter and a mechanical guard enforces it, so the suite must pass
+  *unchanged* after the enums are deleted. Both graphs are dumped by walking the live beans and the
+  committed artifacts are regenerated and byte-compared on every run. Commands, counts and coverage
+  gaps: **[parity-gate.md](parity-gate.md)**. **Pinning the behaviour left twelve decisions the ADRs
+  do not yet answer, and one place where three settled documents describe behaviour the code does not
+  have — read
+  [before-picture-findings.md](before-picture-findings.md) parts 3 and 7 before implementing 0005,
+  0007 or 0009.** Headlines: `NegotiationIsApprovedGuard` is attached to nothing and must not be
+  registered; spawn writes `REPRESENTATIVE_CONTACTED`/`REPRESENTATIVE_UNREACHABLE`, never the initial
+  State, publishes no Resource state change, and keys on arriving at `IN_PROGRESS` rather than on
+  `APPROVE` — so ADR 0007's Spawn Action, ADR 0009's seed and `backend/CONTEXT.md`'s **Spawn** entry
+  are all specified against a picture that is not the code; conclusion counts only 2 of 12 Resource
+  States; the Information Requirement check is unscoped and outranks every other gate; and
+  `ResourceStateChangeEvent` has a second, non-Transition producer.
 
 ## Not yet specified
 
