@@ -1,6 +1,6 @@
 # Post side effects of Negotiation transitions
 
-Status: ready-for-human
+Status: resolved
 
 ## Parent
 

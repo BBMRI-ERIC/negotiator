@@ -1,6 +1,6 @@
 # Lifecycle history rows for both graphs
 
-Status: ready-for-human
+Status: resolved
 
 ## Parent
 
