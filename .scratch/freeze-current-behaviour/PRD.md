@@ -90,6 +90,8 @@ rewritten and the assertions are untouched. See Implementation Decisions.
 13. As the developer doing the cutover, I want the spawn path pinned — a Negotiation reaching
     IN_PROGRESS initialises its Resources and notifies their representatives — so that ADR 0007's
     `SPAWN_RESOURCE_LIFECYCLES` Action is verifiably equivalent.
+    **⚠ Corrected 2026-08-17 by ticket 11 — see "Correction: what spawn actually does" below. Neither
+    half of this story's premise about *how* spawn initialises survived contact with the code.**
 14. As the developer doing the cutover, I want the conclusion path pinned — the Negotiation
     concludes once every Resource is delivered or unavailable — so that ADR 0007's terminal
     aggregation reproduces it.
@@ -133,6 +135,52 @@ rewritten and the assertions are untouched. See Implementation Decisions.
 29. As the developer of a later slab, I want the empirical finding about
     `NegotiationIsApprovedGuard` recorded, so that a Guard that turns out never to fire is not
     faithfully reimplemented in the new registry.
+
+## Correction: what spawn actually does
+
+**Added 2026-08-17 by ticket 11. Recorded as a visible amendment rather than a silent rewrite, because
+three other documents inherit the mistake and one of them is a settled ADR.**
+
+Ticket 08 pinned spawn by firing it, and found two things this PRD asserts that are not true. The
+consolidated write-up with all the evidence is
+[`before-picture-findings.md`](../state-machine-implementation/before-picture-findings.md), part 3, C1
+and C2; the short form:
+
+1. **Spawn does not use the Definition's initial State.**
+   `notification/internal/ResourceNotificationService.handleResourceStateManagement` writes
+   `REPRESENTATIVE_CONTACTED` for a Resource that has a representative and
+   `REPRESENTATIVE_UNREACHABLE` for one that does not. It never writes the graph's initial State
+   `SUBMITTED`. Pinned by `NegotiationSpawnTest.spawn_doesNotUseTheGraphsInitialState`, which states the
+   divergence outright.
+   *Where the wrong picture is written down:* ticket 08's own "What to build" says "Pin that the
+   Resources start in the initial Resource state", and story 13 above is vague enough to have been read
+   the same way — which is how ticket 08 came to be written that way. **ADR 0007
+   (`0007-lifecycle-coupling-is-orchestration.md:22`) specifies
+   `SPAWN_RESOURCE_LIFECYCLES` as setting "the State to that definition's initial one"**, and ADR 0009
+   seeds against that specification. So does `backend/CONTEXT.md`'s definition of the term **Spawn**.
+   Starting a spawned Resource at `SUBMITTED` would move every representative one step backwards and
+   re-offer them `CONTACT` / `MARK_AS_UNREACHABLE`, which are `isAdmin` Events — the representative
+   would be offered nothing at all where today they are contacted.
+
+2. **Spawn publishes no `ResourceStateChangeEvent` at all.** Three Resources can change State in one
+   spawn and nothing is announced: the Resource-state-change handler does not fire, the conclusion
+   listener never runs, and the webhook subsystem never hears of it. Every *other* writer of a Resource
+   State publishes one.
+   *Consequence for this PRD:* the Seams table below lists spawn under the **domain event** seam. That
+   is wrong — spawn is observable at that seam only through the *Negotiation* state change that
+   triggers it and through the link rows and Lifecycle Records it writes, never through a Resource
+   state change. Ticket 08 pinned it that way. If ADR 0007 routes spawn through ordinary Transition
+   machinery it will start emitting events to consumers nobody has counted, including a conclusion
+   check that would then run against a Negotiation that has only just started.
+
+**A third divergence in the same place, found the same way.** Spawn keys on the destination State, not
+on the Event: `PAUSED --UNPAUSE--> IN_PROGRESS` spawns exactly as `SUBMITTED --APPROVE--> IN_PROGRESS`
+does. ADR 0007 wires the Action "exactly once — one row on the sole Negotiation definition's approval
+Transition", which is a behaviour change for every resumed Negotiation.
+
+**Nothing was fixed and no ADR was edited.** The map's binding constraints put an ADR contradiction in
+its own decision ticket rather than a quiet edit, and `backend/CONTEXT.md` is a vocabulary document
+maintained through `/domain-modeling`. Both are flagged for a decision.
 
 ## Implementation Decisions
 

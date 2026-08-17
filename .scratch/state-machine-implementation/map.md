@@ -32,6 +32,14 @@ Two consequences, stated so no session relitigates them:
 
 A claimed slab runs its own `/to-prd` → `/to-issues` → per-issue `/implement` loop in ordinary tracker files, and resolves when its gate is green. A slab left `claimed` across sessions is normal.
 
+### Stage 1's gate is one command — see [parity-gate.md](parity-gate.md)
+
+Standing decision 1 in operational form, written by the Freeze-current-behaviour slab. **[parity-gate.md](parity-gate.md)** carries the two commands (parity, and the ADR 0005 intended deltas reported separately), the counts each must produce, the `nix develop` prefix requirement, the real path of `test-backend.sh`, the test-ordering rule and the suite's honest coverage gaps. **Every later slab's gate is "the parity half of that command is green".**
+
+The empirical findings that pinning today's behaviour produced — including several that contradict documents the later slabs are written against — are in **[before-picture-findings.md](before-picture-findings.md)**. Read its Part 3 (corrections) and Part 7 (decisions the redesign now owes) before implementing ADR 0005, 0007 or 0009.
+
+Neither file is inside `.scratch/freeze-current-behaviour/`: that slab's `STATUS.md` is meant to be deleted when the slab closes, and both of these outlive it.
+
 ### Settled while charting — standing decisions for the whole effort
 
 These were agreed with the user during charting. They are not ticket resolutions, and they are not up for relitigation.
