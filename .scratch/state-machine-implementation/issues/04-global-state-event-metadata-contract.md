@@ -29,3 +29,30 @@ In stage 1 a total answer exists — one seeded family per scope, so "the states
 Ticket 03 decides the *type* that names a State. This ticket decides whether an endpoint that enumerates a *universe* of States still makes sense. Ticket 03's answer constrains this one but does not settle it — and these three DTOs are explicitly **carved out** of the consumer-decoupling slab for that reason, so that slab is not blocked waiting on this.
 
 Use `/grilling` + `/domain-modeling`.
+
+## Added by ticket 03 — a sixth thing to sharpen
+
+**`ordinal` is a published ordering contract, and deleting the enum deletes it.**
+
+`ResourceStateMetadataDto:22` does `this.ordinal = value.ordinal()` — it publishes the enum's
+**declaration order**, which `NegotiationResourceState`'s own comment says is load-bearing ("the
+order of the individual values is important. The most advanced state (final state) is at the
+bottom"). Two frontend consumers depend on it:
+
+- `frontend/src/views/NegotiationPage.vue:348-367` builds a `state → ordinal` map and rolls a
+  multi-resource organization up to **whichever state has the highest ordinal** — i.e. it uses the
+  ordering as "how far along is this organization".
+- `frontend/src/components/OrganizationCard.vue:71` sorts a state list by it.
+
+**ADR 0002's `State` carries `label` plus `initial` and `terminal` flags — there is no order
+column.** So this joins `description` (sub-question 3) as a field the schema cannot currently
+supply, with the difference that `description` is presentational while this one drives a
+**computed status**: lose it and the organization roll-up silently picks an arbitrary state.
+
+Note it is a *progress* ordering, not a graph ordering — it cannot be derived from the Transitions,
+because a graph with branches has no total order. So "derive it" is likely not available; the real
+options are a column (an ADR 0002 amendment, same cost as sub-question 3's), dropping it and
+changing the roll-up rule, or moving the roll-up server-side.
+
+Routed here by ticket [03](03-state-event-identity-downstream.md) rather than decided there: it is
+metadata, not identity, and this ticket already owns `ResourceStateMetadataDto`.
