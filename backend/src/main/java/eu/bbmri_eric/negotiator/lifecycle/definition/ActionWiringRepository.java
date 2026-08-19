@@ -1,0 +1,7 @@
+package eu.bbmri_eric.negotiator.lifecycle.definition;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+interface ActionWiringRepository extends JpaRepository<ActionWiring, Long> {}
