@@ -12,15 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
-/**
- * Persistence behaviour of the root table of the Lifecycle Definition schema. Every test here
- * asserts something a caller can observe from outside — a row survives a round trip, or a write is
- * refused — never a mapping annotation.
- *
- * <p>The refusal tests exist because publishing a malformed definition has to be impossible rather
- * than merely discouraged, and because these are the first unique and first partial indexes in this
- * codebase: there is no prior art whose syntax can be trusted to read correctly.
- */
 @RepositoryTest
 class LifecycleDefinitionRepositoryTest {
 
@@ -134,8 +125,8 @@ class LifecycleDefinitionRepositoryTest {
   }
 
   /**
-   * The flag belongs to the family and travels across its versions, so a superseded version keeping
-   * it must not collide with the active one that now carries it.
+   * The flag travels with the family across its versions, so a superseded version keeping it must
+   * not collide with the active one.
    */
   @Test
   void save_withAnInactiveVersionCarryingTheGlobalDefault_isAccepted() {
@@ -147,11 +138,6 @@ class LifecycleDefinitionRepositoryTest {
     assertNotNull(repository.saveAndFlush(supersededDefault).getId());
   }
 
-  /**
-   * The row id is the sole machine identity (ADR 0003): editing a family's display label or
-   * flipping which version is active must leave the family_key and the version integer exactly
-   * where they were, so that nothing already pointing at the row is moved by an edit.
-   */
   @Test
   void update_toTheEditableFields_leavesTheIdentityColumnsUntouched() {
     Long id =
