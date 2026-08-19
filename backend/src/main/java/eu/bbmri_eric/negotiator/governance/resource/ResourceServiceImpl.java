@@ -36,16 +36,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.NonNull;
-import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
-@CommonsLog
 public class ResourceServiceImpl implements ResourceService {
 
   private final NetworkRepository networkRepository;
@@ -153,8 +152,26 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
+  public Page<ResourceWithStatusDTO> findPaginatedInNegotiationByOrganization(
+      String negotiationId, String organizationId, Pageable pageable) {
+    if (!negotiationRepository.existsById(negotiationId)) {
+      throw new EntityNotFoundException(negotiationId);
+    }
+    if (!organizationRepository.existsByExternalId(organizationId)) {
+      throw new EntityNotFoundException(organizationId);
+    }
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userId);
+    Page<ResourceViewDTO> resourceViewDTOS =
+        repository.findByNegotiationAndOrganizationPaginated(
+            negotiationId, organizationId, pageable);
+    return resourceViewDTOS.map(
+        resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class));
+  }
+
+  @Override
   @Transactional
-  public List<ResourceWithStatusDTO> updateResourcesInANegotiation(
+  public void updateResourcesInANegotiation(
       String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
     Negotiation negotiation = fetchNegotiationFromDB(negotiationId);
     Set<Resource> resourcesToUpdate = fetchResourcesFromDB(updateResourcesDTO.getResourceIds());
@@ -166,7 +183,6 @@ public class ResourceServiceImpl implements ResourceService {
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
     }
-    return getResourceWithStatusDTOS(negotiationId);
   }
 
   private void setStatusForUpdatedResources(
@@ -215,6 +231,16 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
+  public Integer countResourcesByNegotiationId(String negotiationId) {
+    if (!negotiationRepository.existsById(negotiationId)) {
+      throw new EntityNotFoundException(negotiationId);
+    }
+    Long userID = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userID);
+    return repository.countDistinctByNegotiation(negotiationId);
+  }
+
+  @Override
   @Transactional
   public List<ResourceResponseModel> addResources(List<ResourceCreateDTO> resourcesCreateDTO) {
     ArrayList<Resource> resources = new ArrayList<>();
@@ -238,16 +264,6 @@ public class ResourceServiceImpl implements ResourceService {
     List<Resource> savedResources = repository.saveAll(resources);
     return savedResources.stream()
         .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
-        .toList();
-  }
-
-  private @NonNull List<ResourceWithStatusDTO> getResourceWithStatusDTOS(String negotiationId) {
-    List<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiation(negotiationId);
-    log.debug(
-        "Negotiation %s now has %s resources after modification"
-            .formatted(negotiationId, resourceViewDTOS.size()));
-    return resourceViewDTOS.stream()
-        .map(resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class))
         .toList();
   }
 

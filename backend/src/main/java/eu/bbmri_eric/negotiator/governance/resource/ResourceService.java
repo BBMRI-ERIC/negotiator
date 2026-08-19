@@ -1,12 +1,14 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.common.FilterDTO;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /** The ResourceService interface defines the contract for accessing and manipulating resources. */
@@ -44,16 +46,23 @@ public interface ResourceService {
   List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId);
 
   /**
+   * Find paginated Resources involved in a specific Negotiation
+   *
+   * @param negotiationId the id of the Negotiation
+   * @return a list of resources
+   */
+  Page<ResourceWithStatusDTO> findPaginatedInNegotiationByOrganization(
+      String negotiationId, String organizationId, Pageable pageable);
+
+  /**
    * Edit resources to a Negotiation. Any Resources in the list that are not already a part of the
    * Negotiation will be added. Warning: If you supply a state, all resources will be updated to
    * that state.
    *
    * @param negotiationId a specific Negotiation
    * @param updateResourcesDTO a list of resource IDs to be added or updated
-   * @return an updated list of resources
    */
-  List<ResourceWithStatusDTO> updateResourcesInANegotiation(
-      String negotiationId, UpdateResourcesDTO updateResourcesDTO);
+  void updateResourcesInANegotiation(String negotiationId, UpdateResourcesDTO updateResourcesDTO);
 
   /**
    * Add a batch of resources. This method is uses from a specific synchronization servvice that
@@ -72,4 +81,14 @@ public interface ResourceService {
    * @return the output DTO of the updated resource
    */
   ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO resource);
+
+  /**
+   * Counts the number of resources linked to a negotiation.
+   *
+   * @param negotiationId the id of the negotiation
+   * @throws EntityNotFoundException if the negotiation is not found
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException if the user is not
+   *     authorized
+   */
+  Integer countResourcesByNegotiationId(String negotiationId);
 }

@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -77,4 +79,14 @@ public interface NegotiationRepository
 
   @Query(value = "SELECT n FROM Negotiation n WHERE FUNCTION('DATE', n.creationDate) = :targetDate")
   Set<Negotiation> findAllCreatedOn(LocalDateTime targetDate);
+
+  @Query(
+      value =
+          "SELECT DISTINCT rs.organization "
+              + "FROM Negotiation n "
+              + "JOIN n.resourcesLink rl "
+              + "JOIN rl.id.resource rs "
+              + "WHERE n.id = :negotiationId")
+  List<Organization> findAllOrganizationsLinkedToNegotiation(
+      @Param("negotiationId") String negotiationId);
 }
