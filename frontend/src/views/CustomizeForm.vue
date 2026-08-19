@@ -716,6 +716,9 @@ async function editAccessForm() {
     }
   })
 
+  // Update the access form with the new name and sections
+  await negotiationFormStore.updateAccessForm(accessFormId, postAccessForm)
+
   goToAdminSettingsPage()
 }
 

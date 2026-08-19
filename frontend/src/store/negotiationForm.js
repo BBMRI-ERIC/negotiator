@@ -251,6 +251,21 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
+  async function updateAccessForm(formId, data) {
+    return await axios
+      .put(`${apiPaths.BASE_API_PATH}/access-forms/${formId}`, data, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        notifications.setNotification('Access form updated successfully', 'success')
+        return response.data
+      })
+      .catch((error) => {
+        console.error('Error updating access form:', error)
+        notifications.setNotification('Error updating access form', 'warning')
+      })
+  }
+
   async function linkSectionToAccessForm(formId, data) {
     return await axios
       .put(`${apiPaths.BASE_API_PATH}/access-forms/${formId}/sections`, data, {
@@ -353,6 +368,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     addAccessForm,
     addAccessFormSections,
     updateAccessFormSections,
+    updateAccessForm,
     linkSectionToAccessForm,
     unlinkSectionFromAccessForm,
     linkElementsToSectionToAccessForm,
