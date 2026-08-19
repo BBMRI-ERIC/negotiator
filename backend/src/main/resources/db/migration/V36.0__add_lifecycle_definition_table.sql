@@ -1,8 +1,6 @@
--- The root table of the Lifecycle Definition schema (ADR 0002, ADR 0003).
--- One row is one complete, immutable Definition Version. Rows sharing a family_key form a
--- Definition Family; version is a per-family display integer and carries no identity, so the
--- row id is the sole machine identity and nothing looks a definition up by (family_key, version).
--- Additive only: this file creates a table nothing reads yet, and is safe to deploy on its own.
+-- One row is one immutable Definition Version. Rows sharing a family_key form a Definition Family;
+-- version is a per-family display integer and carries no identity, so the row id is what everything
+-- else points at.
 
 CREATE TABLE lifecycle_definition
 (
@@ -15,35 +13,20 @@ CREATE TABLE lifecycle_definition
     is_global_default BOOLEAN      NOT NULL DEFAULT FALSE
 );
 
--- A version number is unique within its family. Display-only, but a family that shows two "v3"s
--- would be lying about its own history.
+-- A version number is unique within its family.
 ALTER TABLE lifecycle_definition
     ADD CONSTRAINT uq_lifecycle_definition_family_version UNIQUE (family_key, version);
 
--- At most one version per family is active: publishing is a one-step flip of this flag, and two
--- active versions would leave new work with no answer to which one it resolves to.
--- ADR 0003 says *exactly* one, and the "at least one" half is deliberately not enforced here: a
--- family with zero active versions is a valid intermediate state during any publish, so it belongs
--- to publish-time validation (stage 3), not to a row-level constraint.
+-- At most one version per family is active: the one new work resolves to. Zero active versions is
+-- legal — a family passes through it while a new version is being published — so "exactly one" will
+-- be checked when a version is published, not here.
 CREATE UNIQUE INDEX uq_lifecycle_definition_active_per_family
     ON lifecycle_definition (family_key)
     WHERE active;
 
--- At most one active version in the whole table is the Global Default. Scoped to active rows
--- because the flag is a fact about the *family* and travels with it across versions: a superseded
--- version keeps its true, which is honest — it was the default while it was active.
+-- The Global Default Family is the one family a Resource resolves to when nothing more specific
+-- applies. The flag belongs to the family but is stored per row, so the index is scoped to active
+-- rows: a superseded version may keep is_global_default true without contesting the flag.
 CREATE UNIQUE INDEX uq_lifecycle_definition_global_default
     ON lifecycle_definition (is_global_default)
     WHERE is_global_default AND active;
-
--- Two further invariants are known to be unenforced here, both for the same reason as the
--- "at least one active version" half above — they are not row-level facts, and publish-time
--- validation in stage 3 is where they belong:
---   * scope is fixed for a whole Definition Family (backend/CONTEXT.md:27) but is stored per row,
---     and there is no family table to hold it, so rows of one family can disagree.
---   * a Definition Version needs at least one initial State.
--- Do not close either with a trigger or a deferred constraint.
-
--- Note for later slices: foreign keys pointing at this table are ON DELETE RESTRICT. ADR 0003 says
--- a version that is active or referenced is never mutated in place and never discarded, so a
--- cascade would express a deletion the model does not have.

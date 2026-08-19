@@ -22,7 +22,8 @@ Working record for the slab. Delete this file when the slab closes.
 - **Table name and FK spelling.** `lifecycle_definition`, so foreign keys read
   `lifecycle_definition_id`. Settled by the PRD; do not relitigate.
 - **`ON DELETE RESTRICT`** on every foreign key pointing at `lifecycle_definition`. No FK exists yet,
-  so slice 02 is the first to apply it. The reason is recorded at the foot of `V36.0`.
+  so slice 02 is the first to apply it. ADR 0003 says a version that is active or referenced is never
+  mutated in place and never discarded, so a cascade would express a deletion the model does not have.
 - **Package.** `eu.bbmri_eric.negotiator.lifecycle.definition`, entities and repositories
   package-private. `@EntityScan`/`@EnableJpaRepositories` glob `eu.bbmri_eric.negotiator.*` reaches
   two levels down, so no configuration change was needed and none will be.
@@ -50,7 +51,7 @@ Working record for the slab. Delete this file when the slab closes.
 
 ## Invariants deliberately left unenforced, for stage 3
 
-Recorded at the foot of `V36.0` too. No trigger, no deferred constraint:
+No trigger, no deferred constraint:
 
 - the *at least one* half of "exactly one active version per family" — zero active rows is a valid
   intermediate state during a publish;

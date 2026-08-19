@@ -15,22 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * One immutable Definition Version: a complete graph of States, Events and Transitions, identified
- * by its row id alone.
- *
- * <p>{@code familyKey} is immutable and shared by every version of a Definition Family; {@code
- * version} is a per-family display integer with no identity role, so gaps in it are harmless.
- * {@code name} is a freely editable display label. Renaming a family therefore breaks nothing.
- *
- * <p>{@code globalDefault} is a fact about the <em>family</em>, and there is no family table to
- * hold it, so it is carried by each version row and travels with the family across its versions.
- *
- * <p>Only {@code name}, {@code active} and {@code globalDefault} are editable. The invariants this
- * row cannot express, and why they are left to publish-time validation instead, are recorded with
- * the DDL in {@code V36.0__add_lifecycle_definition_table.sql}.
- *
- * <p>Deliberately not an {@code AuditEntity}: definitions are immutable configuration and ADR 0003
- * places no audit requirement on them.
+ * One immutable Definition Version of a Definition Family: a complete graph of States, Events and
+ * Transitions, identified by its row id alone. Only {@code name}, {@code active} and {@code
+ * globalDefault} are editable.
  */
 @Entity
 @Getter
@@ -65,6 +52,7 @@ class LifecycleDefinition {
   @Column(nullable = false)
   private boolean active = false;
 
+  /** Marks the Global Default Family; stored per row as there is no family table. */
   @Builder.Default
   @Column(name = "is_global_default", nullable = false)
   private boolean globalDefault = false;
