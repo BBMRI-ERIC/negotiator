@@ -138,3 +138,15 @@ sits in another family — so no other index can be the source of the refusal.
 Written at the foot of `V36.0`, where a reader of the DDL asks why they are absent: the *at least one*
 half of "exactly one active version per family", and `scope` being fixed for a whole family while stored
 per row. Both belong to publish-time validation in stage 3. No trigger, no deferred constraint.
+
+### Follow-up: the comments were slimmed after landing
+
+The prose above describes the commit as it first landed. A follow-up commit cut the comments back —
+`V36.0` from 25 comment lines to 10, the entity javadoc from four paragraphs to one sentence — on the
+grounds that code comments should carry definitions and short constraint rationales, not the ADR
+citations, stage references and implementation history they had accumulated. The DDL, the entity code
+and all 11 tests are byte-for-byte unchanged.
+
+Two pointers above are therefore stale: the `ON DELETE RESTRICT` rule and the unenforced invariants
+are **no longer written at the foot of `V36.0`**. Both now live in
+[STATUS.md](../STATUS.md), which is where slices 02-05 read their conventions.
