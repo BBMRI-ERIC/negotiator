@@ -3,7 +3,8 @@ package eu.bbmri_eric.negotiator.negotiation.pdf;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lowagie.text.pdf.BaseFont;
+import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
+import com.itextpdf.layout.font.FontProvider;
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
@@ -37,7 +38,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.HtmlUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service(value = "DefaultNegotiationPdfService")
 @CommonsLog
@@ -187,13 +187,13 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       throw new PdfGenerationException("Error generating the PDF summary");
     }
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-      ITextRenderer renderer = new ITextRenderer();
-      renderer
-          .getFontResolver()
-          .addFont(fontUrl.toString(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-      renderer.setDocumentFromString(html);
-      renderer.layout();
-      renderer.createPDF(outputStream);
+      FontProvider fontProvider = new DefaultFontProvider(false, false, false);
+      fontProvider.addFont(fontUrl.toString());
+
+      com.itextpdf.html2pdf.HtmlConverter.convertToPdf(
+          html,
+          outputStream,
+          new com.itextpdf.html2pdf.ConverterProperties().setFontProvider(fontProvider));
       return outputStream.toByteArray();
     } catch (Exception e) {
       log.error("Error rendering PDF: " + e.getMessage());
