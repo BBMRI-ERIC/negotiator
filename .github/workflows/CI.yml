@@ -221,6 +221,8 @@ jobs:
         run: docker load --input /tmp/negotiator-frontend.tar
 
       - name: Setup API server
+        env:
+          FEATURE_FLAG_PDF_EXPORT_ENABLED: true
         run: docker compose up -d
 
       - name: Wait
