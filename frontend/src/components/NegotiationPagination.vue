@@ -1,6 +1,6 @@
 <template>
   <nav v-if="negotiations?.length > 0 && pagination.totalPages > 1" aria-label="Page navigation">
-    <ul class="pagination pagination-sm justify-content-center mt-2">
+    <ul class="pagination pagination-sm justify-content-center">
       <li class="page-item" :class="currentPageNumber === 1 ? 'disabled' : ''">
         <a
           class="page-link text-primary-text"
