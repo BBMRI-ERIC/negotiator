@@ -7,7 +7,7 @@ Working record for the slab. Delete this file when the slab closes.
 | Slice | State | Evidence |
 |---|---|---|
 | [01 lifecycle_definition table](issues/01-lifecycle-definition-table.md) | **done** | 11 tests green; full suite 1343/0/0/16; parity 255/24/1 skipped |
-| [02 state and event tables](issues/02-state-and-event-tables.md) | **landed, gate not measured** | 15 tests green; full suite stopped early at 91 classes/1014 tests, 0 failures; parity not run |
+| [02 state and event tables](issues/02-state-and-event-tables.md) | **done** | 15 tests green; full suite and parity green in CI over `071ff565` (developer-run) |
 | [03 transition table](issues/03-transition-table.md) | not started | |
 | [04 guard and action wiring](issues/04-guard-and-action-wiring.md) | not started | |
 | [05 pin columns](issues/05-lifecycle-definition-pin-columns.md) | not started | |
