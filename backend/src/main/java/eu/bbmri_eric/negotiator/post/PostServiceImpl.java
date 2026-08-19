@@ -120,8 +120,11 @@ public class PostServiceImpl implements PostService {
     verifyReadAccess(negotiationId);
     if (!post.isPublic() && !isNegotiationCreatorOrAdmin(negotiationId)) {
       Person user = getCurrentUser();
-      Set<Organization> accessibleOrganizations = getUserAccessibleOrganizations(user);
-      if (!accessibleOrganizations.contains(post.getOrganization())) {
+      boolean isRepresentativeOfPostOrganization =
+          post.getOrganization().getResources().stream()
+              .flatMap(resource -> resource.getRepresentatives().stream())
+              .anyMatch(person -> person.getId().equals(user.getId()));
+      if (!isRepresentativeOfPostOrganization) {
         throw new ForbiddenRequestException("You are not authorized to read this post");
       }
     }
