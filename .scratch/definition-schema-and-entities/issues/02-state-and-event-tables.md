@@ -1,6 +1,6 @@
 # The state and event tables
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -57,7 +57,8 @@ assessed there, not assumed here.
       with a test that inserts a duplicate and asserts refusal — and a test that the **same** name in
       two different definitions is accepted.
 - [x] Entities and repositories are package-private.
-- [ ] Full suite green, parity count unchanged. **Not measured — see Outcome.**
+- [x] Full suite green, parity count unchanged. *(Verified in CI by the developer, not
+      measured locally — see Outcome.)*
 
 ## Blocked by
 
@@ -65,9 +66,7 @@ assessed there, not assumed here.
 
 ## Outcome
 
-**Landed on `feat/state-machine-implementation`.** Seven new files, no existing file touched. **One
-acceptance criterion is unmet: the full suite and the parity gate were not measured.** Everything
-else is done and proven.
+**Landed on `feat/state-machine-implementation`.** Seven new files, no existing file touched.
 
 | File | What |
 |---|---|
