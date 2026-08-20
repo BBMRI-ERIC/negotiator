@@ -39,7 +39,8 @@ public class PostControllerTests {
   private static final String NEGOTIATIONS_URI = "/v3/negotiations";
   private static final String POSTS_URI = "posts";
   public static final String NEGOTIATION_POSTS_URL = "/v3/negotiations/%s/posts";
-  private static final String POSTS_ENDPOINT_URI = "/v3/posts";
+  private static final String POSTS_ENDPOINT_URI =
+      "/v3/negotiations/" + NEGOTIATION_1_ID + "/posts";
   private static final String POST_1_RESEARCHER_ID = "post-1-researcher";
   private static final String POST_3_RESEARCHER_ID = "post-3-researcher";
   private static final String POST_4_REPRESENTATIVE_ID = "post-4-representative";
@@ -213,6 +214,14 @@ public class PostControllerTests {
   }
 
   @Test
+  @WithMockNegotiatorUser(id = 108L)
+  void getPostById_nonExistingNegotiation_notFound() throws Exception {
+    mockMvc
+        .perform(get("/v3/negotiations/non-existing-negotiation/posts/" + POST_1_RESEARCHER_ID))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
   @WithMockNegotiatorUser(id = 104L)
   void getPostById_notParticipant_forbidden() throws Exception {
     mockMvc
@@ -234,7 +243,13 @@ public class PostControllerTests {
     mockMvc
         .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$.id").value(POST_1_RESEARCHER_ID))
+        .andExpect(jsonPath("$.negotiationId").value(NEGOTIATION_1_ID))
+        .andExpect(jsonPath("$.text").value("post-1-researcher-message"))
+        .andExpect(jsonPath("$.type").value(PostType.PUBLIC.toString()))
+        .andExpect(jsonPath("$.organizationId").doesNotExist())
+        .andExpect(jsonPath("$.createdBy.name").value("TheResearcher"));
   }
 
   @Test
@@ -243,7 +258,13 @@ public class PostControllerTests {
     mockMvc
         .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_3_RESEARCHER_ID)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$.id").value(POST_3_RESEARCHER_ID))
+        .andExpect(jsonPath("$.negotiationId").value(NEGOTIATION_1_ID))
+        .andExpect(jsonPath("$.text").value("post-3-researcher-message"))
+        .andExpect(jsonPath("$.type").value(PostType.PRIVATE.toString()))
+        .andExpect(jsonPath("$.organizationId").value(NEGOTIATION_1_ORGANIZATION_ID))
+        .andExpect(jsonPath("$.createdBy.name").value("TheResearcher"));
   }
 
   @Test
@@ -252,7 +273,13 @@ public class PostControllerTests {
     mockMvc
         .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$.id").value(POST_1_RESEARCHER_ID))
+        .andExpect(jsonPath("$.negotiationId").value(NEGOTIATION_1_ID))
+        .andExpect(jsonPath("$.text").value("post-1-researcher-message"))
+        .andExpect(jsonPath("$.type").value(PostType.PUBLIC.toString()))
+        .andExpect(jsonPath("$.organizationId").doesNotExist())
+        .andExpect(jsonPath("$.createdBy.name").value("TheResearcher"));
   }
 
   @Test
@@ -261,7 +288,13 @@ public class PostControllerTests {
     mockMvc
         .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_3_RESEARCHER_ID)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$.id").value(POST_3_RESEARCHER_ID))
+        .andExpect(jsonPath("$.negotiationId").value(NEGOTIATION_1_ID))
+        .andExpect(jsonPath("$.text").value("post-3-researcher-message"))
+        .andExpect(jsonPath("$.type").value(PostType.PRIVATE.toString()))
+        .andExpect(jsonPath("$.organizationId").value(NEGOTIATION_1_ORGANIZATION_ID))
+        .andExpect(jsonPath("$.createdBy.name").value("TheResearcher"));
   }
 
   @Test

@@ -64,9 +64,12 @@ public class PostController {
     return postModelAssembler.toModel(postService.update(createDTO, negotiationId, postId));
   }
 
-  @GetMapping(value = "/posts/{postId}", produces = MediaTypes.HAL_JSON_VALUE)
+  @GetMapping(
+      value = "/negotiations/{negotiationId}/posts/{postId}",
+      produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Find a post by an id")
-  EntityModel<PostDTO> getById(@PathVariable @Valid String postId) {
-    return postModelAssembler.toModel(postService.findById(postId));
+  EntityModel<PostDTO> getById(
+      @Valid @PathVariable String negotiationId, @PathVariable @Valid String postId) {
+    return postModelAssembler.toModel(postService.findById(negotiationId, postId));
   }
 }

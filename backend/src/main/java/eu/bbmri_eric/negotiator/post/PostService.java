@@ -15,12 +15,13 @@ public interface PostService {
   PostDTO create(PostCreateDTO postRequest, String negotiationId);
 
   /**
-   * Find a post by id.
+   * Find a post by id within a negotiation.
    *
+   * @param negotiationId the id of the negotiation
    * @param id the id of the post
    * @return post
    */
-  PostDTO findById(String id);
+  PostDTO findById(String negotiationId, String id);
 
   /**
    * Finds all the posts related to a Negotiation

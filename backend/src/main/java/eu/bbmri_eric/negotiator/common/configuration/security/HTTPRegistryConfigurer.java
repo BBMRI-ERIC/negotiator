@@ -33,8 +33,6 @@ public class HTTPRegistryConfigurer {
         .authenticated()
         .requestMatchers(mvc.pattern("/v3/attachments/**"))
         .authenticated()
-        .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/posts/**"))
-        .authenticated()
         .requestMatchers(mvc.pattern("/v3/negotiations/**"))
         .authenticated()
         .requestMatchers(mvc.pattern("/v3/access-criteria"))
