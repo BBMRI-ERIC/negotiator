@@ -1,5 +1,9 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.OTHER_FAMILY;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.STANDARD_FAMILY;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.definitionIn;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.stateBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,9 +29,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 @RepositoryTest
 class StateRepositoryTest {
-
-  private static final String STANDARD_FAMILY = "standard-negotiation-flow";
-  private static final String OTHER_FAMILY = "expedited-negotiation-flow";
 
   @Autowired StateRepository states;
   @Autowired LifecycleDefinitionRepository definitions;
@@ -200,18 +201,5 @@ class StateRepositoryTest {
     assertEquals(definition.getId(), reloaded.getLifecycleDefinition().getId());
     assertEquals("Submitted for review", reloaded.getLabel());
     assertTrue(reloaded.isTerminal());
-  }
-
-  private static State.StateBuilder stateBuilder(LifecycleDefinition definition, String name) {
-    return State.builder().lifecycleDefinition(definition).name(name).label(name);
-  }
-
-  private static LifecycleDefinition definitionIn(String familyKey) {
-    return LifecycleDefinition.builder()
-        .scope(DefinitionScope.NEGOTIATION)
-        .familyKey(familyKey)
-        .name(familyKey)
-        .version(1)
-        .build();
   }
 }

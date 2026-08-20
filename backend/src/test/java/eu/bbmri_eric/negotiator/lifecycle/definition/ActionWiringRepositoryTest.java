@@ -1,5 +1,9 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.STANDARD_FAMILY;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.definitionIn;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.eventIn;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.stateIn;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -25,8 +29,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 @RepositoryTest
 class ActionWiringRepositoryTest {
-
-  private static final String STANDARD_FAMILY = "standard-negotiation-flow";
 
   @Autowired ActionWiringRepository actionWirings;
   @Autowired TransitionRepository transitions;
@@ -198,22 +200,5 @@ class ActionWiringRepositoryTest {
             jdbcTemplate.update(
                 "INSERT INTO action_wiring (transition_id, type_key, sort_order)"
                     + " VALUES (NULL, 'SET_POST_VISIBILITY', 1)"));
-  }
-
-  private static State stateIn(LifecycleDefinition definition, String name) {
-    return State.builder().lifecycleDefinition(definition).name(name).label(name).build();
-  }
-
-  private static Event eventIn(LifecycleDefinition definition, String name) {
-    return Event.builder().lifecycleDefinition(definition).name(name).build();
-  }
-
-  private static LifecycleDefinition definitionIn(String familyKey) {
-    return LifecycleDefinition.builder()
-        .scope(DefinitionScope.NEGOTIATION)
-        .familyKey(familyKey)
-        .name(familyKey)
-        .version(1)
-        .build();
   }
 }
