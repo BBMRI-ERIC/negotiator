@@ -40,7 +40,13 @@ class GuardWiringRepositoryTest {
   private LifecycleDefinition definition;
   private LifecycleDefinition otherDefinition;
   private Transition transition;
-  private Transition otherTransition;
+
+  /**
+   * A second Transition in the <em>same</em> Definition Version as {@link #transition}, for the
+   * scope tests. {@link #transitionInOtherDefinition} is the cross-definition one.
+   */
+  private Transition secondTransition;
+
   private Transition transitionInOtherDefinition;
 
   @BeforeEach
@@ -59,11 +65,7 @@ class GuardWiringRepositoryTest {
                 .event(submit)
                 .requiredAuthority(RequiredAuthority.NONE)
                 .build());
-    otherDefinition = definitions.saveAndFlush(definitionIn(OTHER_FAMILY));
-    State otherDraft = states.saveAndFlush(stateIn(otherDefinition, "DRAFT"));
-    State otherSubmitted = states.saveAndFlush(stateIn(otherDefinition, "SUBMITTED"));
-    Event otherSubmit = events.saveAndFlush(eventIn(otherDefinition, "SUBMIT"));
-    otherTransition =
+    secondTransition =
         transitions.saveAndFlush(
             Transition.builder()
                 .lifecycleDefinition(definition)
@@ -72,6 +74,10 @@ class GuardWiringRepositoryTest {
                 .event(abandon)
                 .requiredAuthority(RequiredAuthority.NONE)
                 .build());
+    otherDefinition = definitions.saveAndFlush(definitionIn(OTHER_FAMILY));
+    State otherDraft = states.saveAndFlush(stateIn(otherDefinition, "DRAFT"));
+    State otherSubmitted = states.saveAndFlush(stateIn(otherDefinition, "SUBMITTED"));
+    Event otherSubmit = events.saveAndFlush(eventIn(otherDefinition, "SUBMIT"));
     transitionInOtherDefinition =
         transitions.saveAndFlush(
             Transition.builder()
@@ -99,12 +105,18 @@ class GuardWiringRepositoryTest {
 
     GuardWiring found = guardWirings.findById(guard.getId()).orElseThrow();
     assertNotNull(found.getId());
+    assertEquals(definition.getId(), found.getLifecycleDefinition().getId());
     assertEquals(transition.getId(), found.getTransition().getId());
     assertEquals("REQUIREMENT_MET", found.getTypeKey());
     assertEquals(1, found.getSortOrder());
   }
 
-  /** Null {@code transition_id} means the Guard applies to every Transition of the definition. */
+  /**
+   * Null {@code transition_id} means the Guard applies to every Transition of the definition. This
+   * is also the case PostgreSQL's default {@code MATCH SIMPLE} leaves unconstrained: the composite
+   * foreign key on {@code (lifecycle_definition_id, transition_id)} is skipped entirely when either
+   * column is null, so the shape has to be shown accepted rather than assumed.
+   */
   @Test
   void save_definitionScoped_roundTrips() {
     GuardWiring guard =
@@ -127,20 +139,24 @@ class GuardWiringRepositoryTest {
   }
 
   /**
-   * A non-trivial JSON payload survives the round trip through a jsonb column. Read back through
-   * {@link JdbcTemplate} because that reads the column value directly — proving the jsonb column
-   * holds what was written, not just that Hibernate can return a string. The payload is written in
-   * PostgreSQL's canonical jsonb text form (sorted keys, space after each separator) so the
-   * comparison is byte-for-byte, since jsonb normalises any other input on storage.
+   * A non-trivial JSON payload survives the round trip through a jsonb column. The payload goes in
+   * deliberately <em>non-canonical</em> — keys out of order, no spaces after the separators — and
+   * is read back through {@link JdbcTemplate} so the assertion is against the stored column value
+   * rather than against whatever Hibernate chose to hand back.
+   *
+   * <p>Only jsonb rewrites it. jsonb normalises object keys to length-then-bytewise order (hence
+   * {@code mode}, {@code within}, {@code requirementIds}) and re-spaces the separators, while
+   * leaving array element order alone. A {@code text} or {@code json} column would return the input
+   * byte-for-byte, so the reordering is what pins this column to jsonb.
    */
   @Test
   void save_withParams_roundTripsNonTrivialJsonPayload() {
-    String payload = "{\"flag\": true, \"scope\": \"POST\"}";
+    String payload = "{\"mode\":\"ALL\",\"within\":{\"days\":14},\"requirementIds\":[7,3]}";
     GuardWiring guard =
         guardWirings.saveAndFlush(
             GuardWiring.builder()
                 .lifecycleDefinition(definition)
-                .typeKey("SET_POST_VISIBILITY")
+                .typeKey("REQUIREMENT_MET")
                 .params(payload)
                 .sortOrder(1)
                 .build());
@@ -148,7 +164,8 @@ class GuardWiringRepositoryTest {
     String stored =
         jdbcTemplate.queryForObject(
             "SELECT params::text FROM guard_wiring WHERE id = ?", String.class, guard.getId());
-    assertEquals(payload, stored);
+    assertEquals(
+        "{\"mode\": \"ALL\", \"within\": {\"days\": 14}, \"requirementIds\": [7, 3]}", stored);
   }
 
   /** A strategy that takes no parameters needs no params row — null is accepted. */
@@ -172,6 +189,10 @@ class GuardWiringRepositoryTest {
    * Two definition-scoped Guards with the same {@code sort_order} in the same definition would make
    * the effective chain non-deterministic. The partial unique index on {@code (definition,
    * sort_order) WHERE transition_id IS NULL} refuses the second.
+   *
+   * <p>This is the test that rules out a single non-partial index on {@code (definition,
+   * transition, sort_order)}: PostgreSQL treats nulls as distinct in a plain unique index, so that
+   * shape would accept both of these rows while still passing every other test in this class.
    */
   @Test
   void save_withDuplicateSortOrderInDefinitionScope_isRefused() {
@@ -227,7 +248,7 @@ class GuardWiringRepositoryTest {
   void save_withTheSameSortOrderOnAnotherTransition_isAccepted() {
     guardWirings.saveAndFlush(transitionScopedGuard(transition, "GUARD_A", 1));
 
-    GuardWiring elsewhere = transitionScopedGuard(otherTransition, "GUARD_B", 1);
+    GuardWiring elsewhere = transitionScopedGuard(secondTransition, "GUARD_B", 1);
     assertNotNull(guardWirings.saveAndFlush(elsewhere).getId());
   }
 
@@ -248,6 +269,39 @@ class GuardWiringRepositoryTest {
             .build();
     assertThrows(
         DataIntegrityViolationException.class, () -> guardWirings.saveAndFlush(straddling));
+  }
+
+  /**
+   * {@code lifecycle_definition_id} is NOT NULL: every Guard belongs to a Definition Version, even
+   * the definition-scoped ones. Inserted through {@link JdbcTemplate} because the v1 seed is SQL
+   * that bypasses the mapping, so Hibernate's {@code nullable = false} would otherwise mask whether
+   * the column itself carries the constraint.
+   */
+  @Test
+  void insert_withoutADefinition_isRefusedByTheDatabase() {
+    assertThrows(
+        DataIntegrityViolationException.class,
+        () ->
+            jdbcTemplate.update(
+                "INSERT INTO guard_wiring (lifecycle_definition_id, type_key, sort_order)"
+                    + " VALUES (NULL, 'REQUIREMENT_MET', 1)"));
+  }
+
+  /**
+   * For a definition-scoped Guard the composite foreign key is skipped — {@code MATCH SIMPLE} stops
+   * checking as soon as {@code transition_id} is null — so {@code
+   * fk_guard_wiring_lifecycle_definition} is the only thing left tying the row to a real Definition
+   * Version. Unlike slice 03's redundant definition FK, this one is not transitively implied by any
+   * other constraint, so it can fail and is worth its own test.
+   */
+  @Test
+  void insert_withADefinitionThatDoesNotExist_isRefusedByTheDatabase() {
+    assertThrows(
+        DataIntegrityViolationException.class,
+        () ->
+            jdbcTemplate.update(
+                "INSERT INTO guard_wiring (lifecycle_definition_id, type_key, sort_order)"
+                    + " VALUES (-1, 'REQUIREMENT_MET', 1)"));
   }
 
   private static GuardWiring definitionScopedGuard(
