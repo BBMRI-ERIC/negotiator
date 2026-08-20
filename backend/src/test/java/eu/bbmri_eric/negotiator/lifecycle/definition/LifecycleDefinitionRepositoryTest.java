@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.OTHER_FAMILY;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.STANDARD_FAMILY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,9 +25,6 @@ import org.springframework.dao.DataIntegrityViolationException;
  */
 @RepositoryTest
 class LifecycleDefinitionRepositoryTest {
-
-  private static final String STANDARD_FAMILY = "standard-negotiation-flow";
-  private static final String OTHER_FAMILY = "expedited-negotiation-flow";
 
   @Autowired LifecycleDefinitionRepository repository;
   @Autowired EntityManager entityManager;

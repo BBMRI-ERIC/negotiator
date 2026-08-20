@@ -1,5 +1,9 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.OTHER_FAMILY;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.STANDARD_FAMILY;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.definitionIn;
+import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.eventIn;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,9 +22,6 @@ import org.springframework.dao.DataIntegrityViolationException;
  */
 @RepositoryTest
 class EventRepositoryTest {
-
-  private static final String STANDARD_FAMILY = "standard-negotiation-flow";
-  private static final String OTHER_FAMILY = "expedited-negotiation-flow";
 
   @Autowired EventRepository events;
   @Autowired LifecycleDefinitionRepository definitions;
@@ -82,18 +83,5 @@ class EventRepositoryTest {
           definitions.delete(stored);
           definitions.flush();
         });
-  }
-
-  private static Event eventIn(LifecycleDefinition definition, String name) {
-    return Event.builder().lifecycleDefinition(definition).name(name).build();
-  }
-
-  private static LifecycleDefinition definitionIn(String familyKey) {
-    return LifecycleDefinition.builder()
-        .scope(DefinitionScope.NEGOTIATION)
-        .familyKey(familyKey)
-        .name(familyKey)
-        .version(1)
-        .build();
   }
 }
