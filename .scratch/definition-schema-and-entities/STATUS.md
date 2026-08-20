@@ -150,6 +150,19 @@ Working record for the slab. Delete this file when the slab closes.
   CREATE UNIQUE INDEX uq_guard_wiring_sort_order_transition
       ON guard_wiring (transition_id, sort_order) WHERE transition_id IS NOT NULL;
   ```
+- **A partial index does not satisfy slice 02's "no separate index on the FK column is needed where a
+  composite UNIQUE already leads with it".** That rule assumed the leading index is a *plain* one, and
+  `guard_wiring` is the first table where it is not: the only index leading with
+  `lifecycle_definition_id` is `uq_guard_wiring_sort_order_definition`, which is partial (`WHERE
+  transition_id IS NULL`), so transition-scoped rows are not indexed on that column at all. The
+  `ON DELETE RESTRICT` check behind `fk_guard_wiring_lifecycle_definition` therefore falls back to a
+  sequential scan for them. **No index was added**, deliberately: the scan is over a small
+  configuration table and runs only when a Definition Version is deleted, which ADR 0003 says does not
+  happen to one that is active or referenced. A later slice must add a plain
+  `INDEX (lifecycle_definition_id)` here the moment `guard_wiring` is queried by definition — a
+  `findByLifecycleDefinitionId` on the resolver's load path is the trigger — or if the table stops
+  being small. `action_wiring` has no such gap: `uq_action_wiring_transition_sort_order` is a plain
+  `UNIQUE (transition_id, sort_order)` and fully covers its FK column.
 - **`SELECT col::text` does not prove a column is jsonb.** It returns identical bytes from `text`,
   `json` and `jsonb`, so an assertion against an already-canonical payload proves only that Hibernate
   can hand a string back. Write the payload **non-canonical** and assert the canonical form: jsonb
@@ -171,9 +184,11 @@ Working record for the slab. Delete this file when the slab closes.
 - **The shared repository-test fixture is now in five copies** (`definitionIn`; `eventIn` 4, `stateIn`
   3, `STANDARD_FAMILY` 6) across all six tests in the package. Slice 03 asked slice 04 to decide, and
   the decision is **extract it, in its own commit, before slice 05** — a package-private
-  `DefinitionFixtures` holding the constants and the four half-built builders. Kept out of slice 04
-  because it rewrites slices 01-03's landed tests. Slice 05 adds no new copy, so extracting first
-  costs nothing.
+  `DefinitionFixtures` holding the two family constants and the three helpers that return a *built*
+  entity (`definitionIn`, `stateIn`, `eventIn`). The two helpers that do return a half-built builder,
+  `stateBuilder` and `versionBuilder`, have one caller each and are not part of the duplication.
+  Kept out of slice 04 because it rewrites slices 01-03's landed tests. Slice 05 adds no new copy, so
+  extracting first costs nothing.
 
 ## Invariants deliberately left unenforced, for stage 3
 

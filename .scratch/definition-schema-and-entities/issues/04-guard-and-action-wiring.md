@@ -182,10 +182,11 @@ Slice 03 asked this slice to decide rather than drift. The duplication is now re
 in the package.
 
 **Decision: extract it, in its own commit, before slice 05** — a package-private
-`DefinitionFixtures` beside the tests, holding the family constants and the three half-built
-builders (`definitionIn`, `stateIn`, `eventIn`).
+`DefinitionFixtures` beside the tests, holding the family constants and the three helpers that
+return a *built* entity (`definitionIn`, `stateIn`, `eventIn`) — not builders; the two helpers that
+do return a builder, `stateBuilder` and `versionBuilder`, have one caller each.
 Not folded into this slice, for two reasons: it rewrites slices 01-03's landed tests, which is a
 change with its own blast radius and deserves to be reviewable on its own; and `recon-conventions`
 §4.3's "this codebase keeps repository-test fixtures inline" was an argument about *one* test, not
-about six sharing three builders and two constants. Slice 05 adds no new copy — it touches `negotiation` and
+about six sharing three helpers and two constants. Slice 05 adds no new copy — it touches `negotiation` and
 `negotiation_resource_link` — so extracting first costs nothing and stops the seventh copy.
