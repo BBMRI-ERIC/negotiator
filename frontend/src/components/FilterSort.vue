@@ -1,6 +1,8 @@
 <template>
-  <div class="container d-flex flex-row flex-wrap justify-content-between">
-    <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0 v-step-20">
+  <div
+    class="container d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center gap-3"
+  >
+    <div class="d-flex flex-wrap align-items-center gap-2 v-step-20 w-100">
       <div class="sort-by v-step-21">
         <FilterButton
           :customStyle="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
@@ -167,25 +169,31 @@
           </div>
         </ul>
       </div>
-    </div>
 
-    <div class="my-2 ms-auto v-step-25">
-      <FilterButton
-        :customStyle="{
-          'border-color': 'var(--bs-sort-filter-clear-button-outline)',
-          '--hovercolor': 'var(--bs-sort-filter-clear-button-outline)',
-          'background-color': '#FFFFFF',
-          color: 'var(--bs-sort-filter-clear-button-outline)',
-        }"
-        customClass="custom-button-hover"
-        size="sm"
-        @click="clearAllFilters"
-      >
-        <template #icon>
-          <i class="bi bi-x-circle" />
-        </template>
-        Clear all filters
-      </FilterButton>
+      <div class="v-step-25 flex-shrink-0">
+        <FilterButton
+          :customStyle="{
+            'border-color': 'var(--bs-sort-filter-clear-button-outline)',
+            '--hovercolor': 'var(--bs-sort-filter-clear-button-outline)',
+            'background-color': '#FFFFFF',
+            color: 'var(--bs-sort-filter-clear-button-outline)',
+          }"
+          customClass="custom-button-hover text-nowrap"
+          size="sm"
+          @click="clearAllFilters"
+        >
+          <template #icon>
+            <i class="bi bi-x-circle" />
+          </template>
+          Clear all filters
+        </FilterButton>
+      </div>
+
+      <div class="flex-grow-1 d-flex justify-content-end">
+        <div v-if="!networkActivated" class="flex-shrink-0">
+          <NewRequestButton />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -195,6 +203,7 @@ import { computed, onMounted } from 'vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import FilterButton from '@/components/ui/buttons/FilterButton.vue'
+import NewRequestButton from '@/components/NewRequestButton.vue'
 import { useVueTourStore } from '../store/vueTour'
 
 const filtersSortData = defineModel('filtersSortData')
@@ -216,6 +225,10 @@ const props = defineProps({
     required: true,
     validator: (prop) =>
       [ROLES.RESEARCHER, ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR].includes(prop),
+  },
+  networkActivated: {
+    type: Boolean,
+    default: false,
   },
 })
 
