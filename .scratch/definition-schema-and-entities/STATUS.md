@@ -181,14 +181,23 @@ Working record for the slab. Delete this file when the slab closes.
 - **A no-definition-column table cannot straddle, so it gets no straddle test.** `action_wiring` has
   no `lifecycle_definition_id`; there is nothing to make disagree. Check for this before writing a
   test that cannot fail, as slice 03 did for its redundant FK.
-- **The shared repository-test fixture is now in five copies** (`definitionIn`; `eventIn` 4, `stateIn`
-  3, `STANDARD_FAMILY` 6) across all six tests in the package. Slice 03 asked slice 04 to decide, and
-  the decision is **extract it, in its own commit, before slice 05** — a package-private
-  `DefinitionFixtures` holding the two family constants and the three helpers that return a *built*
-  entity (`definitionIn`, `stateIn`, `eventIn`). The two helpers that do return a half-built builder,
-  `stateBuilder` and `versionBuilder`, have one caller each and are not part of the duplication.
-  Kept out of slice 04 because it rewrites slices 01-03's landed tests. Slice 05 adds no new copy, so
-  extracting first costs nothing.
+- **The shared repository-test fixture is extracted — use it, do not add a seventh copy.** It stood
+  at five copies (`definitionIn` 5, `eventIn` 4, `stateIn` 3, `STANDARD_FAMILY` 6, `OTHER_FAMILY` 5)
+  across the six tests in the package. Slice 03 asked slice 04 to decide; slice 04 decided extract,
+  and it landed after slice 04's three commits, on its own, because it rewrites slices 01-03's tests.
+  It is
+  `backend/src/test/java/eu/bbmri_eric/negotiator/lifecycle/definition/DefinitionFixtures.java` — a
+  package-private `final` class holding `STANDARD_FAMILY`, `OTHER_FAMILY`, `definitionIn`, `stateIn`,
+  `stateBuilder` and `eventIn`, static-imported by all six tests. Package private and in the entity's
+  own package for the same reason the tests are: the entities are.
+- **What deliberately stayed inline, and the one trap in the extraction.** Needed by more than one
+  test class is the criterion. `GuardWiringRepositoryTest`'s two wiring builders and
+  `LifecycleDefinitionRepositoryTest`'s `versionBuilder` have one test class each and stayed with it.
+  **`versionBuilder` must never be folded into `definitionIn`** even though it looks like it short of
+  the `build()`: it names the definition `"Standard flow"` rather than after its family key and takes
+  the version as a parameter, so unifying them would change that test's fixture under it.
+  `stateBuilder` did move despite having one calling class, because `stateIn` is now defined in terms
+  of it and leaving it behind would keep the same builder chain in two files.
 
 ## Invariants deliberately left unenforced, for stage 3
 

@@ -183,8 +183,11 @@ in the package.
 
 **Decision: extract it, in its own commit, before slice 05** — a package-private
 `DefinitionFixtures` beside the tests, holding the family constants and the three helpers that
-return a *built* entity (`definitionIn`, `stateIn`, `eventIn`) — not builders; the two helpers that
-do return a builder, `stateBuilder` and `versionBuilder`, have one caller each.
+return a *built* entity (`definitionIn`, `stateIn`, `eventIn`) — those three return entities, not
+builders. Of the two that do return a builder, `versionBuilder` stayed inline because it is a
+different fixture rather than `definitionIn` short of its `build()`, and `stateBuilder` came along
+because `stateIn` is now defined in terms of it. Executed after this slice's three commits; the
+landed shape is in `STATUS.md`.
 Not folded into this slice, for two reasons: it rewrites slices 01-03's landed tests, which is a
 change with its own blast radius and deserves to be reviewable on its own; and `recon-conventions`
 §4.3's "this codebase keeps repository-test fixtures inline" was an argument about *one* test, not
