@@ -10,7 +10,7 @@ Working record for the slab. Delete this file when the slab closes.
 | [02 state and event tables](issues/02-state-and-event-tables.md) | **done** | 15 tests green; full suite and parity green in CI over `071ff565` (developer-run) |
 | [03 transition table](issues/03-transition-table.md) | **done** | 16 tests green; full suite 1371/0/0/16; parity 255/24/1 skipped |
 | [04 guard and action wiring](issues/04-guard-and-action-wiring.md) | **done** | 18 tests green; full suite 1389/0/0/16; parity 255/24/1 skipped |
-| [05 pin columns](issues/05-lifecycle-definition-pin-columns.md) | not started | |
+| [05 pin columns](issues/05-lifecycle-definition-pin-columns.md) | **done** | 9 tests green; full suite 1398/0/0/16; parity 255/24/1 skipped |
 | [06 DefinitionResolver seam](issues/06-definition-resolver-seam.md) | not started | |
 | [07 inertness gate](issues/07-inertness-gate.md) | not started | |
 
@@ -198,6 +198,57 @@ Working record for the slab. Delete this file when the slab closes.
   the version as a parameter, so unifying them would change that test's fixture under it.
   `stateBuilder` did move despite having one calling class, because `stateIn` is now defined in terms
   of it and leaving it behind would keep the same builder chain in two files.
+
+## What slice 05 fixed for slices 06-07
+
+- **The pin columns are `V36.4`.** Slice 06 is `V36.5` if it needs DDL, which it does not — the
+  resolver seam is Java only. `V36.5` is therefore still free for whoever needs it next.
+- **Adding a column to `negotiation` costs nothing at the gate.** This was the slice the parity
+  number existed for, and it did not move: an extra nullable field on the two most-read entities is
+  invisible to every DTO, mapper and characterization assertion in the suite. Nothing needed
+  touching outside the two entity files and the migration.
+- **The pin is `@Setter(AccessLevel.NONE)` + `@Column(updatable = false)`, so it is writable only at
+  insert.** For a Negotiation that is the right moment — the row is inserted already in `SUBMITTED`.
+  For a Resource it is *not*: `Negotiation.addResource` creates the link unpinned at Negotiation
+  creation, and the Resource Lifecycle starts later, so the spawn Action cannot write the pin
+  through the mapping at all. `backend/CONTEXT.md:101` and `:111` say so outright — "a Resource pins
+  at Spawn", and Spawn "names the initialization, not an instantiation" of an already-linked row.
+  Filed as
+  [09 Pinning a Negotiation Resource Link that already exists](issues/09-pinning-an-existing-resource-link.md)
+  with the three ways out. Do not "fix" it by deleting `updatable = false` alone: that turns a
+  compile error into a silently dropped value.
+- **`NegotiationResourceLink` gained a second public constructor**, four-arg, taking the pin; the
+  existing three-arg one delegates to it with null. That is the whole write path for a pinned link,
+  and the only reason the repository test can build one — the link has no repository, `Negotiation`
+  owns the collection, and its `resourcesLink` accessors are private.
+- **A repository test that needs both a package-private repository and a public entity from
+  elsewhere lives in the package-private one's package.** `DefinitionVersionPinRepositoryTest` is in
+  `lifecycle.definition` because it needs `LifecycleDefinitionRepository` for a row to point at;
+  `Negotiation` and `NegotiationResourceLink` are public and reach it fine from there.
+- **`@RepositoryTest(loadTestData = true)` is how "existing rows still load" gets proven**, and it
+  pays twice. The seed runs *after* the migration and names neither new column, so seeded rows
+  coming back null is simultaneously the proof that neither column carries a `DEFAULT` — no separate
+  assertion needed. It also supplies a `DiscoveryService` and a `Resource` for free:
+  `negotiations.findById("negotiation-1")` then `getDiscoveryService()` / `getResources()` is much
+  less setup than building an Organization, a DiscoveryService, a Person and a Resource by hand, as
+  `NegotiationRepositoryTest` does.
+- **`@Import(MockUserDetailsService.class)` is still needed** when a `@RepositoryTest` persists an
+  entity extending `AuditEntity`, per slice 01's note. `Negotiation` does.
+- **A foreign key on a column with no setter is proven through an `UPDATE`, not an insert.**
+  `jdbcTemplate.update("UPDATE negotiation SET lifecycle_definition_id = -1 WHERE id = ...")` is one
+  line against a seeded row and needs no fixture at all, and it is also the shape the SQL cutover
+  will use. Assert the constraint name out of the refusal message, as slice 02 established.
+- **`ON DELETE RESTRICT` is worth a test here even though it is untestable in the letter.** Slice 02
+  noted RESTRICT cannot be told apart from `NO ACTION`; what the delete test rules out is `CASCADE`,
+  which on `negotiation` would delete the work along with the configuration it was submitted under.
+  That is a different failure from the one the FK tests cover.
+- **Neither pin column is indexed, deliberately, and the case is weaker than slice 04's.**
+  `negotiation` and `negotiation_resource_link` are not small configuration tables, but they are
+  among the most-written, and the column is 100% NULL until the cutover backfills it — so an index
+  today buys nothing and costs write throughput. Filed with its trigger conditions as
+  [08 The two pin columns have no index on them](issues/08-pin-column-fk-indexes-deferred.md); the
+  first one to fire is the cutover setting either column NOT NULL, which is also the migration that
+  should build the index.
 
 ## Invariants deliberately left unenforced, for stage 3
 
