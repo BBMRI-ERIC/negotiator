@@ -104,6 +104,20 @@ public class Negotiation extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState;
 
+  /**
+   * The Definition Version this Negotiation's Lifecycle is pinned to. Set once, when the Lifecycle
+   * starts, and never afterwards: the pin is what keeps a Negotiation on the graph it was submitted
+   * under while newer versions of that graph are published around it.
+   *
+   * <p>Null on every row that predates the pin, until the data cutover backfills them.
+   *
+   * <p>A plain id rather than an association, deliberately. This entity is on read paths that exist
+   * today, and an association would let one of them traverse into the Lifecycle Definition graph.
+   */
+  @Setter(AccessLevel.NONE)
+  @Column(updatable = false)
+  private Long lifecycleDefinitionId;
+
   @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
