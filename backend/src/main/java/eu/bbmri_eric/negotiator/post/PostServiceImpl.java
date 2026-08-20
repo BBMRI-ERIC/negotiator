@@ -114,9 +114,11 @@ public class PostServiceImpl implements PostService {
 
   @Override
   @Transactional
-  public PostDTO findById(String id) {
+  public PostDTO findById(String negotiationId, String id) {
+    if (!negotiationRepository.existsById(negotiationId)) {
+      throw new EntityNotFoundException(negotiationId);
+    }
     Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    String negotiationId = post.getNegotiation().getId();
     verifyReadAccess(negotiationId);
     if (!post.isPublic() && !isNegotiationCreatorOrAdmin(negotiationId)) {
       Person user = getCurrentUser();
