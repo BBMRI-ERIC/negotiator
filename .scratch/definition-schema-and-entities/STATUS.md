@@ -9,7 +9,7 @@ Working record for the slab. Delete this file when the slab closes.
 | [01 lifecycle_definition table](issues/01-lifecycle-definition-table.md) | **done** | 11 tests green; full suite 1343/0/0/16; parity 255/24/1 skipped |
 | [02 state and event tables](issues/02-state-and-event-tables.md) | **done** | 15 tests green; full suite and parity green in CI over `071ff565` (developer-run) |
 | [03 transition table](issues/03-transition-table.md) | **done** | 16 tests green; full suite 1371/0/0/16; parity 255/24/1 skipped |
-| [04 guard and action wiring](issues/04-guard-and-action-wiring.md) | not started | |
+| [04 guard and action wiring](issues/04-guard-and-action-wiring.md) | **done** | 18 tests green; full suite 1389/0/0/16; parity 255/24/1 skipped |
 | [05 pin columns](issues/05-lifecycle-definition-pin-columns.md) | not started | |
 | [06 DefinitionResolver seam](issues/06-definition-resolver-seam.md) | not started | |
 | [07 inertness gate](issues/07-inertness-gate.md) | not started | |
@@ -130,6 +130,50 @@ Working record for the slab. Delete this file when the slab closes.
 - **The shared repository-test fixture is now in its third copy** (`definitionIn` plus the two family
   constants). Slice 02 declined to extract it and slice 03 inherited that; slice 04 makes it a fourth,
   which is where the call should actually be made rather than drifted into.
+
+## What slice 04 fixed for slices 05-07
+
+- **A nullable column in a composite FK disables that FK for the null rows.** PostgreSQL's default
+  `MATCH SIMPLE` stops checking as soon as any column of the pair is null, which is exactly what a
+  definition-scoped Guard wants — but it means the surviving single-column FK is the only thing
+  guarding those rows, and unlike slice 03's redundant one it **can** fail. Test both halves: the null
+  shape accepted, and a bogus definition id refused.
+- **Two non-overlapping partial unique indexes give two independent sequences**, and the test that
+  proves it is the *duplicate-within-the-null-scope* one. A single non-partial
+  `(definition, transition, sort_order)` index passes every other test in the class, because
+  PostgreSQL treats nulls as distinct in a plain unique index. If a later slice needs "unique per
+  scope where one scope is null", copy this shape:
+
+  ```sql
+  CREATE UNIQUE INDEX uq_guard_wiring_sort_order_definition
+      ON guard_wiring (lifecycle_definition_id, sort_order) WHERE transition_id IS NULL;
+  CREATE UNIQUE INDEX uq_guard_wiring_sort_order_transition
+      ON guard_wiring (transition_id, sort_order) WHERE transition_id IS NOT NULL;
+  ```
+- **`SELECT col::text` does not prove a column is jsonb.** It returns identical bytes from `text`,
+  `json` and `jsonb`, so an assertion against an already-canonical payload proves only that Hibernate
+  can hand a string back. Write the payload **non-canonical** and assert the canonical form: jsonb
+  normalises object keys to **length-then-bytewise** order — not alphabetical, so `{"b":1,"aa":2,"a":3}`
+  becomes `{"a": 3, "b": 1, "aa": 2}` — and re-spaces separators, while preserving array order.
+- **A `uq_` name can belong to an index or to a constraint, and both surface in the refusal message.**
+  `guard_wiring` needs `CREATE UNIQUE INDEX` (partial), `action_wiring` a plain `ALTER TABLE ... ADD
+  CONSTRAINT UNIQUE`. The `contains("uq_...")` assertion works for either, and earns its place: under
+  a wrong-index mutation the transition-scope test failed on the *name*, not on the throw.
+- **Type keys in test fixtures are read as the catalogue.** No strategy catalogue exists yet, so the
+  only place a reader learns what a `type_key` looks like is these tests. Guards are predicates
+  (`REQUIREMENT_MET`, `NEGOTIATION_APPROVED`); Actions are effects (`SET_POST_VISIBILITY`,
+  `SPAWN_RESOURCE_LIFECYCLES`). Do not spell an Action's key on a Guard, and do not use
+  `ENABLE_PUBLIC_POSTS` / `ENABLE_PRIVATE_POSTS` / `DISABLE_POSTS` at all — those are the three
+  classes `params` exists to collapse into one key.
+- **A no-definition-column table cannot straddle, so it gets no straddle test.** `action_wiring` has
+  no `lifecycle_definition_id`; there is nothing to make disagree. Check for this before writing a
+  test that cannot fail, as slice 03 did for its redundant FK.
+- **The shared repository-test fixture is now in five copies** (`definitionIn`; `eventIn` 4, `stateIn`
+  3, `STANDARD_FAMILY` 6) across all six tests in the package. Slice 03 asked slice 04 to decide, and
+  the decision is **extract it, in its own commit, before slice 05** — a package-private
+  `DefinitionFixtures` holding the constants and the four half-built builders. Kept out of slice 04
+  because it rewrites slices 01-03's landed tests. Slice 05 adds no new copy, so extracting first
+  costs nothing.
 
 ## Invariants deliberately left unenforced, for stage 3
 
