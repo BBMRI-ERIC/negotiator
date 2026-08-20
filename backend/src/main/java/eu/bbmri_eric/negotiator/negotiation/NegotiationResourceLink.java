@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,10 +25,34 @@ public class NegotiationResourceLink {
   @Enumerated(EnumType.STRING)
   private NegotiationResourceState currentState;
 
+  /**
+   * The Definition Version this Resource's Lifecycle is pinned to. Per link rather than per
+   * Negotiation, because two Resources of one Negotiation may resolve to different Definition
+   * Families. Set once, when the Resource's Lifecycle starts, and never afterwards.
+   *
+   * <p>Null on every row that predates the pin, until the data cutover backfills them.
+   *
+   * <p>A plain id rather than an association, deliberately. This entity is on read paths that exist
+   * today, and an association would let one of them traverse into the Lifecycle Definition graph.
+   */
+  @Setter(AccessLevel.NONE)
+  @Column(updatable = false)
+  private Long lifecycleDefinitionId;
+
   public NegotiationResourceLink(
       Negotiation negotiation, Resource resource, NegotiationResourceState currentState) {
+    this(negotiation, resource, currentState, null);
+  }
+
+  /** A link whose Resource Lifecycle has already resolved its Definition Version. */
+  public NegotiationResourceLink(
+      Negotiation negotiation,
+      Resource resource,
+      NegotiationResourceState currentState,
+      Long lifecycleDefinitionId) {
     this.id = new NegotiationResourceLinkId(negotiation, resource);
     this.currentState = currentState;
+    this.lifecycleDefinitionId = lifecycleDefinitionId;
   }
 
   public Negotiation getNegotiation() {
