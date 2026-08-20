@@ -75,14 +75,20 @@ class ActionWiringRepositoryTest {
   }
 
   /**
-   * A non-trivial JSON payload survives the round trip through a jsonb column. Read back through
-   * {@link JdbcTemplate} to prove the column value is unchanged. The payload is in PostgreSQL's
-   * canonical jsonb text form (sorted keys, space after each separator) so the comparison is
-   * byte-for-byte.
+   * A non-trivial JSON payload survives the round trip through a jsonb column. The payload goes in
+   * deliberately <em>non-canonical</em> — keys out of order, no spaces after the separators — and
+   * is read back through {@link JdbcTemplate} so the assertion is against the stored column value
+   * rather than against whatever Hibernate chose to hand back.
+   *
+   * <p>Only jsonb rewrites it. jsonb normalises object keys to length-then-bytewise order (hence
+   * {@code flag}, {@code scope}, {@code appliesTo}) and re-spaces the separators, while leaving
+   * array element order alone. A {@code text} or {@code json} column would return the input
+   * byte-for-byte, so the reordering is what pins this column to jsonb.
    */
   @Test
   void save_withParams_roundTripsNonTrivialJsonPayload() {
-    String payload = "{\"flag\": true, \"scope\": \"POST\"}";
+    String payload =
+        "{\"scope\":\"POST\",\"flag\":false,\"appliesTo\":{\"roles\":[2,1],\"all\":true}}";
     ActionWiring action =
         actionWirings.saveAndFlush(
             ActionWiring.builder()
@@ -95,7 +101,9 @@ class ActionWiringRepositoryTest {
     String stored =
         jdbcTemplate.queryForObject(
             "SELECT params::text FROM action_wiring WHERE id = ?", String.class, action.getId());
-    assertEquals(payload, stored);
+    assertEquals(
+        "{\"flag\": false, \"scope\": \"POST\", \"appliesTo\": {\"all\": true, \"roles\": [2, 1]}}",
+        stored);
   }
 
   /** A strategy that takes no parameters needs no params row — null is accepted. */
@@ -119,6 +127,11 @@ class ActionWiringRepositoryTest {
    * Two Actions with the same {@code sort_order} on the same Transition would make the chain
    * non-deterministic. Inserted through the repository to prove the constraint fires on a mapped
    * save, not only on raw SQL.
+   *
+   * <p>Both rows carry the same {@code type_key} and differ only in {@code params} — neither of
+   * which is a constrained column — so {@code sort_order} is the only thing the refusal can be
+   * about. That pair is also the collision the collapse of the three post-visibility Action classes
+   * actually creates: one typed key, two configurations, one Transition.
    */
   @Test
   void save_withDuplicateSortOrderOnTheSameTransition_isRefused() {
@@ -126,11 +139,17 @@ class ActionWiringRepositoryTest {
         ActionWiring.builder()
             .transition(transition)
             .typeKey("SET_POST_VISIBILITY")
+            .params("{\"flag\": true, \"scope\": \"POST\"}")
             .sortOrder(1)
             .build());
 
     ActionWiring duplicate =
-        ActionWiring.builder().transition(transition).typeKey("DISABLE_POSTS").sortOrder(1).build();
+        ActionWiring.builder()
+            .transition(transition)
+            .typeKey("SET_POST_VISIBILITY")
+            .params("{\"flag\": false, \"scope\": \"POST\"}")
+            .sortOrder(1)
+            .build();
     DataIntegrityViolationException refused =
         assertThrows(
             DataIntegrityViolationException.class, () -> actionWirings.saveAndFlush(duplicate));
@@ -157,7 +176,12 @@ class ActionWiringRepositoryTest {
                 .requiredAuthority(RequiredAuthority.NONE)
                 .build());
     ActionWiring elsewhere =
-        ActionWiring.builder().transition(another).typeKey("DISABLE_POSTS").sortOrder(1).build();
+        ActionWiring.builder()
+            .transition(another)
+            .typeKey("SET_POST_VISIBILITY")
+            .params("{\"flag\": false, \"scope\": \"POST\"}")
+            .sortOrder(1)
+            .build();
     assertNotNull(actionWirings.saveAndFlush(elsewhere).getId());
   }
 
