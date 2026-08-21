@@ -11,7 +11,7 @@ Working record for the slab. Delete this file when the slab closes.
 | [03 transition table](issues/03-transition-table.md) | **done** | 16 tests green; full suite 1371/0/0/16; parity 255/24/1 skipped |
 | [04 guard and action wiring](issues/04-guard-and-action-wiring.md) | **done** | 18 tests green; full suite 1389/0/0/16; parity 255/24/1 skipped |
 | [05 pin columns](issues/05-lifecycle-definition-pin-columns.md) | **done** | 9 tests green; full suite 1398/0/0/16; parity 255/24/1 skipped |
-| [06 DefinitionResolver seam](issues/06-definition-resolver-seam.md) | not started | |
+| [06 DefinitionResolver seam](issues/06-definition-resolver-seam.md) | **done** | 11 tests green; full suite 1409/0/0/16; parity 255/24/1 skipped |
 | [07 inertness gate](issues/07-inertness-gate.md) | not started | |
 
 ## What slice 01 fixed for every later slice
@@ -249,6 +249,66 @@ Working record for the slab. Delete this file when the slab closes.
   [08 The two pin columns have no index on them](issues/08-pin-column-fk-indexes-deferred.md); the
   first one to fire is the cutover setting either column NOT NULL, which is also the migration that
   should build the index.
+
+## What slice 06 fixed for slice 07
+
+- **Slice 06 added no migration, so `V36.5` is still free.** The resolver seam is Java only, as slice
+  05 predicted. The whole of slice 06's production diff is three new files in
+  `lifecycle.definition` plus two derived finders on `LifecycleDefinitionRepository`, so slice 07's
+  diff criterion still expects exactly two touched files outside the package — `Negotiation` and
+  `NegotiationResourceLink`, from slice 05.
+- **The seam is `DefinitionResolver` + `DefinitionResolverImpl` + `DefinitionResolutionException`,
+  all package private, and it needs no exemption in slice 07's guard.** Nothing outside the package
+  names any of them. `resolveForNegotiation()` and `resolveForResource()` both return a
+  `LifecycleDefinition` and throw rather than returning an `Optional`, because resolution is meant to
+  be total. Three shape decisions the ticket did not make are recorded, with their trigger
+  conditions, in
+  [10 The DefinitionResolver's shape is a guess until something calls it](issues/10-definition-resolver-shape-is-a-guess.md).
+- **`DefinitionResolverImpl` is a `@Service`, so it is now instantiated in every Spring context that
+  component-scans**, and nothing injects it. No test needed changing and neither gate moved. The
+  consequence for slice 07: "inert" here means *nothing names these types*, which is not the same
+  question as "is it wired" — the bean exists. A guard that scans for references is still the right
+  guard, but it should not be described as proving the package is unloaded.
+- **`DefinitionResolutionException` is not registered with `NegotiatorExceptionHandler` and must not
+  be.** Mapping it would put production code outside `lifecycle.definition` and break slice 07's diff
+  criterion for no benefit while nothing throws it in a request. Whoever wires the resolver into the
+  Spawn Action owns that decision.
+- **Do not revert a mutation on a *tracked* file with `git checkout <file>`.** This cost time. The
+  mutation targets in this slab are often files that landed in an earlier slice —
+  `LifecycleDefinitionRepository.java` is slice 01's — so `git checkout` restores the file to HEAD
+  and silently throws away the current slice's own uncommitted additions to it, which then look like
+  a green run of code that no longer exists. Re-apply the intended content instead. Slice 07 will
+  mutate production files deliberately to watch its guard fire, so this is squarely in its path.
+- **A derived query name *is* the query, so mutating one takes an `@Query` override.** Annotating the
+  same method with a weakened JPQL wins over the derived name, which is how "does this finder really
+  filter on `active`?" gets proven red. Keep every method parameter bound in the weakened query —
+  `WHERE d.globalDefault = true AND (d.scope = ?1 OR 1 = 1)` — so a bootstrap failure over an unused
+  parameter cannot masquerade as the mutation being detected.
+- **A mocked repository cannot prove a derived finder's predicate**, and that is the whole reason
+  slice 06 has tests in two places. The mock test (`DefinitionResolverTest`, no container) pins what
+  the resolver does with none, one or two rows; the six finder tests in
+  `LifecycleDefinitionRepositoryTest` pin which rows each query selects, against a real Postgres. If
+  a later slice adds a finder to any of these repositories, the finder needs the second kind of test
+  even if the caller already has the first.
+- **Mockito's strict stubbing is itself an assertion about which query was asked.** With
+  `MockitoExtension`, stubbing the global-default finder and then calling the other one fails the
+  test on the unused stub. "The Resource path resolves the Global Default Family rather than any
+  active Resource-scope definition" therefore needed no test of its own, and the mutation run
+  confirmed it as an error rather than a silent pass.
+- **The plural case is reachable, not defensive.** The database enforces one active version per
+  *family* and says nothing about one per *scope*, so two Negotiation-scope families can both have an
+  active version; `findByScopeAndActiveTrue_returnsAnActiveVersionOfEveryFamilyOfTheScope` proves it,
+  and the resolver is the only place that "the sole active Negotiation definition" is enforced. Do
+  not delete that check on the grounds that the schema prevents it.
+- **The definition builder chain is back to three copies, and slice 07 should watch it.**
+  `DefinitionResolverTest.activeVersionIn` joins `DefinitionFixtures.definitionIn` and
+  `LifecycleDefinitionRepositoryTest.versionBuilder`. It stayed inline on slice 04's stated criterion
+  — needed by more than one test class — and its javadoc argues the case, but copy-count is the exact
+  signal that triggered slice 04's extraction, so a fourth copy is the point to extract rather than
+  drift again. Note the three differ in what they parameterize: `definitionIn` fixes nothing,
+  `versionBuilder` fixes the name and takes the version, `activeVersionIn` fixes the version and
+  takes the scope. Unifying them changes some test's fixture under it, which is why the criterion is
+  "needed by two classes" and not "looks similar".
 
 ## Invariants deliberately left unenforced, for stage 3
 
