@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.persistence.EntityManager;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,6 +23,10 @@ import org.springframework.dao.DataIntegrityViolationException;
  * <p>The refusal tests exist because publishing a malformed definition has to be impossible rather
  * than merely discouraged, and because these are the first unique and first partial indexes in this
  * codebase: there is no prior art whose syntax can be trusted to read correctly.
+ *
+ * <p>The finder tests at the end are the other half of {@link DefinitionResolverTest}: they are
+ * about which rows the two queries Definition Resolution runs actually select, which a mocked
+ * repository cannot show.
  */
 @RepositoryTest
 class LifecycleDefinitionRepositoryTest {
@@ -174,6 +179,104 @@ class LifecycleDefinitionRepositoryTest {
     assertEquals("Standard flow (renamed)", reloaded.getName());
     assertTrue(reloaded.isActive());
     assertTrue(reloaded.isGlobalDefault());
+  }
+
+  @Test
+  void findByScopeAndActiveTrue_returnsTheActiveVersionAndNotTheSupersededOne() {
+    Long active =
+        repository.saveAndFlush(versionBuilder(STANDARD_FAMILY, 2).active(true).build()).getId();
+    repository.saveAndFlush(versionBuilder(STANDARD_FAMILY, 1).build());
+    entityManager.clear();
+
+    List<LifecycleDefinition> found =
+        repository.findByScopeAndActiveTrue(DefinitionScope.NEGOTIATION);
+    assertEquals(1, found.size());
+    assertEquals(active, found.get(0).getId());
+  }
+
+  /**
+   * The database enforces one active version per <em>family</em>, so "the sole active Negotiation
+   * definition" is not a guarantee it makes. This is the input Definition Resolution has to refuse
+   * rather than pick from, and it is reachable.
+   */
+  @Test
+  void findByScopeAndActiveTrue_returnsAnActiveVersionOfEveryFamilyOfTheScope() {
+    repository.saveAndFlush(versionBuilder(STANDARD_FAMILY, 1).active(true).build());
+    repository.saveAndFlush(versionBuilder(OTHER_FAMILY, 1).active(true).build());
+    entityManager.clear();
+
+    assertEquals(2, repository.findByScopeAndActiveTrue(DefinitionScope.NEGOTIATION).size());
+  }
+
+  @Test
+  void findByScopeAndActiveTrue_ignoresAnActiveVersionOfTheOtherScope() {
+    repository.saveAndFlush(
+        versionBuilder(OTHER_FAMILY, 1).scope(DefinitionScope.RESOURCE).active(true).build());
+    entityManager.clear();
+
+    assertTrue(repository.findByScopeAndActiveTrue(DefinitionScope.NEGOTIATION).isEmpty());
+  }
+
+  /**
+   * The second family here is active too, and is not the global default: being the family the flag
+   * is on is what makes a definition the one a Resource with no closer association resolves to.
+   */
+  @Test
+  void findByScopeAndActiveTrueAndGlobalDefaultTrue_returnsTheFlaggedFamilysActiveVersion() {
+    Long globalDefault =
+        repository
+            .saveAndFlush(
+                versionBuilder(STANDARD_FAMILY, 1)
+                    .scope(DefinitionScope.RESOURCE)
+                    .active(true)
+                    .globalDefault(true)
+                    .build())
+            .getId();
+    repository.saveAndFlush(
+        versionBuilder(OTHER_FAMILY, 1).scope(DefinitionScope.RESOURCE).active(true).build());
+    entityManager.clear();
+
+    LifecycleDefinition found =
+        repository
+            .findByScopeAndActiveTrueAndGlobalDefaultTrue(DefinitionScope.RESOURCE)
+            .orElseThrow();
+    assertEquals(globalDefault, found.getId());
+  }
+
+  /**
+   * A superseded version keeps the flag rather than having it moved off it, so the query has to
+   * filter on activeness as well and not just on the flag.
+   */
+  @Test
+  void findByScopeAndActiveTrueAndGlobalDefaultTrue_ignoresASupersededDefault() {
+    repository.saveAndFlush(
+        versionBuilder(STANDARD_FAMILY, 1)
+            .scope(DefinitionScope.RESOURCE)
+            .globalDefault(true)
+            .build());
+    entityManager.clear();
+
+    assertTrue(
+        repository
+            .findByScopeAndActiveTrueAndGlobalDefaultTrue(DefinitionScope.RESOURCE)
+            .isEmpty());
+  }
+
+  /**
+   * The partial unique index allows one active global default in the whole table rather than one
+   * per scope, so without the scope in the query a Negotiation-scope family carrying the flag would
+   * be handed back as the Resource default.
+   */
+  @Test
+  void findByScopeAndActiveTrueAndGlobalDefaultTrue_ignoresOneOfTheOtherScope() {
+    repository.saveAndFlush(
+        versionBuilder(STANDARD_FAMILY, 1).active(true).globalDefault(true).build());
+    entityManager.clear();
+
+    assertTrue(
+        repository
+            .findByScopeAndActiveTrueAndGlobalDefaultTrue(DefinitionScope.RESOURCE)
+            .isEmpty());
   }
 
   private static LifecycleDefinition.LifecycleDefinitionBuilder versionBuilder(
