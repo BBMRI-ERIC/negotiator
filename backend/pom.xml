@@ -45,7 +45,6 @@
         <lombok.version>1.18.30</lombok.version>
         <micrometer.version>1.14.4</micrometer.version>
         <modelmapper.version>3.2.4</modelmapper.version>
-        <moxy.version>2.5.1</moxy.version>
         <netty-macos.version>4.1.119.Final</netty-macos.version>
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.8</pdfbox.version>
@@ -399,18 +398,8 @@
         </dependency>
         <dependency>
             <groupId>org.docx4j</groupId>
-            <artifactId>docx4j-JAXB-MOXy</artifactId>
-            <version>${docx4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.docx4j</groupId>
             <artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
             <version>${docx4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>org.eclipse.persistence.moxy</artifactId>
-            <version>${moxy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.xhtmlrenderer</groupId>
