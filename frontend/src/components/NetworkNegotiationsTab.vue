@@ -13,6 +13,7 @@
         :filters-status="states"
         :filter-organizations="organizations"
         :filters-sort-data="filtersSortData"
+        :networkActivated="true"
         @filters-sort-data="$emit('retrieveNegotiationsBySortAndFilter')"
       />
       <NegotiationList

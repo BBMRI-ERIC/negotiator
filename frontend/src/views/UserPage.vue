@@ -1,23 +1,25 @@
 <template>
-  <FilterSort
-    v-if="!loading"
-    v-model:filtersSortData="filtersSortData"
-    :user-role="userRole"
-    :filters-status="filtersStatus"
-    @filters-sort-data="retrieveNegotiationsBySortAndFilter"
-  />
-  <NegotiationList
-    :negotiations="negotiations"
-    :pagination="pagination"
-    :user-role="userRole"
-    v-model:filtersSortData="filtersSortData"
-    @filters-sort-data="retrieveNegotiationsBySortAndFilter"
-  />
-  <NegotiationPagination
-    :negotiations="negotiations"
-    :pagination="pagination"
-    @current-page-number="retrieveNegotiationsByPage"
-  />
+  <div class="d-flex flex-column gap-3">
+    <FilterSort
+      v-if="!loading"
+      v-model:filtersSortData="filtersSortData"
+      :user-role="userRole"
+      :filters-status="filtersStatus"
+      @filters-sort-data="retrieveNegotiationsBySortAndFilter"
+    />
+    <NegotiationList
+      :negotiations="negotiations"
+      :pagination="pagination"
+      :user-role="userRole"
+      v-model:filtersSortData="filtersSortData"
+      @filters-sort-data="retrieveNegotiationsBySortAndFilter"
+    />
+    <NegotiationPagination
+      :negotiations="negotiations"
+      :pagination="pagination"
+      @current-page-number="retrieveNegotiationsByPage"
+    />
+  </div>
 </template>
 
 <script setup>

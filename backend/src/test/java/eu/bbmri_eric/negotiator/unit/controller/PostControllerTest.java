@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.controller;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,13 +38,14 @@ public class PostControllerTest {
     PostDTO postDTO =
         PostDTO.builder()
             .id("test-id")
+            .negotiationId("negotiation-id")
             .type(PostType.PUBLIC)
             .text("test comment")
             .creationDate(LocalDateTime.now())
             .createdBy(new UserResponseModel())
             .build();
-    when(postService.findById(any())).thenReturn(postDTO);
-    mvc.perform(MockMvcRequestBuilders.get("/v3/posts/test-id"))
+    when(postService.findById(eq("negotiation-id"), eq("test-id"))).thenReturn(postDTO);
+    mvc.perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-id/posts/test-id"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
         .andExpect(jsonPath("$.id").value("test-id"))

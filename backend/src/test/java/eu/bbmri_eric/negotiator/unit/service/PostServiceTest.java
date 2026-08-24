@@ -318,6 +318,7 @@ public class PostServiceTest {
     PostDTO postDTO =
         PostDTO.builder()
             .id("test-id")
+            .negotiationId(NEG_1)
             .creationDate(LocalDateTime.now())
             .createdBy(new UserResponseModel())
             .text(privateResToOrg1.getText())
@@ -367,6 +368,7 @@ public class PostServiceTest {
     PostDTO postDTO =
         PostDTO.builder()
             .id("test-id")
+            .negotiationId(NEG_1)
             .createdBy(new UserResponseModel())
             .creationDate(LocalDateTime.now())
             .text(publicPost1.getText())
