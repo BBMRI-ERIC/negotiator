@@ -235,6 +235,7 @@ public class PostServiceImpl implements PostService {
 
     return organizations;
   }
+
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
     Post post = postRepository.findByIdAndNegotiationId(messageId, negotiationId);
