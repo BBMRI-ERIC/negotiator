@@ -1,6 +1,7 @@
 # The DefinitionResolver's shape is a guess until something calls it
 
 Status: needs-triage
+Routed: carried on the map under [Stage 1 after the evaluator](../../state-machine-implementation/map.md#not-yet-specified) (the coupling slab, as first caller) and under [Stage 2 — configurability](../../state-machine-implementation/map.md#not-yet-specified) (the precedence walk).
 
 ## Parent
 

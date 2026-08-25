@@ -1,6 +1,14 @@
 # Slab status — definition schema and entities
 
-Working record for the slab. Delete this file when the slab closes.
+**The slab is closed** — all seven slices landed, the gate is green, and map ticket
+[08 Definition schema and entities](../state-machine-implementation/issues/08-definition-schema-and-entities.md)
+is resolved. This file said to delete itself at that point; it is **kept instead.** The per-slice
+sections below are the working reference for anyone extending this schema — proven partial-index
+syntax, how to attribute a refused write to the right index, why `SELECT col::text` does not prove
+a column is jsonb, the composite-FK technique, the fixture rule, and the trap that two concurrent
+Maven invocations against `backend/` look like 150 real failures. Nothing here is a live to-do; the
+three decisions this slab deferred live in `issues/08`, `issues/09` and `issues/10`, and are routed
+on the map.
 
 ## Landed on `feat/state-machine-implementation`
 
