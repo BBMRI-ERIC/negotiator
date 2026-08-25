@@ -1,6 +1,7 @@
 # Pinning a Negotiation Resource Link that already exists
 
 Status: needs-triage
+Routed: carried on the map under [Stage 1 after the evaluator](../../state-machine-implementation/map.md#not-yet-specified) — the **coupling** slab owns it, as the first thing that has to write a Resource's pin.
 
 ## Parent
 

@@ -1,6 +1,7 @@
 # The two pin columns have no index on them
 
 Status: needs-triage
+Routed: carried on the map under [Stage 1 after the evaluator](../../state-machine-implementation/map.md#not-yet-specified) — the **cutover** slab owns it, and builds the index in the migration that sets either column NOT NULL.
 
 ## Parent
 

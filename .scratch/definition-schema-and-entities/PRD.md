@@ -1,6 +1,6 @@
 # PRD — Definition schema and entities
 
-Status: ready-for-agent
+Status: resolved — all seven slices landed, slab gate green, map ticket 08 closed 2026-08-25
 
 Slab for map ticket
 [08 Definition schema and entities](../state-machine-implementation/issues/08-definition-schema-and-entities.md)

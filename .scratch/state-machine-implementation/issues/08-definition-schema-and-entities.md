@@ -1,7 +1,7 @@
 # Definition schema and entities
 
 Type: task
-Status: claimed
+Status: resolved
 
 ## Question
 
@@ -111,3 +111,99 @@ indexes in the codebase — two `CREATE INDEX` exist in total, neither with a `W
 `CREATE UNIQUE INDEX`. Every uniqueness rule is therefore proven by a test that violates it. And the
 "nothing reads it" gate is a mechanical guard test reusing `CharacterizationImportGuardTest`'s
 technique, not a grep — package-private entities and repositories cover the rest at compile time.
+
+## Answer
+
+**Resolved 2026-08-25. The schema and its entities are landed, and the slab gate is green.**
+
+**The gate, in its three parts.** The additive DDL applies cleanly — every Testcontainers test in the
+suite clean+migrates, so a broken migration fails the whole suite rather than one assertion. The
+entities round-trip: **86 tests** in nine classes under
+`backend/src/test/java/eu/bbmri_eric/negotiator/lifecycle/definition/`, against a real PostgreSQL.
+And **nothing reads any of it** — see the guard below. Parity: **255 tests in 24 classes, 0
+failures, 0 errors, 1 skipped**, unchanged at every slice; intended deltas **8/0/0/0**; the full
+suite 1415/0/0/16.
+
+**What landed.** Five migrations, `V36.0`–`V36.4` (one per slice, never appending to an applied file —
+that changes its checksum and fails Flyway validation on any developer database that already ran it).
+`V36.5` is free. Six tables — `lifecycle_definition`, `state`, `event`, `transition`, `guard_wiring`,
+`action_wiring` — plus the nullable `lifecycle_definition_id` pin on `negotiation` and
+`negotiation_resource_link`. Seventeen production files in
+`eu.bbmri_eric.negotiator.lifecycle.definition`, all package-private: seven entities and enums, six
+repositories, and the `DefinitionResolver` seam. **Exactly two production files outside that package
+were touched in the whole slab** — `Negotiation` and `NegotiationResourceLink`, for the pin.
+
+**The inertness claim is a test, not a grep.** `DefinitionInertnessGuardTest` scans all 431 production
+sources under `backend/src/main/java` with three rules, because a read can be spelled three ways: the
+**package** rule (the only spelling a compiled reference to a package-private type can take, and it
+also catches reflection and component-scan strings), the **type** rule (bare simple names — what a
+JPQL entity name would look like), and the **table** rule, which is the one that matters most. A
+native query names the table, never the entity, so `@Query(nativeQuery = true, value = "select * from
+lifecycle_definition")` passed the first two rules green while doing exactly what this slab promised
+not to do — and this repository already has five native-query sites, so that is an ordinary edit, not
+a contrived one. **A guard built only from Java identifiers does not prove a database claim.**
+`\blifecycle_definition\b` deliberately does not match `lifecycle_definition_id`, so reading the pin
+stays legal while reading the table does not. **The slab that starts reading these tables deletes this
+test, and that deletion should be a visible line in its diff rather than a quiet edit to the lists
+inside it.**
+
+### Four schema facts later slabs should not re-derive
+
+- **A row cannot straddle two Definition Versions, and the database says so.** Every vertex table
+  carries a `UNIQUE (lifecycle_definition_id, id)` and every edge references the *pair*. This moved
+  "a Transition could reference a State of another version" out of the left-for-stage-3 list. The
+  cost: a nullable column in a composite FK disables that FK for the null rows (PostgreSQL `MATCH
+  SIMPLE`), which is exactly what a definition-scoped Guard wants but means the null case is
+  unconstrained and needs its own test.
+- **`required_authority` is single-valued as ADR 0002 specifies**, per the decision recorded above.
+  Ticket [11](11-transition-authority-admin-or-creator.md) is still open and two of its three
+  candidate resolutions leave this DDL untouched.
+- **`is_global_default` is unique among active rows**, `state.initial` is at-most-one per version, and
+  Guard `sort_order` is unique in each of its two scopes. Four partial unique indexes, all first of
+  their kind here, each proven by a test that violates it.
+- **Three uniqueness rules are enforceable only as "at most one".** No trigger, no deferred
+  constraint: the *at least one* half of one active version per family, of one initial State per
+  version, and `scope` being fixed per family with no family table to hold it. Zero active rows is a
+  valid intermediate state mid-publish, so that half is publish-time validation in stage 3.
+
+### Three decisions deferred with explicit triggers, each owned by a later slab
+
+Filed rather than guessed at, because each needs a caller in front of it. They live in the slab
+directory and are pointed at from the map's **Not yet specified**:
+
+- **[Pinning a Resource link that already exists](../../definition-schema-and-entities/issues/09-pinning-an-existing-resource-link.md)**
+  — the pin is `@Setter(AccessLevel.NONE)` + `updatable = false`, so it is writable only at insert.
+  For a Negotiation the two moments coincide; **for a Resource they do not** — the link exists from
+  Negotiation creation and its Lifecycle starts at Spawn, so the spawn Action cannot write the pin
+  through the mapping at all. Three options, no migration needed for any of them. **The coupling slab
+  owns this.** Do not "fix" it by deleting `@Setter(AccessLevel.NONE)` alone: that turns a compile
+  error into a silently dropped value.
+- **[The DefinitionResolver's shape is a guess](../../definition-schema-and-entities/issues/10-definition-resolver-shape-is-a-guess.md)**
+  — two methods rather than one taking a scope; `resolveForResource()` takes no Resource; resolution
+  is total, so it throws rather than returning an `Optional`. The exception is package-private and
+  unmapped, which is correct while nothing calls it. **The coupling slab decides what an unresolvable
+  definition does to an approval** (a rolled-back 500 is today's default; a 409 naming the missing
+  configuration is probably better), and stage 2 changes the Resource signature rather than only its
+  body — a compile error at the caller, not a silent behaviour change.
+- **[The two pin columns have no index](../../definition-schema-and-entities/issues/08-pin-column-fk-indexes-deferred.md)**
+  — deliberate: the column is 100% NULL until the backfill, and both tables are among the most-written
+  in the schema. **The cutover slab owns it** — setting either column NOT NULL is the trigger and also
+  the natural place to build the index. `guard_wiring` carries the same deferral for a weaker reason
+  (small configuration table); its trigger is the first `findByLifecycleDefinitionId` on the
+  resolver's load path.
+
+### Naming, as decided and now applied
+
+`lifecycle_definition` / `LifecycleDefinition`, and the pin follows it as `lifecycle_definition_id`.
+Identifiers only — **Definition Version** remains the domain term in `backend/CONTEXT.md:19`, which
+this slab did not touch. Reviewed twice and not to be relitigated without new information; the PRD
+records the runner-up and what this choice costs.
+
+### Where the slab's working knowledge lives
+
+[`.scratch/definition-schema-and-entities/STATUS.md`](../../definition-schema-and-entities/STATUS.md)
+is **kept, not deleted.** Its per-slice sections are the reference for anyone extending this schema —
+proven partial-index syntax, how to prove a constraint refuses a write and attribute the refusal to
+the right index, why `SELECT col::text` does not prove a column is jsonb, the composite-FK technique,
+the fixture-extraction rule, and the environment trap that two concurrent Maven invocations against
+`backend/` look like 150 real failures. The two recon briefs stay beside it.
