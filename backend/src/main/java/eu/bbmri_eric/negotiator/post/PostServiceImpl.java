@@ -172,7 +172,7 @@ public class PostServiceImpl implements PostService {
     verifyReadAccess(negotiationId);
     List<Post> allNegotiationPosts = postRepository.findByNegotiationId(negotiationId);
     List<Post> readablePosts = getReadablePosts(allNegotiationPosts);
-    if (negotiationService.isNegotiationEditor(negotiationId)) {
+    if (isNegotiationCreatorOrAdmin(negotiationId)) {
       readablePosts.addAll(getAllUnreadablePosts(allNegotiationPosts));
     } else {
       addUserAccessiblePosts(allNegotiationPosts, readablePosts);
@@ -198,6 +198,10 @@ public class PostServiceImpl implements PostService {
 
   private List<Post> getReadablePosts(List<Post> allNegotiationPosts) {
     return allNegotiationPosts.stream().filter(Post::isPublic).collect(Collectors.toList());
+  }
+
+  private boolean isNegotiationCreatorOrAdmin(String negotiationId) {
+    return negotiationService.isNegotiationCreator(negotiationId) || isAdmin();
   }
 
   private List<Post> getAllUnreadablePosts(List<Post> allNegotiationPosts) {
@@ -234,6 +238,10 @@ public class PostServiceImpl implements PostService {
             .collect(Collectors.toSet()));
 
     return organizations;
+  }
+
+  private boolean isAdmin() {
+    return AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
   @Transactional
