@@ -12,7 +12,7 @@ Working record for the slab. Delete this file when the slab closes.
 | [04 guard and action wiring](issues/04-guard-and-action-wiring.md) | **done** | 18 tests green; full suite 1389/0/0/16; parity 255/24/1 skipped |
 | [05 pin columns](issues/05-lifecycle-definition-pin-columns.md) | **done** | 9 tests green; full suite 1398/0/0/16; parity 255/24/1 skipped |
 | [06 DefinitionResolver seam](issues/06-definition-resolver-seam.md) | **done** | 11 tests green; full suite 1409/0/0/16; parity 255/24/1 skipped |
-| [07 inertness gate](issues/07-inertness-gate.md) | not started | |
+| [07 inertness gate](issues/07-inertness-gate.md) | **done** | 6 tests green; full suite 1415/0/0/16; parity 255/24/1 skipped; deltas 8/0/0/0 |
 
 ## What slice 01 fixed for every later slice
 
@@ -309,6 +309,67 @@ Working record for the slab. Delete this file when the slab closes.
   `versionBuilder` fixes the name and takes the version, `activeVersionIn` fixes the version and
   takes the scope. Unifying them changes some test's fixture under it, which is why the criterion is
   "needed by two classes" and not "looks similar".
+
+## What slice 07 settles for the slab that follows
+
+- **The inertness claim is a test, and it is the first thing the next slab deletes.**
+  `backend/src/test/java/eu/bbmri_eric/negotiator/lifecycle/definition/DefinitionInertnessGuardTest.java`
+  scans all 431 production sources under `backend/src/main/java`. Deleting it is the correct move for
+  the slab that starts reading the definition tables, and doing so should be a visible line in that
+  slab's diff rather than a quiet edit to the lists inside it.
+- **Three rules, because a read can be spelled three ways, and the third is the one a review caught.**
+  The *package rule* forbids the string `eu.bbmri_eric.negotiator.lifecycle.definition` outside the
+  package; since every definition type is package-private, that is the only spelling a compiled
+  reference can take, and it also catches what package-privacy cannot - reflection lookups,
+  component-scan base packages, JPA configuration strings. The *type rule* forbids the fourteen
+  distinctive simple names bare, which is what a JPQL entity name or a later-made-public type would
+  look like. The *table rule* forbids the six table names, and it is the one that matters most: a
+  native query names the table, never the entity, so
+  `@Query(nativeQuery = true, value = "select * from lifecycle_definition")` on any existing
+  repository passed the first two rules green while doing exactly what the slab promised not to do.
+  This repository already has five native-query sites, so that is an ordinary edit, not a contrived
+  one. **A guard built only from Java identifiers does not prove a database claim.**
+- **Two exemptions, both named in the test.** First, `State`, `Event` and `Transition` are exempt from
+  the *bare* forms of the type and table rules. Their simple names are already taken in production
+  code - `State` and `Transition` by `org.springframework.statemachine`, `Event` by a string literal
+  in `EventListener` - and their table names are ordinary English words and ordinary variable names,
+  so a bare rule reports matches that are not references and gets silenced rather than obeyed. They
+  stay covered by the package rule, and their tables by a positional pattern,
+  `\b(?:from|join|into|update)\s+"?(?:state|event|transition)"?\b`, which catches `from state` but
+  not a variable called `state`. Second, the scan root is `src/main/java` only:
+  `src/main/resources` is deliberately outside the walk, because this slab's own migrations name
+  every one of these tables and exempting `db/migration` would be the first exemption nobody
+  re-reads. A definition package named from YAML would escape. Both are in the test's javadoc, not
+  only here - this file gets deleted when the slab closes, and an exemption that lives only in it
+  disappears with it.
+- **A word boundary is what separates the pin column from the table it points at.**
+  `\blifecycle_definition\b` does not match `lifecycle_definition_id`, so reading the pin on
+  `negotiation` stays legal while reading `lifecycle_definition` does not. That is the intended
+  split, and `theRules_matchWhatTheyForbidAndNothingElse` pins both halves of it.
+- **Anti-vacuity needs more than a file count, and the demonstration should not be a memory.** Three
+  things are asserted: that the walk found a real tree; that the package rule *does* match inside the
+  excluded package, so a green result outside it means something; and that every forbidden name still
+  has a `.java` file or a `CREATE TABLE` in the slab's migrations, so a rename cannot quietly empty a
+  list. On top of those, `theRules_matchWhatTheyForbidAndNothingElse` runs each rule against a
+  hand-written violating line and a hand-written innocent one. That last test is the permanent form of
+  the ticket's "demonstrated by a temporary violation": the temporary violations were run and are
+  gone, and a claim nobody can re-check is the thing this slab was trying to avoid in the first place.
+- **The guard scaffolding is at two copies, deliberately.** `scan`, `report`, `codeLines`,
+  `readLines`, the working-dir-resolved root and the `Violation` record are copied from
+  `CharacterizationImportGuardTest` rather than extracted, which meets slice 04's own
+  needed-by-two-classes criterion for extraction. The criterion is overridden here because the two
+  guards have different lifetimes - the characterization one dies at cutover, this one dies when the
+  next slab starts reading the tables - and each is meant to be deleted whole. A third guard is the
+  point to extract.
+- **Surefire reports accumulate across runs, and a tally over the whole directory silently reports the
+  previous run's numbers.** Tallying `backend/target/surefire-reports/*.txt` right after the parity run
+  returned the full suite's 1412/155, not 255/24, because the earlier run's reports were still there.
+  Split the two by mtime - everything written after the last non-characterization report is the parity
+  run - and skip the `-output.txt` sidecars, which carry no `Tests run:` line. This is the concrete
+  form of the parity gate's "read the numbers out of the reports, not out of a summary line".
+- **The definition builder chain is still at three copies.** Slice 06 asked slice 07 to watch it;
+  slice 07 adds no fixtures, so the count is unchanged and the extract-on-a-fourth-copy rule still
+  stands for whoever writes the fourth.
 
 ## Invariants deliberately left unenforced, for stage 3
 

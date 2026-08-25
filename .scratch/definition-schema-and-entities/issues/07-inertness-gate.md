@@ -1,6 +1,6 @@
 # The inertness gate
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -26,15 +26,15 @@ later slice makes public without thinking.
 
 ## Acceptance criteria
 
-- [ ] A guard test fails when a reference to any new definition type is added to production code
+- [x] A guard test fails when a reference to any new definition type is added to production code
       outside the definition package, demonstrated by a temporary violation during development.
-- [ ] The guard has an anti-vacuity test proving it actually scanned files.
-- [ ] Any exemption is named explicitly in the test, with a reason.
-- [ ] The parity half of [parity-gate.md](../../state-machine-implementation/parity-gate.md) is green
+- [x] The guard has an anti-vacuity test proving it actually scanned files.
+- [x] Any exemption is named explicitly in the test, with a reason.
+- [x] The parity half of [parity-gate.md](../../state-machine-implementation/parity-gate.md) is green
       at its unchanged count of 255, and the intended-delta tests are unchanged.
-- [ ] `git diff` against the slab's base shows the only production changes are the new package, the
+- [x] `git diff` against the slab's base shows the only production changes are the new package, the
       new migration, and the two pin columns on the two existing entities.
-- [ ] The migration applies cleanly from an empty database — which every Testcontainers test already
+- [x] The migration applies cleanly from an empty database — which every Testcontainers test already
       proves, since test contexts run clean+migrate on every build.
 
 ## Blocked by
