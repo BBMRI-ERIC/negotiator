@@ -120,7 +120,7 @@ public class PostServiceImpl implements PostService {
     }
     Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     verifyReadAccess(negotiationId);
-    if (!post.isPublic() && !isNegotiationCreatorOrAdmin(negotiationId)) {
+    if (!post.isPublic() && !negotiationService.isNegotiationEditor(negotiationId)) {
       Person user = getCurrentUser();
       boolean isRepresentativeOfPostOrganization =
           post.getOrganization().getResources().stream()
