@@ -7,6 +7,7 @@ import { useUserStore } from '@/store/user'
 import { ROLES } from '@/config/consts.js'
 
 export function PerunClient() {
+  const IDS_PREFIX = governanceSettings.idsPrefix ?? ""
   const VIRTUAL_ORGANIZATION_ID = governanceSettings.virtualOrganizationId
   const ORGANIZATION_ID_ATTR = governanceSettings.organizationIdAttr
   const RESOURCE_ID_ATTR = governanceSettings.resourceIdAttr
@@ -22,7 +23,7 @@ export function PerunClient() {
 
   const negotiatorClient = new NegotiatorClient()
 
-  const perunGroupsManager = PerunGroupsManager(negotiatorClient)
+  const perunGroupsManager = PerunGroupsManager(IDS_PREFIX)
 
   const userStore = useUserStore()
 
@@ -74,6 +75,7 @@ export function PerunClient() {
       perunGroupsManager.init(await getGroupsFromPerun())
 
       const orgReprGroups = perunGroupsManager.getOrganizationsRepresentativesGroups()
+      console.log(orgReprGroups)
       await Promise.all(
         orgReprGroups.map(async (orgReprGroup) => {
           const negotiatorOrgData = await negotiatorClient.getOrganizationByExternalId(
@@ -82,6 +84,8 @@ export function PerunClient() {
           if (negotiatorOrgData) {
             const negotiatorOrg = NegotiatorOrganization(orgReprGroup, negotiatorOrgData)
             orgReprGroup.setNegotiatorOrganization(negotiatorOrg)
+          } else {
+            perunGroupsManager.deleteOrganisationGroup(orgReprGroup.getPerunId())
           }
         }),
       )
@@ -91,6 +95,7 @@ export function PerunClient() {
 
   const retrieveOrganizationsPaginated = async (page = 0, size = 20, filters = {}) => {
     const organizations = filterOrganizations(await getAllOrganizations(), filters)
+    
     return {
       data: {
         _embedded: {

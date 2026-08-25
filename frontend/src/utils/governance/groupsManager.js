@@ -21,12 +21,12 @@ const getValueForAttribute = (group, attributeName) => {
   return attribute?.value?.trim()
 }
 
-const getNegotiatorResourceIdFromRepresentativeGroup = (group) => {
-  return getValueForAttribute(group, RESOURCE_ID_ATTR).replaceAll('.', ':')
+const getNegotiatorResourceIdFromRepresentativeGroup = (group, idsPrefix) => {
+  return getValueForAttribute(group, RESOURCE_ID_ATTR).replaceAll(idsPrefix, "").replaceAll('.', ':')
 }
 
-const getNegotiatorOrganizationIdFromRepresentativeGroup = (group) => {
-  return getValueForAttribute(group, ORGANIZATION_ID_ATTR).replaceAll('.', ':')
+const getNegotiatorOrganizationIdFromRepresentativeGroup = (group, idsPrefix) => {
+  return getValueForAttribute(group, ORGANIZATION_ID_ATTR).replaceAll(idsPrefix, "").replaceAll('.', ':')
 }
 
 function OrganizationRepresentativeGroup(perunGroupId) {
@@ -75,9 +75,9 @@ function OrganizationRepresentativeGroup(perunGroupId) {
   }
 }
 
-function ResourceRepresentativeGroup(perunGroup) {
+function ResourceRepresentativeGroup(perunGroup, idsPrefix) {
   const id = ref(perunGroup.id)
-  const negId = ref(getNegotiatorResourceIdFromRepresentativeGroup(perunGroup))
+  const negotiatorId = ref(getNegotiatorResourceIdFromRepresentativeGroup(perunGroup, idsPrefix))
   const parentId = ref(perunGroup.parentGroupId)
   const managerGroupId = ref(null)
 
@@ -86,11 +86,11 @@ function ResourceRepresentativeGroup(perunGroup) {
   }
 
   const setNegotiatorId = (newNegotiatorId) => {
-    negId.value = newNegotiatorId
+    negotiatorId.value = newNegotiatorId
   }
 
   const getNegotiatorId = () => {
-    return negId.value
+    return negotiatorId.value
   }
 
   const getParentId = () => {
@@ -162,7 +162,7 @@ function NegotiatorResource(representativeGroup, negotiatorData, representatives
   }
 }
 
-function PerunGroupsManager() {
+function PerunGroupsManager(idsPrefix) {
   const groupsTree = {}
 
   const getOrCreateOrganizationGroup = (perunGroupId) => {
@@ -170,6 +170,10 @@ function PerunGroupsManager() {
       groupsTree[perunGroupId] = OrganizationRepresentativeGroup(perunGroupId)
     }
     return groupsTree[perunGroupId]
+  }
+
+  const deleteOrganizationGroup = (perunGroupId) => {
+    delete groupsTree[perunGroupId]
   }
 
   const isInitialized = () => {
@@ -182,11 +186,11 @@ function PerunGroupsManager() {
         if (isOrganizationRepresentativesGroup(perunGroup)) {
           const organizationGroup = getOrCreateOrganizationGroup(perunGroup.id)
           organizationGroup.setNegotiatorId(
-            getNegotiatorOrganizationIdFromRepresentativeGroup(perunGroup),
+            getNegotiatorOrganizationIdFromRepresentativeGroup(perunGroup, idsPrefix),
           )
         } else if (isResourceRepresentativesGroup(perunGroup)) {
           const organizationGroup = getOrCreateOrganizationGroup(perunGroup.parentGroupId)
-          const resourceGroup = ResourceRepresentativeGroup(perunGroup)
+          const resourceGroup = ResourceRepresentativeGroup(perunGroup, idsPrefix)
           organizationGroup.addResourceGroup(resourceGroup)
         }
       }
@@ -211,6 +215,7 @@ function PerunGroupsManager() {
     getOrganizationsRepresentativesGroups,
     getResourcesRepresentativesGroupsForOrganization,
     getNegotiatorOrganizations,
+    deleteOrganisationGroup: deleteOrganizationGroup
   }
 }
 
