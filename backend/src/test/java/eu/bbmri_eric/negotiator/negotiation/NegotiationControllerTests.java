@@ -2178,6 +2178,57 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   @Transactional
+  public void addCollaboratorById_BadRequest_whenAlreadyCollaborator() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                "/v3/negotiations/%s/collaborators/110".formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void addCollaboratorBySubjectId_BadRequest_whenAlreadyCollaborator() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    "/v3/negotiations/%s/collaborators".formatted(NEGOTIATION_1_ID))
+                .param("subjectId", "1002@bbmri.eu"))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void addCollaboratorById_BadRequest_whenAuthor() throws Exception {
+    Long authorId = negotiationRepository.findById(NEGOTIATION_1_ID).get().getCreatedBy().getId();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                "/v3/negotiations/%s/collaborators/%s".formatted(NEGOTIATION_1_ID, authorId)))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void addCollaboratorBySubjectId_BadRequest_whenAuthor() throws Exception {
+    String authorSubjectId =
+        negotiationRepository.findById(NEGOTIATION_1_ID).get().getCreatedBy().getSubjectId();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    "/v3/negotiations/%s/collaborators".formatted(NEGOTIATION_1_ID))
+                .param("subjectId", authorSubjectId))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
   public void removeCollaborator_NoContent_whenAuthor() throws Exception {
     assertTrue(
         negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 110L),
