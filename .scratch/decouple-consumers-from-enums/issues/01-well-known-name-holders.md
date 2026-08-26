@@ -1,6 +1,6 @@
 # The three Well-known name holders
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -35,15 +35,15 @@ status-converter method goes; ticket 03 records this as the whole class going, w
 
 ## Acceptance criteria
 
-- [ ] Three holders exist, carrying exactly the nine names ticket 03 specifies and no others.
-- [ ] Each holder is a holder of constants only — no behaviour, and not instantiable.
-- [ ] No production code references any holder yet.
-- [ ] `NegotiationStatusConverter` is deleted, and the sweep for references to it comes back empty
+- [x] Three holders exist, carrying exactly the nine names ticket 03 specifies and no others.
+- [x] Each holder is a holder of constants only — no behaviour, and not instantiable.
+- [x] No production code references any holder yet.
+- [x] `NegotiationStatusConverter` is deleted, and the sweep for references to it comes back empty
       apart from the one test method removed with it.
-- [ ] The unrelated role-converter test in the same class still exists and still passes.
-- [ ] The four Lifecycle enums are untouched, and no consumer has been migrated in this slice.
-- [ ] Full backend suite green.
-- [ ] Parity green at its unchanged count — 255 tests in 24 classes, 0 failures, 1 skipped — and the
+- [x] The unrelated role-converter test in the same class still exists and still passes.
+- [x] The four Lifecycle enums are untouched, and no consumer has been migrated in this slice.
+- [x] Full backend suite green.
+- [x] Parity green at its unchanged count — 255 tests in 24 classes, 0 failures, 1 skipped — and the
       intended-delta half at 8 tests, 0 failures. Read both out of the surefire reports, checking
       mtimes.
 
