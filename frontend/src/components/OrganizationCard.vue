@@ -189,6 +189,7 @@ onMounted(() => {
 
 defineExpose({
   fetchResources,
+  resources,
 })
 </script>
 
