@@ -143,7 +143,7 @@ const getRepresentedResources = (resources) =>
 
 const updateOrganization = async () => {
   const data = {
-    resourceIds: getRepresentedResources(selectedOrganization.value.resources),
+    resourceIds: getRepresentedResources(organizationCardRef.value.resources),
     state: orgStatus.value.value,
   }
   const wasSuccessful = await negotiationPageStore.addResources(data, props.negotiationId)
