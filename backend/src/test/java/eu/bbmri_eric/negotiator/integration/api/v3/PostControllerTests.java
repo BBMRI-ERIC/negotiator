@@ -230,7 +230,7 @@ public class PostControllerTests {
   }
 
   @Test
-  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 110L)
+  @WithMockNegotiatorUser(authorities = "ROLE_HELPDESK_INTEGRATION", id = 104L)
   void getPostById_notParticipantWithHelpdeskIntegrationRole_forbidden() throws Exception {
     mockMvc
         .perform(get(String.format("%s/%s", POSTS_ENDPOINT_URI, POST_1_RESEARCHER_ID)))
