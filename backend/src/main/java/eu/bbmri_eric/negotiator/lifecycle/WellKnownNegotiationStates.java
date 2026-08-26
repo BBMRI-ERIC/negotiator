@@ -22,8 +22,8 @@ package eu.bbmri_eric.negotiator.lifecycle;
  * existing.
  *
  * <p>Nothing here answers what a State <em>means</em> - its label, its description, whether it is
- * terminal. That is a lookup against the Definition Version, and while Spring Statemachine still
- * runs it is the Enum-Backed Lifecycle Catalog's job.
+ * terminal. That is a lookup against the Definition Version rather than a constant, and it belongs
+ * to whatever owns the Lifecycle, never to this holder.
  *
  * <p>ADR 0004 keeps a single Negotiation-scope Definition Family, so these five names are exactly
  * as stable as the enum constants they replace. {@link WellKnownResourceStates} cannot say the

@@ -49,11 +49,18 @@ import org.junit.jupiter.api.Test;
  * as a silent gap.
  *
  * <p><b>Rule three: a holder holds constants and nothing else.</b> No behaviour, not instantiable.
- * A holder that acquires a {@code labelFor} or a {@code values()} has become the lookup table the
- * Enum-Backed Lifecycle Catalog owns, and the catalog is deliberately somewhere else - inside the
- * state machine package, so the cutover deletes it with the library.
+ * A holder that acquires a {@code labelFor} or a {@code values()} has stopped naming States and
+ * started answering questions about them, and what a State means is a lookup against the Definition
+ * Version rather than anything a constant can know.
  */
 class WellKnownNamesTest {
+
+  /** The three holders, for the rules that apply to all of them equally. */
+  private static final List<Class<?>> HOLDERS =
+      List.of(
+          WellKnownNegotiationStates.class,
+          WellKnownResourceStates.class,
+          WellKnownResourceEvents.class);
 
   /**
    * The five Negotiation States some behaviour depends on existing. ADR 0004 keeps a single
@@ -125,13 +132,22 @@ class WellKnownNamesTest {
   }
 
   @Test
+  @DisplayName("no holder declares the same name twice under two field names")
+  void noHolder_declaresAnAliasForAName() {
+    for (Class<?> holder : HOLDERS) {
+      List<String> declared = declaredNamesOf(holder);
+      assertEquals(
+          declared.size(),
+          new LinkedHashSet<>(declared).size(),
+          "%s declares two constants with the same value. An alias would slip past the exactness rule above, because a set collapses it - which is the growth this class exists to refuse."
+              .formatted(holder.getSimpleName()));
+    }
+  }
+
+  @Test
   @DisplayName("a holder holds constants only - no behaviour, and not instantiable")
   void everyHolder_isAHolderOfConstantsOnly() {
-    for (Class<?> holder :
-        List.of(
-            WellKnownNegotiationStates.class,
-            WellKnownResourceStates.class,
-            WellKnownResourceEvents.class)) {
+    for (Class<?> holder : HOLDERS) {
       assertTrue(
           Modifier.isFinal(holder.getModifiers()),
           "%s must be final: a subclass would be a place to add a tenth name out of sight."
@@ -139,7 +155,7 @@ class WellKnownNamesTest {
       assertEquals(
           List.of(),
           authoredMethodsOf(holder),
-          "%s must declare no methods. Lookup by name - label, description, ordinal - belongs to the Enum-Backed Lifecycle Catalog, which lives inside the state machine package so the cutover deletes it."
+          "%s must declare no methods. Lookup by name - label, description, ordinal - is a read against the Definition Version and belongs to whatever owns the Lifecycle, never to a holder of names."
               .formatted(holder.getSimpleName()));
 
       Constructor<?>[] constructors = holder.getDeclaredConstructors();
@@ -185,6 +201,10 @@ class WellKnownNamesTest {
    * being exactly the bug rule two exists to catch.
    */
   private static Set<String> constantsOf(Class<?> holder) {
+    return new LinkedHashSet<>(declaredNamesOf(holder));
+  }
+
+  private static List<String> declaredNamesOf(Class<?> holder) {
     List<String> declared = new ArrayList<>();
     for (Field field : holder.getDeclaredFields()) {
       int modifiers = field.getModifiers();
@@ -210,21 +230,19 @@ class WellKnownNamesTest {
         declared.isEmpty(),
         "%s declares no constants. Either the holder is empty or this scan found nothing, and both are failures."
             .formatted(holder.getSimpleName()));
-
-    Set<String> names = new LinkedHashSet<>(declared);
-    assertEquals(
-        declared.size(),
-        names.size(),
-        "%s declares two constants with the same value. Deduplicating them here would let a tenth field pass the exactness rule as an alias, which is the growth this test exists to refuse."
-            .formatted(holder.getSimpleName()));
-    return names;
+    return declared;
   }
 
+  /**
+   * Asserts by calling the enum's {@code valueOf}, whose contract is to throw rather than to return
+   * null for an unknown name - so the {@code catch} is the assertion here, and a null check
+   * alongside it would be decoration.
+   */
   private static void assertEveryNameResolves(
       Set<String> names, Function<String, ?> valueOf, String enumName) {
     for (String name : names) {
       try {
-        assertNotNull(valueOf.apply(name));
+        valueOf.apply(name);
       } catch (IllegalArgumentException e) {
         throw new AssertionError(
             "\"%s\" does not name a constant of %s. While Spring Statemachine still runs, a Well-known name the enum does not carry is a typo, and it would compile into a comparison that silently stops matching."
