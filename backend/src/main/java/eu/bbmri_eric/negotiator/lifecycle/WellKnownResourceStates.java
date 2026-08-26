@@ -4,11 +4,10 @@ package eu.bbmri_eric.negotiator.lifecycle;
  * The Resource State names that behaviour outside the Lifecycle depends on <em>existing</em>.
  *
  * <p>All three are here for one reason: they are what Spawn writes. When a Negotiation is approved,
- * one Resource Lifecycle is created per requested Resource, and each is assigned a starting State
- * by hand rather than by a Transition - {@code REPRESENTATIVE_CONTACTED} if the Resource has a
- * representative to notify, {@code REPRESENTATIVE_UNREACHABLE} if it has none. {@code SUBMITTED} is
- * the State a Resource Lifecycle is created in and the default a request carries when it names no
- * State.
+ * each requested Resource has its Lifecycle started, and is given a State by hand rather than by a
+ * Transition - {@code REPRESENTATIVE_CONTACTED} if the Resource has a representative to notify,
+ * {@code REPRESENTATIVE_UNREACHABLE} if it has none. {@code SUBMITTED} is the State a Resource
+ * Lifecycle starts in and the default a request carries when it names no State.
  *
  * <p>The same growth rule applies as to {@link WellKnownNegotiationStates}: the Resource Lifecycle
  * has twelve States, three are here because behaviour names them, and the other nine are absent
@@ -26,7 +25,7 @@ package eu.bbmri_eric.negotiator.lifecycle;
 public final class WellKnownResourceStates {
 
   /**
-   * The State a Resource Lifecycle starts in, and the default a request carries when it names no
+   * The initial State of the Resource Lifecycle, and the default a request carries when it names no
    * State.
    *
    * <p>The default is worth flagging for the same reason as the hazard above: a default that names

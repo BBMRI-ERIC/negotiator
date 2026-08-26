@@ -12,7 +12,7 @@ here are settled; do not relitigate them in a later slice.
 
 | Slice | State | Evidence |
 |---|---|---|
-| [01 Well-known name holders](issues/01-well-known-name-holders.md) | **done** | 7 tests green; full suite 1434/0/0/16; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
+| [01 Well-known name holders](issues/01-well-known-name-holders.md) | **done** | 8 tests green; full suite 1435/0/0/16; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
 **That filtering is not optional here**, and this run showed why: `surefire-reports` is not cleared
@@ -85,12 +85,22 @@ suite.
 only production occurrences of the three names are the declarations themselves plus two Javadoc
 `{@link}` cross-references between holders. Slice 04 is the first real consumer.
 
-**Whole-suite count moved 1415 → 1434, and only +6 of that is this slice.** The two test files this
-slice touches are the new `WellKnownNamesTest` (+7) and `ConverterTest` (−1, the status-converter
+**Whole-suite count moved 1415 → 1435, and only +7 of that is this slice.** The two test files this
+slice touches are the new `WellKnownNamesTest` (+8) and `ConverterTest` (−1, the status-converter
 method); `git status` confirms no other test file changed, and the deleted converter was production
 code that no test but that one named. The 1415 recorded against the previous slab's slice 07 is
 therefore stale relative to this branch rather than a figure this slice contradicts. Later slices
-should take **1434/0/0/16** as the baseline and not try to reconcile against the older number.
+should take **1435/0/0/16** as the baseline and not try to reconcile against the older number.
+
+**Terminology the glossary actually binds.** `CONTEXT-MAP.md` makes `backend/CONTEXT.md`'s `_Avoid_`
+lines binding, and Spawn's entry is the one this slab will brush against constantly: *"Nothing is
+created — the Resources are already linked — so Spawn names the initialization, not an
+instantiation."* Review caught "one Resource Lifecycle is **created** per requested Resource" in a
+holder's Javadoc. Slices 05 and 09 write the most prose about Spawn; say *started*, *initialized* or
+*Spawn writes*, never *created*, *instantiated*, *fanned out* or *launched*.
+
+**A finished slice is `Status: resolved`.** Not `done` — that is in neither `triage-labels.md` nor
+`issue-tracker.md`, and `resolved` is what six of the previous slab's seven finished slices used.
 
 ## What slice 01 removed
 
