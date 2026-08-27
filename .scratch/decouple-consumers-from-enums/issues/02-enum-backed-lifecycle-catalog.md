@@ -1,6 +1,6 @@
 # The Enum-Backed Lifecycle Catalog
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -30,19 +30,19 @@ Nothing reads it when this slice lands.
 
 ## Acceptance criteria
 
-- [ ] The catalog lives inside the Spring Statemachine package and is package-private if the callers
+- [x] The catalog lives inside the Spring Statemachine package and is package-private if the callers
       that arrive in later slices allow it, or as narrow as they do allow.
-- [ ] It answers name existence, label, description and Resource State ordinal, for both Definition
+- [x] It answers name existence, label, description and Resource State ordinal, for both Definition
       Scopes where the question applies.
-- [ ] Its answers are derived from the enums rather than restated, so a name cannot drift.
-- [ ] Its javadoc states plainly that it is deleted at cutover, and names what replaces each method —
+- [x] Its answers are derived from the enums rather than restated, so a name cannot drift.
+- [x] Its javadoc states plainly that it is deleted at cutover, and names what replaces each method —
       reads of the `state` and `event` rows.
-- [ ] Unit tests cover each answer, including the unknown-name case for the existence check.
-- [ ] No production code references it yet.
-- [ ] The Definition Version tables are **not** read. `DefinitionInertnessGuardTest` stays green and
+- [x] Unit tests cover each answer, including the unknown-name case for the existence check.
+- [x] No production code references it yet.
+- [x] The Definition Version tables are **not** read. `DefinitionInertnessGuardTest` stays green and
       stays in the tree.
-- [ ] Full backend suite green.
-- [ ] Parity green at 255/24/1 skipped; deltas 8/0/0/0.
+- [x] Full backend suite green.
+- [x] Parity green at 255/24/1 skipped; deltas 8/0/0/0.
 
 ## Notes
 
@@ -66,3 +66,31 @@ here would put behaviour in a class designed to be deleted.
 
 None - can start immediately. Independent of slices 1, 3 and 7; may be authored in parallel with
 them, but test runs must be serialized.
+
+## Resolution
+
+Recorded retroactively on 2026-08-27: the work landed at `909d9055` and this file was left saying
+`ready-for-agent`. Nothing about the slice was redone.
+
+`EnumBackedLifecycleCatalog` lives in `negotiation/state_machine/` and answers all three questions
+through a `Scope` / `Element` pair - `nameExists`, `metadata` returning a `Metadata(label,
+description)` record, and `resourceStateOrdinal`. Every answer is built from `values()` and the
+enums' own `getLabel` / `getDescription`, so nothing here can drift while the enums exist, and the
+javadoc names the `state` / `event` row read that replaces each method at cutover.
+`EnumBackedLifecycleCatalogTest` covers all four scope-element combinations, the unknown name for
+each of them, four label-and-description lookups and the Resource State ordinal: 13 tests, green.
+
+**It is `public`, not package-private, and that is the AC's second clause rather than a miss.** The
+callers that arrive in slices 05, 10 and 11 all sit outside `negotiation.state_machine`, so
+package-private was never available; what stayed narrow is the surface - three methods, no state,
+and nothing that decides whether a Transition may fire. No production code reads it yet, and the
+Definition Version tables are untouched, so `DefinitionInertnessGuardTest` is still green and still
+in the tree.
+
+**The last two acceptance criteria are ticked on transitive evidence, and the distinction matters.**
+Neither the full suite nor the parity and delta halves were measured at this slice's tip. They are
+green *over* it: slice 03 measured 1453/0/0/16 in 158 classes, parity 255 in 24 classes with 0
+failures and 1 skipped, and deltas 8/0/0/0, on a tree that contains this class. `STATUS.md` carries
+the reconstruction, including the four-test gap between the arithmetic's 1448 and the 1444 implied
+for this tip - a gap this slice cannot have caused, since it added one test file and touched no
+other.
