@@ -182,6 +182,40 @@ public class NegotiationControllerTests {
         .andExpect(status().isBadRequest());
   }
 
+  /**
+   * The status filter refuses a name no State carries with a 400. An unvalidated list of names
+   * would return an empty page instead, which reads as "no such Negotiations" rather than "no such
+   * status".
+   */
+  @Test
+  @WithUserDetails("admin")
+  void getAllForAdministrator_whenUnknownStatus_badRequest() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?status=NOT_A_STATE"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status", is(400)))
+        .andExpect(jsonPath("$.title", is("Wrong request parameters")))
+        .andExpect(jsonPath("$.detail", org.hamcrest.Matchers.startsWith("{status=")));
+  }
+
+  /** The same refusal on the per-user listing, which binds the same filter object. */
+  @Test
+  @WithUserDetails("admin")
+  void getAllForUser_whenUnknownStatus_badRequest() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/users/101/negotiations?status=NOT_A_STATE"))
+        .andExpect(status().isBadRequest());
+  }
+
+  /** The status filter accepts a known State name. */
+  @Test
+  @WithUserDetails("admin")
+  void getAllForAdministrator_whenKnownStatus_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?status=IN_PROGRESS"))
+        .andExpect(status().isOk());
+  }
+
   /** It tests that using an unknown param it returns 400 Bad Request */
   @Test
   @WithUserDetails("admin")

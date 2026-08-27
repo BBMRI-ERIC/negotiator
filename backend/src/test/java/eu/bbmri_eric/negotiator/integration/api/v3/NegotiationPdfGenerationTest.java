@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.pdf.PdfContextBuilder;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +58,61 @@ class NegotiationPdfGenerationTest {
   @Autowired private AttachmentConversionService conversionService;
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private ResourceRepository resourceRepository;
+  @Autowired private PdfContextBuilder pdfContextBuilder;
   @Autowired private MockMvc mockMvc;
+
+  /**
+   * The summary shows the Negotiation's State by its name, not its label. Neither PDF source file
+   * names a Lifecycle enum, so both compile whether the template variable holds an enum or a name,
+   * and only the rendered document shows which one it got.
+   *
+   * <p>{@code negotiation-1} is seeded {@code IN_PROGRESS}, whose label is "In Progress", so a
+   * variable that renders the label fails here.
+   */
+  @Test
+  @WithUserDetails("TheResearcher")
+  void generateNegotiationPdf_rendersTheStateName_notItsLabel() throws Exception {
+    MvcResult result =
+        mockMvc.perform(get(PDF_ENDPOINT, NEGOTIATION_1_ID)).andExpect(status().isOk()).andReturn();
+
+    String text = textOf(result.getResponse().getContentAsByteArray());
+
+    assertTrue(
+        text.contains("IN_PROGRESS"),
+        "The PDF summary does not show the State name of negotiation-1. Rendered text:\n"
+            + text);
+    assertFalse(
+        text.contains("In Progress"),
+        "The PDF summary shows the State's label instead of its name.");
+  }
+
+  /**
+   * The PDF context builder is the other place that puts the State into a template variable. No
+   * production code calls it, so no other test would catch a change here.
+   */
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void pdfContextBuilder_rendersTheStateName_notItsLabel() {
+    String html =
+        pdfContextBuilder.createPdfContent(
+            negotiationRepository.findById(NEGOTIATION_1_ID).orElseThrow(),
+            "PDF_NEGOTIATION_SUMMARY");
+
+    assertTrue(
+        html.contains(">IN_PROGRESS<"),
+        "The rendered summary does not show the State name in its status badge. Rendered:\n"
+            + html);
+    assertFalse(
+        html.contains("In Progress"),
+        "The rendered summary shows the State's label instead of its name.");
+  }
+
+  private static String textOf(byte[] pdf) throws Exception {
+    try (PDDocument document = Loader.loadPDF(pdf)) {
+      return new PDFTextStripper().getText(document);
+    }
+  }
 
   @Test
   @WithUserDetails("TheResearcher")
