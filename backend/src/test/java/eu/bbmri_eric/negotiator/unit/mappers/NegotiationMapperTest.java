@@ -18,7 +18,9 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -93,6 +95,34 @@ public class NegotiationMapperTest {
   void map_statePerResource_Ok() {
     Negotiation negotiation = buildNegotiation();
     negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
+  }
+
+  @Test
+  void map_absentCurrentState_statusIsEmptyString() {
+    Negotiation negotiation = Negotiation.builder().humanReadable("#1 Material Type: DNA").build();
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    assertEquals("", negotiationDTO.getStatus());
+  }
+
+  /**
+   * The payload-updatable rule decides whether the Negotiation carries an {@code Update} link, and
+   * it is a comparison against three State names rather than a lookup. Pinned over the whole closed
+   * set while that set still exists, so that a name changing meaning shows up as a failure here.
+   */
+  @Test
+  void payloadUpdatable_admitsExactlyDraftSubmittedAndInProgress() {
+    Set<String> updatable =
+        Arrays.stream(NegotiationState.values())
+            .map(NegotiationState::name)
+            .filter(name -> NegotiationDTO.builder().status(name).build().isPayloadUpdatable())
+            .collect(Collectors.toSet());
+    assertEquals(Set.of("DRAFT", "SUBMITTED", "IN_PROGRESS"), updatable);
+  }
+
+  @Test
+  void payloadUpdatable_unknownOrAbsentStatus_isFalse() {
+    assertFalse(NegotiationDTO.builder().status("UNKNOWN").build().isPayloadUpdatable());
+    assertFalse(NegotiationDTO.builder().build().isPayloadUpdatable());
   }
 
   @Test
