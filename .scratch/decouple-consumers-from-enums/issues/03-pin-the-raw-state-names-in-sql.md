@@ -38,17 +38,22 @@ Nothing in this slice changes a query. The SQL is deliberately untouched by this
       `NegotiationRepository:35` is a text block too. The point stands more strongly than stated:
       a `"DRAFT"` regex finds zero of the fourteen.
 - [x] The guard fails when a literal is added, removed or moved, with a message naming the file and
-      line and saying what the reader must decide. Moves are paired explicitly (`:28 -> :29`), so a
-      single inserted import does not present as eleven deletions plus eleven additions. All three
+      line and saying what the reader must decide. Moves are paired nearest-line-first (`:28 ->
+      :29`), so a single inserted import does not present as eleven deletions plus eleven additions,
+      and a name occurring three times in one file cannot pair with the wrong occurrence. All three
       failure modes were exercised against perturbed sources and then reverted.
 - [x] An anti-vacuity test fails if the scan root resolves wrongly or the walk returns nothing.
-      Both were exercised: a wrong `PRODUCTION_SOURCE_PATH` throws `IllegalStateException`, and the
-      435-file walk is asserted against a floor of 100.
+      Both halves are standing tests, not one-off checks:
+      `resolvingTheScanRoot_failsRatherThanFindingNothing` asks the resolution step for a directory
+      that does not exist and asserts it refuses by name, and `guard_scansTheTreeItClaimsToPin`
+      holds the 435-file walk against a floor of 100 and asserts the scan comes back non-empty.
 - [x] The unquoted JPQL reference is recorded separately, with its different failure mode stated.
       `UNQUOTED_JPQL_REFERENCE`, plus `theUnquotedReference_isStillBare` — which fails if anyone
       quotes it, trading Hibernate's startup rejection for a filter that matches nothing.
 - [x] No query text is changed anywhere in this slice. `git status` shows one added test file.
-- [ ] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
+- [x] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0. Suite 1450/0/0/16 across
+      158 classes, every report rewritten by the run; parity 255 in 24 classes, 0 failures, 1
+      skipped; deltas 8/0/0/0.
 
 ## Notes
 
@@ -79,8 +84,8 @@ have no production caller at all.
 
 **This guard outlives the slab.** Two downstream slabs consume what it records: the migration slab's
 seed must satisfy these names, and ADR 0008's conversion of the audit table's column to a foreign
-key breaks the four literals that filter on it. One of them is named in both places, so it breaks
-twice, in two different slabs.
+key breaks the ~~four~~ **six** literals that filter on it (corrected above). Those six are named in
+both places, so they break twice, in two different slabs.
 
 ## Blocked by
 

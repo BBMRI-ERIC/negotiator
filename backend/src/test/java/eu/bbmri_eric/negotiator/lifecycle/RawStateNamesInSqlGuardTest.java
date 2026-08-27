@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.lifecycle;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -13,6 +15,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,8 +27,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Records every State and Event name that reaches the database as query text, so that "it builds"
- * stops being mistaken for evidence that this slab is done.
+ * Records every State name that reaches the database as query text, so that "it builds" stops being
+ * mistaken for evidence that this slab is done. The scan looks for Event names too - the vocabulary
+ * is all four enums - and today finds none in a query; an Event name appearing in one would be
+ * reported like any other addition.
  *
  * <p>Fourteen names are spelled inside a query rather than referenced through a Java type. The
  * compiler sees none of them. Deleting the four Lifecycle enums produces no error at any of these
@@ -111,15 +116,27 @@ class RawStateNamesInSqlGuardTest {
       implements Comparable<Coordinates> {
 
     /** Same query, same name, same quoting - so a difference in {@code line} is a move. */
-    private boolean isSameNameAs(Coordinates other) {
+    private boolean isSameLiteralAs(Coordinates other) {
       return file.equals(other.file) && name.equals(other.name) && spelling == other.spelling;
     }
 
+    private int linesAwayFrom(Coordinates other) {
+      return Math.abs(line - other.line);
+    }
+
+    /** Ordered on every component, so that ordering and {@code equals} cannot disagree. */
     @Override
     public int compareTo(Coordinates other) {
       int byFile = file.compareTo(other.file);
-      int byLine = byFile != 0 ? byFile : Integer.compare(line, other.line);
-      return byLine != 0 ? byLine : name.compareTo(other.name);
+      if (byFile != 0) {
+        return byFile;
+      }
+      int byLine = Integer.compare(line, other.line);
+      if (byLine != 0) {
+        return byLine;
+      }
+      int byName = name.compareTo(other.name);
+      return byName != 0 ? byName : spelling.compareTo(other.spelling);
     }
 
     @Override
@@ -419,6 +436,29 @@ class RawStateNamesInSqlGuardTest {
   }
 
   @Test
+  @DisplayName("a scan root that resolves wrongly refuses rather than scanning nothing")
+  void resolvingTheScanRoot_failsRatherThanFindingNothing() {
+    IllegalStateException refused =
+        assertThrows(
+            IllegalStateException.class,
+            () -> moduleHolding("src/main/nowhere", NEGOTIATOR_PACKAGE_PATH),
+            """
+            Asked for a source directory that does not exist, the resolution step returned a path
+            instead of refusing. Everything this guard reports is relative to that path, so a wrong
+            one walks an empty tree, finds no literal, and reports green over a codebase it never
+            looked at.""");
+    assertTrue(
+        refused.getMessage().contains("src/main/nowhere"),
+        "The refusal must name the path it could not find, or it cannot be acted on: "
+            + refused.getMessage());
+
+    assertEquals(
+        moduleRoot().resolve(PRODUCTION_SOURCE_PATH),
+        productionRoot(),
+        "The real scan root must still resolve through the same step the wrong one was refused by.");
+  }
+
+  @Test
   @DisplayName("the query rule separates query text from prose that names a State")
   void theQueryRule_matchesQueriesAndNotProse() {
     assertTrue(
@@ -520,6 +560,10 @@ class RawStateNamesInSqlGuardTest {
    * spelling, are one literal that moved - almost always because a line was inserted above it. They
    * are paired first, so that a single added import does not present as eleven deletions and eleven
    * additions and leave the reader to diff two lists by eye.
+   *
+   * <p>Pairing is nearest-line-first rather than first-match. {@code REPRESENTATIVE_CONTACTED}
+   * appears three times in one file and {@code RESOURCE_MADE_AVAILABLE} twice, so first-match can
+   * report line 28 as having moved to line 216 - true of the multiset, useless to the reader.
    */
   private static String report(List<Coordinates> unrecorded, List<Coordinates> vanished) {
     List<Coordinates> added = new ArrayList<>(unrecorded);
@@ -527,8 +571,8 @@ class RawStateNamesInSqlGuardTest {
     List<String> moved = new ArrayList<>();
     for (Coordinates from : vanished) {
       added.stream()
-          .filter(from::isSameNameAs)
-          .findFirst()
+          .filter(from::isSameLiteralAs)
+          .min(Comparator.comparingInt(from::linesAwayFrom))
           .ifPresent(
               to -> {
                 moved.add(
@@ -721,12 +765,21 @@ class RawStateNamesInSqlGuardTest {
    * immutable by checksum - it cannot move, and pinning it would say nothing a reader could act on.
    */
   private static Path moduleRoot() {
+    return moduleHolding(PRODUCTION_SOURCE_PATH, NEGOTIATOR_PACKAGE_PATH);
+  }
+
+  /**
+   * Takes its two path components as arguments rather than reading the constants, so that {@link
+   * #resolvingTheScanRoot_failsRatherThanFindingNothing()} can ask for a directory that does not
+   * exist and see it refuse. A resolution step that can only ever be run against the real tree is a
+   * step whose failure branch nobody has watched work.
+   */
+  private static Path moduleHolding(String sourcePath, String packagePath) {
     Path start = Path.of("").toAbsolutePath();
     for (Path candidate = start; candidate != null; candidate = candidate.getParent()) {
       for (String modulePrefix : List.of("", "backend")) {
         Path module = candidate.resolve(modulePrefix);
-        if (Files.isDirectory(
-            module.resolve(PRODUCTION_SOURCE_PATH).resolve(NEGOTIATOR_PACKAGE_PATH))) {
+        if (Files.isDirectory(module.resolve(sourcePath).resolve(packagePath))) {
           return module;
         }
       }
@@ -734,7 +787,7 @@ class RawStateNamesInSqlGuardTest {
     throw new IllegalStateException(
         ("Could not locate a module holding %s/%s from working directory %s."
                 + " The guard must never pass by finding nothing.")
-            .formatted(PRODUCTION_SOURCE_PATH, NEGOTIATOR_PACKAGE_PATH, start));
+            .formatted(sourcePath, packagePath, start));
   }
 
   private static Path productionRoot() {
