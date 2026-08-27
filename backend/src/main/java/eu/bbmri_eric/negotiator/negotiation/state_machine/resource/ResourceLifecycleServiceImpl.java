@@ -131,6 +131,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       String negotiationId, String resourceId) throws EntityNotFoundException {
     return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
+        .map(NegotiationResourceState::valueOf)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
@@ -140,7 +141,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
         negotiationRepository
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
+    if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS.name())) {
       return Set.of();
     }
     return stateMachine.getTransitions().stream()

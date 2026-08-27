@@ -92,10 +92,6 @@ public class ResourceServiceImpl implements ResourceService {
     return WellKnownResourceStates.SUBMITTED.equals(state) && before == null;
   }
 
-  private static String nameOf(Enum<?> value) {
-    return value == null ? null : value.name();
-  }
-
   private static void addAnyNewResourcesToNegotiation(
       Set<Resource> resourcesToUpdate, Negotiation negotiation) {
     if (!negotiation.getResources().containsAll(resourcesToUpdate)) {
@@ -104,7 +100,7 @@ public class ResourceServiceImpl implements ResourceService {
                   .getCreatedBy()
                   .getId()
                   .equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
-              && nameOf(negotiation.getCurrentState()).equals(WellKnownNegotiationStates.DRAFT))) {
+              && negotiation.getCurrentState().equals(WellKnownNegotiationStates.DRAFT))) {
         throw new ForbiddenRequestException("You are not allowed to perform this action");
       }
       Set<Resource> newNegotiationResources = new HashSet<>(negotiation.getResources());
@@ -162,11 +158,11 @@ public class ResourceServiceImpl implements ResourceService {
     Negotiation negotiation = fetchNegotiationFromDB(negotiationId);
     Set<Resource> resourcesToUpdate = fetchResourcesFromDB(updateResourcesDTO.getResourceIds());
     addAnyNewResourcesToNegotiation(resourcesToUpdate, negotiation);
-    if (!nameOf(negotiation.getCurrentState()).equals(WellKnownNegotiationStates.DRAFT)) {
+    if (!negotiation.getCurrentState().equals(WellKnownNegotiationStates.DRAFT)) {
       setStatusForUpdatedResources(negotiation, resourcesToUpdate, updateResourcesDTO.getState());
     }
     negotiationRepository.saveAndFlush(negotiation);
-    if (nameOf(negotiation.getCurrentState()).equals(WellKnownNegotiationStates.IN_PROGRESS)) {
+    if (negotiation.getCurrentState().equals(WellKnownNegotiationStates.IN_PROGRESS)) {
       applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
     }
     return getResourceWithStatusDTOS(negotiationId);
@@ -179,7 +175,7 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   private void updateResourceStatus(Negotiation negotiation, String state, Resource resource) {
-    String before = nameOf(negotiation.getCurrentStateForResource(resource.getSourceId()));
+    String before = negotiation.getCurrentStateForResource(resource.getSourceId());
     if (isUninitialized(state, before)) {
       negotiation.setStateForResource(resource.getSourceId(), state);
     } else if (isStateMachineInitialized(state)) {

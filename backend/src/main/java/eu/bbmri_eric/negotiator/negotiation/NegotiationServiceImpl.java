@@ -12,13 +12,13 @@ import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
@@ -230,8 +230,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
-  public Iterable<NegotiationDTO> findAllByCurrentStatus(
-      Pageable pageable, NegotiationState state) {
+  public Iterable<NegotiationDTO> findAllByCurrentStatus(Pageable pageable, String state) {
     return negotiationRepository
         .findAll(NegotiationSpecification.hasState(List.of(state), false), pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
@@ -356,9 +355,9 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
-  public List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState) {
+  public List<NegotiationDTO> findAllWithCurrentState(String stateName) {
     return negotiationRepository
-        .findAll(NegotiationSpecification.hasState(List.of(negotiationState), false))
+        .findAll(NegotiationSpecification.hasState(List.of(stateName), false))
         .stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
@@ -370,7 +369,7 @@ public class NegotiationServiceImpl implements NegotiationService {
         && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException("You are not allowed to delete this entity");
     }
-    if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
+    if (!WellKnownNegotiationStates.DRAFT.equals(negotiation.getCurrentState())) {
       throw new ConflictStatusException("Cannot delete a Negotiation that is not in DRAFT state");
     }
     negotiationRepository.delete(negotiation);
@@ -390,7 +389,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       throw new ForbiddenRequestException(
           "Only the negotiation author can remove resources from a draft negotiation");
     }
-    if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
+    if (!WellKnownNegotiationStates.DRAFT.equals(negotiation.getCurrentState())) {
       throw new IllegalStateException(
           "Resources can only be removed from negotiations in DRAFT state");
     }

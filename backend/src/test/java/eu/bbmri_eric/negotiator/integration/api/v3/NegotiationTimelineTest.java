@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
@@ -61,8 +60,7 @@ class NegotiationTimelineTest {
             .orElseThrow(() -> new EntityNotFoundException("Negotiation not found"));
     assertFalse(negotiation.getNegotiationResourceLifecycleRecords().isEmpty());
     negotiation.setStateForResource(
-        negotiation.getResources().stream().findFirst().get().getSourceId(),
-        NegotiationResourceState.RESOURCE_AVAILABLE);
+        negotiation.getResources().stream().findFirst().get().getSourceId(), "RESOURCE_AVAILABLE");
     assertFalse(negotiation.getLifecycleHistory().isEmpty());
 
     // Act & Assert: Perform the request and verify the response
@@ -98,9 +96,9 @@ class NegotiationTimelineTest {
             .findById("negotiation-1")
             .orElseThrow(() -> new EntityNotFoundException("Negotiation not found"));
     String sourceId = negotiation.getResources().stream().findFirst().get().getSourceId();
-    negotiation.setStateForResource(sourceId, NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    negotiation.setStateForResource(sourceId, NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
-    negotiation.setStateForResource(sourceId, NegotiationResourceState.CHECKING_AVAILABILITY);
+    negotiation.setStateForResource(sourceId, "REPRESENTATIVE_CONTACTED");
+    negotiation.setStateForResource(sourceId, "REPRESENTATIVE_UNREACHABLE");
+    negotiation.setStateForResource(sourceId, "CHECKING_AVAILABILITY");
 
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/timeline"))

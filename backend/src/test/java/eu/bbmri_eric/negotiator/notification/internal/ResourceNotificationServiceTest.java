@@ -8,8 +8,6 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.lifecycle.WellKnownResourceStates;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -55,7 +53,7 @@ class ResourceNotificationServiceTest {
   void notifyResourceRepresentatives_WhenNegotiationNotInProgress_DoesNotProcessResources() {
     String negotiationId = "NEG-123";
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
-    when(negotiation.getCurrentState()).thenReturn(NegotiationState.SUBMITTED);
+    when(negotiation.getCurrentState()).thenReturn("SUBMITTED");
 
     service.notifyResourceRepresentatives(negotiationId);
 
@@ -69,7 +67,7 @@ class ResourceNotificationServiceTest {
     Person rep1 = createPerson(1L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
-    when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);
+    when(negotiation.getCurrentState()).thenReturn("IN_PROGRESS");
     when(negotiation.getResources()).thenReturn(Set.of(resource1, resource2));
 
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -77,7 +75,7 @@ class ResourceNotificationServiceTest {
 
     // resource1 already has a state, resource2 doesn't
     when(negotiation.getCurrentStateForResource("resource-1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .thenReturn("REPRESENTATIVE_CONTACTED");
     when(negotiation.getCurrentStateForResource("resource-2")).thenReturn(null);
 
     when(resource2.getRepresentatives()).thenReturn(Set.of(rep1));
@@ -103,7 +101,7 @@ class ResourceNotificationServiceTest {
     String negotiationId = "NEG-123";
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
-    when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);
+    when(negotiation.getCurrentState()).thenReturn("IN_PROGRESS");
     when(negotiation.getResources()).thenReturn(Set.of(resource1, resource2));
 
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -133,7 +131,7 @@ class ResourceNotificationServiceTest {
     Person rep2 = createPerson(2L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
-    when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);
+    when(negotiation.getCurrentState()).thenReturn("IN_PROGRESS");
     when(negotiation.getResources()).thenReturn(Set.of(resource1, resource2));
 
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -170,7 +168,7 @@ class ResourceNotificationServiceTest {
     Person rep1 = createPerson(1L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
-    when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);
+    when(negotiation.getCurrentState()).thenReturn("IN_PROGRESS");
     when(negotiation.getResources()).thenReturn(Set.of(resource1, resource2, resource3));
 
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -183,7 +181,7 @@ class ResourceNotificationServiceTest {
 
     // resource2: already has state (should be skipped)
     when(negotiation.getCurrentStateForResource("resource-2"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .thenReturn("REPRESENTATIVE_CONTACTED");
 
     // resource3: no state, no representatives
     when(negotiation.getCurrentStateForResource("resource-3")).thenReturn(null);
@@ -212,7 +210,7 @@ class ResourceNotificationServiceTest {
     Person rep1 = createPerson(1L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
-    when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);
+    when(negotiation.getCurrentState()).thenReturn("IN_PROGRESS");
     when(negotiation.getResources()).thenReturn(Set.of(resource1));
 
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -245,7 +243,7 @@ class ResourceNotificationServiceTest {
     Person rep1 = createPerson(1L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
-    when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);
+    when(negotiation.getCurrentState()).thenReturn("IN_PROGRESS");
     when(negotiation.getResources()).thenReturn(Set.of(resource1, resource2));
 
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -278,7 +276,7 @@ class ResourceNotificationServiceTest {
     String negotiationId = "NEG-123";
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
-    when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);
+    when(negotiation.getCurrentState()).thenReturn("IN_PROGRESS");
     when(negotiation.getResources()).thenReturn(Set.of(resource1, resource2));
 
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -286,9 +284,9 @@ class ResourceNotificationServiceTest {
 
     // Both resources already have states
     when(negotiation.getCurrentStateForResource("resource-1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .thenReturn("REPRESENTATIVE_CONTACTED");
     when(negotiation.getCurrentStateForResource("resource-2"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+        .thenReturn("REPRESENTATIVE_UNREACHABLE");
 
     service.notifyResourceRepresentatives(negotiationId);
 

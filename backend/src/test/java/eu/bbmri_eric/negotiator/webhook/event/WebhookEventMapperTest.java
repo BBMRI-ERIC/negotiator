@@ -106,8 +106,7 @@ class WebhookEventMapperTest {
 
   @Test
   void map_whenNewNegotiationEventIsSubmitted_returnsStableEventTypeAndData() {
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, "negotiation-3", NegotiationState.SUBMITTED);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, "negotiation-3", "SUBMITTED");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -120,8 +119,7 @@ class WebhookEventMapperTest {
 
   @Test
   void map_whenNewNegotiationEventIsDraft_returnsEmpty() {
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, "negotiation-3", NegotiationState.DRAFT);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, "negotiation-3", "DRAFT");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -232,8 +230,7 @@ class WebhookEventMapperTest {
 
   @Test
   void map_whenNewNegotiationEvent_serialisesStateNameAsJsonString() throws Exception {
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, "negotiation-3", NegotiationState.SUBMITTED);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, "negotiation-3", "SUBMITTED");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 

@@ -34,8 +34,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -1257,7 +1255,7 @@ public class NegotiationControllerTests {
         negotiationRepository.findById("negotiation-1").orElseThrow(TestAbortedException::new);
     negotiation.setResources(resources);
     for (Resource resource : resources) {
-      negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.SUBMITTED);
+      negotiation.setStateForResource(resource.getSourceId(), "SUBMITTED");
     }
     negotiationRepository.save(negotiation);
     mockMvc
@@ -1520,8 +1518,7 @@ public class NegotiationControllerTests {
   void addResources_resourcesAlreadyPresent_noChange() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     negotiation.setStateForResource(
-        negotiation.getResources().iterator().next().getSourceId(),
-        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+        negotiation.getResources().iterator().next().getSourceId(), "REPRESENTATIVE_UNREACHABLE");
     MvcResult result =
         mockMvc
             .perform(
@@ -1544,7 +1541,7 @@ public class NegotiationControllerTests {
     for (JsonNode resourceAsJson : resourcesAsJson) {
       assertEquals(
           negotiation.getCurrentStateForResource(resourceAsJson.get("sourceId").asText()),
-          NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
+          resourceAsJson.get("currentState").asText());
     }
   }
 
@@ -1553,7 +1550,7 @@ public class NegotiationControllerTests {
   @Transactional
   void addResources_presentResourcesWithStatusUpdate_statusChanged() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
-    String expectedState = NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name();
+    String expectedState = "RESOURCE_MADE_AVAILABLE";
     List<Long> resourceIds = negotiation.getResources().stream().map(Resource::getId).toList();
     UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds, expectedState);
     MvcResult result =
@@ -1604,7 +1601,7 @@ public class NegotiationControllerTests {
     UpdateResourcesDTO updateResourcesDTO =
         new UpdateResourcesDTO(
             resources.stream().map(Resource::getId).collect(Collectors.toList()),
-            NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name());
+            "RESOURCE_MADE_AVAILABLE");
     mockMvc
         .perform(
             MockMvcRequestBuilders.patch(
@@ -1620,7 +1617,7 @@ public class NegotiationControllerTests {
   void addResources_draftStatus_userCanAddResources() throws Exception {
     // Get a negotiation created by TheResearcher and set it to DRAFT status
     Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_1_ID).get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     negotiationRepository.saveAndFlush(negotiation);
 
     // Get the initial count of resources
@@ -1690,7 +1687,7 @@ public class NegotiationControllerTests {
   void removeResource_draftStatus_multipleResources_userCanRemoveResource() throws Exception {
     // negotiation-5 belongs to TheResearcher and has 2 resources (ids 5 and 7)
     Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     negotiationRepository.saveAndFlush(negotiation);
 
     int initialResourceCount = negotiation.getResources().size();
@@ -1717,7 +1714,7 @@ public class NegotiationControllerTests {
   @Transactional
   void removeResource_draftStatus_onlyOneResourceLeft_throwsBadRequest() throws Exception {
     Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     negotiationRepository.saveAndFlush(negotiation);
     Long resourceIdToRemove = negotiation.getResources().iterator().next().getId();
     mockMvc.perform(
@@ -1860,7 +1857,7 @@ public class NegotiationControllerTests {
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testDelete_ok_whenAdmin() throws Exception {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     negotiationRepository.save(negotiation);
 
     mockMvc

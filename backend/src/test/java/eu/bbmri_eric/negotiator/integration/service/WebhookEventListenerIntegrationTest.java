@@ -303,8 +303,7 @@ class WebhookEventListenerIntegrationTest {
     wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-one")));
     wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-two")));
 
-    eventPublisher.publishEvent(
-        new NewNegotiationEvent(this, "negotiation-4", NegotiationState.SUBMITTED));
+    eventPublisher.publishEvent(new NewNegotiationEvent(this, "negotiation-4", "SUBMITTED"));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -355,8 +354,7 @@ class WebhookEventListenerIntegrationTest {
     wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-draft-one")));
     wireMockServer.stubFor(post(urlEqualTo("/new-negotiation-draft-two")));
 
-    eventPublisher.publishEvent(
-        new NewNegotiationEvent(this, "negotiation-7", NegotiationState.DRAFT));
+    eventPublisher.publishEvent(new NewNegotiationEvent(this, "negotiation-7", "DRAFT"));
 
     await()
         .atMost(Duration.ofSeconds(5))

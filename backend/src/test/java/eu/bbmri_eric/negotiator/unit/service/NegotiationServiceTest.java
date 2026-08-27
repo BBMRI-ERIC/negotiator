@@ -30,7 +30,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
@@ -84,7 +83,7 @@ public class NegotiationServiceTest {
 
     return Negotiation.builder()
         .resources(resources)
-        .currentState(NegotiationState.SUBMITTED)
+        .currentState("SUBMITTED")
         .humanReadable("#1 Material Type: DNA")
         .build();
   }
@@ -172,7 +171,7 @@ public class NegotiationServiceTest {
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
     negotiation.setId("negotiation-1");
-    negotiation.setCurrentState(NegotiationState.SUBMITTED);
+    negotiation.setCurrentState("SUBMITTED");
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     NegotiationDTO savedDTO = new NegotiationDTO();
@@ -187,7 +186,7 @@ public class NegotiationServiceTest {
         ArgumentCaptor.forClass(NewNegotiationEvent.class);
     verify(eventPublisher).publishEvent(eventCaptor.capture());
     assertEquals("negotiation-1", eventCaptor.getValue().getNegotiationId());
-    assertEquals(NegotiationState.SUBMITTED, eventCaptor.getValue().getCurrentState());
+    assertEquals("SUBMITTED", eventCaptor.getValue().getCurrentState());
   }
 
   @Test
@@ -199,7 +198,7 @@ public class NegotiationServiceTest {
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
     negotiation.setId("negotiation-2");
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     NegotiationDTO savedDTO = new NegotiationDTO();
@@ -214,7 +213,7 @@ public class NegotiationServiceTest {
         ArgumentCaptor.forClass(NewNegotiationEvent.class);
     verify(eventPublisher).publishEvent(eventCaptor.capture());
     assertEquals("negotiation-2", eventCaptor.getValue().getNegotiationId());
-    assertEquals(NegotiationState.DRAFT, eventCaptor.getValue().getCurrentState());
+    assertEquals("DRAFT", eventCaptor.getValue().getCurrentState());
   }
 
   @Test
@@ -278,14 +277,13 @@ public class NegotiationServiceTest {
     NegotiationDTO negotiationDTO =
         NegotiationDTO.builder()
             .id(negotiation.getId())
-            .status(negotiation.getCurrentState().name())
+            .status(negotiation.getCurrentState())
             .build();
     when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(negotiationDTO);
     when(negotiationRepository.findAll(any(Specification.class))).thenReturn(List.of(negotiation));
-    assertEquals(1, negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).size());
+    assertEquals(1, negotiationService.findAllWithCurrentState("SUBMITTED").size());
     assertEquals(
-        NegotiationState.SUBMITTED.name(),
-        negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).get(0).getStatus());
+        "SUBMITTED", negotiationService.findAllWithCurrentState("SUBMITTED").get(0).getStatus());
   }
 
   @Test
@@ -301,7 +299,7 @@ public class NegotiationServiceTest {
     request.setResources(Set.of(new Resource()));
     negotiation.setId("negotiation-id");
     negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
 
     when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
     when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(false);
@@ -323,7 +321,7 @@ public class NegotiationServiceTest {
     request.setResources(Set.of(new Resource()));
     negotiation.setId("negotiation-id");
     negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.SUBMITTED);
+    negotiation.setCurrentState("SUBMITTED");
 
     when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
     when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
@@ -345,7 +343,7 @@ public class NegotiationServiceTest {
     request.setResources(Set.of(new Resource()));
     negotiation.setId("negotiation-id");
     negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.SUBMITTED);
+    negotiation.setCurrentState("SUBMITTED");
 
     when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
     when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.empty());
@@ -367,7 +365,7 @@ public class NegotiationServiceTest {
     request.setResources(Set.of(new Resource()));
     negotiation.setId("negotiation-id");
     negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
 
     when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
     when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
@@ -386,7 +384,7 @@ public class NegotiationServiceTest {
     request.setResources(Set.of(new Resource()));
     negotiation.setId("negotiation-id");
     negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
 
     when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(false);
     when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));

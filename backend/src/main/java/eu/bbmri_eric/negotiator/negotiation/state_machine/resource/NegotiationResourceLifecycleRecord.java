@@ -38,6 +38,25 @@ public class NegotiationResourceLifecycleRecord extends AuditEntity
   @Enumerated(EnumType.STRING)
   private NegotiationResourceState changedTo;
 
+  /**
+   * A record of a Resource reaching the State with this name.
+   *
+   * <p>The sibling of {@link
+   * eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleRecord#forStateNamed},
+   * and there for the same reason: the link entity carries a name, this row still stores an enum,
+   * and the translation belongs where the enum does.
+   *
+   * @param resource the Resource whose State changed
+   * @param stateName the name of the State reached, or null
+   */
+  public static NegotiationResourceLifecycleRecord forStateNamed(
+      Resource resource, String stateName) {
+    return NegotiationResourceLifecycleRecord.builder()
+        .resource(resource)
+        .changedTo(stateName == null ? null : NegotiationResourceState.valueOf(stateName))
+        .build();
+  }
+
   @Override
   public String getTriggeredBy() {
     return getCreatedBy().getName();

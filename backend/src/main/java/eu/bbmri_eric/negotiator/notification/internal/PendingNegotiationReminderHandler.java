@@ -65,7 +65,7 @@ class PendingNegotiationReminderHandler
 
     for (Resource resource : negotiation.getResources()) {
       if (WellKnownResourceStates.REPRESENTATIVE_CONTACTED.equals(
-          nameOf(negotiation.getCurrentStateForResource(resource.getSourceId())))) {
+          negotiation.getCurrentStateForResource(resource.getSourceId()))) {
         representatives.addAll(resource.getRepresentatives());
       }
     }

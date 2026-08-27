@@ -1,7 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,9 +17,9 @@ public interface NegotiationRepository
   Optional<Negotiation> findDetailedById(String id);
 
   @Query(value = "SELECT currentState from Negotiation where id = :id")
-  Optional<NegotiationState> findNegotiationStateById(String id);
+  Optional<String> findNegotiationStateById(String id);
 
-  List<Negotiation> findAllByCurrentState(NegotiationState state);
+  List<Negotiation> findAllByCurrentState(String state);
 
   @Query(
       value =
@@ -47,8 +45,7 @@ public interface NegotiationRepository
           JOIN rl.id.resource
           WHERE n.id = :negotiationId AND rl.id.resource.sourceId = :resourceId
         """)
-  Optional<NegotiationResourceState> findNegotiationResourceStateById(
-      String negotiationId, String resourceId);
+  Optional<String> findNegotiationResourceStateById(String negotiationId, String resourceId);
 
   boolean existsByIdAndCreatedBy_Id(String negotiationId, Long personId);
 
@@ -71,14 +68,10 @@ public interface NegotiationRepository
               + "JOIN n.resourcesLink rl "
               + "JOIN rl.id.resource rs "
               + "JOIN rs.networks net "
-              + "WHERE net.id = :networkId and n.currentState != DRAFT and "
+              + "WHERE net.id = :networkId and n.currentState != 'DRAFT' and "
               + "DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until")
   Integer countAllNotDraftForNetwork(LocalDate since, LocalDate until, Long networkId);
 
   @Query(value = "SELECT n FROM Negotiation n WHERE FUNCTION('DATE', n.creationDate) = :targetDate")
   Set<Negotiation> findAllCreatedOn(LocalDateTime targetDate);
-
-  default List<Negotiation> findAllByCurrentState(String stateName) {
-    return findAllByCurrentState(stateName == null ? null : NegotiationState.valueOf(stateName));
-  }
 }

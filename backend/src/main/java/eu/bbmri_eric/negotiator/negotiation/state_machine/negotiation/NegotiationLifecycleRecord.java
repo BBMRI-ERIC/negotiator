@@ -31,6 +31,24 @@ public final class NegotiationLifecycleRecord extends AuditEntity
   @Enumerated(EnumType.STRING)
   private NegotiationState changedTo;
 
+  /**
+   * A record of the Negotiation reaching the State with this name.
+   *
+   * <p>{@link eu.bbmri_eric.negotiator.negotiation.Negotiation} carries its State as a name now
+   * while this row still stores an enum - the audit column belongs to ADR 0008, not to this slab -
+   * so the translation has to happen somewhere, and it happens here, inside the package the enums
+   * live in. It is deliberately the loud kind: a name no State carries fails at this call rather
+   * than reaching the history table. Null is preserved, because a Negotiation with no State
+   * recorded a row with no State before.
+   *
+   * @param stateName the name of the State reached, or null
+   */
+  public static NegotiationLifecycleRecord forStateNamed(String stateName) {
+    return NegotiationLifecycleRecord.builder()
+        .changedTo(stateName == null ? null : NegotiationState.valueOf(stateName))
+        .build();
+  }
+
   @Override
   public String getTriggeredBy() {
     return getCreatedBy().getName();

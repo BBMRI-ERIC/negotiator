@@ -16,8 +16,6 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSpecification;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.post.PostType;
@@ -190,7 +188,7 @@ public class NegotiationRepositoryTest {
     Negotiation negotiation =
         Negotiation.builder()
             .resources(new HashSet<>(resources))
-            .currentState(NegotiationState.SUBMITTED)
+            .currentState("SUBMITTED")
             .publicPostsEnabled(false)
             .humanReadable("#1 Material Type: DNA")
             .discoveryService(discoveryService)
@@ -216,29 +214,29 @@ public class NegotiationRepositoryTest {
         negotiation.getId(),
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED), false),
+                NegotiationSpecification.hasState(List.of("SUBMITTED"), false),
                 PageRequest.of(0, 10, Sort.by("id")))
             .get()
             .iterator()
             .next()
             .getId());
     assertEquals(
-        NegotiationState.SUBMITTED,
+        "SUBMITTED",
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED), false),
+                NegotiationSpecification.hasState(List.of("SUBMITTED"), false),
                 PageRequest.of(0, 10, Sort.by("id")))
             .get()
             .iterator()
             .next()
             .getCurrentState());
-    negotiation.setCurrentState(NegotiationState.APPROVED);
+    negotiation.setCurrentState("APPROVED");
     negotiationRepository.save(negotiation);
     assertEquals(
         0,
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED), false),
+                NegotiationSpecification.hasState(List.of("SUBMITTED"), false),
                 PageRequest.of(0, 10, Sort.by("id")))
             .getNumberOfElements());
   }
@@ -266,7 +264,7 @@ public class NegotiationRepositoryTest {
         1,
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED), false),
+                NegotiationSpecification.hasState(List.of("SUBMITTED"), false),
                 PageRequest.of(0, 10))
             .getNumberOfElements());
   }
@@ -359,9 +357,8 @@ public class NegotiationRepositoryTest {
   void findIgnoredInNetwork_oneResource_ok() {
     saveNegotiation();
     Negotiation negotiation = negotiationRepository.findAll().get(0);
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiation.setCurrentState("IN_PROGRESS");
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_CONTACTED");
     assertEquals(1, negotiationRepository.count());
     assertEquals(
         1,
@@ -374,20 +371,18 @@ public class NegotiationRepositoryTest {
             .getNetworks()
             .size());
     assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        "REPRESENTATIVE_CONTACTED",
         negotiationRepository.findAll().get(0).getCurrentStateForResource(resource.getSourceId()));
     assertEquals(
         1,
         networkRepository.countIgnoredForNetwork(
             LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_UNREACHABLE");
     assertEquals(
         1,
         networkRepository.countIgnoredForNetwork(
             LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    negotiation.setStateForResource(resource.getSourceId(), "RESOURCE_UNAVAILABLE");
     assertEquals(
         0,
         networkRepository.countIgnoredForNetwork(
@@ -398,9 +393,8 @@ public class NegotiationRepositoryTest {
   void findIgnoredInNetwork_oneResourceUnresponsive_ok() {
     saveNegotiation();
     Negotiation negotiation = negotiationRepository.findAll().get(0);
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiation.setCurrentState("IN_PROGRESS");
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_CONTACTED");
     Resource resource2 =
         resourceRepository.save(
             Resource.builder()
@@ -413,8 +407,7 @@ public class NegotiationRepositoryTest {
                 .build());
     network.addResource(resource2);
     negotiation.addResource(resource2);
-    negotiation.setStateForResource(
-        resource2.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    negotiation.setStateForResource(resource2.getSourceId(), "RESOURCE_UNAVAILABLE");
     assertEquals(
         1,
         networkRepository.countIgnoredForNetwork(
@@ -426,11 +419,9 @@ public class NegotiationRepositoryTest {
     saveNegotiation();
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     negotiation.setCreationDate(LocalDateTime.now().minusDays(10));
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.CHECKING_AVAILABILITY);
+    negotiation.setCurrentState("IN_PROGRESS");
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_CONTACTED");
+    negotiation.setStateForResource(resource.getSourceId(), "CHECKING_AVAILABILITY");
     assertEquals(
         10,
         networkRepository.getMedianResponseForNetwork(
@@ -443,9 +434,8 @@ public class NegotiationRepositoryTest {
     saveNegotiation();
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     negotiation.setCreationDate(LocalDateTime.now().minusDays(10));
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+    negotiation.setCurrentState("IN_PROGRESS");
+    negotiation.setStateForResource(resource.getSourceId(), "RESOURCE_MADE_AVAILABLE");
     Resource resource2 =
         resourceRepository.save(
             Resource.builder()
@@ -458,8 +448,7 @@ public class NegotiationRepositoryTest {
                 .build());
     network.addResource(resource2);
     negotiation.addResource(resource2);
-    negotiation.setStateForResource(
-        resource2.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    negotiation.setStateForResource(resource2.getSourceId(), "RESOURCE_UNAVAILABLE");
     assertEquals(
         1,
         networkRepository.getNumberOfSuccessfulNegotiationsForNetwork(
@@ -472,9 +461,8 @@ public class NegotiationRepositoryTest {
     saveNegotiation();
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     negotiation.setCreationDate(LocalDateTime.now().minusDays(10));
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+    negotiation.setCurrentState("IN_PROGRESS");
+    negotiation.setStateForResource(resource.getSourceId(), "RESOURCE_MADE_AVAILABLE");
     Resource resource2 =
         resourceRepository.save(
             Resource.builder()
@@ -487,8 +475,7 @@ public class NegotiationRepositoryTest {
                 .build());
     network.addResource(resource2);
     negotiation.addResource(resource2);
-    negotiation.setStateForResource(
-        resource2.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    negotiation.setStateForResource(resource2.getSourceId(), "RESOURCE_UNAVAILABLE");
     assertEquals(
         1,
         networkRepository.getNumberOfSuccessfulNegotiationsForNetwork(
@@ -526,9 +513,8 @@ public class NegotiationRepositoryTest {
     saveNegotiation();
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     negotiation.setCreationDate(LocalDateTime.now().minusDays(10));
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+    negotiation.setCurrentState("IN_PROGRESS");
+    negotiation.setStateForResource(resource.getSourceId(), "RESOURCE_MADE_AVAILABLE");
     negotiation.getNegotiationResourceLifecycleRecords().iterator().next().setCreatedBy(person);
     assertEquals(
         1,
@@ -565,9 +551,8 @@ public class NegotiationRepositoryTest {
     saveNegotiation();
     negotiation = negotiationRepository.findAll().get(0);
     negotiation.setCreationDate(LocalDateTime.now().minusDays(10));
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+    negotiation.setCurrentState("IN_PROGRESS");
+    negotiation.setStateForResource(resource.getSourceId(), "RESOURCE_MADE_AVAILABLE");
     negotiation.getNegotiationResourceLifecycleRecords().iterator().next().setCreatedBy(person);
     assertEquals(
         1,
@@ -581,7 +566,7 @@ public class NegotiationRepositoryTest {
     Negotiation negotiation =
         Negotiation.builder()
             .resources(resources)
-            .currentState(NegotiationState.SUBMITTED)
+            .currentState("SUBMITTED")
             .humanReadable("#1 Material Type: DNA")
             .discoveryService(discoveryService)
             .publicPostsEnabled(false)
@@ -598,7 +583,7 @@ public class NegotiationRepositoryTest {
     Negotiation negotiation =
         Negotiation.builder()
             .resources(resources)
-            .currentState(NegotiationState.SUBMITTED)
+            .currentState("SUBMITTED")
             .humanReadable("everything")
             .discoveryService(discoveryService)
             .publicPostsEnabled(false)

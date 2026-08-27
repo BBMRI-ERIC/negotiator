@@ -5,18 +5,16 @@ import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownResourceStates;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleRecord;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.post.Post;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -100,9 +98,13 @@ public class Negotiation extends AuditEntity {
 
   private boolean privatePostsEnabled = false;
 
+  /**
+   * The name of the State this Negotiation's Lifecycle is in. A name rather than a type, because
+   * which States exist depends on the Definition Family the Lifecycle resolved to; the column is
+   * the {@code VARCHAR} it always was and holds the same values it always held.
+   */
   @Setter(AccessLevel.NONE)
-  @Enumerated(EnumType.STRING)
-  private NegotiationState currentState;
+  private String currentState;
 
   /**
    * The Definition Version this Negotiation's Lifecycle is pinned to. Set once, when the Lifecycle
@@ -143,19 +145,19 @@ public class Negotiation extends AuditEntity {
     }
   }
 
-  public void setCurrentState(NegotiationState negotiationState) {
-    this.currentState = negotiationState;
-    this.lifecycleHistory.add(NegotiationLifecycleRecord.builder().changedTo(currentState).build());
+  public void setCurrentState(String stateName) {
+    this.currentState = stateName;
+    this.lifecycleHistory.add(NegotiationLifecycleRecord.forStateNamed(currentState));
   }
 
   /**
    * Gets the current state for a liked Resource.
    *
    * @param resourceId the source/external ID of the Resource. Not the internal ID!
-   * @return current state of the resource, null if the resource has no state
+   * @return name of the current state of the resource, null if the resource has no state
    * @throws java.lang.IllegalArgumentException if the resource is not part of the Negotiation
    */
-  public NegotiationResourceState getCurrentStateForResource(String resourceId) {
+  public String getCurrentStateForResource(String resourceId) {
     NegotiationResourceLink resourceLink =
         this.resourcesLink.stream()
             .filter(link -> link.getResource().getSourceId().equals(resourceId))
@@ -169,26 +171,12 @@ public class Negotiation extends AuditEntity {
   }
 
   /**
-   * Sets the current state for a linked Resource, naming the State as a string.
-   *
-   * <p>Temporary while this entity still stores the State as an enum. Once the field becomes a
-   * {@code String}, this overload becomes the sole method and the conversion disappears.
+   * Sets the current state for a liked Resource, naming the State as a string.
    *
    * @param resourceId the source/external ID of the Resource. Not the internal ID!
-   * @param stateName the name of the State to be set.
+   * @param state the name of the State to be set.
    */
-  public void setStateForResource(String resourceId, String stateName) {
-    setStateForResource(
-        resourceId, stateName == null ? null : NegotiationResourceState.valueOf(stateName));
-  }
-
-  /**
-   * Sets the current state for a liked Resource.
-   *
-   * @param resourceId the source/external ID of the Resource. Not the internal ID!
-   * @param state to be set.
-   */
-  public void setStateForResource(String resourceId, NegotiationResourceState state) {
+  public void setStateForResource(String resourceId, String state) {
     NegotiationResourceLink link =
         this.resourcesLink.stream()
             .filter(resourceLink -> resourceLink.getResource().getSourceId().equals(resourceId))
@@ -250,10 +238,10 @@ public class Negotiation extends AuditEntity {
     return this.resourcesLink.removeIf(link -> link.getResource().getId().equals(resource.getId()));
   }
 
-  private void buildResourceStateChangeRecord(Resource resource, NegotiationResourceState state) {
-    if (!state.equals(NegotiationResourceState.SUBMITTED)) {
+  private void buildResourceStateChangeRecord(Resource resource, String state) {
+    if (!state.equals(WellKnownResourceStates.SUBMITTED)) {
       NegotiationResourceLifecycleRecord record =
-          NegotiationResourceLifecycleRecord.builder().changedTo(state).resource(resource).build();
+          NegotiationResourceLifecycleRecord.forStateNamed(resource, state);
       record.setCreationDate(LocalDateTime.now());
       record.setModifiedDate(LocalDateTime.now());
       this.negotiationResourceLifecycleRecords.add(record);
@@ -262,7 +250,7 @@ public class Negotiation extends AuditEntity {
 
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
     Set<NegotiationLifecycleRecord> history = new HashSet<>();
-    history.add(NegotiationLifecycleRecord.builder().changedTo(NegotiationState.SUBMITTED).build());
+    history.add(NegotiationLifecycleRecord.forStateNamed(WellKnownNegotiationStates.SUBMITTED));
     return history;
   }
 

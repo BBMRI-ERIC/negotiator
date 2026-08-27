@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -30,7 +30,7 @@ public class NegotiationSpecification {
         specs = initOrAnd(specs, hasAuthor(user));
       } else {
         specs = initOrAnd(specs, hasResourcesIn(user.getResources()));
-        specs = initOrAnd(specs, hasState(List.of(NegotiationState.DRAFT), true));
+        specs = initOrAnd(specs, hasState(List.of(WellKnownNegotiationStates.DRAFT), true));
       }
     }
 
@@ -46,7 +46,7 @@ public class NegotiationSpecification {
 
     if (network != null) {
       specs = initOrAnd(specs, byNetwork(network));
-      specs = initOrAnd(specs, hasState(List.of(NegotiationState.DRAFT), true));
+      specs = initOrAnd(specs, hasState(List.of(WellKnownNegotiationStates.DRAFT), true));
     }
 
     if (filtersDTO.getOrganizationId() != null) {
@@ -72,14 +72,14 @@ public class NegotiationSpecification {
   /**
    * Condition to filter Negotiation by states
    *
-   * @param states a List of NegotiationState to use as filter
+   * @param states a List of State names to use as filter
    * @param not a flag to negate the condition (e.g., hasState(List.of('DRAFT'), true) to get
    *     Negotiations with state different from DRAFT)
    * @return a Specification to add as part of a query to filter Negotiations
    */
-  public static Specification<Negotiation> hasState(List<NegotiationState> states, boolean not) {
+  public static Specification<Negotiation> hasState(List<String> states, boolean not) {
     return new Specification<>() {
-      List<NegotiationState> inputStates;
+      List<String> inputStates;
 
       @Nullable
       @Override
