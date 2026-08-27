@@ -1,6 +1,6 @@
 # DTOs, mappers and the Negotiation timeline
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -28,15 +28,18 @@ these mappers. They can only decouple when the service interfaces do, so they be
 
 ## Acceptance criteria
 
-- [ ] Every DTO, mapper and the timeline in this batch names no Lifecycle enum.
-- [ ] Every JSON response keeps the same field names and the same string values.
-- [ ] The payload-updatable rule admits and refuses exactly the same States as before.
-- [ ] The timeline renders identical text for identical history.
-- [ ] The update DTO's default value is unchanged, and the hazard ticket 03 raised about it is
+- [ ] Every DTO, mapper and the timeline in this batch names no Lifecycle enum - **five of six**.
+      `NegotiationModelMapper` keeps one `NegotiationState.valueOf` as the boundary translation into
+      the still-enum-typed entity field; ModelMapper refuses to coerce a converter's result, so it
+      cannot go from here. Deferred to slice 11 and recorded in `STATUS.md`.
+- [x] Every JSON response keeps the same field names and the same string values.
+- [x] The payload-updatable rule admits and refuses exactly the same States as before.
+- [x] The timeline renders identical text for identical history.
+- [x] The update DTO's default value is unchanged, and the hazard ticket 03 raised about it is
       recorded in the code where a reader meets it.
-- [ ] Schema metadata on every State and Event field reads as a string with a worked example.
-- [ ] The existing mapper unit tests and timeline integration test are extended rather than replaced.
-- [ ] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
+- [x] Schema metadata on every State and Event field reads as a string with a worked example.
+- [x] The existing mapper unit tests and timeline integration test are extended rather than replaced.
+- [x] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
 
 ## Notes
 

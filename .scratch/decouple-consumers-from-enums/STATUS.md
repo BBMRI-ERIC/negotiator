@@ -17,6 +17,7 @@ here are settled; do not relitigate them in a later slice.
 | [03 Pin the raw State names in SQL](issues/03-pin-the-raw-state-names-in-sql.md) | **done** | 6 tests green; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [04 Webhook payloads name States as strings](issues/04-webhook-payloads-name-states-as-strings.md) | **done** | mapper test 10 → 14, listener test 9 unchanged in count; full suite 1457/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
+| [08 DTOs, mappers and the Negotiation timeline](issues/08-dtos-mappers-and-the-negotiation-timeline.md) | **done** | mapper test 7 -> 10, timeline test 4 -> 5, controller test +1; full suite 1462/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured at base `a3e02e59`, before 09 landed; see the rebase note in 08's section |
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
@@ -427,6 +428,127 @@ deltas at 8/0/0/0, explicitly *after rebasing onto this slice* - which makes tha
 full-suite evidence, and the tightest available, since the only content on that tree beyond this
 slice is slice 03 itself.
 
+## What slice 08 settled, for slices 09, 10, 11 and 12
+
+**The batch is six files, and five of them name no enum.** `NegotiationDTO`, `UpdateResourcesDTO`,
+`NegotiationTimelineImpl`, `ResourceWithStatusDTO` and `ResourceViewDTO` are clean.
+`NegotiationModelMapper` is not, and cannot be from here - see the next paragraph. The three
+assemblers stayed out, as the issue directed, and the three metadata DTOs were not touched.
+
+**ModelMapper does not coerce a converter's result to the destination type, and this was measured
+rather than assumed.** The create-side mapping writes `Negotiation.setCurrentState`, which is still
+enum-typed until slice 11. Returning a `String` from that `Converter` compiles and then fails at
+runtime with `IllegalArgumentException: argument type mismatch` out of
+`MappingEngineImpl` - `NegotiationMapperTest` went red on exactly the two create-side cases. So the
+mapper keeps `Converter<Boolean, NegotiationState>` and one `NegotiationState.valueOf(...)`, with
+the *names* moved onto `WellKnownNegotiationStates` and the `valueOf` sitting alone as the boundary
+translation. **Slice 11 deletes it**: once `currentState` is a name, `initialStateFor(...)` is
+assigned directly and the import goes. Until then this file is the slab's one known gate violation,
+and it is deliberate. Slice 12's guard runs after 11, so the gate still closes on time - but if 12
+is ever run early, this is the file it will report.
+
+**The entity-to-DTO status conversion did not disappear, and the issue's note over-predicted.** It
+already returned a name, but it returns the **empty string** for an absent State, not null, and
+`NegotiationDTO` is `@JsonInclude(NON_NULL)` - so letting it become the identity would drop `status`
+from the response body entirely for a Negotiation with no State. It is now `nameOf(Enum<?>)`,
+deliberately **not** null-preserving in slice 04's sense, because `""` is what the wire has always
+carried. Slice 11 turns it into the identity *and must keep the empty-string branch*.
+
+**Translations this slice wrote, for slices 10 and 11 to delete.** Three, and only one belongs to
+slice 10:
+
+- `NegotiationModelMapper.nameOf(Enum<?>)` plus the `NegotiationState.valueOf` beside it - **slice
+  11**, with the entity field.
+- `ResourceServiceImpl.stateNamed(String)` - **already gone**, deleted during the rebase below
+  rather than by a later slice. Slice 09 closed the far end of the same gap while this slice was in
+  flight.
+- `ResourceStateChangeListener`'s two `.name()` calls on enum constants - **slice 10**, when
+  `ResourceWithStatusDTO`'s producer and the change event both deal in names.
+
+Note the comparison order there is `resource.getCurrentState().equals(CONSTANT.name())`, receiver
+first, which looks backwards next to the null-safe `CONSTANT.equals(state)` in the timeline. It is
+deliberate: the projection's `currentState` comes off a `left join` and can be null, and today that
+throws. Constant-first would silently turn the throw into `false`. Keep the order until something
+decides that null case on purpose.
+
+**`UpdateResourcesDTO` got a deserializer rather than a catalog call, and the reason is Jackson.**
+`@JsonDeserialize(using = ...)` instantiates the deserializer reflectively, so it cannot hold the
+Spring-managed `EnumBackedLifecycleCatalog`. `NegotiationResourceStateNameDeserializer` is therefore
+a second enum-backed class in `negotiation/state_machine/resource/` - the exact shape slice 07
+landed for `InformationRequirementCreateDTO.forResourceEvent`, and deleted at cutover alongside it.
+It is not a second source of truth: it reads `NegotiationResourceState.valueOf`, the same enum the
+catalog reads. **The catalog stays the route for any caller that can inject it**; a Jackson
+deserializer is the one place that cannot.
+
+**Without it the 400 would have become a 500-shaped answer.** With the field a bare `String`,
+`{"state": "NOT_A_STATE"}` binds fine and blows up later in `stateNamed`'s `valueOf`. That still
+lands on 400 through `handleIllegalArgument`, but with a different body and - worse - only on the
+non-`DRAFT` branch, so a draft would have started accepting nonsense. `NegotiationControllerTests`
+now pins the 400; it was written and run green before the type swap.
+
+**One accepted micro-delta, shared with slice 07.** Jackson's default enum binding accepts a JSON
+*integer* as an ordinal (`FAIL_ON_NUMBERS_FOR_ENUMS` is unset in `application.yaml` and
+`application-prod.yaml`), so `{"state": 3}` used to bind to the fourth Resource State. Through the
+deserializer, `getValueAsString()` yields `"3"` and it is refused with a 400. Preserving it would
+have meant writing `values()[i]` by hand - deliberately new ordinal-as-identity coupling, in a class
+built to be deleted, to keep an accident nothing documents and no client uses. Slice 07 made the
+same call for `forResourceEvent`. Recorded rather than preserved; if either ever needs undoing, undo
+both.
+
+**The `@Schema` on `NegotiationDTO.status` said `example = "PENDING"`, which is not a Negotiation
+State at all.** It is now `IN_PROGRESS`. This is a published-schema change beyond the type swap and
+is intentional: the slice's AC asks every State field to read as a string *with a worked example*,
+and an example naming a State that does not exist is not one. `UpdateResourcesDTO.state` and
+`ResourceWithStatusDTO.currentState` had no `@Schema` at all and now have one each. No
+`defaultValue` was added anywhere - the PRD's decision is `type: string` keeping `example`, and
+nothing more.
+
+**Three behaviours are pinned that were pinned by nothing before**, all written and run green
+against the enum-typed code first, in their own commit: the timeline's exclusion of the two States
+Spawn writes, the payload-updatable rule over the *whole* Negotiation State set (a set-equality
+assertion resolved through `NegotiationState.values()`, so a name that changes meaning fails here
+rather than silently), and the unknown-State 400. The payload-updatable rule is wire-visible, not
+just an internal link decision: `isPayloadUpdatable()` is a public getter on a serialised DTO, so
+`payloadUpdatable` appears in every Negotiation response body.
+
+**Whole-suite count moved 1457 -> 1462, and all five are this slice's own pins.** Mapper test 7 to
+10, timeline test 4 to 5, controller test plus one. No other test file changed count; the four
+touched by the type swap (`EnumBackedLifecycleTestAdapter`,
+`NegotiationLifecycleServiceImplTest`, `NegotiationControllerTests`, and the mapper test) changed
+assertions only. Take **1462/0/0/16 in 158 classes** as the baseline.
+
+**The characterization adapter keeps its typo guard.** `overrideResourceStates` now builds
+`new UpdateResourcesDTO(ids, resourceState(state).name())` rather than passing the raw string
+through - `resourceState` is the adapter's loud-on-a-misspelled-name helper, and dropping it would
+have let a typo in a characterization test look like a refused update.
+
+**This slice was rebased onto slice 09, and the two met in one method.** Slice 09 landed while this
+one was in flight, and both changed `ResourceServiceImpl.updateResourcesInANegotiation` for the same
+reason from opposite ends: 09 made `setStatusForUpdatedResources` take a `String`, 08 made
+`UpdateResourcesDTO.getState()` *return* one. Each side had written a translation to bridge a gap
+the other was closing - `nameOf(...)` on 09's side, `stateNamed(...)` on 08's - and **neither
+compiled against the other**. The resolution deleted both: a `String` field feeding a `String`
+parameter needs no conversion, so the call is now
+`setStatusForUpdatedResources(negotiation, resourcesToUpdate, updateResourcesDTO.getState())`.
+`ResourceServiceImpl` names no Lifecycle enum, which is what 09's own AC asked for.
+
+Two smaller merge repairs: 09's two new `ResourceRepositoryTest` assertions called `.name()` on the
+projection's `currentState`, which this slice made a `String` - the `.name()` calls went and the
+string literals they compare against are unchanged. Nothing else conflicted.
+
+**The two `Landed` rows were measured in separate worktrees and do not compose.** 08 read
+1462 at base `a3e02e59`; 09 read 1463 at the same base. Stacked, the tip should hold 1457 + 6 + 5 =
+**1468**, but that is arithmetic, not a measurement - the whole suite was not re-run after the
+rebase. The next slice should measure rather than trust either figure. This is the third time the
+recorded count has gone stale for the reason slices 01 and 03 both gave.
+
+**The frontend needs no change, checked by reading rather than assumed.** It reads
+`resource.currentState` as a string key into `stateOrdinalMap` and through `transformStatus`
+(`NegotiationPage.vue`, `ResourceItem.vue`), and sorts on the `currentState` field name
+(`NegotiationList.vue`, `FilterSort.vue`). Neither enum carries `@JsonValue` or `@JsonFormat`, and
+nothing sets `WRITE_ENUMS_USING_TO_STRING`, so the serialised value was the name before and is the
+same name now.
+
 ## Standing hazards, carried not solved
 
 **`WellKnownResourceStates` is a bet on a family's vocabulary; the Negotiation holder is not.** ADR
@@ -439,7 +561,11 @@ this slab does not solve it.
 
 **`WellKnownResourceStates.SUBMITTED` is a default as well as a comparison.** `UpdateResourcesDTO`
 uses it as a *default value* rather than a test, which is the same divergence hazard in an API DTO.
-Flagged in the holder's Javadoc; slice 09 will meet it.
+Flagged in the holder's Javadoc; **slice 08 met it, not slice 09**, and recorded it a second time on
+the field itself, which is where a reader meets it. The value is unchanged. What is still undecided
+is what an absent `state` should mean once a Definition Family can lack `SUBMITTED` - leave the
+Resource alone, or resolve the initial State off the Definition Version. That is the second Resource
+family's question, not this slab's.
 
 ## Operational
 
