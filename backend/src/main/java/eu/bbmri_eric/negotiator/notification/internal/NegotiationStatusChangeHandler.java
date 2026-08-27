@@ -85,8 +85,8 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
             + event.getToState());
   }
 
-  private String createStatusChangeMessage(String newState, String negotiationTitle) {
-    return switch (newState) {
+  private String createStatusChangeMessage(String newStateName, String negotiationTitle) {
+    return switch (newStateName) {
       case WellKnownNegotiationStates.IN_PROGRESS ->
           "Your negotiation request '"
               + negotiationTitle
@@ -101,7 +101,7 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
           "Your negotiation request '"
               + negotiationTitle
               + "' status has been updated to: "
-              + newState;
+              + newStateName;
     };
   }
 }
