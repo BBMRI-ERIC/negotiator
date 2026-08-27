@@ -163,8 +163,7 @@ public class ResourceServiceImpl implements ResourceService {
     Set<Resource> resourcesToUpdate = fetchResourcesFromDB(updateResourcesDTO.getResourceIds());
     addAnyNewResourcesToNegotiation(resourcesToUpdate, negotiation);
     if (!nameOf(negotiation.getCurrentState()).equals(WellKnownNegotiationStates.DRAFT)) {
-      setStatusForUpdatedResources(
-          negotiation, resourcesToUpdate, nameOf(updateResourcesDTO.getState()));
+      setStatusForUpdatedResources(negotiation, resourcesToUpdate, updateResourcesDTO.getState());
     }
     negotiationRepository.saveAndFlush(negotiation);
     if (nameOf(negotiation.getCurrentState()).equals(WellKnownNegotiationStates.IN_PROGRESS)) {

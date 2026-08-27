@@ -2,8 +2,9 @@ package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownResourceStates;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationTimelineEventDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
 import jakarta.transaction.Transactional;
 import java.util.Comparator;
 import java.util.List;
@@ -41,11 +42,7 @@ public class NegotiationTimelineImpl implements NegotiationTimeline {
     List<NegotiationTimelineEvent> resourceRecords =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(Objects::nonNull)
-            .filter(
-                res ->
-                    !res.getChangedTo().equals(NegotiationResourceState.REPRESENTATIVE_CONTACTED)
-                        && !res.getChangedTo()
-                            .equals(NegotiationResourceState.REPRESENTATIVE_UNREACHABLE))
+            .filter(NegotiationTimelineImpl::isNotWrittenBySpawn)
             .map(NegotiationTimelineEvent.class::cast)
             .toList();
     List<NegotiationTimelineEvent> negotiationRecords =
@@ -57,5 +54,15 @@ public class NegotiationTimelineImpl implements NegotiationTimeline {
         .map(event -> modelMapper.map(event, NegotiationTimelineEventDTO.class))
         .sorted(Comparator.comparing(NegotiationTimelineEventDTO::getTimestamp))
         .toList();
+  }
+
+  /**
+   * The two Resource States Spawn writes are left out of the timeline: they record that a
+   * representative was looked for, not that anybody acted.
+   */
+  private static boolean isNotWrittenBySpawn(NegotiationResourceLifecycleRecord record) {
+    String state = record.getChangedTo().name();
+    return !WellKnownResourceStates.REPRESENTATIVE_CONTACTED.equals(state)
+        && !WellKnownResourceStates.REPRESENTATIVE_UNREACHABLE.equals(state);
   }
 }

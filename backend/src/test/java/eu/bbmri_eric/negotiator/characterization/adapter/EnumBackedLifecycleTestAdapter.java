@@ -101,12 +101,10 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
       String negotiationId, List<Long> resourceRowIds, String state) {
     List<ResourceWithStatusDTO> resources =
         resourceService.updateResourcesInANegotiation(
-            negotiationId, new UpdateResourcesDTO(resourceRowIds, resourceState(state)));
+            negotiationId, new UpdateResourcesDTO(resourceRowIds, resourceState(state).name()));
     Map<String, String> statesBySourceId = new HashMap<>();
     for (ResourceWithStatusDTO resource : resources) {
-      statesBySourceId.put(
-          resource.getSourceId(),
-          resource.getCurrentState() == null ? null : resource.getCurrentState().name());
+      statesBySourceId.put(resource.getSourceId(), resource.getCurrentState());
     }
     return statesBySourceId;
   }

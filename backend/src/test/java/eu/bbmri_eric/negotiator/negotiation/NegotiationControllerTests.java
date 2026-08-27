@@ -1518,7 +1518,7 @@ public class NegotiationControllerTests {
   @Transactional
   void addResources_presentResourcesWithStatusUpdate_statusChanged() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
-    NegotiationResourceState expectedState = NegotiationResourceState.RESOURCE_MADE_AVAILABLE;
+    String expectedState = NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name();
     List<Long> resourceIds = negotiation.getResources().stream().map(Resource::getId).toList();
     UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds, expectedState);
     MvcResult result =
@@ -1535,9 +1535,7 @@ public class NegotiationControllerTests {
     JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
     JsonNode resourcesAsJson = response.get("_embedded").get("resources");
     for (JsonNode resourceAsJson : resourcesAsJson) {
-      assertEquals(
-          expectedState,
-          NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
+      assertEquals(expectedState, resourceAsJson.get("currentState").asText());
     }
   }
 
@@ -1571,7 +1569,7 @@ public class NegotiationControllerTests {
     UpdateResourcesDTO updateResourcesDTO =
         new UpdateResourcesDTO(
             resources.stream().map(Resource::getId).collect(Collectors.toList()),
-            NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+            NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name());
     mockMvc
         .perform(
             MockMvcRequestBuilders.patch(
