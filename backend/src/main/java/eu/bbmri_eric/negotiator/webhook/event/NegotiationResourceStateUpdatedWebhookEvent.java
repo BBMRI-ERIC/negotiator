@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @WebhookEventDoc(
     summary = "Negotiation resource state changed",
     description =
-        "Sent when the state of a resource within a negotiation changes through the state machine.")
+        "Sent when the state of a resource within a negotiation changes through its lifecycle.")
 @Schema(description = "Webhook data payload for a negotiation resource state transition.")
 record NegotiationResourceStateUpdatedWebhookEvent(
     @Schema(
