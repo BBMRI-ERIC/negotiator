@@ -217,13 +217,15 @@ class NegotiationStatusChangeHandlerTest {
   }
 
   /**
-   * Four of the eight Negotiation States have no branch here and notify nobody. Only DRAFT was
-   * pinned; the other three were free to start notifying unnoticed.
+   * Every Negotiation State without a branch here notifies nobody. Only DRAFT was pinned; the rest
+   * were free to start notifying unnoticed. Named as the complement of the four branched States, so
+   * a ninth State joins this test rather than escaping it.
    */
   @ParameterizedTest
   @EnumSource(
       value = NegotiationState.class,
-      names = {"DRAFT", "APPROVED", "PAUSED", "CONCLUDED"})
+      mode = EnumSource.Mode.EXCLUDE,
+      names = {"SUBMITTED", "IN_PROGRESS", "DECLINED", "ABANDONED"})
   void notify_WhenStateHasNoBranch_NotifiesNobody(NegotiationState toState) {
     // Given
     String negotiationId = "NEG-123";
