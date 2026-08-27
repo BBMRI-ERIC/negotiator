@@ -20,8 +20,6 @@ class DocConverter implements FileTypeConverter {
     }
 
     log.debug("Converting DOC to PDF, input size: " + docBytes.length);
-    Document pdfDoc = null;
-    PdfDocument pdfDocument = null;
 
     try (ByteArrayInputStream docInputStream = new ByteArrayInputStream(docBytes);
         HWPFDocument doc = new HWPFDocument(docInputStream);
@@ -31,42 +29,24 @@ class DocConverter implements FileTypeConverter {
       int paragraphCount = range.numParagraphs();
       log.debug("Processing paragraphs from DOC: " + paragraphCount);
 
-      pdfDocument = new PdfDocument(new PdfWriter(pdfOutputStream));
-      pdfDoc = new Document(pdfDocument);
-
-      if (paragraphCount == 0) {
-        log.warn("No paragraphs found in DOC, creating empty PDF");
-        pdfDoc.add(new Paragraph(""));
-      } else {
-        for (int i = 0; i < paragraphCount; i++) {
-          String paragraphText = range.getParagraph(i).text();
-          if (paragraphText != null && !paragraphText.trim().isEmpty()) {
-            pdfDoc.add(new Paragraph(paragraphText));
+      // Closing the Document also closes the underlying PdfDocument and writes it to the stream.
+      try (Document pdfDoc = new Document(new PdfDocument(new PdfWriter(pdfOutputStream)))) {
+        if (paragraphCount == 0) {
+          log.warn("No paragraphs found in DOC, creating empty PDF");
+          pdfDoc.add(new Paragraph(""));
+        } else {
+          for (int i = 0; i < paragraphCount; i++) {
+            String paragraphText = range.getParagraph(i).text();
+            if (paragraphText != null && !paragraphText.trim().isEmpty()) {
+              pdfDoc.add(new Paragraph(paragraphText));
+            }
           }
         }
       }
 
-      pdfDoc.close();
       byte[] result = pdfOutputStream.toByteArray();
       log.debug("Successfully converted DOC to PDF, output size: " + result.length);
       return result;
-    } catch (Exception e) {
-      throw new IOException("Error converting DOC to PDF", e);
-    } finally {
-      if (pdfDoc != null) {
-        try {
-          pdfDoc.close();
-        } catch (Exception e) {
-          log.warn("Error closing PDF document", e);
-        }
-      }
-      if (pdfDocument != null) {
-        try {
-          pdfDocument.close();
-        } catch (Exception e) {
-          log.warn("Error closing PDF document", e);
-        }
-      }
     }
   }
 }
