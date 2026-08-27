@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.negotiation.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -45,7 +45,7 @@ public class NegotiationDTO {
   private JsonNode payload;
 
   @NotNull
-  @Schema(description = "Current status of the negotiation", example = "PENDING")
+  @Schema(description = "Name of the current state of the negotiation", example = "IN_PROGRESS")
   private String status;
 
   @NotNull
@@ -84,8 +84,8 @@ public class NegotiationDTO {
   }
 
   public boolean isPayloadUpdatable() {
-    return Objects.equals(status, NegotiationState.DRAFT.getValue())
-        || Objects.equals(status, NegotiationState.SUBMITTED.getValue())
-        || Objects.equals(status, NegotiationState.IN_PROGRESS.getValue());
+    return Objects.equals(status, WellKnownNegotiationStates.DRAFT)
+        || Objects.equals(status, WellKnownNegotiationStates.SUBMITTED)
+        || Objects.equals(status, WellKnownNegotiationStates.IN_PROGRESS);
   }
 }

@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.governance.resource.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,5 +35,8 @@ public class ResourceWithStatusDTO {
 
   @Nullable private OrganizationDTO organization;
 
-  private NegotiationResourceState currentState;
+  @Schema(
+      description = "Name of the Resource's current state within the Negotiation",
+      example = "REPRESENTATIVE_CONTACTED")
+  private String currentState;
 }
