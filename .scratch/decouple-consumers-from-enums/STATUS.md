@@ -190,6 +190,65 @@ than at it.** Slices 03, 04, 08 and 09 each measured 255 tests in 24 classes, 0 
 and deltas 8/0/0/0, on trees that contain this class. Backfilling those numbers here as if they had
 been taken at this commit would be the one thing the Landed table exists to prevent.
 
+## What slice 03 measured, for slices 06 and 11 and for two later slabs
+
+The guard is `eu.bbmri_eric.negotiator.lifecycle.RawStateNamesInSqlGuardTest`, beside
+`WellKnownNamesTest`. It scans `backend/src/main/java` and pins every State or Event name that
+reaches the database as query text, in four coordinates: file, line, name, and whether the query
+quotes the name or leaves it bare. Five tests, no production file touched.
+
+**The population is fourteen names, and the slice issue's own arithmetic was off by one.** Thirteen
+are SQL string constants; the fourteenth is the bare JPQL reference at `NegotiationRepository:74`.
+The issue's "all fifteen" counts that fourteenth twice. Its "eleven of the fourteen live in Java
+text blocks" is **thirteen** — `NegotiationRepository:35` is a text block too, which the sweep read
+as a concatenation. The AC it was drawing is untouched by either correction: no name anywhere in
+the fourteen is spelled as a Java double-quoted literal, so a `"DRAFT"` regex still finds exactly
+zero of them while reporting green.
+
+**Ticket 03's count is corrected a second time.** It recorded 8 literals in
+`NetworkStatsRepositoryImpl` at lines 28, 51, 97, 119, 163 and 216. The file holds **eleven**, at
+those six lines plus line 75, which it missed entirely. Two more sit in `NegotiationRepository:35`,
+which it did not know about at all.
+
+**The audit-column population is six, not four.** `negotiation_resource_lifecycle_record.changed_to`
+— the column ADR 0008 converts to a foreign key — is filtered by
+`NetworkStatsRepositoryImpl:75` (×2), `NetworkStatsRepositoryImpl:216` (×2) and
+`NegotiationRepository:35` (×2). Ticket 03 named only line 216.
+
+**`getMedianResponseForNetwork` exists twice, with identical SQL.** Once on
+`NetworkStatsRepositoryImpl:64` and once on `NegotiationRepository:39`.
+`NetworkStatisticsServiceImpl` calls the **`NegotiationRepository`** one, so the network-statistics
+copy is unreachable from production. That is why the same comparison has to be found in two places
+by both later slabs.
+
+**Six of the eleven network-statistics literals are in queries no production path reaches.**
+`countIgnoredForNetwork` (line 28), `getMedianResponseForNetwork` (line 75) and
+`getNumberOfSuccessfulNegotiationsForNetwork` (line 97) are called only from
+`integration/repository/NegotiationRepositoryTest`. Slice 06 should not read "network statistics"
+as "everything in `NetworkStatsRepositoryImpl` is live" — the service reaches five of its nine
+methods, and takes the count and the median off `NegotiationRepository` instead.
+
+**What counts as query text.** A run of adjacent Java string literals joined only by `+` is read as
+one string, and that string is a query when its content matches `SELECT … FROM`, `INSERT INTO`,
+`UPDATE … SET` or `DELETE FROM`. The concatenation step is load-bearing: the chunk holding
+`!= DRAFT` on `NegotiationRepository:74` carries no `SELECT` of its own. The rule is what separates
+the fourteen from the twenty-three other places a State name legitimately appears inside a Java
+string in production — OpenAPI `@Schema(example = …)`, `@Operation` prose, two exception messages,
+and the three holders' own declarations. Slices 04 and 09 will move some of those; the guard is
+meant to ignore them, and a test asserts it does.
+
+**The pin is line-exact, and that is the point.** An inserted import above these queries fails the
+guard. Slices 06 and 11 will trip it; the failure pairs each old line with its new one and says to
+update the number and nothing else. Loosening the rule is the one repair that must not be made —
+the compiler cannot see any of these names, so this list is the only place they are written down.
+
+**Two things the guard deliberately does not cover.** Flyway migrations under `src/main/resources`
+name plenty of States in check constraints, but a landed migration is immutable by checksum: it
+cannot move, and pinning it would say nothing a reader could act on. And the vocabulary the scan
+looks for is taken from the four enums through `values()` rather than typed out, so it cannot drift
+while they exist — at cutover that import stops compiling, loudly, at the moment the seed becomes
+the source of truth and this guard's reading list has to be decided again.
+
 ## What slice 07 settled, for slices 08, 10 and 11
 
 *Recorded retroactively on 2026-08-27. This slice landed at `31c6ed41` with no Landed row, no

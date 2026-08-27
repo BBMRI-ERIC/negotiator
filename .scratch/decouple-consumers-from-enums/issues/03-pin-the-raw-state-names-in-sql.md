@@ -1,6 +1,6 @@
 # Pin the raw State names in SQL
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -29,15 +29,25 @@ Nothing in this slice changes a query. The SQL is deliberately untouched by this
 
 ## Acceptance criteria
 
-- [ ] A guard test records the fourteen literals, each attributed to its file and its reason.
-- [ ] The guard scans for **bare names, not names inside quotes**. Eleven of the fourteen live in
-      Java text blocks, so a quoted-literal regex finds none of them — the sweep that produced this
-      slice made exactly that mistake first.
-- [ ] The guard fails when a literal is added, removed or moved, with a message naming the file and
-      line and saying what the reader must decide.
-- [ ] An anti-vacuity test fails if the scan root resolves wrongly or the walk returns nothing.
-- [ ] The unquoted JPQL reference is recorded separately, with its different failure mode stated.
-- [ ] No query text is changed anywhere in this slice.
+- [x] A guard test records the fourteen literals, each attributed to its file and its reason.
+      `RawStateNamesInSqlGuardTest.PINNED_NAMES`; a test asserts every entry carries a non-blank
+      reason and sits on the line it claims.
+- [x] The guard scans for **bare names, not names inside quotes**. It reads the *content* of Java
+      strings and matches whole words inside it, so SQL quoting is recorded rather than required.
+      Correction: **thirteen** of the fourteen live in Java text blocks, not eleven —
+      `NegotiationRepository:35` is a text block too. The point stands more strongly than stated:
+      a `"DRAFT"` regex finds zero of the fourteen.
+- [x] The guard fails when a literal is added, removed or moved, with a message naming the file and
+      line and saying what the reader must decide. Moves are paired explicitly (`:28 -> :29`), so a
+      single inserted import does not present as eleven deletions plus eleven additions. All three
+      failure modes were exercised against perturbed sources and then reverted.
+- [x] An anti-vacuity test fails if the scan root resolves wrongly or the walk returns nothing.
+      Both were exercised: a wrong `PRODUCTION_SOURCE_PATH` throws `IllegalStateException`, and the
+      435-file walk is asserted against a floor of 100.
+- [x] The unquoted JPQL reference is recorded separately, with its different failure mode stated.
+      `UNQUOTED_JPQL_REFERENCE`, plus `theUnquotedReference_isStillBare` — which fails if anyone
+      quotes it, trading Hibernate's startup rejection for a filter that matches nothing.
+- [x] No query text is changed anywhere in this slice. `git status` shows one added test file.
 - [ ] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
 
 ## Notes
@@ -51,6 +61,21 @@ fails immediately, at the slice that caused it, rather than at the close of the 
 naming a literal is not itself a violation, a violation report carrying file and line, and named
 exemptions. Slab 08's `STATUS.md` records why the two existing guards were copied rather than
 extracted: different lifetimes, each meant to be deleted whole. The same applies here.
+
+**Corrections made while resolving.** Three numbers in this issue did not survive measurement, and
+the corrected ones are what `STATUS.md` now carries:
+
+- The population is **fourteen names, not fifteen** — thirteen SQL string constants plus the one
+  bare JPQL reference. "All fifteen" counts the bare one twice.
+- **Thirteen** of the fourteen live in Java text blocks, not eleven. `NegotiationRepository:35` is a
+  text block as well. This strengthens rather than weakens the acceptance criterion it supports.
+- ADR 0008's audit-column conversion breaks **six** literals, not four:
+  `NetworkStatsRepositoryImpl:75` and `:216` and `NegotiationRepository:35`, two apiece.
+
+Two facts the sweep did not record and slice 06 will want: `getMedianResponseForNetwork` exists
+twice with identical SQL, and it is the `NegotiationRepository` copy that the statistics service
+calls; and three of `NetworkStatsRepositoryImpl`'s queries — holding six of its eleven literals —
+have no production caller at all.
 
 **This guard outlives the slab.** Two downstream slabs consume what it records: the migration slab's
 seed must satisfy these names, and ADR 0008's conversion of the audit table's column to a foreign
