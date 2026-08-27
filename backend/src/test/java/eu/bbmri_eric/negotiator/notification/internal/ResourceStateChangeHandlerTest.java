@@ -7,8 +7,6 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
@@ -56,12 +54,7 @@ class ResourceStateChangeHandlerTest {
 
     handler.notify(
         new ResourceStateChangeEvent(
-            this,
-            "NEG-123",
-            "resource-1",
-            NegotiationResourceState.SUBMITTED,
-            NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-            NegotiationResourceEvent.CONTACT));
+            this, "NEG-123", "resource-1", "SUBMITTED", "REPRESENTATIVE_CONTACTED", "CONTACT"));
 
     NotificationCreateDTO notification = capturedNotification();
     assertEquals(List.of(42L), notification.getUserIds());
@@ -81,9 +74,9 @@ class ResourceStateChangeHandlerTest {
             this,
             "NEG-456",
             "resource-2",
-            NegotiationResourceState.RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT,
-            NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
-            NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE));
+            "RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT",
+            "RESOURCE_MADE_AVAILABLE",
+            "GRANT_ACCESS_TO_RESOURCE"));
 
     assertEquals(
         "Resource resource-2 had a change of status in your request Test Negotiation, from Resource Unavailable, Willing to Collect to Resource Made Available",
@@ -96,12 +89,7 @@ class ResourceStateChangeHandlerTest {
 
     ResourceStateChangeEvent event =
         new ResourceStateChangeEvent(
-            this,
-            "NEG-789",
-            "resource-3",
-            NegotiationResourceState.SUBMITTED,
-            NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-            NegotiationResourceEvent.CONTACT);
+            this, "NEG-789", "resource-3", "SUBMITTED", "REPRESENTATIVE_CONTACTED", "CONTACT");
 
     assertThrows(EntityNotFoundException.class, () -> handler.notify(event));
     verify(notificationService, never()).createNotifications(any());

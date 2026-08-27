@@ -1419,18 +1419,12 @@ public class NegotiationControllerTests {
   }
 
   /**
-   * Pins the order in which the Resource lifecycle endpoint rejects a caller: the unknown Event is
-   * refused before the representative-or-creator check, so a caller allowed to do neither still
-   * learns that the Event does not exist.
-   *
-   * <p>Today that order is free - the path variable is converted during argument resolution, before
-   * the handler body runs at all. A check moved into the body would silently turn this 400 into a
-   * 403, which is why it is pinned here rather than left to the status code above.
+   * The Resource Lifecycle endpoint refuses an unknown Event before the Required Authority check,
+   * so a caller who is neither the creator nor a representative gets a 400, not a 403.
    */
   @Test
   @WithMockNegotiatorUser(id = 102L)
-  void sendEvent_invalidResourceEventAndNoPermission_refusesTheEventNotTheCaller()
-      throws Exception {
+  void sendEvent_invalidResourceEventAndNoAuthority_refusesTheEventNotTheCaller() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(

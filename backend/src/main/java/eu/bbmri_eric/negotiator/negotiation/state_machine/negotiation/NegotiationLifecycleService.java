@@ -8,32 +8,37 @@ import org.springframework.stereotype.Service;
 /**
  * This interface provides a specification for Lifecycle management operations on a Negotiation
  * level.
+ *
+ * <p>States and Events pass through this interface as names, so callers never touch a Lifecycle
+ * enum. Callers validate an Event name before calling, so an unknown name gets a different error
+ * than a known Event that cannot fire from the current State.
  */
 @Service
 public interface NegotiationLifecycleService {
 
   /**
-   * Returns all possible Lifecycle events that can be sent to this Negotiation.
+   * Returns the names of all possible Lifecycle events that can be sent to this Negotiation.
    *
    * @param negotiationId of the Negotiation
-   * @return a lists of all possible events
+   * @return a set of all possible event names
    */
-  Set<NegotiationEvent> getPossibleEvents(String negotiationId) throws EntityNotFoundException;
+  Set<String> getPossibleEvents(String negotiationId) throws EntityNotFoundException;
 
   /**
    * Send an event to a particular Negotiation.
    *
-   * @return the new status of the Negotiation
+   * @param event the name of the Lifecycle Event to send
+   * @return the name of the new state of the Negotiation
    */
-  NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent)
+  String sendEvent(String negotiationId, String event)
       throws WrongRequestException, EntityNotFoundException;
 
   /**
    * Send an event to a particular Negotiation also specifying a message with reason why.
    *
-   * @return the new status of the Negotiation
+   * @param event the name of the Lifecycle Event to send
+   * @return the name of the new state of the Negotiation
    */
-  NegotiationState sendEvent(
-      String negotiationId, NegotiationEvent negotiationEvent, String message)
+  String sendEvent(String negotiationId, String event, String message)
       throws WrongRequestException, EntityNotFoundException;
 }

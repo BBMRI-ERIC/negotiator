@@ -1,8 +1,6 @@
 package eu.bbmri_eric.negotiator.common.configuration;
 
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationRoleConverter;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEventConverter;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEventConverter;
 import java.util.List;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,9 +28,7 @@ public class WebConfig implements WebMvcConfigurer {
 
   @Override
   public void addFormatters(FormatterRegistry registry) {
-    registry.addConverter(new NegotiationEventConverter());
     registry.addConverter(new NegotiationRoleConverter());
-    registry.addConverter(new NegotiationResourceEventConverter());
   }
 
   @Override

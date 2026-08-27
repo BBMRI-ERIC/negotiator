@@ -12,7 +12,7 @@ import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionController;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +33,17 @@ public class NegotiationModelAssembler
     implements RepresentationModelAssembler<NegotiationDTO, EntityModel<NegotiationDTO>> {
   private final InformationRequirementService requirementService;
   private final NegotiationLifecycleService negotiationLifecycleService;
+  private final EnumBackedLifecycleCatalog lifecycleCatalog;
   private final String frontendUrl;
 
   public NegotiationModelAssembler(
       InformationRequirementService requirementService,
       NegotiationLifecycleService negotiationLifecycleService,
+      EnumBackedLifecycleCatalog lifecycleCatalog,
       @Value("${negotiator.frontend-url:}") String frontendUrl) {
     this.requirementService = requirementService;
     this.negotiationLifecycleService = negotiationLifecycleService;
+    this.lifecycleCatalog = lifecycleCatalog;
     this.frontendUrl = frontendUrl;
   }
 
@@ -60,13 +63,18 @@ public class NegotiationModelAssembler
               .withRel("Requirement summary %s".formatted(requirement.getId()))
               .withTitle(requirement.getRequiredAccessForm().getName() + " summary"));
     }
-    for (NegotiationEvent event : negotiationLifecycleService.getPossibleEvents(entity.getId())) {
+    for (String event : negotiationLifecycleService.getPossibleEvents(entity.getId())) {
+      String label =
+          lifecycleCatalog.label(
+              EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+              EnumBackedLifecycleCatalog.Element.EVENT,
+              event);
       entityModel.add(
           WebMvcLinkBuilder.linkTo(
                   methodOn(NegotiationController.class).sendEvent(entity.getId(), event, null))
-              .withRel(event.toString())
+              .withRel(event)
               .withTitle("Next Lifecycle event")
-              .withName(event.getLabel()));
+              .withName(label));
     }
     if (entity.isPayloadUpdatable()) {
       entityModel.add(

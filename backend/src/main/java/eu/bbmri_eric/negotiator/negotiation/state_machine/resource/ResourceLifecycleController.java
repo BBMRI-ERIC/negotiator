@@ -15,10 +15,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "/v3", produces = MediaTypes.HAL_JSON_VALUE)
@@ -68,9 +70,18 @@ public class ResourceLifecycleController {
 
   @GetMapping(value = "/resource-lifecycle/events/{event}")
   @Operation(summary = "Retrieve metadata about all a specific resource event")
-  public EntityModel<ResourceEventMetadataDto> getEvent(
-      @Valid @PathVariable NegotiationResourceEvent event) {
-    return resourceEventAssembler.toModel(modelMapper.map(event, ResourceEventMetadataDto.class));
+  public EntityModel<ResourceEventMetadataDto> getEvent(@Valid @PathVariable String event) {
+    return resourceEventAssembler.toModel(
+        modelMapper.map(eventNamed(event), ResourceEventMetadataDto.class));
+  }
+
+  /** Upper-cases the Event named in the path and refuses an unknown name with an empty 400. */
+  private static NegotiationResourceEvent eventNamed(String event) {
+    try {
+      return NegotiationResourceEvent.valueOf(event.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
   }
 
   @GetMapping(value = "/resource-lifecycle")

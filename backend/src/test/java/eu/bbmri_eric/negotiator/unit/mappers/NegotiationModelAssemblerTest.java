@@ -15,7 +15,7 @@ import org.springframework.data.domain.PageImpl;
 
 public class NegotiationModelAssemblerTest {
   NegotiationModelAssembler negotiationModelAssembler =
-      new NegotiationModelAssembler(null, null, "http://localhost:8080");
+      new NegotiationModelAssembler(null, null, null, "http://localhost:8080");
 
   @Test
   void toModel_null_nullPointer() {
@@ -88,7 +88,7 @@ public class NegotiationModelAssemblerTest {
   @Test
   void toModel_withTrailingSlashFrontendUrl_uiLinkNormalized() {
     NegotiationModelAssembler assemblerWithTrailingSlash =
-        new NegotiationModelAssembler(null, null, "http://localhost:8080/");
+        new NegotiationModelAssembler(null, null, null, "http://localhost:8080/");
     assertEquals(
         "http://localhost:8080/negotiations/1",
         assemblerWithTrailingSlash
@@ -100,7 +100,7 @@ public class NegotiationModelAssemblerTest {
 
   @Test
   void toModel_withEmptyFrontendUrl_uiLinkAbsent() {
-    NegotiationModelAssembler assemblerWithoutUrl = new NegotiationModelAssembler(null, null, "");
+    NegotiationModelAssembler assemblerWithoutUrl = new NegotiationModelAssembler(null, null, null, "");
     assertTrue(
         assemblerWithoutUrl
             .toModel(NegotiationDTO.builder().id("1").build())

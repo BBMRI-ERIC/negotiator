@@ -24,7 +24,7 @@ public class ResourceEventAssembler
     List<Link> links = new ArrayList<>();
     links.add(linkTo(methodOn(ResourceLifecycleController.class).getAllEvents()).withRel("events"));
     links.add(
-        linkTo(methodOn(ResourceLifecycleController.class).getEvent(entity.getValue()))
+        linkTo(methodOn(ResourceLifecycleController.class).getEvent(entity.getValue().name()))
             .withSelfRel());
     return EntityModel.of(entity, links);
   }

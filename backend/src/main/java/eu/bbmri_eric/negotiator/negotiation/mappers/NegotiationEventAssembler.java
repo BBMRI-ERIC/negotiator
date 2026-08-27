@@ -4,7 +4,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleController;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +26,7 @@ public class NegotiationEventAssembler
     links.add(
         linkTo(methodOn(NegotiationLifecycleController.class).getAllEvents()).withRel("events"));
     links.add(
-        linkTo(
-                methodOn(NegotiationLifecycleController.class)
-                    .getEvent(NegotiationEvent.valueOf(entity.getValue())))
+        linkTo(methodOn(NegotiationLifecycleController.class).getEvent(entity.getValue()))
             .withSelfRel());
     return EntityModel.of(entity, links);
   }

@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.notification.internal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
@@ -48,13 +47,7 @@ class NegotiationSubmissionHandlerTest {
     // Given
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+        new NegotiationStateChangeEvent(this, negotiationId, "DRAFT", "SUBMITTED", "SUBMIT", null);
 
     Person admin1 = createPerson(1L, "admin1@test.com");
     Person admin2 = createPerson(2L, "admin2@test.com");
@@ -82,13 +75,7 @@ class NegotiationSubmissionHandlerTest {
     // Given
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+        new NegotiationStateChangeEvent(this, negotiationId, "DRAFT", "SUBMITTED", "SUBMIT", null);
 
     when(personRepository.findAllByAdminIsTrue()).thenReturn(Collections.emptyList());
 
@@ -105,12 +92,7 @@ class NegotiationSubmissionHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE,
-            null);
+            this, negotiationId, "SUBMITTED", "IN_PROGRESS", "APPROVE", null);
 
     // When
     handler.notify(event);
@@ -138,12 +120,7 @@ class NegotiationSubmissionHandlerTest {
     for (NegotiationState state : nonSubmittedStates) {
       NegotiationStateChangeEvent event =
           new NegotiationStateChangeEvent(
-              this,
-              negotiationId,
-              NegotiationState.SUBMITTED,
-              state,
-              NegotiationEvent.APPROVE,
-              null);
+              this, negotiationId, "SUBMITTED", state.name(), "APPROVE");
 
       // When
       handler.notify(event);
@@ -154,13 +131,7 @@ class NegotiationSubmissionHandlerTest {
 
     // But should work for SUBMITTED
     NegotiationStateChangeEvent submittedEvent =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+        new NegotiationStateChangeEvent(this, negotiationId, "DRAFT", "SUBMITTED", "SUBMIT", null);
     handler.notify(submittedEvent);
 
     verify(notificationService, times(1)).createNotifications(any());
