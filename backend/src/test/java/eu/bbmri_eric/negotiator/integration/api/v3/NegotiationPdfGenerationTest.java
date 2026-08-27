@@ -18,8 +18,11 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -243,6 +246,48 @@ class NegotiationPdfGenerationTest {
     assertNotNull(convertedPdfs.get(1));
     assertTrue(convertedPdfs.get(0).length > 0);
     assertTrue(convertedPdfs.get(1).length > 0);
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  void testGenerateNegotiationPdfWithAttachments_WithRealDocxAttachment_MergesConvertedPages()
+      throws Exception {
+    byte[] summaryPdf =
+        mockMvc
+            .perform(get(PDF_ENDPOINT, NEGOTIATION_1_ID))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsByteArray();
+
+    MockMultipartFile docxFile =
+        new MockMultipartFile(
+            "file",
+            "test.docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            loadTestFile("test.docx"));
+    mockMvc
+        .perform(multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID).file(docxFile))
+        .andExpect(status().isCreated());
+
+    byte[] mergedPdf =
+        mockMvc
+            .perform(get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andReturn()
+            .getResponse()
+            .getContentAsByteArray();
+
+    assertTrue(
+        countPages(mergedPdf) > countPages(summaryPdf),
+        "The converted attachment should add pages to the negotiation summary");
+  }
+
+  private int countPages(byte[] pdf) throws IOException {
+    try (PDDocument document = Loader.loadPDF(pdf)) {
+      return document.getNumberOfPages();
+    }
   }
 
   private byte[] createSimplePdfBytes() {
