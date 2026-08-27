@@ -1,7 +1,5 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -9,14 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *
  * @param negotiationId identifier of the parent negotiation
  * @param resourceId identifier of the affected resource
- * @param fromState previous resource state
- * @param toState new resource state
- * @param event resource-state-machine event that triggered the transition
+ * @param fromState name of the previous resource state
+ * @param toState name of the new resource state
+ * @param event name of the resource lifecycle event that triggered the transition
  */
 @WebhookEventDoc(
     summary = "Negotiation resource state changed",
     description =
-        "Sent when the state of a resource within a negotiation changes through the state machine.")
+        "Sent when the state of a resource within a negotiation changes through its lifecycle.")
 @Schema(description = "Webhook data payload for a negotiation resource state transition.")
 record NegotiationResourceStateUpdatedWebhookEvent(
     @Schema(
@@ -27,11 +25,15 @@ record NegotiationResourceStateUpdatedWebhookEvent(
             description = "Identifier of the affected resource",
             example = "dcba1234-5678-4c9a-8f0e-123456789abc")
         String resourceId,
-    @Schema(description = "Source resource state before transition", example = "SUBMITTED")
-        NegotiationResourceState fromState,
-    @Schema(description = "Target resource state after transition", example = "RESOURCE_AVAILABLE")
-        NegotiationResourceState toState,
     @Schema(
-            description = "State-machine event that triggered the transition",
+            description = "Name of the source resource state before transition",
+            example = "SUBMITTED")
+        String fromState,
+    @Schema(
+            description = "Name of the target resource state after transition",
+            example = "RESOURCE_AVAILABLE")
+        String toState,
+    @Schema(
+            description = "Name of the resource lifecycle event that triggered the transition",
             example = "MARK_AS_AVAILABLE")
-        NegotiationResourceEvent event) {}
+        String event) {}

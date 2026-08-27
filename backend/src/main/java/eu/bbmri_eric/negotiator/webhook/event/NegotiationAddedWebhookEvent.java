@@ -1,13 +1,12 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Webhook data payload for a newly created negotiation.
  *
  * @param negotiationId identifier of the created negotiation
- * @param currentState state of the created negotiation
+ * @param currentState name of the state of the created negotiation
  */
 @WebhookEventDoc(
     summary = "Negotiation added",
@@ -16,5 +15,5 @@ import io.swagger.v3.oas.annotations.media.Schema;
 record NegotiationAddedWebhookEvent(
     @Schema(description = "Identifier of the created negotiation", example = "negotiation-3")
         String negotiationId,
-    @Schema(description = "Current negotiation state", example = "SUBMITTED")
-        NegotiationState currentState) {}
+    @Schema(description = "Name of the current negotiation state", example = "SUBMITTED")
+        String currentState) {}
