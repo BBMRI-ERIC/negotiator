@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.notification.internal;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -28,7 +28,7 @@ class NegotiationInProgressHandler implements NotificationStrategy<NegotiationSt
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    if (event.getToState() == NegotiationState.IN_PROGRESS) {
+    if (WellKnownNegotiationStates.IN_PROGRESS.equals(event.getToState().name())) {
       resourceNotificationService.notifyResourceRepresentatives(event.getNegotiationId());
     }
   }
