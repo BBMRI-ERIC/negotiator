@@ -33,7 +33,7 @@
                 pkgs.yarn
               ]
               ++ toolPackages
-              ++ lib.optionals pkgs.stdenv.isLinux [
+              ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
                 pkgs.docker
                 pkgs."docker-compose"
               ];
