@@ -4,7 +4,6 @@ import static org.apache.commons.math3.util.Precision.round;
 
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,14 +39,13 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
         networkRepository.getIgnoredForNetwork(filter.getSince(), filter.getUntil(), networkId);
     List<String> successfulIds =
         networkRepository.getSuccessfulForNetwork(filter.getSince(), filter.getUntil(), networkId);
-    Map<NegotiationState, Integer> states =
+    Map<String, Integer> states =
         networkRepository
             .countStatusDistribution(filter.getSince(), filter.getUntil(), networkId)
             .stream()
             .collect(
                 Collectors.toMap(
-                    result -> (NegotiationState) result[0],
-                    result -> ((Long) result[1]).intValue()));
+                    result -> stateNameOf(result[0]), result -> ((Long) result[1]).intValue()));
     Map<String, List<String>> ids = new HashMap<>();
     ids.put("Ignored", ignoredIds);
     ids.put("Successful", successfulIds);
@@ -66,5 +64,15 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
         .statusDistribution(states)
         .negotiationIds(ids)
         .build();
+  }
+
+  /**
+   * Reads the State name from the untyped projection that {@code countStatusDistribution} returns.
+   * The value is an enum while {@code Negotiation.currentState} is an {@code @Enumerated} field and
+   * a String otherwise, so this reads both. The projection is an {@code Object}, so a cast would
+   * compile either way and fail only at runtime.
+   */
+  private static String stateNameOf(Object projectedState) {
+    return projectedState instanceof Enum<?> state ? state.name() : (String) projectedState;
   }
 }
