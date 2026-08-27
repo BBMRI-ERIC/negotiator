@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.governance.network.stats;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +41,7 @@ public class SimpleNetworkStatistics implements NetworkStatistics {
   @Schema(
       description = "Distribution of negotiation statuses in the network",
       example = "{\"IN_PROGRESS\": 50, \"SUBMITTED\": 90, \"ABANDONED\": 10}")
-  private Map<NegotiationState, Integer> statusDistribution = new HashMap<>();
+  private Map<String, Integer> statusDistribution = new HashMap<>();
 
   private Map<String, List<String>> negotiationIds = new HashMap<>();
 }
