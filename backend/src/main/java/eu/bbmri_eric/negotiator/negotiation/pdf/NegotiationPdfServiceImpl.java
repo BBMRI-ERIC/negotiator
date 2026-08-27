@@ -3,6 +3,8 @@ package eu.bbmri_eric.negotiator.negotiation.pdf;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
 import com.itextpdf.layout.font.FontProvider;
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
@@ -190,13 +192,11 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       FontProvider fontProvider = new DefaultFontProvider(false, false, false);
       fontProvider.addFont(fontUrl.toString());
 
-      com.itextpdf.html2pdf.HtmlConverter.convertToPdf(
-          html,
-          outputStream,
-          new com.itextpdf.html2pdf.ConverterProperties().setFontProvider(fontProvider));
+      HtmlConverter.convertToPdf(
+          html, outputStream, new ConverterProperties().setFontProvider(fontProvider));
       return outputStream.toByteArray();
     } catch (Exception e) {
-      log.error("Error rendering PDF: " + e.getMessage());
+      log.error("Error rendering PDF", e);
     }
     throw new PdfGenerationException("Error generating the PDF summary");
   }
