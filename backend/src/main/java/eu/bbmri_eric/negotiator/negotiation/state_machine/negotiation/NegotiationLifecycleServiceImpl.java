@@ -58,8 +58,13 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   private void changeStateMachine(String negotiationId, String event, String message) {
     if (!getPossibleEvents(negotiationId).contains(event)) {
+      String label =
+          lifecycleCatalog.label(
+              EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+              EnumBackedLifecycleCatalog.Element.EVENT,
+              event);
       throw new ForbiddenRequestException(
-          "You are not allowed to %s the Negotiation".formatted(eventLabel(event).toLowerCase()));
+          "You are not allowed to %s the Negotiation".formatted(label.toLowerCase()));
     }
 
     persistStateMachineHandler
@@ -73,20 +78,6 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
                 .build(),
             getCurrentStateForNegotiation(negotiationId))
         .subscribe();
-  }
-
-  /**
-   * Reads a Negotiation Event's human label off the catalog rather than off the enum this service
-   * is about to lose. Replaced by the label on the named {@code event} row at the Lifecycle
-   * cutover.
-   */
-  private String eventLabel(String event) {
-    return lifecycleCatalog
-        .metadata(
-            EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
-            EnumBackedLifecycleCatalog.Element.EVENT,
-            event)
-        .label();
   }
 
   private String getCurrentStateForNegotiation(String negotiationId) {
