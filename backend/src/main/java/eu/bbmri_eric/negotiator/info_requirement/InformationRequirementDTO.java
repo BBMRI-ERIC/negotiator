@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.info_requirement;
 
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +18,9 @@ import org.springframework.hateoas.server.core.Relation;
 public class InformationRequirementDTO {
   private Long id;
   private AccessFormDTO requiredAccessForm;
-  private NegotiationResourceEvent forResourceEvent;
+
+  @Schema(description = "Event guarded by this information requirement", example = "CONTACT")
+  private String forResourceEvent;
+
   private boolean isViewableOnlyByAdmin;
 }

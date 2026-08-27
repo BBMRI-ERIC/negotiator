@@ -472,8 +472,8 @@ public class NegotiationLifecycleServiceImplTest {
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
     requirementRepository.save(
-        new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
-    assertTrue(requirementRepository.existsByForEvent(NegotiationResourceEvent.CONTACT));
+        new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT.name()));
+    assertTrue(requirementRepository.existsByForEvent(NegotiationResourceEvent.CONTACT.name()));
     assertThrows(
         StateMachineException.class,
         () ->
@@ -492,14 +492,14 @@ public class NegotiationLifecycleServiceImplTest {
     InformationRequirement requirement =
         requirementRepository.save(
             new InformationRequirement(
-                accessForm, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+                accessForm, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY.name()));
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     Resource resource = resourceRepository.findBySourceId("biobank:1:collection:2").get();
     informationSubmissionRepository.saveAndFlush(
         new InformationSubmission(requirement, resource, negotiation, "{}"));
     assertTrue(
         requirementRepository.existsByForEvent(
-            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY.name()));
     assertTrue(
         informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resource.getSourceId(), negotiation.getId()));
