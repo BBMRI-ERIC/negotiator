@@ -70,7 +70,6 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
   public String currentNegotiationState(String negotiationId) {
     return negotiationRepository
         .findNegotiationStateById(negotiationId)
-        .map(Enum::name)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
@@ -92,7 +91,6 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
   public String currentResourceState(String negotiationId, String resourceId) {
     return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
-        .map(Enum::name)
         .orElse(null);
   }
 

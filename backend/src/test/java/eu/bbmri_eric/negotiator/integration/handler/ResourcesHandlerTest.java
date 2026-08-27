@@ -8,8 +8,6 @@ import eu.bbmri_eric.negotiator.governance.resource.NonRepresentedResourcesHandl
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
@@ -33,14 +31,12 @@ public class ResourcesHandlerTest {
   void updateState_1negotiation1Resource_updated() {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     assertEquals("negotiation-1", negotiation.getId());
-    assertEquals(NegotiationState.IN_PROGRESS, negotiation.getCurrentState());
+    assertEquals("IN_PROGRESS", negotiation.getCurrentState());
     Resource resource = negotiation.getResources().iterator().next();
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_UNREACHABLE");
     handler.updateResourceInOngoingNegotiations(resource.getId(), resource.getSourceId());
     assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        negotiation.getCurrentStateForResource(resource.getSourceId()));
+        "REPRESENTATIVE_CONTACTED", negotiation.getCurrentStateForResource(resource.getSourceId()));
   }
 
   @Test
@@ -48,14 +44,12 @@ public class ResourcesHandlerTest {
   void updateState_resourceNotUnreachable_noChange() {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     Resource resource = negotiation.getResources().iterator().next();
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_CONTACTED");
 
     handler.updateResourceInOngoingNegotiations(resource.getId(), resource.getSourceId());
 
     assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        negotiation.getCurrentStateForResource(resource.getSourceId()));
+        "REPRESENTATIVE_CONTACTED", negotiation.getCurrentStateForResource(resource.getSourceId()));
   }
 
   @Test
@@ -63,13 +57,12 @@ public class ResourcesHandlerTest {
   void updateState_abandonedNegotiation_noChange() {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     Resource resource = negotiation.getResources().iterator().next();
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
-    negotiation.setCurrentState(NegotiationState.ABANDONED);
-    assertEquals(NegotiationState.ABANDONED, negotiation.getCurrentState());
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_UNREACHABLE");
+    negotiation.setCurrentState("ABANDONED");
+    assertEquals("ABANDONED", negotiation.getCurrentState());
     handler.updateResourceInOngoingNegotiations(resource.getId(), resource.getSourceId());
     assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
+        "REPRESENTATIVE_UNREACHABLE",
         negotiation.getCurrentStateForResource(resource.getSourceId()));
   }
 

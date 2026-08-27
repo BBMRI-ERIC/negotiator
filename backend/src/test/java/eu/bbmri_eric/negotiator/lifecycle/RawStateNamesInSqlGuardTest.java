@@ -97,8 +97,10 @@ class RawStateNamesInSqlGuardTest {
     /** Wrapped in SQL single quotes: a string constant the database compares against a column. */
     QUOTED,
     /**
-     * Bare: an unquoted JPQL reference that Hibernate resolves against the enum-typed attribute it
-     * is compared to. See {@link RawStateNamesInSqlGuardTest#UNQUOTED_JPQL_REFERENCE}.
+     * Bare: an unquoted JPQL word, which Hibernate resolves against the type of the attribute it is
+     * compared to. No query spells a name this way any more - see {@link
+     * RawStateNamesInSqlGuardTest#noQuerySpellsANameBare()} - and the value is kept so that one
+     * reappearing is reported rather than silently read as a literal.
      */
     BARE
   }
@@ -171,35 +173,18 @@ class RawStateNamesInSqlGuardTest {
   }
 
   /**
-   * The one name in a query that is <em>not</em> a literal, kept apart because it fails in the
-   * opposite way to the other thirteen.
+   * All fourteen names, each attributed to the query that holds it and to what breaks it. All
+   * fourteen are now SQL string constants.
    *
-   * <p>{@code n.currentState != DRAFT} is JPQL, and Hibernate resolves the bare word against the
-   * type of the attribute it is compared to - today {@code NegotiationState}, so it resolves to the
-   * enum constant. The moment slice 11 makes {@code Negotiation.currentState} a {@code String},
-   * that word has nothing left to resolve against and Hibernate rejects the query while it
-   * validates the named queries, at application startup, before a single request is served.
-   *
-   * <p>That is the safe failure and the reason this one is worth naming separately: it is loud,
-   * immediate, and impossible to ship. The thirteen quoted literals fail the other way - the query
-   * still parses, still runs, and quietly matches no rows. If anyone ever "tidies" this line by
-   * quoting it, it stops being the safe one, which is what {@link
-   * #theUnquotedReference_isStillBare()} exists to notice.
-   */
-  private static final PinnedName UNQUOTED_JPQL_REFERENCE =
-      new PinnedName(
-          NEGOTIATION_REPOSITORY,
-          74,
-          "DRAFT",
-          Spelling.BARE,
-          "countAllNotDraftForNetwork - JPQL, a bare enum reference rather than a literal, excluding"
-              + " drafts from the network's total. The only one of the fourteen whose breakage"
-              + " is a startup failure rather than a silent zero.");
-
-  /**
-   * All fourteen names, each attributed to the query that holds it and to what breaks it. Thirteen
-   * are SQL string constants; the fourteenth is {@link #UNQUOTED_JPQL_REFERENCE}, which is listed
-   * here so the exactness check covers it and documented above because it fails differently.
+   * <p>The fourteenth used to be different, and the way it stopped being different is worth
+   * keeping. {@code n.currentState != DRAFT} was JPQL with a bare word, which Hibernate resolved
+   * against the enum-typed attribute beside it - so deleting the enum broke that query loudly, at
+   * startup, while the named queries were validated. Slice 11 made {@code Negotiation.currentState}
+   * a {@code String}, at which point the word had nothing left to resolve against and Hibernate
+   * rejected the query exactly as predicted. Quoting it was the only repair available: the
+   * comparison has to keep working, and a name compared against a {@code String} column is a
+   * literal. So the loud failure was spent rather than given up, and this file is now the only
+   * place any of the fourteen is written down.
    *
    * <p>Two hazards recur and are named in the reasons. <em>Audit column</em> marks a filter on
    * {@code negotiation_resource_lifecycle_record.changed_to}, which ADR 0008 converts to a foreign
@@ -289,18 +274,26 @@ class RawStateNamesInSqlGuardTest {
                   + " exclusion."),
           new PinnedName(
               NEGOTIATION_REPOSITORY,
-              35,
+              33,
               "CHECKING_AVAILABILITY",
               Spelling.QUOTED,
               "getMedianResponseForNetwork - native, audit column, marking the first representative"
                   + " response. This is the copy NetworkStatisticsServiceImpl calls."),
           new PinnedName(
               NEGOTIATION_REPOSITORY,
-              35,
+              33,
               "RESOURCE_UNAVAILABLE",
               Spelling.QUOTED,
               "getMedianResponseForNetwork - native, audit column, second half of that filter."),
-          UNQUOTED_JPQL_REFERENCE);
+          new PinnedName(
+              NEGOTIATION_REPOSITORY,
+              71,
+              "DRAFT",
+              Spelling.QUOTED,
+              "countAllNotDraftForNetwork - JPQL, excluding drafts from the network's total. Bare"
+                  + " until slice 11, when the attribute it is compared to became a String and"
+                  + " Hibernate had nothing to resolve the word against. Quoted since, and so now"
+                  + " fails the same silent way as the other thirteen."));
 
   /**
    * Every State and Event name the Lifecycle knows, taken from the enums rather than typed out. A
@@ -375,34 +368,32 @@ class RawStateNamesInSqlGuardTest {
   }
 
   @Test
-  @DisplayName("the one bare JPQL reference is still bare, and so still fails loudly")
-  void theUnquotedReference_isStillBare() {
-    String line = lineOf(UNQUOTED_JPQL_REFERENCE.file(), UNQUOTED_JPQL_REFERENCE.line());
+  @DisplayName("no query spells a State name as a bare word any more")
+  void noQuerySpellsANameBare() {
+    List<Coordinates> bare =
+        scanProductionQueries().stream()
+            .filter(found -> found.spelling() == Spelling.BARE)
+            .toList();
 
     assertTrue(
-        line.contains("!= " + UNQUOTED_JPQL_REFERENCE.name()),
+        bare.isEmpty(),
         """
-        %s:%d no longer compares against a bare %s.
+        A query spells a State or Event name as a bare word: %s
 
-        Line reads: %s
+        Until slice 11 exactly one did, and Hibernate resolved it against the enum-typed attribute
+        beside it. No attribute is enum-typed now, so a bare name has nothing to resolve against
+        and the query is rejected while the named queries are validated - at startup, before a
+        request is served. That is loud and is not shippable.
 
-        This is the only one of the fourteen that fails safely. Hibernate resolves the bare word
-        against the type of the attribute beside it, so once Negotiation.currentState is a String
-        the query is rejected while the named queries are validated - at startup, before a request
-        is served. Quoting the name turns that into a filter that parses, runs and matches nothing.
-
-        If the comparison genuinely had to change, move this entry into PINNED_NAMES as a QUOTED
-        literal and say in its reason why the loud failure was given up."""
-            .formatted(
-                UNQUOTED_JPQL_REFERENCE.file(),
-                UNQUOTED_JPQL_REFERENCE.line(),
-                UNQUOTED_JPQL_REFERENCE.name(),
-                line.strip()));
+        Quote the name if the comparison is meant to be against a literal, or bind it as a
+        parameter from a Well-known name holder if it is meant to be visible to the compiler."""
+            .formatted(bare));
 
     assertFalse(
-        line.contains("'" + UNQUOTED_JPQL_REFERENCE.name() + "'"),
-        "%s:%d has quoted the one reference whose whole value is that it is unquoted."
-            .formatted(UNQUOTED_JPQL_REFERENCE.file(), UNQUOTED_JPQL_REFERENCE.line()));
+        PINNED_NAMES.stream().anyMatch(pinned -> pinned.coordinates().spelling() == Spelling.BARE),
+        """
+        A pinned name is recorded as BARE while the scan finds none, so the record and the tree
+        disagree about the one distinction this guard draws between them.""");
   }
 
   @Test

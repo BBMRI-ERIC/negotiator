@@ -8,7 +8,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +64,7 @@ public interface NegotiationService {
    * @param state the current state of the negotiations
    * @return a paged list of NegotiationDTOs
    */
-  Iterable<NegotiationDTO> findAllByCurrentStatus(Pageable pageable, NegotiationState state);
+  Iterable<NegotiationDTO> findAllByCurrentStatus(Pageable pageable, String state);
 
   /**
    * Retrieves all the Negotiations, using pagination, filtered by provided filters and
@@ -120,7 +119,7 @@ public interface NegotiationService {
    * @param negotiationState current state of interest.
    * @return A list of NegotiationDTOs with specific state.
    */
-  List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState);
+  List<NegotiationDTO> findAllWithCurrentState(String stateName);
 
   /**
    * Checks whether the currently authenticated user is authorized for negotiation

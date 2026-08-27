@@ -7,7 +7,6 @@ import static org.mockito.Mockito.*;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -65,14 +64,13 @@ class PendingNegotiationReminderHandlerTest {
     when(negotiation1.getResources()).thenReturn(Set.of(resource1));
     when(resource1.getSourceId()).thenReturn("resource-1");
     when(negotiation1.getCurrentStateForResource("resource-1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .thenReturn("REPRESENTATIVE_CONTACTED");
     when(resource1.getRepresentatives()).thenReturn(Set.of(rep1, rep2));
 
     // Setup negotiation2 with no contacted representatives - only stub what's needed
     when(negotiation2.getResources()).thenReturn(Set.of(resource2));
     when(resource2.getSourceId()).thenReturn("resource-2");
-    when(negotiation2.getCurrentStateForResource("resource-2"))
-        .thenReturn(NegotiationResourceState.SUBMITTED);
+    when(negotiation2.getCurrentStateForResource("resource-2")).thenReturn("SUBMITTED");
 
     when(negotiationRepository.findAllCreatedOn(any(LocalDateTime.class)))
         .thenReturn(Set.of(negotiation1, negotiation2));
@@ -115,7 +113,7 @@ class PendingNegotiationReminderHandlerTest {
     when(negotiation1.getResources()).thenReturn(Set.of(resource1));
     when(resource1.getSourceId()).thenReturn("resource-1");
     when(negotiation1.getCurrentStateForResource("resource-1"))
-        .thenReturn(NegotiationResourceState.SUBMITTED); // Not REPRESENTATIVE_CONTACTED
+        .thenReturn("SUBMITTED"); // Not REPRESENTATIVE_CONTACTED
 
     when(negotiationRepository.findAllCreatedOn(any(LocalDateTime.class)))
         .thenReturn(Set.of(negotiation1));
@@ -163,9 +161,8 @@ class PendingNegotiationReminderHandlerTest {
 
     // Only resource1 is in REPRESENTATIVE_CONTACTED state
     when(negotiation1.getCurrentStateForResource("resource-1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    when(negotiation1.getCurrentStateForResource("resource-2"))
-        .thenReturn(NegotiationResourceState.SUBMITTED);
+        .thenReturn("REPRESENTATIVE_CONTACTED");
+    when(negotiation1.getCurrentStateForResource("resource-2")).thenReturn("SUBMITTED");
 
     when(resource1.getRepresentatives()).thenReturn(Set.of(contactedRep));
 
@@ -205,14 +202,14 @@ class PendingNegotiationReminderHandlerTest {
     when(resource1.getSourceId()).thenReturn("resource-1");
     when(resource1.getRepresentatives()).thenReturn(Set.of(rep1, rep2));
     when(negotiation1.getCurrentStateForResource("resource-1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .thenReturn("REPRESENTATIVE_CONTACTED");
 
     // Setup second negotiation with different resource
     when(negotiation2.getId()).thenReturn("NEG-456");
     when(negotiation2.getTitle()).thenReturn("Negotiation 2");
     when(negotiation2.getResources()).thenReturn(Set.of(resource3));
     when(negotiation2.getCurrentStateForResource("resource-3"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .thenReturn("REPRESENTATIVE_CONTACTED");
 
     when(negotiationRepository.findAllCreatedOn(any(LocalDateTime.class)))
         .thenReturn(Set.of(negotiation1, negotiation2));

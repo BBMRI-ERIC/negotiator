@@ -40,7 +40,7 @@ class NewNegotiationHandler implements NotificationStrategy<NewNegotiationEvent>
   @Override
   @Transactional
   public void notify(NewNegotiationEvent event) {
-    if (!WellKnownNegotiationStates.SUBMITTED.equals(nameOf(event.getCurrentState()))) {
+    if (!WellKnownNegotiationStates.SUBMITTED.equals(event.getCurrentState())) {
       return;
     }
     createResearcherConfirmationNotification(event.getNegotiationId());

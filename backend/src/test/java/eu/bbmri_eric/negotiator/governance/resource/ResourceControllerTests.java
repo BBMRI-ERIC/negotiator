@@ -31,7 +31,6 @@ import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
@@ -212,8 +211,7 @@ public class ResourceControllerTests {
   void getAllResources_approvedNegotiation_resourceContainsLifecycleLinks() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().stream().findFirst().get();
     Resource resource = negotiation.getResources().iterator().next();
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_CONTACTED");
     negotiationRepository.save(negotiation);
     mockMvc
         .perform(
@@ -249,8 +247,7 @@ public class ResourceControllerTests {
   void getAllResources_approvedNegotiation_resourceContainsAllLinks() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().stream().findFirst().get();
     Resource resource = negotiation.getResources().iterator().next();
-    negotiation.setStateForResource(
-        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiation.setStateForResource(resource.getSourceId(), "REPRESENTATIVE_CONTACTED");
     negotiationRepository.save(negotiation);
     mockMvc
         .perform(

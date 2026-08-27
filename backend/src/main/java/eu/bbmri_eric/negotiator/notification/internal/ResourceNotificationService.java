@@ -44,7 +44,7 @@ class ResourceNotificationService {
 
   private void handleResourceStateManagement(String negotiationId) {
     Negotiation negotiation = findNegotiation(negotiationId);
-    if (!WellKnownNegotiationStates.IN_PROGRESS.equals(negotiation.getCurrentState().name())) {
+    if (!WellKnownNegotiationStates.IN_PROGRESS.equals(negotiation.getCurrentState())) {
       return;
     }
     Set<Person> contactedRepresentatives = new HashSet<>();

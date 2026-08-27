@@ -13,8 +13,6 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceViewDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import java.util.List;
 import java.util.Set;
@@ -182,15 +180,14 @@ public class ResourceRepositoryTest {
     Negotiation negotiation =
         Negotiation.builder()
             .resources(Set.of(res1, res2))
-            .currentState(NegotiationState.SUBMITTED)
+            .currentState("SUBMITTED")
             .humanReadable("#1 MaterialType: DNA")
             .discoveryService(discoveryService)
             .publicPostsEnabled(false)
             .payload(payload)
             .build();
-    negotiation.setStateForResource(res1.getSourceId(), NegotiationResourceState.SUBMITTED);
-    negotiation.setStateForResource(
-        res2.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiation.setStateForResource(res1.getSourceId(), "SUBMITTED");
+    negotiation.setStateForResource(res2.getSourceId(), "REPRESENTATIVE_CONTACTED");
     negotiation = negotiationRepository.save(negotiation);
 
     List<ResourceViewDTO> resources = resourceRepository.findByNegotiation(negotiation.getId());

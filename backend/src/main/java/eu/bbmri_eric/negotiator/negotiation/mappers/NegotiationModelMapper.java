@@ -7,7 +7,6 @@ import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import jakarta.annotation.PostConstruct;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
@@ -32,7 +31,7 @@ public class NegotiationModelMapper {
     TypeMap<Negotiation, NegotiationDTO> typeMap =
         modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
 
-    Converter<Enum<?>, String> negotiationStatusConverter = status -> nameOf(status.getSource());
+    Converter<String, String> negotiationStatusConverter = status -> nameOf(status.getSource());
 
     Converter<String, JsonNode> payloadConverter =
         p -> {
@@ -61,8 +60,7 @@ public class NegotiationModelMapper {
     TypeMap<NegotiationCreateDTO, Negotiation> createDTOToEntity =
         modelMapper.createTypeMap(NegotiationCreateDTO.class, Negotiation.class);
 
-    Converter<Boolean, NegotiationState> currentStateConverter =
-        c -> NegotiationState.valueOf(initialStateFor(c.getSource()));
+    Converter<Boolean, String> currentStateConverter = c -> initialStateFor(c.getSource());
     createDTOToEntity.addMappings(
         mapper ->
             mapper
@@ -86,23 +84,19 @@ public class NegotiationModelMapper {
   }
 
   /**
-   * Reads the name off the Negotiation's current State, which is still an enum on the entity. The
-   * empty string for an absent State is what the DTO has always carried, and {@code @JsonInclude}
-   * would drop the field entirely from the response if it became a null.
+   * The name the DTO carries for the Negotiation's State. Not the identity function, despite both
+   * sides now being names: the empty string for an absent State is what the wire has always
+   * carried, and {@code @JsonInclude(NON_NULL)} on the DTO would drop {@code status} from the
+   * response body entirely if this returned null.
    */
-  private String nameOf(Enum<?> currentState) {
+  private String nameOf(String currentState) {
     if (Objects.isNull(currentState)) {
       return "";
     }
-    return currentState.name();
+    return currentState;
   }
 
-  /**
-   * The State a Negotiation is created in. A name, like every other State in this class - the
-   * {@code valueOf} at the call site above is the boundary translation, and exists only because the
-   * entity's field is still typed as the enum. Slice 11 makes that field a name and deletes the
-   * translation, leaving this method's result assigned directly.
-   */
+  /** The State a Negotiation is created in. */
   private String initialStateFor(boolean isDraft) {
     return isDraft ? WellKnownNegotiationStates.DRAFT : WellKnownNegotiationStates.SUBMITTED;
   }
