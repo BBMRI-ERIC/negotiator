@@ -39,6 +39,9 @@ public class NetworkControllerTests {
 
   private static final String NETWORKS_URL = "/v3/networks";
 
+  private static final String NETWORK_1_STATISTICS_URL =
+      NETWORKS_URL + "/1/statistics?since=2024-01-01&until=2024-12-18";
+
   @Autowired private MockMvc mockMvc;
   @Autowired private NetworkRepository networkRepository;
 
@@ -568,9 +571,7 @@ public class NetworkControllerTests {
   @WithUserDetails("admin")
   void getStatistics_validNetwork_ok() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                NETWORKS_URL + "/1/statistics?since=2024-01-01&until=2024-12-18"))
+        .perform(MockMvcRequestBuilders.get(NETWORK_1_STATISTICS_URL))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.networkId", is(1)))
@@ -581,14 +582,12 @@ public class NetworkControllerTests {
         .andExpect(jsonPath("$.numberOfNewRequesters", is(1)))
         .andExpect(jsonPath("$.numberOfActiveRepresentatives", is(1)))
         .andExpect(jsonPath("$.negotiationIds.Ignored", hasSize(0)))
-        .andExpect(jsonPath("$.negotiationIds.Successful", hasSize(0)))
-        .andExpect(jsonPath("$.statusDistribution.ABANDONED", is(1)));
+        .andExpect(jsonPath("$.negotiationIds.Successful", hasSize(0)));
   }
 
   /**
-   * The per-status distribution is a map whose keys a network manager reads as State names. Nothing
-   * pinned the whole map before, so a key that changed spelling or a state that started or stopped
-   * appearing would have gone unnoticed behind the single ABANDONED assertion above.
+   * A network manager reads the distribution keys as State names, so this test checks the whole
+   * map.
    *
    * <p>The missing DRAFT key matters most. {@code negotiation-6} is a DRAFT inside this window on a
    * resource of this network, and only the {@code != 'DRAFT'} filter in {@code
@@ -599,9 +598,7 @@ public class NetworkControllerTests {
   @WithUserDetails("admin")
   void getStatistics_validNetwork_distributionIsKeyedByStateNameAndOmitsDrafts() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                NETWORKS_URL + "/1/statistics?since=2024-01-01&until=2024-12-18"))
+        .perform(MockMvcRequestBuilders.get(NETWORK_1_STATISTICS_URL))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.statusDistribution.length()", is(3)))
         .andExpect(jsonPath("$.statusDistribution.SUBMITTED", is(1)))
