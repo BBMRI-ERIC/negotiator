@@ -45,6 +45,21 @@ public class ResourcesHandlerTest {
 
   @Test
   @Transactional
+  void updateState_resourceNotUnreachable_noChange() {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    Resource resource = negotiation.getResources().iterator().next();
+    negotiation.setStateForResource(
+        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+
+    handler.updateResourceInOngoingNegotiations(resource.getId(), resource.getSourceId());
+
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        negotiation.getCurrentStateForResource(resource.getSourceId()));
+  }
+
+  @Test
+  @Transactional
   void updateState_abandonedNegotiation_noChange() {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     Resource resource = negotiation.getResources().iterator().next();
