@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.notification.internal;
 
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
@@ -36,9 +36,13 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    switch (event.getToState()) {
-      case SUBMITTED -> createConfirmationNotification(event.getNegotiationId());
-      case IN_PROGRESS, DECLINED, ABANDONED -> createStatusChangeNotification(event);
+    switch (event.getToState().name()) {
+      case WellKnownNegotiationStates.SUBMITTED ->
+          createConfirmationNotification(event.getNegotiationId());
+      case WellKnownNegotiationStates.IN_PROGRESS,
+              WellKnownNegotiationStates.DECLINED,
+              WellKnownNegotiationStates.ABANDONED ->
+          createStatusChangeNotification(event);
       default -> {
         // no notification for other states
       }
@@ -67,7 +71,7 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
       return;
     }
     String title = "Request Status Update";
-    String message = createStatusChangeMessage(event.getToState(), negotiation.getTitle());
+    String message = createStatusChangeMessage(event.getToState().name(), negotiation.getTitle());
 
     NotificationCreateDTO notification =
         new NotificationCreateDTO(
@@ -81,17 +85,17 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
             + event.getToState());
   }
 
-  private String createStatusChangeMessage(NegotiationState newState, String negotiationTitle) {
+  private String createStatusChangeMessage(String newState, String negotiationTitle) {
     return switch (newState) {
-      case IN_PROGRESS ->
+      case WellKnownNegotiationStates.IN_PROGRESS ->
           "Your negotiation request '"
               + negotiationTitle
               + "' has been approved. You can now proceed with the next steps.";
-      case DECLINED ->
+      case WellKnownNegotiationStates.DECLINED ->
           "Your negotiation request '"
               + negotiationTitle
               + "' has been rejected. Please review the feedback and consider resubmitting with modifications.";
-      case ABANDONED ->
+      case WellKnownNegotiationStates.ABANDONED ->
           "Your negotiation request '" + negotiationTitle + "' has been marked as abandoned.";
       default ->
           "Your negotiation request '"

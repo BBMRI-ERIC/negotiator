@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.notification.internal;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
@@ -35,7 +35,7 @@ class NegotiationSubmissionHandler implements NotificationStrategy<NegotiationSt
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    if (event.getToState() == NegotiationState.SUBMITTED) {
+    if (WellKnownNegotiationStates.SUBMITTED.equals(event.getToState().name())) {
       notifyAdminsAboutNewSubmission(event.getNegotiationId());
     }
   }
