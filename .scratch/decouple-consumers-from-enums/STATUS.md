@@ -16,6 +16,7 @@ here are settled; do not relitigate them in a later slice.
 | [02 The Enum-Backed Lifecycle Catalog](issues/02-enum-backed-lifecycle-catalog.md) | **done** | catalog test 13/0/0/0; whole suite not measured at this tip - reconstructed as 1444, see this slice's section; parity and deltas green over it rather than at it |
 | [03 Pin the raw State names in SQL](issues/03-pin-the-raw-state-names-in-sql.md) | **done** | 6 tests green; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [04 Webhook payloads name States as strings](issues/04-webhook-payloads-name-states-as-strings.md) | **done** | mapper test 10 → 14, listener test 9 unchanged in count; full suite 1457/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
+| [05 Notification handlers name States as strings](issues/05-notification-handlers-name-states-as-strings.md) | **done** | +8 tests: new `ResourceStateChangeHandlerTest` 4, status-change handler 8 -> 12; full suite 1472/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 | [08 DTOs, mappers and the Negotiation timeline](issues/08-dtos-mappers-and-the-negotiation-timeline.md) | **done** | mapper test 7 -> 10, timeline test 4 -> 5, controller test +1; full suite 1462/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured at base `a3e02e59`, before 09 landed; see the rebase note in 08's section |
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
@@ -343,6 +344,93 @@ that `nix develop .#opencode` inside `.claude/worktrees/<slice>` fails with `ope
 `/home/claude/repos/bbmri-eric-negotiator` succeeds. So run Maven from the main checkout and point it
 at the worktree — `nix develop .#opencode --command <script> -f <worktree>/backend <selector>` — which
 keeps the Nix shell, keeps each worktree's own `target/`, and needs no bare `mvn`.
+
+## What slice 05 settled, for slices 10 and 11
+
+**The batch is seven files, not the six every count records.** `ResourceStateChangeHandler` names no
+Lifecycle enum and so appears in no grep, but it built its message from `getLabel()` on both of the
+event's Resource States - the PRD's "fourth kind of work", using an enum as a lookup table rather
+than as an identity. Ticket 02 concluded the file "needs no change here". A later slice taking a
+file list from a whole-word identifier scan should add the label, description and ordinal readers by
+hand; they are invisible to it by construction, which is the same trap the decoupling guard's second
+rule exists for.
+
+**The catalog has its first production caller, and it is shaped the way slice 02 asked.** Two
+`metadata(Scope.RESOURCE, Element.STATE, name).label()` calls, one per State rather than one per
+field, reached through the coordinates rather than a per-enum method. `ResourceStateChangeHandler`
+gained a third constructor dependency for it. Its new test builds `new EnumBackedLifecycleCatalog()`
+directly - the class has no state and needs no Spring - so the labels the message is pinned against
+are the real ones and not a mock's idea of them.
+
+**Carve-out 2 needed nothing outside `notification/internal`, because slice 09 had already built the
+gap-crosser.** `Negotiation.setStateForResource(String, String)` exists and is null-preserving, so
+the Spawn loop's two holder constants resolve straight onto it and the third swap is a comparison.
+`ResourceNotificationService` differs by its imports and the three lines at `:47`, `:57`, `:60`;
+`NegotiationInProgressHandler` by its import and the one line at `:31`. Exactly the four references
+ticket 07 named, and nothing else - so the coupling slab relocates a loop whose body is already
+String-shaped, and its diff shows only the relocation.
+
+**Six translations, and the slice that deletes each.** Slice 10 flips the two change events; slice 11
+flips the entity field and `NewNegotiationEvent`.
+
+- `NewNegotiationHandler.nameOf(Enum<?>)` - **slice 11**, with `NewNegotiationEvent`, exactly as
+  slice 04 predicted from the other end.
+- `PendingNegotiationReminderHandler.nameOf(Enum<?>)` - **slice 11**, with
+  `NegotiationResourceLink.currentState`. It reads the entity, not an event, which is why it is a
+  second copy of the same three lines rather than a shared helper: the two die in different slices
+  and a shared home would outlive one of them.
+- `NegotiationSubmissionHandler.nameOf(Enum<?>)` - **slice 10**, with the seam.
+- Bare `.name()` on `getToState()`, once in `NegotiationInProgressHandler` and twice in
+  `NegotiationStatusChangeHandler` - **slice 10**.
+- `ResourceNotificationService`'s `.name()` on `getCurrentState()` - **slice 11**.
+- `ResourceStateChangeHandler`'s two `.name()` on the change event - **slice 10**. The catalog call
+  behind them is not a translation and outlives both; it dies at the cutover.
+
+**Null behaviour, in three groups, with one accepted delta.** Slice 04's rule is that an NPE where
+there was none is observable, and it holds here except in one place that could not keep it.
+
+- *Faithful by construction:* `NegotiationStatusChangeHandler`'s switch and
+  `ResourceNotificationService`'s comparison both threw on a null State before the swap - a `switch`
+  over a null enum and `.equals` on a null receiver - and both still throw.
+- *Kept null-tolerant through `nameOf`:* `NewNegotiationHandler`, `PendingNegotiationReminderHandler`
+  and `NegotiationSubmissionHandler`. All three compared with `!=` or `==` before, so null was
+  quietly ignored, and it still is.
+- *The delta:* `NegotiationInProgressHandler` turned a null-safe `==` into `.name()`, so a null
+  destination State now throws where it used to be passed over. Carve-out 2 forbids that file a new
+  member and a null guard inline would have been the structural change the AC rules out. The field
+  cannot be null in production: `PersistStateChangeListener` is its only publisher and builds it with
+  `NegotiationState.valueOf`, which throws rather than returning null. Slice 10 removes the `.name()`
+  and the question with it - **and if it harmonises the group, harmonise onto null-tolerance, not
+  away from it.**
+
+**A holder constant works as a `switch` case label, which is worth knowing before assuming it does
+not.** A qualified `public static final String` is a constant expression, so
+`case WellKnownNegotiationStates.SUBMITTED ->` compiles and the destination-State switch survived the
+swap as a switch rather than degrading into an if-chain. Its `default` is what keeps the four
+Negotiation States that notify nobody notifying nobody, and a name absent from the holders lands in
+that same silent branch.
+
+**Test churn was three files, not the eight ticket 02 predicted, and the prediction counted the wrong
+thing.** Eight test files under `notification/` name a Lifecycle enum, but the slab gate exempts test
+scope and the seam still deals in enums, so seven of them compile and pass untouched. What churns is
+a test whose *subject's signature* moved, and only `ResourceNotificationServiceTest` qualified - its
+`verify` calls followed the Spawn loop onto the String overload, including three `any(...)` matchers
+that had to become `anyString()` or they would have matched the wrong overload. **Slice 10 inherits
+the other seven**, when the two change events flip.
+
+**Two behaviours are pinned that were pinned by nothing before**, both written and run green against
+the enum-typed code in their own commit. The Resource state-change message text, including one pair
+whose labels differ from the State names (`RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT` reads "Resource
+Unavailable, Willing to Collect"), so a label silently read as a name fails rather than passes. And
+the States that notify nobody, named as the *complement* of the four branched States rather than
+listed, so a ninth Negotiation State joins that test instead of escaping it.
+
+**Whole-suite count is 1472/0/0/16 in 159 classes, and it corrects a prediction rather than
+confirming one.** This slice added exactly 8 tests and one class, so the tip before it held 1464 in
+158 - four below the 1468 slice 08's section computed by stacking 08 and 09. The gap is not this
+slice's and it is not new: it is the same unattributed four that slice 02's section reports from the
+other side. Take **1472/0/0/16 in 159 classes** as the baseline and do not try to reconcile against
+1468.
 
 ## What slice 07 settled, for slices 08, 10 and 11
 

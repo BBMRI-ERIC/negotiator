@@ -1,6 +1,6 @@
 # Notification handlers name States as strings
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -35,17 +35,21 @@ three metadata DTOs, and ticket 03's own holder table assigns these exact call s
 
 ## Acceptance criteria
 
-- [ ] All six notification files name no Lifecycle enum.
-- [ ] The status-change handler notifies exactly the same people for exactly the same States, and
+- [x] All six notification files name no Lifecycle enum - **and a seventh that named none already**,
+      `ResourceStateChangeHandler`, which read a label off two of them. See `STATUS.md`.
+- [x] The status-change handler notifies exactly the same people for exactly the same States, and
       still notifies nobody for the four States that have no branch today.
-- [ ] The Resource state-change handler's message text is unchanged, with both labels sourced from
+- [x] The Resource state-change handler's message text is unchanged, with both labels sourced from
       the catalog.
-- [ ] The two carve-out-2 files differ only by the constant swap — no structural change of any kind.
-- [ ] Spawn still assigns the same two Resource States, still accumulates the same representatives,
+- [x] The two carve-out-2 files differ only by the constant swap — no structural change of any kind.
+- [x] Spawn still assigns the same two Resource States, still accumulates the same representatives,
       and still sends exactly one notification to their union, and none when that set is empty.
-- [ ] Spawn still publishes no Resource state-change event, as ticket 01 pinned.
-- [ ] The seven existing handler tests are extended rather than replaced.
-- [ ] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
+- [x] Spawn still publishes no Resource state-change event, as ticket 01 pinned.
+- [x] The seven existing handler tests are extended rather than replaced - two of them actually
+      needed to change. The eight-file prediction counted test files that *name* an enum; only a
+      test whose subject's signature moved had to churn. Slice 10 gets the rest.
+- [x] Full backend suite green (1472/0/0/16 in 159 classes); parity 255 in 24 classes, 0 failures,
+      1 skipped; deltas 8/0/0/0.
 
 ## Notes
 
