@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -19,11 +19,12 @@ class NewNegotiationWebhookMappingStrategy implements WebhookMappingStrategy<New
   @Override
   public Optional<WebhookPayloadEnvelope<?>> map(
       NewNegotiationEvent event, ObjectMapper objectMapper) {
-    if (event.getCurrentState() == NegotiationState.DRAFT) {
+    String currentState = nameOf(event.getCurrentState());
+    if (WellKnownNegotiationStates.DRAFT.equals(currentState)) {
       return Optional.empty();
     }
     NegotiationAddedWebhookEvent payload =
-        new NegotiationAddedWebhookEvent(event.getNegotiationId(), event.getCurrentState());
+        new NegotiationAddedWebhookEvent(event.getNegotiationId(), currentState);
     return Optional.of(
         new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_ADDED,
@@ -34,5 +35,13 @@ class NewNegotiationWebhookMappingStrategy implements WebhookMappingStrategy<New
   @Override
   public Map<WebhookEventType, Class<?>> documentedPayloadTypes() {
     return Map.of(WebhookEventType.NEGOTIATION_ADDED, NegotiationAddedWebhookEvent.class);
+  }
+
+  /**
+   * Reads a name off the creation event, which still deals in enums. Null-preserving, so a
+   * Negotiation whose State is unset still yields a delivery rather than throwing.
+   */
+  private static String nameOf(Enum<?> stateOrEvent) {
+    return stateOrEvent == null ? null : stateOrEvent.name();
   }
 }
