@@ -1,6 +1,6 @@
 # Webhook payloads name States as strings
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -31,16 +31,78 @@ breaks, because the values on the wire are identical.
 
 ## Acceptance criteria
 
-- [ ] The three payload types and both mapping strategies name no Lifecycle enum.
-- [ ] A test asserts the serialised JSON of a state-change delivery — field names and string values —
-      and would fail if either changed.
-- [ ] A test covers the added-Negotiation delivery the same way.
-- [ ] Both mapping strategies' firing conditions are behaviourally unchanged, including the fallback
-      branch that fires on every other transition.
-- [ ] Schema metadata reads as a string type and keeps a worked example on every State and Event
-      field.
-- [ ] The existing webhook mapper and listener integration tests are extended rather than replaced.
-- [ ] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
+- [x] The three payload types and both mapping strategies name no Lifecycle enum. A whole-word scan
+      for the four enum names over `webhook/` comes back empty; the only Lifecycle import left in
+      the five files is `WellKnownNegotiationStates`, in the two strategies.
+- [x] A test asserts the serialised JSON of a state-change delivery — field names and string values —
+      and would fail if either changed. Two, at two heights.
+      `WebhookEventMapperTest.map_whenNegotiationStateChangeEvent_serialisesStateAndEventNamesAsJsonStrings`
+      compares the whole serialised payload object, and
+      `WebhookEventListenerIntegrationTest.publishNegotiationStateChangeEvent_dispatchesToActiveWebhooks`
+      compares the whole `data` object of the body WireMock actually received. Comparing the object
+      rather than one path at a time is what makes a renamed, dropped or added field fail as well as
+      a changed value.
+- [x] A test covers the added-Negotiation delivery the same way — at both of its producers, since
+      the payload is reached by two different routes: the state-change strategy's `DRAFT` →
+      `SUBMITTED` branch and a newly created Negotiation. Four tests, two per height.
+- [x] Both mapping strategies' firing conditions are behaviourally unchanged, including the fallback
+      branch that fires on every other transition. The conditions are the same two comparisons with
+      the enum constants swapped for holder constants; the existing branch tests at both heights —
+      `DRAFT` → `SUBMITTED`, the fallback on `SUBMITTED` → `IN_PROGRESS`, and the suppressed `DRAFT`
+      creation — still pass unedited.
+- [x] Schema metadata reads as a string type and keeps a worked example on every State and Event
+      field. Six fields across the three records; each `@Schema` keeps its example and its
+      description now says it carries a name.
+- [x] The existing webhook mapper and listener integration tests are extended rather than replaced.
+      The mapper test goes 10 → 14 tests, with the four pre-existing State-carrying assertions
+      keeping their shape and only their expected values becoming strings; the listener test stays at
+      9 tests, with four whole-body assertions added to tests that already existed.
+- [x] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0. Parity 255 in 24 classes, 0
+      failures, 1 skipped; deltas 8/0/0/0, written to the delta report alone; full suite 1457/0/0/16
+      in 158 classes, every report rewritten by the run. The count reconciles exactly for once:
+      slice 03 recorded 1453, this slice adds four tests and no test file other than the two it was
+      expected to touch.
+
+## What resolving it established
+
+**The wire format is now proven rather than argued, and the proof is the order the tests were
+written in.** The four whole-object JSON assertions were added and run *against the unchanged
+enum-typed records* — 14 tests green — and then run again after the type swap with the same expected
+JSON. Both heights: the payload as Jackson serialises it, and the body a subscriber's endpoint
+receives over HTTP. So "enums already serialise as JSON strings" is measured on this codebase's own
+`ObjectMapper` configuration, which is what the slab's safety rests on. Nothing configures
+`WRITE_ENUMS_USING_TO_STRING` and no enum carries `@JsonValue`, which is why the claim held; a
+`label`-valued `toString` on `NegotiationState` would have broken it and nothing else would have
+noticed.
+
+**`NegotiationResourceStateUpdatedWebhookEvent` is built by neither mapping strategy.** It comes out
+of `DefaultWebhookMappingStrategy.of(...)` via `objectMapper.convertValue(event, payloadType)`, so
+its three fields changed type with no strategy edit at all — Jackson does the enum-to-name step
+itself, and the record is the only file that moved. Two consequences worth carrying: this slice
+covers three payload records but only two boundaries, and slice 10 will find nothing to delete here
+when it flips `ResourceStateChangeEvent`, because there is no translation to delete.
+
+**The translation is `nameOf`, private and duplicated in both strategies.** Null-preserving on
+purpose: `NegotiationStateChangeEvent`'s fields come from `valueOf` at its only producer and cannot
+be null, but `NewNegotiationEvent` carries `Negotiation.currentState`, which has no non-null
+constraint, and today a null there yields a delivery with `"currentState": null` rather than an
+exception inside an event listener. Two three-line copies rather than a shared helper, because both
+are deleted rather than maintained — see the ownership finding below for which slice deletes which.
+
+**Half of this slice's translation is not slice 10's to delete.** The PRD says slices 04, 05, 08 and
+09 write translations at their call boundaries and slice 10 removes them, and that holds for
+`NegotiationStateChangeWebhookMappingStrategy`. It does not hold for
+`NewNegotiationWebhookMappingStrategy`: `NewNegotiationEvent` is not one of slice 10's four seam
+types — it lives in `negotiation/`, not `negotiation/state_machine/` — and no slice in the table
+names it. It is forced by slice 11 instead: once `Negotiation.currentState` is a `String`,
+`new NewNegotiationEvent(this, id, negotiation.getCurrentState())` in `NegotiationServiceImpl` stops
+compiling, so slice 11 converts the event and this strategy's `nameOf` goes with it. Recorded in
+`STATUS.md` for slices 10 and 11, since the file is also a decoupling-gate violation nobody owns.
+
+**Ticket 02's fork stayed shut.** The added-Negotiation delivery is still keyed on the `DRAFT` →
+`SUBMITTED` State pair rather than on the `SUBMIT` Event name, and the fallback branch still fires on
+every other transition. Both firing conditions read as holder-constant comparisons on names and
+nothing else changed shape.
 
 ## Notes
 
