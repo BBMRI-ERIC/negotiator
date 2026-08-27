@@ -1426,7 +1426,7 @@ public class NegotiationControllerTests {
   void sendEvent_ResourceEventWithUnmetRequirement_ConflictUnmetRequirement() throws Exception {
     AccessForm accessForm = accessFormRepository.findAll().get(0);
     informationRequirementRepository.saveAndFlush(
-        new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
+        new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT.name()));
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(

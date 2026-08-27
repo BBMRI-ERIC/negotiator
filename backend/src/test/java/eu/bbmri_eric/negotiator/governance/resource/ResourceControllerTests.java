@@ -272,7 +272,7 @@ public class ResourceControllerTests {
         informationRequirementService
             .createInformationRequirement(
                 new InformationRequirementCreateDTO(
-                    1L, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY))
+                    1L, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY.name()))
             .getId();
     String payload =
         """

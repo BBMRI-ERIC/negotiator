@@ -1,11 +1,8 @@
 package eu.bbmri_eric.negotiator.info_requirement;
 
 import eu.bbmri_eric.negotiator.form.AccessForm;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,31 +22,28 @@ public class InformationRequirement {
 
   @ManyToOne private AccessForm requiredAccessForm;
 
-  @Enumerated(EnumType.STRING)
-  private NegotiationResourceEvent forEvent;
+  @Column(length = 255)
+  private String forEvent;
 
   @Column(columnDefinition = "boolean default true")
   private boolean isViewableOnlyByAdmin = true;
 
   protected InformationRequirement() {}
 
-  public InformationRequirement(
-      Long id, AccessForm requiredAccessForm, NegotiationResourceEvent forEvent) {
+  public InformationRequirement(Long id, AccessForm requiredAccessForm, String forEvent) {
     this.id = id;
     this.requiredAccessForm = requiredAccessForm;
     this.forEvent = forEvent;
   }
 
   public InformationRequirement(
-      AccessForm requiredAccessForm,
-      NegotiationResourceEvent forEvent,
-      Boolean isViewableOnlyByAdmin) {
+      AccessForm requiredAccessForm, String forEvent, Boolean isViewableOnlyByAdmin) {
     this.requiredAccessForm = requiredAccessForm;
     this.forEvent = forEvent;
     this.isViewableOnlyByAdmin = isViewableOnlyByAdmin;
   }
 
-  public InformationRequirement(AccessForm requiredAccessForm, NegotiationResourceEvent forEvent) {
+  public InformationRequirement(AccessForm requiredAccessForm, String forEvent) {
     this.requiredAccessForm = requiredAccessForm;
     this.forEvent = forEvent;
   }
@@ -61,7 +55,7 @@ public class InformationRequirement {
     InformationRequirement that = (InformationRequirement) o;
     return Objects.equals(id, that.id)
         && Objects.equals(requiredAccessForm, that.requiredAccessForm)
-        && forEvent == that.forEvent;
+        && Objects.equals(forEvent, that.forEvent);
   }
 
   @Override

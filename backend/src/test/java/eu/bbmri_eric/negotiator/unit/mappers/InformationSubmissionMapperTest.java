@@ -9,7 +9,6 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmission;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionMapper;
 import eu.bbmri_eric.negotiator.info_submission.SubmittedInformationDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,7 @@ public class InformationSubmissionMapperTest {
                           """;
     JsonNode payload = new ObjectMapper().readTree(content);
     InformationRequirement requirement =
-        new InformationRequirement(1L, new AccessForm("test"), NegotiationResourceEvent.CONTACT);
+        new InformationRequirement(1L, new AccessForm("test"), "CONTACT");
     InformationSubmission entity = new InformationSubmission(requirement, null, null, content);
     assertEquals(payload, modelMapper.map(entity, SubmittedInformationDTO.class).getPayload());
   }
@@ -47,7 +46,7 @@ public class InformationSubmissionMapperTest {
   @Test
   void testMappings_nullJson_emptyJson() throws IOException {
     InformationRequirement requirement =
-        new InformationRequirement(1L, new AccessForm("test"), NegotiationResourceEvent.CONTACT);
+        new InformationRequirement(1L, new AccessForm("test"), "CONTACT");
     InformationSubmission entity = new InformationSubmission(requirement, null, null, null);
     assertEquals(
         new ObjectMapper().readTree("{}"),
@@ -57,7 +56,7 @@ public class InformationSubmissionMapperTest {
   @Test
   void testMappings_nullArguments_equalsNull() {
     InformationRequirement requirement =
-        new InformationRequirement(1L, new AccessForm("test"), NegotiationResourceEvent.CONTACT);
+        new InformationRequirement(1L, new AccessForm("test"), "CONTACT");
     InformationSubmission entity = new InformationSubmission(requirement, null, null, null);
     assertEquals(null, modelMapper.map(entity, SubmittedInformationDTO.class).getResourceId());
     assertEquals(null, modelMapper.map(entity, SubmittedInformationDTO.class).getId());
