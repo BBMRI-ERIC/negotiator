@@ -1,7 +1,5 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-
 public interface ResourceViewDTO {
   Long getId();
 
@@ -17,7 +15,8 @@ public interface ResourceViewDTO {
 
   String getNegotiationId();
 
-  NegotiationResourceState getCurrentState();
+  /** Name of the Resource's current State within the Negotiation. */
+  String getCurrentState();
 
   String getOrganizationName();
 

@@ -53,10 +53,12 @@ public class ResourceStateChangeListener {
   }
 
   private static boolean isUnavailable(ResourceWithStatusDTO resource) {
-    return resource.getCurrentState().equals(NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    return resource.getCurrentState().equals(NegotiationResourceState.RESOURCE_UNAVAILABLE.name());
   }
 
   private static boolean isDelivered(ResourceWithStatusDTO resource) {
-    return resource.getCurrentState().equals(NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+    return resource
+        .getCurrentState()
+        .equals(NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name());
   }
 }

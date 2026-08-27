@@ -572,7 +572,7 @@ public class NegotiationLifecycleServiceImplTest {
         negotiation.getId(),
         new UpdateResourcesDTO(
             resources.stream().map(ResourceWithStatusDTO::getId).collect(Collectors.toList()),
-            NegotiationResourceState.RESOURCE_MADE_AVAILABLE));
+            NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name()));
     assertThat(resources).hasSize(2);
 
     // Wait for the resource state update handler to complete
@@ -585,7 +585,7 @@ public class NegotiationLifecycleServiceImplTest {
               foundResources.forEach(
                   resource ->
                       assertEquals(
-                          NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
+                          NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name(),
                           resource.getCurrentState()));
             });
 

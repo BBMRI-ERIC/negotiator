@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.negotiation.mappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
@@ -31,8 +32,7 @@ public class NegotiationModelMapper {
     TypeMap<Negotiation, NegotiationDTO> typeMap =
         modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
 
-    Converter<NegotiationState, String> negotiationStatusConverter =
-        status -> negotiationStatusConverter(status.getSource());
+    Converter<Enum<?>, String> negotiationStatusConverter = status -> nameOf(status.getSource());
 
     Converter<String, JsonNode> payloadConverter =
         p -> {
@@ -62,7 +62,7 @@ public class NegotiationModelMapper {
         modelMapper.createTypeMap(NegotiationCreateDTO.class, Negotiation.class);
 
     Converter<Boolean, NegotiationState> currentStateConverter =
-        c -> currentStateConverter(c.getSource());
+        c -> NegotiationState.valueOf(initialStateFor(c.getSource()));
     createDTOToEntity.addMappings(
         mapper ->
             mapper
@@ -85,15 +85,26 @@ public class NegotiationModelMapper {
     return mapper.readTree(jsonPayload);
   }
 
-  private String negotiationStatusConverter(NegotiationState currentState) {
+  /**
+   * Reads the name off the Negotiation's current State, which is still an enum on the entity. The
+   * empty string for an absent State is what the DTO has always carried, and {@code @JsonInclude}
+   * would drop the field entirely from the response if it became a null.
+   */
+  private String nameOf(Enum<?> currentState) {
     if (Objects.isNull(currentState)) {
       return "";
     }
     return currentState.name();
   }
 
-  private NegotiationState currentStateConverter(boolean isDraft) {
-    return isDraft ? NegotiationState.DRAFT : NegotiationState.SUBMITTED;
+  /**
+   * The State a Negotiation is created in. A name, like every other State in this class - the
+   * {@code valueOf} at the call site above is the boundary translation, and exists only because the
+   * entity's field is still typed as the enum. Slice 11 makes that field a name and deletes the
+   * translation, leaving this method's result assigned directly.
+   */
+  private String initialStateFor(boolean isDraft) {
+    return isDraft ? WellKnownNegotiationStates.DRAFT : WellKnownNegotiationStates.SUBMITTED;
   }
 
   private boolean publicPostsConverter(boolean isDraft) {
