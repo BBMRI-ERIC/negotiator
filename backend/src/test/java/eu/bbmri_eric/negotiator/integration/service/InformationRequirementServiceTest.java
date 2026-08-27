@@ -1,8 +1,10 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
@@ -10,7 +12,6 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementService;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,22 +33,25 @@ public class InformationRequirementServiceTest {
 
   @Test
   void createInformationRequirement_correctParameters_saved() {
-    assertNotNull(
-        service.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT)));
+    InformationRequirementDTO saved =
+        service.createInformationRequirement(new InformationRequirementCreateDTO(1L, "CONTACT"));
+
+    assertNotNull(saved);
+    assertEquals("CONTACT", saved.getForResourceEvent());
+    assertTrue(informationRequirementRepository.existsByForEvent("CONTACT"));
+    assertFalse(informationRequirementRepository.existsByForEvent("STEP_AWAY"));
   }
 
   @Test
   void updateInformationRequirement_newParameters_ok() {
     AccessForm accessForm = accessFormRepository.save(new AccessForm("test2"));
-    InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(1L, "CONTACT");
     InformationRequirementDTO savedDTO = service.createInformationRequirement(createDTO);
     createDTO.setRequiredAccessFormId(accessForm.getId());
-    createDTO.setForResourceEvent(NegotiationResourceEvent.CONTACT);
+    createDTO.setForResourceEvent("CONTACT");
     savedDTO = service.updateInformationRequirement(createDTO, savedDTO.getId());
     assertEquals(accessForm.getId(), savedDTO.getRequiredAccessForm().getId());
-    assertEquals(NegotiationResourceEvent.CONTACT, savedDTO.getForResourceEvent());
+    assertEquals("CONTACT", savedDTO.getForResourceEvent());
   }
 
   @Test
@@ -55,8 +59,7 @@ public class InformationRequirementServiceTest {
     informationRequirementRepository.deleteAll();
     assertEquals(0, informationRequirementRepository.findAll().size());
     assertNotNull(
-        service.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT)));
+        service.createInformationRequirement(new InformationRequirementCreateDTO(1L, "CONTACT")));
     assertEquals(1, service.getAllInformationRequirements().size());
   }
 }

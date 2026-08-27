@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.info_requirement;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEventNameDeserializer;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,8 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class InformationRequirementCreateDTO {
 
-  public InformationRequirementCreateDTO(
-      Long requiredAccessFormId, NegotiationResourceEvent forResourceEvent) {
+  public InformationRequirementCreateDTO(Long requiredAccessFormId, String forResourceEvent) {
     this.requiredAccessFormId = requiredAccessFormId;
     this.forResourceEvent = forResourceEvent;
   }
@@ -23,7 +24,9 @@ public class InformationRequirementCreateDTO {
   private Long requiredAccessFormId;
 
   @NotNull(message = "forResourceEvent must not be null")
-  private NegotiationResourceEvent forResourceEvent;
+  @Schema(description = "Event guarded by this information requirement", example = "CONTACT")
+  @JsonDeserialize(using = NegotiationResourceEventNameDeserializer.class)
+  private String forResourceEvent;
 
   private boolean isViewableOnlyByAdmin = true;
 }
