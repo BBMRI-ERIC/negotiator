@@ -173,6 +173,41 @@ public class NegotiationControllerTests {
         .andExpect(status().isBadRequest());
   }
 
+  /**
+   * The status filter refuses a name no State carries, with the same 400 it has always answered
+   * with. Nothing pinned this before, and the value of pinning it is that the refusal survives the
+   * status list becoming a list of names: an unvalidated list would answer an empty page instead,
+   * which reads as "no such Negotiations" rather than "no such status".
+   */
+  @Test
+  @WithUserDetails("admin")
+  void getAllForAdministrator_whenUnknownStatus_badRequest() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?status=NOT_A_STATE"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status", is(400)))
+        .andExpect(jsonPath("$.title", is("Wrong request parameters")))
+        .andExpect(jsonPath("$.detail", org.hamcrest.Matchers.startsWith("{status=")));
+  }
+
+  /** The same refusal on the per-user listing, which binds the same filter object. */
+  @Test
+  @WithUserDetails("admin")
+  void getAllForUser_whenUnknownStatus_badRequest() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/users/101/negotiations?status=NOT_A_STATE"))
+        .andExpect(status().isBadRequest());
+  }
+
+  /** A known State name is still accepted beside the unknown one being refused. */
+  @Test
+  @WithUserDetails("admin")
+  void getAllForAdministrator_whenKnownStatus_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?status=IN_PROGRESS"))
+        .andExpect(status().isOk());
+  }
+
   /** It tests that using an unknown param it returns 400 Bad Request */
   @Test
   @WithUserDetails("admin")

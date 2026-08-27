@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -15,11 +16,15 @@ import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.pdf.PdfContextBuilder;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.InputStream;
 import java.util.List;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +49,63 @@ class NegotiationPdfGenerationTest {
   @Autowired private AttachmentConversionService conversionService;
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private ResourceRepository resourceRepository;
+  @Autowired private PdfContextBuilder pdfContextBuilder;
   @Autowired private MockMvc mockMvc;
+
+  /**
+   * The summary names the Negotiation's State by its name, not by its human label. Nothing pinned
+   * this before, and nothing in the compiler can: neither PDF file names a Lifecycle enum, so both
+   * build cleanly whether the template variable holds an enum or the name that replaces it. Only
+   * the rendered document tells "still correct" apart from "silently changed".
+   *
+   * <p>{@code negotiation-1} is seeded {@code IN_PROGRESS}, whose label is "In Progress" - so a
+   * variable that started rendering the label rather than the name fails here rather than passing.
+   */
+  @Test
+  @WithUserDetails("TheResearcher")
+  void generateNegotiationPdf_rendersTheStateName_notItsLabel() throws Exception {
+    MvcResult result =
+        mockMvc.perform(get(PDF_ENDPOINT, NEGOTIATION_1_ID)).andExpect(status().isOk()).andReturn();
+
+    String text = textOf(result.getResponse().getContentAsByteArray());
+
+    assertTrue(
+        text.contains("IN_PROGRESS"),
+        "The PDF summary no longer renders the State name of negotiation-1. Rendered text:\n"
+            + text);
+    assertFalse(
+        text.contains("In Progress"),
+        "The PDF summary has started rendering the State's label instead of its name.");
+  }
+
+  /**
+   * The other place that puts the State into a template variable. It has no production caller
+   * today, which is exactly why it needs its own pin: a change here is invisible to every other
+   * test in the suite.
+   */
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void pdfContextBuilder_rendersTheStateName_notItsLabel() {
+    String html =
+        pdfContextBuilder.createPdfContent(
+            negotiationRepository.findById(NEGOTIATION_1_ID).orElseThrow(),
+            "PDF_NEGOTIATION_SUMMARY");
+
+    assertTrue(
+        html.contains(">IN_PROGRESS<"),
+        "The rendered summary no longer carries the State name in its status badge. Rendered:\n"
+            + html);
+    assertFalse(
+        html.contains("In Progress"),
+        "The rendered summary has started carrying the State's label instead of its name.");
+  }
+
+  private static String textOf(byte[] pdf) throws Exception {
+    try (PDDocument document = Loader.loadPDF(pdf)) {
+      return new PDFTextStripper().getText(document);
+    }
+  }
 
   @Test
   @WithUserDetails("TheResearcher")
