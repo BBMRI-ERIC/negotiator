@@ -1513,6 +1513,19 @@ public class NegotiationControllerTests {
         .andExpect(status().isNotFound());
   }
 
+  /** Reading the body refuses an unknown Resource State name, before any update rule runs. */
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void addResources_unknownState_400() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, "negotiation-1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"resourceIds\":[1],\"state\":\"NOT_A_STATE\"}"))
+        .andExpect(status().isBadRequest());
+  }
+
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   @Transactional

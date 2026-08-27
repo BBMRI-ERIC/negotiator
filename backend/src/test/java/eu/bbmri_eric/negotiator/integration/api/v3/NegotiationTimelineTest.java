@@ -84,6 +84,37 @@ class NegotiationTimelineTest {
                     "TheResearcher changed the status of biobank:1:collection:1 to Resource Available"));
   }
 
+  /**
+   * The timeline leaves out the two Resource States that Spawn writes, because they record that the
+   * system looked for a representative, not that anybody acted. It shows every other State a
+   * Resource enters.
+   */
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void getTimeline_statesWrittenBySpawn_areNotRendered() throws Exception {
+    Negotiation negotiation =
+        negotiationRepository
+            .findById("negotiation-1")
+            .orElseThrow(() -> new EntityNotFoundException("Negotiation not found"));
+    String sourceId = negotiation.getResources().stream().findFirst().get().getSourceId();
+    negotiation.setStateForResource(sourceId, NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiation.setStateForResource(sourceId, NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    negotiation.setStateForResource(sourceId, NegotiationResourceState.CHECKING_AVAILABILITY);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/timeline"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.timelineEvents.length()").value(2))
+        .andExpect(
+            jsonPath("$._embedded.timelineEvents[0].text")
+                .value("admin changed the status of the Negotiation to In Progress"))
+        .andExpect(
+            jsonPath("$._embedded.timelineEvents[1].text")
+                .value(
+                    "TheResearcher changed the status of biobank:1:collection:1 to Checking Availability"));
+  }
+
   @Test
   @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
   @Transactional
