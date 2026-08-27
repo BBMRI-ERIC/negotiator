@@ -13,6 +13,7 @@ here are settled; do not relitigate them in a later slice.
 | Slice | State | Evidence |
 |---|---|---|
 | [01 Well-known name holders](issues/01-well-known-name-holders.md) | **done** | 8 tests green; full suite 1435/0/0/16; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
+| [02 The Enum-Backed Lifecycle Catalog](issues/02-enum-backed-lifecycle-catalog.md) | **done** | catalog test 13/0/0/0; whole suite not measured at this tip - reconstructed as 1444, see this slice's section; parity and deltas green over it rather than at it |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
 **That filtering is not optional here**, and this run showed why: `surefire-reports` is not cleared
@@ -116,6 +117,77 @@ survives with `testConvert`; only `testStatusConverter` was removed. Post-deleti
 
 Preserving today's `?status=UNKNOWN` 400 is **slice 02's** job, via the Enum-Backed Lifecycle
 Catalog. This slice removed dead code adjacent to that question and did not touch the behaviour.
+
+## What slice 02 settled, for slices 05, 10 and 11
+
+*Recorded retroactively on 2026-08-27. This slice landed at `909d9055` with no Landed row, no
+section and its issue still reading `ready-for-agent`; slices 03, 04, 08 and 09 went in on top of
+it before the omission was noticed. The commit sits at its place in the history so the slab reads
+in order, but the evidence below was gathered afterwards and points forward to later slices where
+that is the only honest source for a number.*
+
+**The catalog is `public` and a Spring `@Component`, not package-private.** It lands under the
+second half of its own AC - "as narrow as the callers allow" - because the three questions are asked
+from `notification/internal` (slice 05), `negotiation/mappers` (slice 10) and `negotiation/dto`
+(slice 11), none of which is inside `negotiation.state_machine`. Package-private was never
+available. `Scope` and `Element` are nested public enums for the same reason. What stays narrow is
+the *surface*: three methods, no state, and nothing that decides whether a Transition may fire.
+
+**All four enums are reached through one pair of coordinates rather than four methods.**
+`nameExists(Scope, Element, String)`, `metadata(Scope, Element, String)` and
+`resourceStateOrdinal(String)`. A caller asking a metadata question therefore names `NEGOTIATION` or
+`RESOURCE` and `STATE` or `EVENT`, and never a Lifecycle enum - which is exactly what lets the
+decoupling guard go green over a consumer that still needs the closed set. Slices 05, 10 and 11
+should ask through the coordinates rather than adding a per-enum method.
+
+**`Metadata` carries label and description together, as one record.** Both always come off the same
+row, before and after the cutover, so a caller needing both makes one call. Slice 05's notification
+body names two Resource States: two calls, not four.
+
+**The unknown-name contract differs per method, deliberately.** `nameExists` returns `false`;
+`metadata` and `resourceStateOrdinal` throw `IllegalArgumentException`. The split is the point.
+Existence is a question a caller asks *in order to* produce a 400, while a metadata lookup for a
+name that already passed validation is a bug and should say so. A later slice that turns those
+throws into a 400 is deciding something new - decide it on purpose rather than by catch block.
+
+**Only Resource State has an ordinal, and it is pinned to an absolute number.**
+`resourceStateOrdinal("RESOURCE_MADE_AVAILABLE")` is asserted to be `11`, so inserting a Resource
+State anywhere before it fails this test. That is faithful to today, because the frontend sorts by
+that number. There is deliberately no Negotiation-side ordinal: adding one would *extend* the
+closed-set ordering contract ticket 04 is questioning rather than merely preserve it.
+
+**Every answer is derived, never restated.** The maps are built from `values()` with `getLabel` and
+`getDescription` method references, so no name, label or description here can drift from the enum
+while the enum exists. At cutover the four imports stop compiling - loudly, at the one moment the
+seed becomes the source of truth. The javadoc names the replacement for each method: the presence of
+the named `state` or `event` row, that row's label and description, and the Resource State row's
+ordering value.
+
+**Nothing reads it, and that is still true several slices later.** After this slice
+`EnumBackedLifecycleCatalog` occurs in `main` only as its own declaration. Slice 08 needed the same
+existence check inside a Jackson deserializer, which is instantiated reflectively and cannot hold a
+Spring bean, so it wrote `NegotiationResourceStateNameDeserializer` instead - as slice 07 had
+already done for `forResourceEvent`. Those are not a second source of truth and not a reason to drop
+this class: **the catalog stays the route for every caller that can inject it**, and all three read
+the same enums and die in the same cutover.
+
+**The Definition Version tables are not read, which is what keeps the filed departure honest.**
+`DefinitionInertnessGuardTest` is untouched and green, so PRD user story 4 still has its gate. The
+trigger for undoing the departure is recorded in the slice issue and the PRD: the cutover slab
+replaces these three methods with reads of the `state` and `event` rows.
+
+**The whole-suite figure was never measured at this tip, and is reconstructed rather than
+restated.** `EnumBackedLifecycleCatalogTest` is 13 tests and is green. The slice touched exactly two
+files, one of them that new test class, so from slice 01's 1435 the arithmetic predicts 1448. Slice
+03 measured 1453 after rebasing onto slice 07 and attributes six tests to itself and three to slice
+07, which puts the branch at **1444** here - four below the prediction. The gap cannot be this
+slice's: it added one test file and touched no other. It is the same four tests slice 03's section
+reports from the other side, and it remains unattributed.
+
+**Parity and deltas were not measured at this tip either, and are recorded as green over it rather
+than at it.** Slices 03, 04, 08 and 09 each measured 255 tests in 24 classes, 0 failures, 1 skipped,
+and deltas 8/0/0/0, on trees that contain this class. Backfilling those numbers here as if they had
+been taken at this commit would be the one thing the Landed table exists to prevent.
 
 ## Standing hazards, carried not solved
 
