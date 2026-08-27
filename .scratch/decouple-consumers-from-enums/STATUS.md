@@ -15,6 +15,7 @@ here are settled; do not relitigate them in a later slice.
 | [01 Well-known name holders](issues/01-well-known-name-holders.md) | **done** | 8 tests green; full suite 1435/0/0/16; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [02 The Enum-Backed Lifecycle Catalog](issues/02-enum-backed-lifecycle-catalog.md) | **done** | catalog test 13/0/0/0; whole suite not measured at this tip - reconstructed as 1444, see this slice's section; parity and deltas green over it rather than at it |
 | [03 Pin the raw State names in SQL](issues/03-pin-the-raw-state-names-in-sql.md) | **done** | 6 tests green; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
+| [04 Webhook payloads name States as strings](issues/04-webhook-payloads-name-states-as-strings.md) | **done** | mapper test 10 → 14, listener test 9 unchanged in count; full suite 1457/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
@@ -266,6 +267,64 @@ cannot move, and pinning it would say nothing a reader could act on. And the voc
 looks for is taken from the four enums through `values()` rather than typed out, so it cannot drift
 while they exist — at cutover that import stops compiling, loudly, at the moment the seed becomes
 the source of truth and this guard's reading list has to be decided again.
+
+## What slice 04 established for slices 05, 08, 09, 10 and 11
+
+**The wire-format claim is discharged, once, for the whole slab.** Four assertions compare a whole
+serialised payload object — the mapper's output, and the HTTP body WireMock received — and they were
+run green against the *enum-typed* records before the type swap and again after it, with the same
+expected JSON both times. So no later slice has to re-argue that a State or an Event serialises as
+its name: nothing configures `WRITE_ENUMS_USING_TO_STRING`, no enum carries `@JsonValue`, and the
+only thing that would have broken it is a `label`-valued `toString` on one of the four enums, which
+none of them has. `NegotiationState` does expose `getLabel`, `getDescription` and `getValue`, so a
+`@JsonValue` added to any of them at any point is the failure mode these four tests now catch.
+
+**Compare the object, not the paths.** The listener test already asserted every field of the
+state-change delivery with `matchingJsonPath`, and it would have stayed green if a *seventh* field
+had appeared or if `fromState` had turned into an object with a `name` property. Whole-object
+comparison is what makes the wire format pinned rather than sampled, and it is three lines
+(`readTree` on both sides, `assertEquals`). Slices 08 and 09 assert JSON responses next; use this
+shape rather than a path per field.
+
+**Translating at the call boundary costs three lines and reads honestly.** `nameOf(Enum<?>)`,
+private and static, in each strategy that reads a change event. Null-preserving deliberately: the
+Negotiation state-change event cannot carry a null (its only producer builds it from `valueOf`), but
+`NewNegotiationEvent` carries `Negotiation.currentState`, which has no non-null constraint, and today
+a null there produces a delivery with `"currentState": null` rather than an exception inside an event
+listener. Keep that property when writing the same translation in slices 05, 08 and 09 — the slab's
+promise is that nothing observable changes, and an NPE where there was none is observable.
+
+**A payload built by `objectMapper.convertValue` needs no translation at all.**
+`NegotiationResourceStateUpdatedWebhookEvent` is produced by `DefaultWebhookMappingStrategy`, which
+converts the application event straight into the record, so its three fields went from enum to
+`String` with the record as the only file touched — Jackson does the name step. This is why the slice
+covers three payload records but only two boundaries, **and it is what slice 10 needs to know**: when
+`ResourceStateChangeEvent` flips to strings there is nothing to delete in the webhook subsystem,
+because nothing was written there.
+
+**`NewNegotiationEvent` is unowned, and it is slice 11 that is forced to convert it.** It lives in
+`eu.bbmri_eric.negotiator.negotiation`, holds a `NegotiationState` field, and is therefore a
+decoupling-gate violation — but it is not one of slice 10's four seam types and no slice in the PRD's
+table names it. The forcing function is a compile error, which is the good case: once slice 11 makes
+`Negotiation.currentState` a `String`, `NegotiationServiceImpl`'s
+`new NewNegotiationEvent(this, id, negotiation.getCurrentState())` stops compiling. So slice 11
+converts the event, and `NewNegotiationWebhookMappingStrategy`'s `nameOf` goes with it rather than
+with slice 10. Its other consumer is `NewNegotiationHandler`, which slice 05 owns; slice 05 should
+expect to translate at that boundary too, and to have its translation removed by 11 rather than 10.
+
+**Deliveries the webhook subsystem keys on State names, for the record.** Two: the added-Negotiation
+delivery on the `DRAFT` → `SUBMITTED` pair, and the suppression of that delivery for a Negotiation
+created in `DRAFT`. Both now read as `WellKnownNegotiationStates` comparisons. Everything else in the
+subsystem carries the name as data and needed no constant, which is the holder growth rule behaving
+as slice 01 predicted: six payload fields, two comparisons, no new name.
+
+**`nix develop` works from the main checkout but not from a worktree.** Slice 03 recorded that
+`nix develop` broke after `bacf4391 dev: bump toolchain` with a permission error; the sharper form is
+that `nix develop .#opencode` inside `.claude/worktrees/<slice>` fails with `opening lock file
+'/nix/store/…-source.lock': Permission denied`, while the same command from
+`/home/claude/repos/bbmri-eric-negotiator` succeeds. So run Maven from the main checkout and point it
+at the worktree — `nix develop .#opencode --command <script> -f <worktree>/backend <selector>` — which
+keeps the Nix shell, keeps each worktree's own `target/`, and needs no bare `mvn`.
 
 ## What slice 07 settled, for slices 08, 10 and 11
 
