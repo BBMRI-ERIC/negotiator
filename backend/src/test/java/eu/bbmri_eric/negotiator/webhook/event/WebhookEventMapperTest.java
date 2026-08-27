@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.webhook.event;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationUpdatedEvent;
@@ -82,7 +83,7 @@ class WebhookEventMapperTest {
     assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_ADDED);
     assertThat(mapped.get().timestamp()).isNotNull();
     assertThat(mapped.get().data())
-        .isEqualTo(new NegotiationAddedWebhookEvent("negotiation-2", NegotiationState.SUBMITTED));
+        .isEqualTo(new NegotiationAddedWebhookEvent("negotiation-2", "SUBMITTED"));
   }
 
   @Test
@@ -104,11 +105,7 @@ class WebhookEventMapperTest {
     assertThat(mapped.get().data())
         .isEqualTo(
             new NegotiationStateUpdatedWebhookEvent(
-                "negotiation-2",
-                NegotiationState.SUBMITTED,
-                NegotiationState.IN_PROGRESS,
-                NegotiationEvent.APPROVE,
-                null));
+                "negotiation-2", "SUBMITTED", "IN_PROGRESS", "APPROVE", null));
   }
 
   @Test
@@ -129,11 +126,7 @@ class WebhookEventMapperTest {
     assertThat(mapped.get().data())
         .isEqualTo(
             new NegotiationStateUpdatedWebhookEvent(
-                "negotiation-2",
-                NegotiationState.SUBMITTED,
-                NegotiationState.IN_PROGRESS,
-                NegotiationEvent.APPROVE,
-                "post-42"));
+                "negotiation-2", "SUBMITTED", "IN_PROGRESS", "APPROVE", "post-42"));
   }
 
   @Test
@@ -147,7 +140,7 @@ class WebhookEventMapperTest {
     assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_ADDED);
     assertThat(mapped.get().timestamp()).isNotNull();
     assertThat(mapped.get().data())
-        .isEqualTo(new NegotiationAddedWebhookEvent("negotiation-3", NegotiationState.SUBMITTED));
+        .isEqualTo(new NegotiationAddedWebhookEvent("negotiation-3", "SUBMITTED"));
   }
 
   @Test
@@ -207,9 +200,105 @@ class WebhookEventMapperTest {
             new NegotiationResourceStateUpdatedWebhookEvent(
                 "negotiation-5",
                 "resource-1",
-                NegotiationResourceState.SUBMITTED,
-                NegotiationResourceState.RESOURCE_AVAILABLE,
-                NegotiationResourceEvent.MARK_AS_AVAILABLE));
+                "SUBMITTED",
+                "RESOURCE_AVAILABLE",
+                "MARK_AS_AVAILABLE"));
+  }
+
+  @Test
+  void map_whenNegotiationStateChangeEvent_serialisesStateAndEventNamesAsJsonStrings()
+      throws Exception {
+    NegotiationStateChangeEvent event =
+        new NegotiationStateChangeEvent(
+            this,
+            "negotiation-2",
+            NegotiationState.SUBMITTED,
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertSerialisedDataEquals(
+        mapped.get(),
+        """
+        {
+          "negotiationId": "negotiation-2",
+          "fromState": "SUBMITTED",
+          "toState": "IN_PROGRESS",
+          "event": "APPROVE"
+        }
+        """);
+  }
+
+  @Test
+  void map_whenNegotiationStateChangeEventFromDraftToSubmitted_serialisesStateNameAsJsonString()
+      throws Exception {
+    NegotiationStateChangeEvent event =
+        new NegotiationStateChangeEvent(
+            this,
+            "negotiation-2",
+            NegotiationState.DRAFT,
+            NegotiationState.SUBMITTED,
+            NegotiationEvent.SUBMIT);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertSerialisedDataEquals(
+        mapped.get(),
+        """
+        {
+          "negotiationId": "negotiation-2",
+          "currentState": "SUBMITTED"
+        }
+        """);
+  }
+
+  @Test
+  void map_whenNewNegotiationEvent_serialisesStateNameAsJsonString() throws Exception {
+    NewNegotiationEvent event =
+        new NewNegotiationEvent(this, "negotiation-3", NegotiationState.SUBMITTED);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertSerialisedDataEquals(
+        mapped.get(),
+        """
+        {
+          "negotiationId": "negotiation-3",
+          "currentState": "SUBMITTED"
+        }
+        """);
+  }
+
+  @Test
+  void map_whenResourceStateChangeEvent_serialisesStateAndEventNamesAsJsonStrings()
+      throws Exception {
+    ResourceStateChangeEvent event =
+        new ResourceStateChangeEvent(
+            this,
+            "negotiation-5",
+            "resource-1",
+            NegotiationResourceState.SUBMITTED,
+            NegotiationResourceState.RESOURCE_AVAILABLE,
+            NegotiationResourceEvent.MARK_AS_AVAILABLE);
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertSerialisedDataEquals(
+        mapped.get(),
+        """
+        {
+          "negotiationId": "negotiation-5",
+          "resourceId": "resource-1",
+          "fromState": "SUBMITTED",
+          "toState": "RESOURCE_AVAILABLE",
+          "event": "MARK_AS_AVAILABLE"
+        }
+        """);
   }
 
   @Test
@@ -253,5 +342,18 @@ class WebhookEventMapperTest {
                     List.of(new NewNegotiationWebhookMappingStrategy(), duplicateStrategy)))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining(NewNegotiationEvent.class.getName());
+  }
+
+  /**
+   * Asserts the payload a subscriber receives, field by field. A State or an Event is a JSON string
+   * on the wire; this compares the serialised object as a whole, so a renamed field, a dropped
+   * field or a value that stops being that string all fail here.
+   */
+  private static void assertSerialisedDataEquals(
+      WebhookPayloadEnvelope<?> envelope, String expectedJson) throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode serialised = objectMapper.valueToTree(envelope.data());
+
+    assertThat(serialised).isEqualTo(objectMapper.readTree(expectedJson));
   }
 }

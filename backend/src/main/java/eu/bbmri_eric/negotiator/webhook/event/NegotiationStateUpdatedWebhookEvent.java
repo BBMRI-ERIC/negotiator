@@ -1,16 +1,17 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Webhook data payload for a negotiation state transition.
  *
+ * <p>The States and the Event are names carried as data: they are JSON strings on the wire, exactly
+ * as they were when this record held enums.
+ *
  * @param negotiationId identifier of the affected negotiation
- * @param fromState source negotiation state before transition
- * @param toState target negotiation state after transition
- * @param event state-machine event that triggered the transition
+ * @param fromState name of the source negotiation state before transition
+ * @param toState name of the target negotiation state after transition
+ * @param event name of the lifecycle event that triggered the transition
  * @param postId optional identifier of the post submitted along with the state change
  */
 @WebhookEventDoc(
@@ -22,12 +23,14 @@ record NegotiationStateUpdatedWebhookEvent(
             description = "Identifier of the affected negotiation",
             example = "550e8400-e29b-41d4-a716-446655440000")
         String negotiationId,
-    @Schema(description = "Source state before transition", example = "DRAFT")
-        NegotiationState fromState,
-    @Schema(description = "Target state after transition", example = "SUBMITTED")
-        NegotiationState toState,
-    @Schema(description = "State-machine event that triggered the transition", example = "SUBMIT")
-        NegotiationEvent event,
+    @Schema(description = "Name of the source state before transition", example = "DRAFT")
+        String fromState,
+    @Schema(description = "Name of the target state after transition", example = "SUBMITTED")
+        String toState,
+    @Schema(
+            description = "Name of the lifecycle event that triggered the transition",
+            example = "SUBMIT")
+        String event,
     @Schema(
             description = "Optional identifier of the post submitted along with the state change",
             nullable = true,
