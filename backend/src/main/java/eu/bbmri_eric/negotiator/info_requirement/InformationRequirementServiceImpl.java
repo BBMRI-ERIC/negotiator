@@ -77,6 +77,9 @@ public class InformationRequirementServiceImpl implements InformationRequirement
   }
 
   private InformationRequirementDTO mapToDTO(InformationRequirement informationRequirement) {
-    return modelMapper.map(informationRequirement, InformationRequirementDTO.class);
+    InformationRequirementDTO dto =
+        modelMapper.map(informationRequirement, InformationRequirementDTO.class);
+    dto.setForResourceEvent(informationRequirement.getForEvent());
+    return dto;
   }
 }

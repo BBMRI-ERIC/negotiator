@@ -127,7 +127,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
           "You are not allowed to %s for this Resource"
               .formatted(negotiationResourceEvent.getLabel().toLowerCase()));
     }
-    if (requirementRepository.existsByForEvent(negotiationResourceEvent)
+    if (requirementRepository.existsByForEvent(negotiationResourceEvent.name())
         && !requirementSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resourceId, negotiationId)) {
       throw new LifecycleConflictException(

@@ -25,7 +25,6 @@ import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionDTO;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
@@ -69,8 +68,7 @@ public class InformationRequirementControllerTest {
 
   @Test
   void createInformationRequirement_notAdmin_403() throws Exception {
-    InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(1L, "CONTACT");
     mockMvc
         .perform(
             post(INFO_REQUIREMENT_ENDPOINT)
@@ -82,8 +80,7 @@ public class InformationRequirementControllerTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   void createInformationRequirement_correctBody_ok() throws Exception {
-    InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(1L, "CONTACT");
     mockMvc
         .perform(
             post(INFO_REQUIREMENT_ENDPOINT)
@@ -97,9 +94,36 @@ public class InformationRequirementControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
+  void createInformationRequirement_unknownEvent_returns400() throws Exception {
+    mockMvc
+        .perform(
+            post(INFO_REQUIREMENT_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"requiredAccessFormId\":1,\"forResourceEvent\":\"UNKNOWN\"}"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.title", is("Wrong request")));
+  }
+
+  @Test
+  void informationRequirementEvent_schemaIsStringWithExample() throws Exception {
+    mockMvc
+        .perform(get("/v3/api-docs"))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath(
+                "$.components.schemas.InformationRequirementCreateDTO.properties.forResourceEvent.type",
+                is("string")))
+        .andExpect(
+            jsonPath(
+                "$.components.schemas.InformationRequirementCreateDTO.properties.forResourceEvent.example",
+                is("CONTACT")));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   void createInformationRequirement_onlyForAdmin_ok() throws Exception {
     InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT, false);
+        new InformationRequirementCreateDTO(1L, "CONTACT", false);
     mockMvc
         .perform(
             post(INFO_REQUIREMENT_ENDPOINT)
@@ -110,7 +134,7 @@ public class InformationRequirementControllerTest {
         .andExpect(jsonPath("$.forResourceEvent", is("CONTACT")))
         .andExpect(jsonPath("$.viewableOnlyByAdmin", is(false)))
         .andExpect(jsonPath("$._links").isNotEmpty());
-    createDTO = new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    createDTO = new InformationRequirementCreateDTO(1L, "CONTACT");
     mockMvc
         .perform(
             post(INFO_REQUIREMENT_ENDPOINT)
@@ -126,8 +150,7 @@ public class InformationRequirementControllerTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   void deleteInformationRequirement_existingId_ok() throws Exception {
-    InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(1L, "CONTACT");
     mockMvc
         .perform(
             post(INFO_REQUIREMENT_ENDPOINT)
@@ -165,8 +188,7 @@ public class InformationRequirementControllerTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   void updateRequirement_correctBody_ok() throws Exception {
-    InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(1L, "CONTACT");
     MvcResult mvcResult =
         mockMvc
             .perform(
@@ -180,7 +202,7 @@ public class InformationRequirementControllerTest {
             .readTree(mvcResult.getResponse().getContentAsString())
             .get("id")
             .asLong();
-    createDTO = new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.STEP_AWAY);
+    createDTO = new InformationRequirementCreateDTO(1L, "STEP_AWAY");
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(INFO_REQUIREMENT_ENDPOINT + "/" + id)
@@ -204,8 +226,7 @@ public class InformationRequirementControllerTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   void findAllRequirements_twoExist_returnsArrayWithTwoElements() throws Exception {
-    InformationRequirementCreateDTO createDTO1 =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    InformationRequirementCreateDTO createDTO1 = new InformationRequirementCreateDTO(1L, "CONTACT");
     mockMvc
         .perform(
             post(INFO_REQUIREMENT_ENDPOINT)
@@ -214,7 +235,7 @@ public class InformationRequirementControllerTest {
         .andExpect(status().isCreated());
 
     InformationRequirementCreateDTO createDTO2 =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.STEP_AWAY);
+        new InformationRequirementCreateDTO(1L, "STEP_AWAY");
     mockMvc
         .perform(
             post(INFO_REQUIREMENT_ENDPOINT)
@@ -232,8 +253,7 @@ public class InformationRequirementControllerTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   void updateRequirement_nonExistingId_notFound() throws Exception {
-    InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(1L, "CONTACT");
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(INFO_REQUIREMENT_ENDPOINT + "/999")
@@ -245,8 +265,7 @@ public class InformationRequirementControllerTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   void findRequirementById_existingId_ok() throws Exception {
-    InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(1L, "CONTACT");
     MvcResult mvcResult =
         mockMvc
             .perform(
@@ -284,7 +303,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     String payload =
         """
                         {
@@ -319,7 +338,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     String payload =
         """
                             {
@@ -486,7 +505,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     String payload =
         """
                                 {
@@ -517,7 +536,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     String payload =
         """
                                     {
@@ -555,7 +574,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     String payload =
         """
                                         {
@@ -609,7 +628,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     String payload =
         """
                                             {
@@ -682,7 +701,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO requirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     mockMvc
         .perform(
             get(INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), requirementDTO.getId())))
@@ -704,7 +723,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     String payload =
         """
                                     {
@@ -754,7 +773,7 @@ biobank:1:collection:1,DNA,10,20,5
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
 
     String payload =
         """
@@ -845,7 +864,7 @@ biobank:1:collection:1,DNA,10,20,5
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+            new InformationRequirementCreateDTO(1L, "CONTACT"));
     String payload =
         """
                                         {
