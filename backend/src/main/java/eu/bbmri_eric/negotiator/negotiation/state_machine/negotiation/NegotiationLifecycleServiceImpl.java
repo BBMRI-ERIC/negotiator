@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.LifecycleConflictException;
 import eu.bbmri_eric.negotiator.common.exceptions.LifecycleProblemType;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -29,6 +30,8 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   @Autowired NegotiationRepository negotiationRepository;
 
+  @Autowired private EnumBackedLifecycleCatalog lifecycleCatalog;
+
   @Autowired
   @Qualifier("persistHandler")
   private PersistStateMachineHandler persistStateMachineHandler;
@@ -38,73 +41,68 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   private StateMachine<String, String> stateMachine;
 
   @Override
-  public Set<NegotiationEvent> getPossibleEvents(String negotiationId)
-      throws EntityNotFoundException {
+  public Set<String> getPossibleEvents(String negotiationId) throws EntityNotFoundException {
     return getPossibleEventsForCurrentStateMachine(negotiationId);
   }
 
   @Override
-  public NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent)
+  public String sendEvent(String negotiationId, String event)
       throws WrongRequestException, EntityNotFoundException {
-    changeStateMachine(negotiationId, negotiationEvent, null);
+    changeStateMachine(negotiationId, event, null);
     return getCurrentStateForNegotiation(negotiationId);
   }
 
   @Override
-  public NegotiationState sendEvent(
-      String negotiationId, NegotiationEvent negotiationEvent, String message)
+  public String sendEvent(String negotiationId, String event, String message)
       throws WrongRequestException, EntityNotFoundException {
-    changeStateMachine(negotiationId, negotiationEvent, message);
+    changeStateMachine(negotiationId, event, message);
     return getCurrentStateForNegotiation(negotiationId);
   }
 
-  private void changeStateMachine(
-      String negotiationId, NegotiationEvent negotiationEvent, String message) {
+  private void changeStateMachine(String negotiationId, String event, String message) {
     ForbiddenRequestException notAllowed =
         new ForbiddenRequestException(
-            "You are not allowed to %s the Negotiation"
-                .formatted(negotiationEvent.getLabel().toLowerCase()));
+            "You are not allowed to %s the Negotiation".formatted(eventLabel(event).toLowerCase()));
     if (!isCreatorOrAdmin(negotiationId)) {
       throw notAllowed;
     }
     List<String> roles = AuthenticatedUserContext.getRoles();
-    NegotiationState currentState = getCurrentStateForNegotiation(negotiationId);
+    String currentState = getCurrentStateForNegotiation(negotiationId);
     Transition<String, String> transition =
         stateMachine.getTransitions().stream()
-            .filter(t -> t.getSource().getId().equals(currentState.name()))
-            .filter(t -> t.getTrigger().getEvent().equals(negotiationEvent.name()))
+            .filter(t -> t.getSource().getId().equals(currentState))
+            .filter(t -> t.getTrigger().getEvent().equals(event))
             .findFirst()
             .orElseThrow(
                 () ->
                     new LifecycleConflictException(
                         LifecycleProblemType.NO_TRANSITION,
                         "The Negotiation is %s, and no Transition leaves that State on %s."
-                            .formatted(currentState.getLabel(), negotiationEvent.getLabel())));
+                            .formatted(stateLabel(currentState), eventLabel(event))));
     if (!isSecurityRuleMet(transition, roles)) {
       throw notAllowed;
     }
 
     persistStateMachineHandler
         .handleEventWithStateReactively(
-            MessageBuilder.withPayload(negotiationEvent.name())
+            MessageBuilder.withPayload(event)
                 .setHeader("negotiationId", negotiationId)
                 .setHeader("postBody", message)
                 .setHeader(
                     "postSenderId",
                     AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
                 .build(),
-            getCurrentStateForNegotiation(negotiationId).name())
+            getCurrentStateForNegotiation(negotiationId))
         .subscribe();
   }
 
-  private NegotiationState getCurrentStateForNegotiation(String negotiationId) {
+  private String getCurrentStateForNegotiation(String negotiationId) {
     return negotiationRepository
         .findNegotiationStateById(negotiationId)
-        .map(NegotiationState::valueOf)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
-  private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
+  private Set<String> getPossibleEventsForCurrentStateMachine(String negotiationId) {
     if (!isCreatorOrAdmin(negotiationId)) {
       return Set.of();
     }
@@ -112,13 +110,9 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
     return stateMachine.getTransitions().stream()
         .filter(
             transition ->
-                transition
-                    .getSource()
-                    .getId()
-                    .equals(getCurrentStateForNegotiation(negotiationId).toString()))
+                transition.getSource().getId().equals(getCurrentStateForNegotiation(negotiationId)))
         .filter(transition -> isSecurityRuleMet(transition, roles))
         .map(transition -> transition.getTrigger().getEvent())
-        .map(NegotiationEvent::valueOf)
         .collect(Collectors.toSet());
   }
 
@@ -140,5 +134,19 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
       return transition.getSecurityRule().getAttributes().stream().anyMatch(roles::contains);
     }
     return true;
+  }
+
+  private String eventLabel(String event) {
+    return lifecycleCatalog.label(
+        EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+        EnumBackedLifecycleCatalog.Element.EVENT,
+        event);
+  }
+
+  private String stateLabel(String state) {
+    return lifecycleCatalog.label(
+        EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+        EnumBackedLifecycleCatalog.Element.STATE,
+        state);
   }
 }

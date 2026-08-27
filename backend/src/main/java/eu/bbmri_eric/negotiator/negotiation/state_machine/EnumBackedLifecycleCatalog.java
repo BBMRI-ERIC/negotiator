@@ -11,13 +11,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 /**
- * Temporary catalog for metadata held by {@link NegotiationState}, {@link NegotiationEvent}, {@link
- * NegotiationResourceState}, and {@link NegotiationResourceEvent}.
- *
- * <p>Delete this class at the Lifecycle cutover. {@link #nameExists} is replaced by checking for
- * the named {@code state} or {@code event} row in the applicable Definition Version; {@link
- * #metadata} is replaced by reading that row's label and description; and {@link
- * #resourceStateOrdinal} is replaced by reading the Resource State row's ordering value.
+ * Looks up State and Event names, labels, descriptions and Resource State order in {@link
+ * NegotiationState}, {@link NegotiationEvent}, {@link NegotiationResourceState}, and {@link
+ * NegotiationResourceEvent}, so that callers handle names instead of enum values.
  */
 @Component
 public class EnumBackedLifecycleCatalog {
@@ -61,6 +57,11 @@ public class EnumBackedLifecycleCatalog {
       throw new IllegalArgumentException("Unknown %s %s: %s".formatted(scope, element, name));
     }
     return metadata;
+  }
+
+  /** The human label of the named State or Event. */
+  public String label(Scope scope, Element element, String name) {
+    return metadata(scope, element, name).label();
   }
 
   public int resourceStateOrdinal(String name) {

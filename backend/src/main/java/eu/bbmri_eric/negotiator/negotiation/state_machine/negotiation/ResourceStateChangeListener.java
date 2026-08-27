@@ -49,7 +49,8 @@ public class ResourceStateChangeListener {
   }
 
   private void concludeNegotiation(ResourceStateChangeEvent event) {
-    negotiationLifecycleService.sendEvent(event.getNegotiationId(), NegotiationEvent.CONCLUDE);
+    negotiationLifecycleService.sendEvent(
+        event.getNegotiationId(), NegotiationEvent.CONCLUDE.name());
   }
 
   private static boolean isUnavailable(ResourceWithStatusDTO resource) {

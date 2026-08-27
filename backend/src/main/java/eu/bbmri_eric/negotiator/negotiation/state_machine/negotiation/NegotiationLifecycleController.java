@@ -14,10 +14,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "/v3", produces = MediaTypes.HAL_JSON_VALUE)
@@ -70,9 +72,21 @@ public class NegotiationLifecycleController {
 
   @GetMapping(value = "/negotiation-lifecycle/events/{event}")
   @Operation(summary = "Retrieve metadata about all a specific negotiation event")
-  public EntityModel<NegotiationEventMetadataDTO> getEvent(
-      @Valid @PathVariable NegotiationEvent event) {
+  public EntityModel<NegotiationEventMetadataDTO> getEvent(@Valid @PathVariable String event) {
     return negotiationEventAssembler.toModel(
-        modelMapper.map(event, NegotiationEventMetadataDTO.class));
+        modelMapper.map(eventNamed(event), NegotiationEventMetadataDTO.class));
+  }
+
+  /**
+   * Upper-cases the Event named in the path and refuses an unknown name with an empty 400. The path
+   * variable is a {@code String} so the assembler that links to this method needs no Event
+   * constant.
+   */
+  private static NegotiationEvent eventNamed(String event) {
+    try {
+      return NegotiationEvent.valueOf(event.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
   }
 }

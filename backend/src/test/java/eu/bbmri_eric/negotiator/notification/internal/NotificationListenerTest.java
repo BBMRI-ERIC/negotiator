@@ -4,8 +4,6 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import java.time.Duration;
@@ -147,12 +145,7 @@ class NotificationListenerTest {
 
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-123",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+            this, "negotiation-123", "DRAFT", "SUBMITTED", "SUBMIT", null);
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "onNewEvent", event);
@@ -206,12 +199,7 @@ class NotificationListenerTest {
 
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-123",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+            this, "negotiation-123", "DRAFT", "SUBMITTED", "SUBMIT", null);
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "onNewEvent", event);
@@ -317,12 +305,7 @@ class NotificationListenerTest {
 
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-123",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+            this, "negotiation-123", "DRAFT", "SUBMITTED", "SUBMIT", null);
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "onNewEvent", event);
@@ -375,20 +358,10 @@ class NotificationListenerTest {
 
     NegotiationStateChangeEvent negotiationEvent1 =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-123",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+            this, "negotiation-123", "DRAFT", "SUBMITTED", "SUBMIT", null);
     NegotiationStateChangeEvent negotiationEvent2 =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-456",
-            NegotiationState.SUBMITTED,
-            NegotiationState.APPROVED,
-            NegotiationEvent.APPROVE,
-            null);
+            this, "negotiation-456", "SUBMITTED", "APPROVED", "APPROVE", null);
     NewPostEvent postEvent1 = new NewPostEvent(this, "post-123", "negotiation-789", 111L, 222L);
     NewPostEvent postEvent2 = new NewPostEvent(this, "post-456", "negotiation-101", 333L, 444L);
 
@@ -458,12 +431,7 @@ class NotificationListenerTest {
 
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-123",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+            this, "negotiation-123", "DRAFT", "SUBMITTED", "SUBMIT", null);
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "onNewEvent", event);
@@ -492,12 +460,7 @@ class NotificationListenerTest {
 
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-123",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT,
-            null);
+            this, "negotiation-123", "DRAFT", "SUBMITTED", "SUBMIT", null);
 
     // When
     ReflectionTestUtils.invokeMethod(notificationListener, "dispatch", negotiationHandler, event);

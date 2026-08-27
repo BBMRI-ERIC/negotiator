@@ -10,6 +10,7 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepositor
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import java.util.HashMap;
@@ -42,6 +43,8 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private final StateMachine<String, String> stateMachine;
 
+  private final EnumBackedLifecycleCatalog lifecycleCatalog;
+
   PersonService personService;
 
   public ResourceLifecycleServiceImpl(
@@ -50,19 +53,21 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       InformationSubmissionRepository requirementSubmissionRepository,
       @Qualifier("resourcePersistHandler") PersistStateMachineHandler persistStateMachineHandler,
       @Qualifier("resourceStateMachine") StateMachine<String, String> stateMachine,
-      PersonService personService) {
+      PersonService personService,
+      EnumBackedLifecycleCatalog lifecycleCatalog) {
     this.negotiationRepository = negotiationRepository;
     this.requirementRepository = requirementRepository;
     this.requirementSubmissionRepository = requirementSubmissionRepository;
     this.persistStateMachineHandler = persistStateMachineHandler;
     this.stateMachine = stateMachine;
     this.personService = personService;
+    this.lifecycleCatalog = lifecycleCatalog;
   }
 
   @Override
-  public Set<NegotiationResourceEvent> getPossibleEvents(String negotiationId, String resourceId)
+  public Set<String> getPossibleEvents(String negotiationId, String resourceId)
       throws EntityNotFoundException {
-    NegotiationResourceState currentState;
+    String currentState;
     try {
       currentState = getCurrentStateForResource(negotiationId, resourceId);
     } catch (EntityNotFoundException e) {
@@ -106,22 +111,21 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   }
 
   @Override
-  public NegotiationResourceState sendEvent(
-      String negotiationId, String resourceId, NegotiationResourceEvent negotiationResourceEvent)
+  public String sendEvent(String negotiationId, String resourceId, String event)
       throws WrongRequestException, EntityNotFoundException {
-    if (requirementRepository.existsByForEvent(negotiationResourceEvent.name())
+    if (requirementRepository.existsByForEvent(event)
         && !requirementSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resourceId, negotiationId)) {
       throw new LifecycleConflictException(
           LifecycleProblemType.UNMET_REQUIREMENT,
           "%s cannot fire for this Resource until its Information Requirement form is submitted."
-              .formatted(negotiationResourceEvent.getLabel()));
+              .formatted(eventLabel(event)));
     }
-    NegotiationResourceState currentState = getCurrentStateForResource(negotiationId, resourceId);
+    String currentState = getCurrentStateForResource(negotiationId, resourceId);
     Transition<String, String> transition =
         stateMachine.getTransitions().stream()
-            .filter(t -> t.getSource().getId().equals(currentState.name()))
-            .filter(t -> t.getTrigger().getEvent().equals(negotiationResourceEvent.name()))
+            .filter(t -> t.getSource().getId().equals(currentState))
+            .filter(t -> t.getTrigger().getEvent().equals(event))
             .findFirst()
             .orElseThrow(
                 () ->
@@ -129,56 +133,75 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
                         LifecycleProblemType.NO_TRANSITION,
                         "The Resource is %s, and no Transition leaves that State on %s."
                             .formatted(
-                                currentState.getLabel(), negotiationResourceEvent.getLabel())));
+                                label(
+                                    EnumBackedLifecycleCatalog.Scope.RESOURCE,
+                                    EnumBackedLifecycleCatalog.Element.STATE,
+                                    currentState),
+                                eventLabel(event))));
     if (!isSecurityRuleMet(transition.getSecurityRule(), negotiationId, resourceId)) {
       throw new ForbiddenRequestException(
-          "You are not allowed to %s for this Resource"
-              .formatted(negotiationResourceEvent.getLabel().toLowerCase()));
+          "You are not allowed to %s for this Resource".formatted(eventLabel(event).toLowerCase()));
     }
-    NegotiationState negotiationState =
-        NegotiationState.valueOf(getNegotiation(negotiationId).getCurrentState());
-    if (!negotiationState.equals(NegotiationState.IN_PROGRESS)) {
+    String negotiationState = getNegotiation(negotiationId).getCurrentState();
+    if (!negotiationState.equals(NegotiationState.IN_PROGRESS.name())) {
       throw new LifecycleConflictException(
           LifecycleProblemType.DOMAIN_STATE_CONFLICT,
           "%s cannot fire while the Negotiation is %s, only while it is %s."
               .formatted(
-                  negotiationResourceEvent.getLabel(),
-                  negotiationState.getLabel(),
-                  NegotiationState.IN_PROGRESS.getLabel()));
+                  eventLabel(event),
+                  negotiationStateLabel(negotiationState),
+                  negotiationStateLabel(NegotiationState.IN_PROGRESS.name())));
     }
     persistStateMachineHandler
         .handleEventWithStateReactively(
-            MessageBuilder.withPayload(negotiationResourceEvent.name())
+            MessageBuilder.withPayload(event)
                 .setHeader("negotiationId", negotiationId)
                 .setHeader("resourceId", resourceId)
                 .build(),
-            currentState.name())
+            currentState)
         .subscribe();
     return getCurrentStateForResource(negotiationId, resourceId);
   }
 
-  private NegotiationResourceState getCurrentStateForResource(
-      String negotiationId, String resourceId) throws EntityNotFoundException {
+  private String getCurrentStateForResource(String negotiationId, String resourceId)
+      throws EntityNotFoundException {
     return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
-        .map(NegotiationResourceState::valueOf)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
-  private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
-      String negotiationId, String resourceId, NegotiationResourceState resourceState) {
+  private Set<String> getPossibleEventsForCurrentStateMachine(
+      String negotiationId, String resourceId, String resourceState) {
     Negotiation negotiation = getNegotiation(negotiationId);
     if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS.name())) {
       return Set.of();
     }
     return stateMachine.getTransitions().stream()
-        .filter(transition -> transition.getSource().getId().equals(resourceState.toString()))
+        .filter(transition -> transition.getSource().getId().equals(resourceState))
         .filter(
             transition ->
                 isSecurityRuleMet(transition.getSecurityRule(), negotiationId, resourceId))
         .map(transition -> transition.getTrigger().getEvent())
-        .map(NegotiationResourceEvent::valueOf)
         .collect(Collectors.toSet());
+  }
+
+  private String eventLabel(String event) {
+    return label(
+        EnumBackedLifecycleCatalog.Scope.RESOURCE, EnumBackedLifecycleCatalog.Element.EVENT, event);
+  }
+
+  private String negotiationStateLabel(String state) {
+    return label(
+        EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+        EnumBackedLifecycleCatalog.Element.STATE,
+        state);
+  }
+
+  private String label(
+      EnumBackedLifecycleCatalog.Scope scope,
+      EnumBackedLifecycleCatalog.Element element,
+      String name) {
+    return lifecycleCatalog.label(scope, element, name);
   }
 
   private Negotiation getNegotiation(String negotiationId) {
