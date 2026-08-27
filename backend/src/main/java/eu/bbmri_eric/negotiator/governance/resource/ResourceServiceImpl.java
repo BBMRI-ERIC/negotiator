@@ -181,7 +181,7 @@ public class ResourceServiceImpl implements ResourceService {
     } else if (isStateMachineInitialized(state)) {
       negotiation.setStateForResource(resource.getSourceId(), state);
       applicationEventPublisher.publishEvent(
-          ResourceStateChangeEvent.fromNames(
+          new ResourceStateChangeEvent(
               this,
               negotiation.getId(),
               resource.getSourceId(),

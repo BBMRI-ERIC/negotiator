@@ -6,7 +6,6 @@ import static org.mockito.Mockito.lenient;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
@@ -60,12 +59,7 @@ class NegotiationStatusChangeHandlerTest {
     // Given
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+        new NegotiationStateChangeEvent(this, negotiationId, "DRAFT", "SUBMITTED", "SUBMIT");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -91,12 +85,7 @@ class NegotiationStatusChangeHandlerTest {
     // Given
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+        new NegotiationStateChangeEvent(this, negotiationId, "SUBMITTED", "IN_PROGRESS", "APPROVE");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -121,12 +110,7 @@ class NegotiationStatusChangeHandlerTest {
     // Given
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.IN_PROGRESS,
-            NegotiationState.DECLINED,
-            NegotiationEvent.DECLINE);
+        new NegotiationStateChangeEvent(this, negotiationId, "IN_PROGRESS", "DECLINED", "DECLINE");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -151,12 +135,7 @@ class NegotiationStatusChangeHandlerTest {
     // Given
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.IN_PROGRESS,
-            NegotiationState.ABANDONED,
-            NegotiationEvent.ABANDON);
+        new NegotiationStateChangeEvent(this, negotiationId, "IN_PROGRESS", "ABANDONED", "ABANDON");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -181,12 +160,7 @@ class NegotiationStatusChangeHandlerTest {
     // Given
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+        new NegotiationStateChangeEvent(this, negotiationId, "DRAFT", "SUBMITTED", "SUBMIT");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
 
@@ -202,12 +176,7 @@ class NegotiationStatusChangeHandlerTest {
     // Given
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.DRAFT,
-            NegotiationState.DRAFT,
-            NegotiationEvent.SUBMIT);
+        new NegotiationStateChangeEvent(this, negotiationId, "DRAFT", "DRAFT", "SUBMIT");
 
     // When
     handler.notify(event);
@@ -231,7 +200,7 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.SUBMITTED, toState, NegotiationEvent.APPROVE);
+            this, negotiationId, "SUBMITTED", toState.name(), "APPROVE");
 
     // When
     handler.notify(event);
@@ -249,12 +218,7 @@ class NegotiationStatusChangeHandlerTest {
 
     // Test IN_PROGRESS message content
     NegotiationStateChangeEvent inProgressEvent =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+        new NegotiationStateChangeEvent(this, negotiationId, "SUBMITTED", "IN_PROGRESS", "APPROVE");
     handler.notify(inProgressEvent);
 
     ArgumentCaptor<NotificationCreateDTO> captor =
@@ -270,12 +234,7 @@ class NegotiationStatusChangeHandlerTest {
 
     // Test DECLINED message content
     NegotiationStateChangeEvent declinedEvent =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.IN_PROGRESS,
-            NegotiationState.DECLINED,
-            NegotiationEvent.DECLINE);
+        new NegotiationStateChangeEvent(this, negotiationId, "IN_PROGRESS", "DECLINED", "DECLINE");
     handler.notify(declinedEvent);
 
     verify(notificationService, times(1)).createNotifications(captor.capture());
@@ -288,12 +247,7 @@ class NegotiationStatusChangeHandlerTest {
 
     // Test ABANDONED message content
     NegotiationStateChangeEvent abandonedEvent =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.IN_PROGRESS,
-            NegotiationState.ABANDONED,
-            NegotiationEvent.ABANDON);
+        new NegotiationStateChangeEvent(this, negotiationId, "IN_PROGRESS", "ABANDONED", "ABANDON");
     handler.notify(abandonedEvent);
 
     verify(notificationService, times(1)).createNotifications(captor.capture());

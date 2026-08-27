@@ -20,12 +20,8 @@ import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.integration.api.WebhookSslTestConfig;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.ResourceStateChangeListener;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
@@ -77,11 +73,7 @@ class WebhookEventListenerIntegrationTest {
 
     eventPublisher.publishEvent(
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-1",
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE));
+            this, "negotiation-1", "SUBMITTED", "IN_PROGRESS", "APPROVE"));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -137,12 +129,7 @@ class WebhookEventListenerIntegrationTest {
     wireMockServer.stubFor(post(urlEqualTo("/negotiation-add-two")));
 
     eventPublisher.publishEvent(
-        new NegotiationStateChangeEvent(
-            this,
-            "negotiation-1",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT));
+        new NegotiationStateChangeEvent(this, "negotiation-1", "DRAFT", "SUBMITTED", "SUBMIT"));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -199,9 +186,9 @@ class WebhookEventListenerIntegrationTest {
             this,
             "negotiation-2",
             "resource-1",
-            NegotiationResourceState.SUBMITTED,
-            NegotiationResourceState.RESOURCE_AVAILABLE,
-            NegotiationResourceEvent.MARK_AS_AVAILABLE));
+            "SUBMITTED",
+            "RESOURCE_AVAILABLE",
+            "MARK_AS_AVAILABLE"));
 
     await()
         .atMost(Duration.ofSeconds(5))

@@ -8,11 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import java.util.List;
@@ -67,12 +63,7 @@ class WebhookEventMapperTest {
   @Test
   void map_whenNegotiationStateChangeEventFromDraftToSubmitted_returnsNegotiationAdded() {
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            "negotiation-2",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+        new NegotiationStateChangeEvent(this, "negotiation-2", "DRAFT", "SUBMITTED", "SUBMIT");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -87,11 +78,7 @@ class WebhookEventMapperTest {
   void map_whenNegotiationStateChangeEventIsNotDraftToSubmitted_returnsStateUpdated() {
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-2",
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            this, "negotiation-2", "SUBMITTED", "IN_PROGRESS", "APPROVE");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -159,9 +146,9 @@ class WebhookEventMapperTest {
             this,
             "negotiation-5",
             "resource-1",
-            NegotiationResourceState.SUBMITTED,
-            NegotiationResourceState.RESOURCE_AVAILABLE,
-            NegotiationResourceEvent.MARK_AS_AVAILABLE);
+            "SUBMITTED",
+            "RESOURCE_AVAILABLE",
+            "MARK_AS_AVAILABLE");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -183,11 +170,7 @@ class WebhookEventMapperTest {
       throws Exception {
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-2",
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            this, "negotiation-2", "SUBMITTED", "IN_PROGRESS", "APPROVE");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -208,12 +191,7 @@ class WebhookEventMapperTest {
   void map_whenNegotiationStateChangeEventFromDraftToSubmitted_serialisesStateNameAsJsonString()
       throws Exception {
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            "negotiation-2",
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+        new NegotiationStateChangeEvent(this, "negotiation-2", "DRAFT", "SUBMITTED", "SUBMIT");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
@@ -253,9 +231,9 @@ class WebhookEventMapperTest {
             this,
             "negotiation-5",
             "resource-1",
-            NegotiationResourceState.SUBMITTED,
-            NegotiationResourceState.RESOURCE_AVAILABLE,
-            NegotiationResourceEvent.MARK_AS_AVAILABLE);
+            "SUBMITTED",
+            "RESOURCE_AVAILABLE",
+            "MARK_AS_AVAILABLE");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 

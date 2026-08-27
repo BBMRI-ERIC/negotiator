@@ -28,7 +28,7 @@ class NegotiationInProgressHandler implements NotificationStrategy<NegotiationSt
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    if (WellKnownNegotiationStates.IN_PROGRESS.equals(event.getToState().name())) {
+    if (WellKnownNegotiationStates.IN_PROGRESS.equals(event.getToState())) {
       resourceNotificationService.notifyResourceRepresentatives(event.getNegotiationId());
     }
   }

@@ -9,11 +9,12 @@ import org.springframework.test.context.event.ApplicationEvents;
  * The suite's single reader of the two state change application events - the seam every
  * notification handler, the conclusion listener and the webhook subsystem watch.
  *
- * <p><b>Why one reader.</b> Both events carry their origin State, destination State and triggering
- * Event as enum constants today, and ADR 0002 deletes those enums. An assertion that named the enum
- * could not be re-run after the cutover, so this file converts each payload into strings once and
- * every assertion downstream of it speaks only of names. It is the same argument, and the same one
- * cutover point, that {@link
+ * <p><b>Why one reader.</b> Both events carried their origin State, destination State and
+ * triggering Event as enum constants when this file was written, and ADR 0002 deletes those enums.
+ * An assertion that named the enum could not be re-run after the cutover, so every assertion
+ * downstream of this file speaks only of names. The seam now deals in names itself, so the reading
+ * is a straight copy - and not one assertion downstream had to change when it stopped being a
+ * conversion. It is the same argument, and the same one cutover point, that {@link
  * eu.bbmri_eric.negotiator.characterization.adapter.LifecycleTestAdapter} makes for the services
  * and {@link LifecycleHistory} makes for the two Record tables.
  *
@@ -45,9 +46,9 @@ final class StateChangeEvents {
             event ->
                 new NegotiationStateChange(
                     event.getNegotiationId(),
-                    nameOf(event.getFromState()),
-                    nameOf(event.getToState()),
-                    nameOf(event.getEvent())))
+                    event.getFromState(),
+                    event.getToState(),
+                    event.getEvent()))
         .toList();
   }
 
@@ -59,23 +60,10 @@ final class StateChangeEvents {
                 new ResourceStateChange(
                     event.getNegotiationId(),
                     event.getResourceId(),
-                    nameOf(event.getFromState()),
-                    nameOf(event.getToState()),
-                    nameOf(event.getEvent())))
+                    event.getFromState(),
+                    event.getToState(),
+                    event.getEvent()))
         .toList();
-  }
-
-  /**
-   * The name of a State or an Event as the payload carries it.
-   *
-   * <p>Declared over {@link Enum} rather than over the four Lifecycle types on purpose: it is what
-   * lets this file read today's payloads without naming a type the redesign deletes. {@code null}
-   * is a real value on both sides - a Resource with no recorded State yet has no origin, and a
-   * Transition whose trigger cannot be resolved carries no Event - so it is preserved rather than
-   * turned into a placeholder.
-   */
-  private static String nameOf(Enum<?> value) {
-    return value == null ? null : value.name();
   }
 
   private StateChangeEvents() {}

@@ -20,8 +20,8 @@ class NegotiationStateChangeWebhookMappingStrategy
   @Override
   public Optional<WebhookPayloadEnvelope<?>> map(
       NegotiationStateChangeEvent event, ObjectMapper objectMapper) {
-    String fromState = nameOf(event.getFromState());
-    String toState = nameOf(event.getToState());
+    String fromState = event.getFromState();
+    String toState = event.getToState();
     if (WellKnownNegotiationStates.DRAFT.equals(fromState)
         && WellKnownNegotiationStates.SUBMITTED.equals(toState)) {
       NegotiationAddedWebhookEvent payload =
@@ -35,7 +35,7 @@ class NegotiationStateChangeWebhookMappingStrategy
 
     NegotiationStateUpdatedWebhookEvent payload =
         new NegotiationStateUpdatedWebhookEvent(
-            event.getNegotiationId(), fromState, toState, nameOf(event.getEvent()));
+            event.getNegotiationId(), fromState, toState, event.getEvent());
     return Optional.of(
         new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_STATE_UPDATED,
@@ -50,14 +50,5 @@ class NegotiationStateChangeWebhookMappingStrategy
         NegotiationAddedWebhookEvent.class,
         WebhookEventType.NEGOTIATION_STATE_UPDATED,
         NegotiationStateUpdatedWebhookEvent.class);
-  }
-
-  /**
-   * Reads a name off the change event, which still deals in enums. Null-preserving so that adding
-   * the translation cannot turn a null into an exception; the only producer builds all three values
-   * with {@code valueOf} and so cannot currently pass one.
-   */
-  private static String nameOf(Enum<?> stateOrEvent) {
-    return stateOrEvent == null ? null : stateOrEvent.name();
   }
 }

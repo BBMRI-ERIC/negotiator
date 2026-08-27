@@ -11,7 +11,7 @@ import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionController;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +30,15 @@ public class NegotiationModelAssembler
     implements RepresentationModelAssembler<NegotiationDTO, EntityModel<NegotiationDTO>> {
   private final InformationRequirementService requirementService;
   private final NegotiationLifecycleService negotiationLifecycleService;
+  private final EnumBackedLifecycleCatalog lifecycleCatalog;
 
   public NegotiationModelAssembler(
       InformationRequirementService requirementService,
-      NegotiationLifecycleService negotiationLifecycleService) {
+      NegotiationLifecycleService negotiationLifecycleService,
+      EnumBackedLifecycleCatalog lifecycleCatalog) {
     this.requirementService = requirementService;
     this.negotiationLifecycleService = negotiationLifecycleService;
+    this.lifecycleCatalog = lifecycleCatalog;
   }
 
   public @NonNull EntityModel<NegotiationDTO> toModelWithRequirementLink(
@@ -53,13 +56,13 @@ public class NegotiationModelAssembler
               .withRel("Requirement summary %s".formatted(requirement.getId()))
               .withTitle(requirement.getRequiredAccessForm().getName() + " summary"));
     }
-    for (NegotiationEvent event : negotiationLifecycleService.getPossibleEvents(entity.getId())) {
+    for (String event : negotiationLifecycleService.getPossibleEvents(entity.getId())) {
       entityModel.add(
           WebMvcLinkBuilder.linkTo(
                   methodOn(NegotiationController.class).sendEvent(entity.getId(), event, null))
-              .withRel(event.toString())
+              .withRel(event)
               .withTitle("Next Lifecycle event")
-              .withName(event.getLabel()));
+              .withName(eventLabel(event)));
     }
     if (entity.isPayloadUpdatable()) {
       entityModel.add(
@@ -68,6 +71,20 @@ public class NegotiationModelAssembler
               .withRel("Update"));
     }
     return entityModel;
+  }
+
+  /**
+   * Reads a Negotiation Event's human label off the catalog rather than off the enum this assembler
+   * has stopped naming. Replaced by the label on the named {@code event} row at the Lifecycle
+   * cutover.
+   */
+  private String eventLabel(String event) {
+    return lifecycleCatalog
+        .metadata(
+            EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+            EnumBackedLifecycleCatalog.Element.EVENT,
+            event)
+        .label();
   }
 
   @Override

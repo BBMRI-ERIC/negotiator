@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
 
 public class NegotiationModelAssemblerTest {
-  NegotiationModelAssembler negotiationModelAssembler = new NegotiationModelAssembler(null, null);
+  NegotiationModelAssembler negotiationModelAssembler =
+      new NegotiationModelAssembler(null, null, null);
 
   @Test
   void toModel_null_nullPointer() {

@@ -62,15 +62,20 @@ public class PersistStateChangeListener
     publishChangeEvent(state, transition, negotiationId);
   }
 
+  /**
+   * Publishes the change as three names. The {@code valueOf} calls are the check, not a conversion:
+   * a state machine id the enums do not know means no event is published at all, exactly as before.
+   * They go with the enums at the Lifecycle cutover.
+   */
   private void publishChangeEvent(
       State<String, String> state, Transition<String, String> transition, String negotiationId) {
-    NegotiationEvent event;
-    NegotiationState fromState;
-    NegotiationState toState;
+    String event;
+    String fromState;
+    String toState;
     try {
-      event = NegotiationEvent.valueOf(transition.getTrigger().getEvent());
-      fromState = NegotiationState.valueOf(transition.getSource().getId());
-      toState = NegotiationState.valueOf(state.getId());
+      event = NegotiationEvent.valueOf(transition.getTrigger().getEvent()).name();
+      fromState = NegotiationState.valueOf(transition.getSource().getId()).name();
+      toState = NegotiationState.valueOf(state.getId()).name();
     } catch (IllegalArgumentException e) {
       log.error("Error publishing event about Negotiation status change", e);
       return;

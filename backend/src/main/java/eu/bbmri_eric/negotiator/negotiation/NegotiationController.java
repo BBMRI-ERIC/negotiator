@@ -14,9 +14,8 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateLifecycleDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.pdf.NegotiationPdfService;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,6 +73,8 @@ public class NegotiationController {
 
   private final NegotiationPdfService negotiationPdfService;
 
+  private final EnumBackedLifecycleCatalog lifecycleCatalog;
+
   public NegotiationController(
       NegotiationService negotiationService,
       NegotiationLifecycleService negotiationLifecycleService,
@@ -83,7 +84,8 @@ public class NegotiationController {
       NegotiationTimeline timelineService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler,
-      NegotiationPdfService negotiationPdfService) {
+      NegotiationPdfService negotiationPdfService,
+      EnumBackedLifecycleCatalog lifecycleCatalog) {
     this.negotiationService = negotiationService;
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceLifecycleService = resourceLifecycleService;
@@ -93,6 +95,7 @@ public class NegotiationController {
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
     this.negotiationPdfService = negotiationPdfService;
+    this.lifecycleCatalog = lifecycleCatalog;
   }
 
   /** Create a negotiation */
@@ -206,11 +209,12 @@ public class NegotiationController {
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> sendEvent(
       @Valid @PathVariable String id,
-      @Valid @PathVariable("event") NegotiationEvent event,
+      @Valid @PathVariable("event") String event,
       @RequestBody(required = false) @Nullable
           NegotiationUpdateLifecycleDTO negotiationUpdateLifecycleDTO) {
+    String eventName = lifecycleEventNamed(EnumBackedLifecycleCatalog.Scope.NEGOTIATION, event);
     String message = getOptionalComment(negotiationUpdateLifecycleDTO);
-    negotiationLifecycleService.sendEvent(id, event, message);
+    negotiationLifecycleService.sendEvent(id, eventName, message);
     NegotiationDTO result = negotiationService.findById(id, true);
     return ResponseEntity.ok(result);
   }
@@ -238,14 +242,15 @@ public class NegotiationController {
   public ResponseEntity<?> sendEventForNegotiationResource(
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
-      @Valid @PathVariable("event") NegotiationResourceEvent event) {
+      @Valid @PathVariable("event") String event) {
+    String eventName = lifecycleEventNamed(EnumBackedLifecycleCatalog.Scope.RESOURCE, event);
     if (!personService.isRepresentativeOfAnyResource(
             AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), List.of(resourceId))
         && !isCreator(negotiationService.findById(negotiationId, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    resourceLifecycleService.sendEvent(negotiationId, resourceId, event);
+    resourceLifecycleService.sendEvent(negotiationId, resourceId, eventName);
     NegotiationDTO result = negotiationService.findById(negotiationId, true);
     return ResponseEntity.ok(result);
   }
@@ -259,12 +264,40 @@ public class NegotiationController {
   @GetMapping("/negotiations/{id}/lifecycle")
   List<NegotiationEventMetadataDTO> getPossibleEvents(@Valid @PathVariable String id) {
     return negotiationLifecycleService.getPossibleEvents(id).stream()
-        .map(
-            (event) ->
-                new NegotiationEventMetadataDTO(
-                    event.getValue(), event.getLabel(), event.getDescription()))
+        .map(this::negotiationEventMetadata)
         .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Reads a Negotiation Event's label and description off the catalog rather than off the enum this
+   * controller has stopped naming. Replaced by the named {@code event} row at the Lifecycle
+   * cutover.
+   */
+  private NegotiationEventMetadataDTO negotiationEventMetadata(String event) {
+    EnumBackedLifecycleCatalog.Metadata metadata =
+        lifecycleCatalog.metadata(
+            EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+            EnumBackedLifecycleCatalog.Element.EVENT,
+            event);
+    return new NegotiationEventMetadataDTO(event, metadata.label(), metadata.description());
+  }
+
+  /**
+   * Resolves the Event named in a lifecycle URL path, upper-casing it and refusing an unknown name
+   * with an empty 400.
+   *
+   * <p>This is what the two deleted Event path converters did during argument binding, moved into
+   * the handler so that the path variable can stay a bare {@code String}. It runs before anything
+   * else in both handlers, because binding did: an unknown Event is refused ahead of the permission
+   * check, and a caller allowed to do neither still learns which of the two failed.
+   */
+  private String lifecycleEventNamed(EnumBackedLifecycleCatalog.Scope scope, String event) {
+    String name = event.toUpperCase();
+    if (!lifecycleCatalog.nameExists(scope, EnumBackedLifecycleCatalog.Element.EVENT, name)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+    return name;
   }
 
   /**
@@ -277,9 +310,7 @@ public class NegotiationController {
   @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
   List<String> getPossibleEventsForNegotiationResource(
       @Valid @PathVariable String negotiationId, @Valid @PathVariable String resourceId) {
-    return resourceLifecycleService.getPossibleEvents(negotiationId, resourceId).stream()
-        .map((obj) -> Objects.toString(obj, null))
-        .collect(Collectors.toList());
+    return List.copyOf(resourceLifecycleService.getPossibleEvents(negotiationId, resourceId));
   }
 
   @GetMapping(value = "/negotiations/{id}/resources")

@@ -3,8 +3,6 @@ package eu.bbmri_eric.negotiator.notification.internal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,12 +32,7 @@ class NegotiationInProgressHandlerTest {
   void notify_WhenNegotiationMovesToInProgress_CallsResourceNotificationService() {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+        new NegotiationStateChangeEvent(this, negotiationId, "SUBMITTED", "IN_PROGRESS", "APPROVE");
 
     handler.notify(event);
 
@@ -50,12 +43,7 @@ class NegotiationInProgressHandlerTest {
   void notify_WhenNegotiationMovesToOtherState_DoesNotCallService() {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.DRAFT,
-            NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+        new NegotiationStateChangeEvent(this, negotiationId, "DRAFT", "SUBMITTED", "SUBMIT");
 
     handler.notify(event);
 
@@ -66,12 +54,7 @@ class NegotiationInProgressHandlerTest {
   void notify_WithDifferentNegotiationId_CallsServiceWithCorrectId() {
     String negotiationId = "NEG-456";
     NegotiationStateChangeEvent event =
-        new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+        new NegotiationStateChangeEvent(this, negotiationId, "SUBMITTED", "IN_PROGRESS", "APPROVE");
 
     handler.notify(event);
 

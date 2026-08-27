@@ -14,10 +14,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "/v3", produces = MediaTypes.HAL_JSON_VALUE)
@@ -70,9 +72,25 @@ public class NegotiationLifecycleController {
 
   @GetMapping(value = "/negotiation-lifecycle/events/{event}")
   @Operation(summary = "Retrieve metadata about all a specific negotiation event")
-  public EntityModel<NegotiationEventMetadataDTO> getEvent(
-      @Valid @PathVariable NegotiationEvent event) {
+  public EntityModel<NegotiationEventMetadataDTO> getEvent(@Valid @PathVariable String event) {
     return negotiationEventAssembler.toModel(
-        modelMapper.map(event, NegotiationEventMetadataDTO.class));
+        modelMapper.map(eventNamed(event), NegotiationEventMetadataDTO.class));
+  }
+
+  /**
+   * Resolves the Event named in the path exactly as the deleted {@code NegotiationEventConverter}
+   * did during argument binding - upper-casing the input, and refusing an unknown name with an
+   * empty 400. It sits here so the path variable can be a bare {@code String} and the assembler
+   * that builds a link to this method needs no Event constant to do it.
+   *
+   * <p>The Event constant itself stays: this endpoint publishes the metadata of the whole closed
+   * Event set, which is the question ticket 04 reopens. It goes when that question is answered.
+   */
+  private static NegotiationEvent eventNamed(String event) {
+    try {
+      return NegotiationEvent.valueOf(event.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
   }
 }

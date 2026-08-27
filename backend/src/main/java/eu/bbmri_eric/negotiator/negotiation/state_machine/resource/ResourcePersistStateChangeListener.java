@@ -68,9 +68,10 @@ public class ResourcePersistStateChangeListener
         Optional.ofNullable(transition)
             .map(Transition::getTrigger)
             .map(Trigger::getEvent)
+            .map(event -> NegotiationResourceEvent.valueOf(event).name())
             .orElse(null);
     eventPublisher.publishEvent(
-        ResourceStateChangeEvent.fromNames(
+        new ResourceStateChangeEvent(
             this, negotiation.getId(), resourceId, fromState, toState, resourceEvent));
     return Optional.of(negotiationRepository.save(negotiation));
   }

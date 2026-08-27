@@ -20,11 +20,16 @@ import java.util.stream.Collectors;
 /**
  * The one and only test-scope file allowed to name today's Lifecycle enums.
  *
- * <p>It converts the string names the characterization suite uses into the enum constants the
- * current services demand, delegates, and converts the results back. Every enum reference in the
- * whole characterization tree lives here, which is what the forbidden-reference guard enforces - so
- * when the enums are deleted this file is the only one that has to be rewritten, and not one
- * assertion in the suite changes.
+ * <p>It resolves the string names the characterization suite uses against today's enums, delegates,
+ * and hands the resulting names back. Every enum reference in the whole characterization tree lives
+ * here, which is what the forbidden-reference guard enforces - so when the enums are deleted this
+ * file is the only one that has to be rewritten, and not one assertion in the suite changes.
+ *
+ * <p>The two Lifecycle services now deal in names themselves, so nothing here has to convert any
+ * more. What the enums are still used for is the <em>typo guard</em> below: a misspelled name in a
+ * characterization test fails loudly instead of quietly looking like a refused Event. That is the
+ * only reason this file still names them, and it is why the resolution result is immediately turned
+ * back into a name rather than passed on as a constant.
  *
  * <p>Deliberately package private: the suite depends on {@link LifecycleTestAdapter} and is wired
  * to this implementation by {@link LifecycleTestAdapterConfig}.
@@ -49,21 +54,18 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
 
   @Override
   public Set<String> possibleNegotiationEvents(String negotiationId) {
-    return negotiationLifecycleService.getPossibleEvents(negotiationId).stream()
-        .map(Enum::name)
-        .collect(Collectors.toUnmodifiableSet());
+    return Set.copyOf(negotiationLifecycleService.getPossibleEvents(negotiationId));
   }
 
   @Override
   public String sendNegotiationEvent(String negotiationId, String event) {
-    return negotiationLifecycleService.sendEvent(negotiationId, negotiationEvent(event)).name();
+    return negotiationLifecycleService.sendEvent(negotiationId, negotiationEventName(event));
   }
 
   @Override
   public String sendNegotiationEvent(String negotiationId, String event, String message) {
-    return negotiationLifecycleService
-        .sendEvent(negotiationId, negotiationEvent(event), message)
-        .name();
+    return negotiationLifecycleService.sendEvent(
+        negotiationId, negotiationEventName(event), message);
   }
 
   @Override
@@ -75,16 +77,12 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
 
   @Override
   public Set<String> possibleResourceEvents(String negotiationId, String resourceId) {
-    return resourceLifecycleService.getPossibleEvents(negotiationId, resourceId).stream()
-        .map(Enum::name)
-        .collect(Collectors.toUnmodifiableSet());
+    return Set.copyOf(resourceLifecycleService.getPossibleEvents(negotiationId, resourceId));
   }
 
   @Override
   public String sendResourceEvent(String negotiationId, String resourceId, String event) {
-    return resourceLifecycleService
-        .sendEvent(negotiationId, resourceId, resourceEvent(event))
-        .name();
+    return resourceLifecycleService.sendEvent(negotiationId, resourceId, resourceEventName(event));
   }
 
   @Override
@@ -99,7 +97,7 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
       String negotiationId, List<Long> resourceRowIds, String state) {
     List<ResourceWithStatusDTO> resources =
         resourceService.updateResourcesInANegotiation(
-            negotiationId, new UpdateResourcesDTO(resourceRowIds, resourceState(state).name()));
+            negotiationId, new UpdateResourcesDTO(resourceRowIds, resourceStateName(state)));
     Map<String, String> statesBySourceId = new HashMap<>();
     for (ResourceWithStatusDTO resource : resources) {
       statesBySourceId.put(resource.getSourceId(), resource.getCurrentState());
@@ -112,25 +110,25 @@ final class EnumBackedLifecycleTestAdapter implements LifecycleTestAdapter {
     return resourceLifecycleService.getStateMachineDiagram();
   }
 
-  private static NegotiationEvent negotiationEvent(String event) {
+  private static String negotiationEventName(String event) {
     try {
-      return NegotiationEvent.valueOf(event);
+      return NegotiationEvent.valueOf(event).name();
     } catch (IllegalArgumentException | NullPointerException e) {
       throw unknownName(event, "Negotiation Event", NegotiationEvent.values());
     }
   }
 
-  private static NegotiationResourceEvent resourceEvent(String event) {
+  private static String resourceEventName(String event) {
     try {
-      return NegotiationResourceEvent.valueOf(event);
+      return NegotiationResourceEvent.valueOf(event).name();
     } catch (IllegalArgumentException | NullPointerException e) {
       throw unknownName(event, "Resource Event", NegotiationResourceEvent.values());
     }
   }
 
-  private static NegotiationResourceState resourceState(String state) {
+  private static String resourceStateName(String state) {
     try {
-      return NegotiationResourceState.valueOf(state);
+      return NegotiationResourceState.valueOf(state).name();
     } catch (IllegalArgumentException | NullPointerException e) {
       throw unknownName(state, "Resource State", NegotiationResourceState.values());
     }
