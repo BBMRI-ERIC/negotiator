@@ -35,7 +35,8 @@ Slice 3 has already pinned the literals, so this slice cannot quietly alter one.
       `@Schema(example = …)` annotations are byte-identical — the diff touches neither line.
 - [x] No query text is altered — slice 3's guard stays green without amendment.
       `NetworkStatsRepositoryImpl` is not in the diff at all, so none of the guard's eleven pinned
-      lines in it can have moved. `RawStateNamesInSqlGuardTest` 6/0/0/0, unamended.
+      entries in it — across seven distinct lines — can have moved. `RawStateNamesInSqlGuardTest`
+      6/0/0/0, byte-identical to its state before this slice.
 - [x] Every statistic returns the same number as before for the same data. The endpoint's whole
       body was captured before the change and pinned in `NetworkControllerTests`: all seven
       statistics, both `negotiationIds` lists and all three distribution entries. The pin was
@@ -66,12 +67,17 @@ is `String.hashCode` and is now the *same* on every run. No subscriber could hav
 old order, and nothing about the set of keys or their values moved. Recorded because the observed
 bodies differ textually, and a later reader comparing them should not read that as a regression.
 
-**Two facts slice 03 handed this slice, both confirmed.** `getMedianResponseForNetwork` exists twice
-with identical SQL and the service calls the `NegotiationRepository` copy, so
-`NetworkStatsRepositoryImpl:64` is unreachable from production. And three of that file's nine
-methods have no production caller. Neither changes this slice's work — no enum reached the queries —
-but both were checked rather than trusted, because "network statistics" reads as a bigger surface
-than the five methods the service actually calls.
+**Two facts slice 03 handed this slice, both confirmed, and one of them sharpened.**
+`getMedianResponseForNetwork` exists twice with identical SQL and the service calls the
+`NegotiationRepository` copy, so `NetworkStatsRepositoryImpl:64` is unreachable from production —
+confirmed. Slice 03's second fact was that *three* of that file's queries have no production caller;
+the number of uncalled **methods** is **four**. The three it named are the uncalled queries that
+hold pinned literals — `countIgnoredForNetwork`, `getMedianResponseForNetwork` and
+`getNumberOfSuccessfulNegotiationsForNetwork`. `countAllForNetwork` is a fourth with no reference
+outside its own interface, and it holds no literal, which is why slice 03's sweep did not count it.
+Five called plus four uncalled is the file's nine. Neither fact changes this slice's work — no enum
+reached any query — but both were checked rather than trusted, because "network statistics" reads as
+a much bigger surface than the five methods the service actually calls.
 
 **The stale schema example is filed, not fixed.** `NetworkStatistics.getStatusDistribution`'s
 `@Schema(example = "{\"OPEN\": 50, \"CLOSED\": 90, \"PENDING\": 10}")` names three States that

@@ -485,11 +485,17 @@ uses contains that date — so the row is in scope and only the `!= 'DRAFT'` lit
 `NetworkStatsRepositoryImpl:163` keeps it out of the distribution. That literal is one of slice 03's
 fourteen, so the SQL side and the response side are now pinned from both ends.
 
-**Slice 03's two handed-over facts, both confirmed by reading the callers.** The service takes its
-count and its median off `NegotiationRepository`, not off `NetworkStatsRepositoryImpl` — so that
-file's `getMedianResponseForNetwork` is unreachable from production, and it reaches five of the
-file's nine methods. Neither affects this slice, since no enum reached any query; both were checked
-because "the network statistics subsystem" reads as a much larger surface than it is.
+**Slice 03's two handed-over facts, both confirmed by reading the callers — and its "three
+uncalled queries" is four uncalled methods.** The service takes its count and its median off
+`NegotiationRepository`, not off `NetworkStatsRepositoryImpl`, so that file's
+`getMedianResponseForNetwork` is unreachable from production and the service reaches **five** of the
+file's nine methods. The other **four** — `countIgnoredForNetwork`, `getMedianResponseForNetwork`,
+`getNumberOfSuccessfulNegotiationsForNetwork` and `countAllForNetwork` — have no production caller.
+Slice 03's section says three, which is right for what it was counting: the uncalled queries holding
+**pinned literals**. `countAllForNetwork` holds none, so its sweep had no reason to see it. Slice 11
+should read slice 03's three as "three uncalled *literal-holding* queries" and not as the file's
+uncalled surface. Neither fact affects this slice, since no enum reached any query; both were
+checked because "the network statistics subsystem" reads as a much larger surface than it is.
 
 **The whole-suite count is 1473/0/0/16 in 159 classes, and for once it reconciles exactly.** Slice
 05 recorded 1472 in 159 and asked later slices to take it as the baseline; this slice adds one test

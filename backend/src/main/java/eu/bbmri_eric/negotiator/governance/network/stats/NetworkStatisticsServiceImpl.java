@@ -67,11 +67,15 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
   }
 
   /**
-   * Reads the State name off the untyped projection {@code countStatusDistribution} returns. The
-   * Negotiation's State column is still enum-mapped, so the projected value arrives as an enum
-   * today and as a String once the entity's field is one. Either way the name is what keys the
-   * distribution, so both are read rather than one being cast and the other left to fail at
-   * runtime.
+   * Reads the State name off the untyped projection {@code countStatusDistribution} returns. {@code
+   * Negotiation.currentState} is still an {@code @Enumerated} field, so the projected value arrives
+   * as an enum today and as a String once that field is one. Either way the name is what keys the
+   * distribution, so both shapes are read rather than one being cast and the other left to fail at
+   * runtime — the projection is an {@code Object}, so a cast here would compile clean either way
+   * and there is no type for the compiler to complain about.
+   *
+   * <p>Named unlike the {@code nameOf(Enum)} helpers its sibling consumers use, because it takes an
+   * {@code Object} and so has a different contract.
    */
   private static String stateNameOf(Object projectedState) {
     return projectedState instanceof Enum<?> state ? state.name() : (String) projectedState;
