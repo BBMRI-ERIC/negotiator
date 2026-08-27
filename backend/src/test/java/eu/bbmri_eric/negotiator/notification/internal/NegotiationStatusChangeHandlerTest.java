@@ -17,6 +17,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -212,6 +214,29 @@ class NegotiationStatusChangeHandlerTest {
 
     // Then
     verify(notificationService, never()).createNotifications(any());
+  }
+
+  /**
+   * Four of the eight Negotiation States have no branch here and notify nobody. Only DRAFT was
+   * pinned; the other three were free to start notifying unnoticed.
+   */
+  @ParameterizedTest
+  @EnumSource(
+      value = NegotiationState.class,
+      names = {"DRAFT", "APPROVED", "PAUSED", "CONCLUDED"})
+  void notify_WhenStateHasNoBranch_NotifiesNobody(NegotiationState toState) {
+    // Given
+    String negotiationId = "NEG-123";
+    NegotiationStateChangeEvent event =
+        new NegotiationStateChangeEvent(
+            this, negotiationId, NegotiationState.SUBMITTED, toState, NegotiationEvent.APPROVE);
+
+    // When
+    handler.notify(event);
+
+    // Then
+    verify(notificationService, never()).createNotifications(any());
+    verifyNoInteractions(negotiationRepository);
   }
 
   @Test
