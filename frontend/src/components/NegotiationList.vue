@@ -1,9 +1,8 @@
 <template>
   <div v-if="!loading" class="container">
-    <NewRequestButton v-if="!networkActivated" />
-    <div class="pt-1">
-      <div class="row mt-5 pt-3">
-        <div class="col-12 mb-3">
+    <div class="d-flex flex-column gap-3">
+      <div class="row">
+        <div class="col-12 mb-0">
           <div class="input-group">
             <span class="input-group-text">
               <i class="bi bi-search"></i>
@@ -26,15 +25,8 @@
           </div>
         </div>
       </div>
-      <div class="row row-cols-2 d-grid-row">
-        <p>
-          <span
-            class="negotiations-search-results"
-            :style="{ color: 'var(--bs-search-results-text)' }"
-          >
-            <strong>Search results: </strong>
-          </span>
-          <br />
+      <div class="row row-cols-2 align-items-center">
+        <p class="mb-0">
           <span
             class="negotiations-number"
             :style="{ color: 'var(--bs-search-results-text)', opacity: 0.5 }"
@@ -42,7 +34,7 @@
           >
         </p>
 
-        <div class="text-end my-2">
+        <div class="text-end">
           <button
             v-if="negotiations.length > 0"
             type="button"
@@ -227,7 +219,6 @@ import {
   transformStatus,
   formatTimestampToLocalDateTime,
 } from '../composables/utils.js'
-import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import SortButton from '@/components/ui/SortButton.vue'

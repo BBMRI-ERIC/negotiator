@@ -2,7 +2,7 @@
   <div v-if="uiConfiguration?.isButtonVisible && uiConfiguration?.buttonText" class="new-request">
     <button
       ref="openModal"
-      class="btn btn-sm sm ms-2 float-end"
+      class="btn btn-sm sm float-end"
       data-bs-toggle="modal"
       data-bs-target="#newRequestModal"
       :style="{ 'background-color': uiConfiguration?.buttonColor }"
@@ -27,17 +27,18 @@ import { computed } from 'vue'
 import NewRequestModal from '../components/modals/NewRequestModal.vue'
 import { useApiCallsStore } from '../store/apiCalls.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
-import allFeatureFlags from '@/config/featureFlags.js'
+import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
 
 const apiCallsStore = useApiCallsStore()
 const uiConfigurationStore = useUiConfiguration()
+const { dev_mode: devMode } = useFeatureFlags()
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.newRequestButton
 })
 
 async function startNewRequest() {
-  if (allFeatureFlags.dev_mode === 'true' || allFeatureFlags.dev_mode === true) {
+  if (devMode) {
     const data = {
       url: 'https://bbmritestnn.gcc.rug.nl',
       humanReadable:

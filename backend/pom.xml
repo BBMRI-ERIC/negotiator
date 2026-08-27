@@ -26,6 +26,7 @@
         <!-- Third-party libraries -->
         <awaitility.version>4.3.0</awaitility.version>
         <commons-csv.version>1.14.0</commons-csv.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-validator.version>1.10.1</commons-validator.version>
         <docx4j.version>11.5.14</docx4j.version>
@@ -43,12 +44,11 @@
         <lombok.version>1.18.30</lombok.version>
         <micrometer.version>1.14.4</micrometer.version>
         <modelmapper.version>3.2.4</modelmapper.version>
-        <moxy.version>2.5.1</moxy.version>
         <netty-macos.version>4.1.119.Final</netty-macos.version>
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
-        <pdfbox.version>3.0.5</pdfbox.version>
+        <pdfbox.version>3.0.8</pdfbox.version>
         <poi.version>5.4.1</poi.version>
-        <postgresql.version>42.7.11</postgresql.version>
+        <postgresql.version>42.7.13</postgresql.version>
         <reactor.version>3.7.3</reactor.version>
         <itext.version>9.6.0</itext.version>
         <itext.html2pdf.version>6.3.2</itext.html2pdf.version>
@@ -281,6 +281,11 @@
             <version>${owasp-sanitizer.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
+        <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>${commons-validator.version}</version>
@@ -394,18 +399,8 @@
         </dependency>
         <dependency>
             <groupId>org.docx4j</groupId>
-            <artifactId>docx4j-JAXB-MOXy</artifactId>
-            <version>${docx4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.docx4j</groupId>
             <artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
             <version>${docx4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>org.eclipse.persistence.moxy</artifactId>
-            <version>${moxy.version}</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>

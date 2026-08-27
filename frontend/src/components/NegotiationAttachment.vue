@@ -6,7 +6,7 @@
     <div id="file-info" style="max-width: 71%">
       <div class="text-truncate" :title="name">{{ name }}</div>
       <div class="text-info">
-        {{ getFileTypeName(contentType) + ' ' + getHumanFileSize(size) }}
+        {{ fileInfoText }}
       </div>
     </div>
     <div v-if="!downloadable" id="file-reset" class="ms-auto">
@@ -53,6 +53,12 @@ const props = defineProps({
   },
 })
 
+const fileInfoText = computed(() => {
+  return [getFileTypeName(props.contentType), getHumanFileSize(props.size)]
+    .filter(Boolean)
+    .join(' ')
+})
+
 const downloadable = computed(() => {
   return props.id !== undefined
 })
@@ -76,29 +82,64 @@ function getHumanFileSize(bytes, dp = 1) {
 }
 
 function getFileTypeIconClass(fileType) {
-  if (fileType === 'application/pdf') {
-    return { 'bi-file-pdf': true }
-  } else if (
-    [
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/msword',
-    ].includes(fileType)
-  ) {
-    return { 'bi-file-word': true }
-  } else {
-    return { 'bi-file-earmark': true }
+  switch (fileType) {
+    case 'application/pdf':
+      return { 'bi-file-pdf': true }
+
+    case 'application/msword':
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return { 'bi-file-word': true }
+
+    case 'image/png':
+    case 'image/jpeg':
+    case 'image/jpg':
+      return { 'bi-file-earmark-image': true }
+
+    case 'text/csv':
+    case 'application/vnd.ms-excel':
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return { 'bi-file-earmark-spreadsheet': true }
+
+    case 'text/plain':
+      return { 'bi-file-text': true }
+
+    default:
+      return { 'bi-file-earmark': true }
   }
 }
 
 function getFileTypeName(fileType) {
-  if (fileType === 'application/pdf') {
-    return 'PDF'
-  } else if (
-    fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  ) {
-    return 'DOCX'
-  } else if (fileType === 'application/msword') {
-    return 'DOC'
+  switch (fileType) {
+    case 'application/pdf':
+      return 'PDF'
+
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return 'DOCX'
+
+    case 'application/msword':
+      return 'DOC'
+
+    case 'image/png':
+      return 'PNG'
+
+    case 'image/jpeg':
+    case 'image/jpg':
+      return 'JPEG'
+
+    case 'application/vnd.ms-excel':
+      return 'XLS'
+
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return 'XLSX'
+
+    case 'text/csv':
+      return 'CSV'
+
+    case 'text/plain':
+      return 'TXT'
+
+    default:
+      return ''
   }
 }
 </script>

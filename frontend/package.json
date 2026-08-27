@@ -42,7 +42,7 @@
     "vue-i18n": "^11.2.8",
     "vue-matomo": "^4.2.0",
     "vue-router": "^5.0.2",
-    "vue3-form-wizard": "^0.2.4",
+    "vue3-form-wizard": "1.1.1",
     "vue3-tour": "^1.0.3",
     "vuedraggable": "4.1.0",
     "yarn": "^1.22.19"
@@ -56,8 +56,8 @@
     "eslint-plugin-cypress": "^5.2.0",
     "eslint-plugin-vue": "^10.8.0",
     "prettier": "^3.8.1",
-    "sass": "1.97.1",
-    "vite": "^6.4.1",
+    "sass": "^1.102.0",
+    "vite": "^8.1.5",
     "vue-eslint-parser": "^10.4.0"
   },
   "browserslist": [

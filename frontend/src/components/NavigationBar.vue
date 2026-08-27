@@ -198,7 +198,7 @@ import bbmriLogo from '../assets/images/bbmri/nav-bar-bbmri.png'
 import canservLogo from '../assets/images/canserv/nav-bar-canserv.png'
 import eucaimLogo from '../assets/images/eucaim/nav-bar-eucaim.png'
 import NotificationsButton from './NotificationsButton.vue'
-import allFeatureFlags from '@/config/featureFlags.js'
+import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import { useActuatorInfoStore } from '../store/actuatorInfo'
 import { useUserStore } from '../store/user'
@@ -214,7 +214,7 @@ const networksPageStore = useNetworksPageStore()
 const dropdownVisible = ref(false)
 const router = useRouter()
 const roles = ref([])
-const featureFlagsFAQ = !!(allFeatureFlags.faqPage === 'true' || allFeatureFlags.faqPage === true)
+const { faqPage: featureFlagsFAQ } = useFeatureFlags()
 const backendEnvironment = ref('')
 const showNetworksTab = ref(false)
 const networks = ref([])

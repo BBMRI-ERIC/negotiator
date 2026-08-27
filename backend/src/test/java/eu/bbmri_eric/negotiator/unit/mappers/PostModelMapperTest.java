@@ -28,12 +28,13 @@ public class PostModelMapperTest {
         Post.builder()
             .id("test-id")
             .type(PostType.PUBLIC)
-            .negotiation(new Negotiation())
+            .negotiation(Negotiation.builder().id("test-negotiation-id").build())
             .text("This is important")
             .build();
     post.setCreationDate(LocalDateTime.now());
     post.setCreatedBy(new Person());
     PostDTO postDTO = mapper.map(post, PostDTO.class);
     assertEquals(post.getText(), postDTO.getText());
+    assertEquals(post.getNegotiation().getId(), postDTO.getNegotiationId());
   }
 }

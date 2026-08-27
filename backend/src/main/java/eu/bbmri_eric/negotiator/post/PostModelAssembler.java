@@ -21,7 +21,9 @@ public class PostModelAssembler
   @Override
   public @NonNull EntityModel<PostDTO> toModel(@NonNull PostDTO entity) {
     List<Link> links = new ArrayList<>();
-    links.add(linkTo(methodOn(PostController.class).getById(entity.getId())).withSelfRel());
+    links.add(
+        linkTo(methodOn(PostController.class).getById(entity.getNegotiationId(), entity.getId()))
+            .withSelfRel());
     return EntityModel.of(entity, links);
   }
 

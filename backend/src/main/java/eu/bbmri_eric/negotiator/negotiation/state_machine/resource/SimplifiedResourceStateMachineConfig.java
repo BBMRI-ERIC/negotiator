@@ -14,11 +14,12 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.guard.Guard;
 import org.springframework.statemachine.security.SecurityRule;
 
-/** Configuration for the Resource State Machine. */
+/** Simplified resource state machine active under the minimal-workflow Spring profile. */
 @Configuration
-@Profile("!minimal-workflow")
+@Profile("minimal-workflow")
 @EnableStateMachine(name = "resourceStateMachine")
-public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {
+public class SimplifiedResourceStateMachineConfig
+    extends StateMachineConfigurerAdapter<String, String> {
 
   @Override
   public void configure(StateMachineConfigurationConfigurer<String, String> config)
@@ -58,62 +59,14 @@ public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<St
         .and()
         .withExternal()
         .source(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())
-        .event(NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY.name())
-        .target(NegotiationResourceState.CHECKING_AVAILABILITY.name())
+        .event(NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE.name())
+        .target(NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name())
         .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())
         .event(NegotiationResourceEvent.STEP_AWAY.name())
         .target(NegotiationResourceState.RESOURCE_UNAVAILABLE.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
-        .and()
-        .withExternal()
-        .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
-        .event(NegotiationResourceEvent.MARK_AS_UNAVAILABLE.name())
-        .target(NegotiationResourceState.RESOURCE_UNAVAILABLE.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
-        .and()
-        .withExternal()
-        .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
-        .event(NegotiationResourceEvent.MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT.name())
-        .target(NegotiationResourceState.RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
-        .and()
-        .withExternal()
-        .source(NegotiationResourceState.CHECKING_AVAILABILITY.name())
-        .event(NegotiationResourceEvent.MARK_AS_AVAILABLE.name())
-        .target(NegotiationResourceState.RESOURCE_AVAILABLE.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
-        .and()
-        .withExternal()
-        .source(NegotiationResourceState.RESOURCE_AVAILABLE.name())
-        .event(NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS.name())
-        .target(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
-        .and()
-        .withExternal()
-        .source(NegotiationResourceState.RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT.name())
-        .event(NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS.name())
-        .target(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
-        .secured("isRepresentative", SecurityRule.ComparisonType.ALL)
-        .and()
-        .withExternal()
-        .source(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
-        .event(NegotiationResourceEvent.DECLINE_ACCESS_CONDITIONS.name())
-        .target(NegotiationResourceState.RESOURCE_NOT_MADE_AVAILABLE.name())
-        .secured("isCreator", SecurityRule.ComparisonType.ALL)
-        .and()
-        .withExternal()
-        .source(NegotiationResourceState.ACCESS_CONDITIONS_INDICATED.name())
-        .event(NegotiationResourceEvent.ACCEPT_ACCESS_CONDITIONS.name())
-        .target(NegotiationResourceState.ACCESS_CONDITIONS_MET.name())
-        .secured("isCreator", SecurityRule.ComparisonType.ALL)
-        .and()
-        .withExternal()
-        .source(NegotiationResourceState.ACCESS_CONDITIONS_MET.name())
-        .event(NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE.name())
-        .target(NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name())
         .secured("isRepresentative", SecurityRule.ComparisonType.ALL);
 
     transitions.withExternal().guard(negotiationIsApproved());
