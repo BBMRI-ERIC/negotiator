@@ -5,6 +5,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -1605,6 +1606,32 @@ public class NegotiationControllerTests {
         initialResourceCount + newResources.size(),
         updatedNegotiation.getResources().size(),
         "Resources should be added to the negotiation");
+    newResources.forEach(
+        resource ->
+            assertNull(updatedNegotiation.getCurrentStateForResource(resource.getSourceId())));
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void addResources_nonDraftState_creatorCannotAddResources() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_1_ID).orElseThrow();
+    Resource newResource =
+        resourceRepository.findAll().stream()
+            .filter(resource -> !negotiation.getResources().contains(resource))
+            .findFirst()
+            .orElseThrow();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    new ObjectMapper()
+                        .writeValueAsString(new UpdateResourcesDTO(List.of(newResource.getId())))))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.detail", is("You are not allowed to perform this action")));
   }
 
   @Test

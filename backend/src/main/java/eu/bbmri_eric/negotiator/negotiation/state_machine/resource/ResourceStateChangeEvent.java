@@ -25,4 +25,20 @@ public class ResourceStateChangeEvent extends ApplicationEvent {
     this.toState = toState;
     this.event = event;
   }
+
+  public static ResourceStateChangeEvent fromNames(
+      Object source,
+      String negotiationId,
+      String resourceId,
+      String fromState,
+      String toState,
+      String event) {
+    return new ResourceStateChangeEvent(
+        source,
+        negotiationId,
+        resourceId,
+        fromState == null ? null : NegotiationResourceState.valueOf(fromState),
+        toState == null ? null : NegotiationResourceState.valueOf(toState),
+        event == null ? null : NegotiationResourceEvent.valueOf(event));
+  }
 }

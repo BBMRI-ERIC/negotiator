@@ -77,4 +77,8 @@ public interface NegotiationRepository
 
   @Query(value = "SELECT n FROM Negotiation n WHERE FUNCTION('DATE', n.creationDate) = :targetDate")
   Set<Negotiation> findAllCreatedOn(LocalDateTime targetDate);
+
+  default List<Negotiation> findAllByCurrentState(String stateName) {
+    return findAllByCurrentState(stateName == null ? null : NegotiationState.valueOf(stateName));
+  }
 }

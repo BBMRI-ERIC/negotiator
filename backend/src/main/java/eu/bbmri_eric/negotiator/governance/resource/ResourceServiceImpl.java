@@ -19,14 +19,14 @@ import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithOrgDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownResourceEvents;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownResourceStates;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
@@ -84,13 +84,16 @@ public class ResourceServiceImpl implements ResourceService {
     this.negotiationAccessManager = negotiationAccessManager;
   }
 
-  private static boolean isStateMachineInitialized(NegotiationResourceState state) {
-    return state != NegotiationResourceState.SUBMITTED;
+  private static boolean isStateMachineInitialized(String state) {
+    return !WellKnownResourceStates.SUBMITTED.equals(state);
   }
 
-  private static boolean isUninitialized(
-      NegotiationResourceState state, NegotiationResourceState before) {
-    return state == NegotiationResourceState.SUBMITTED && before == null;
+  private static boolean isUninitialized(String state, String before) {
+    return WellKnownResourceStates.SUBMITTED.equals(state) && before == null;
+  }
+
+  private static String nameOf(Enum<?> value) {
+    return value == null ? null : value.name();
   }
 
   private static void addAnyNewResourcesToNegotiation(
@@ -101,7 +104,7 @@ public class ResourceServiceImpl implements ResourceService {
                   .getCreatedBy()
                   .getId()
                   .equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
-              && negotiation.getCurrentState().equals(NegotiationState.DRAFT))) {
+              && nameOf(negotiation.getCurrentState()).equals(WellKnownNegotiationStates.DRAFT))) {
         throw new ForbiddenRequestException("You are not allowed to perform this action");
       }
       Set<Resource> newNegotiationResources = new HashSet<>(negotiation.getResources());
@@ -159,38 +162,37 @@ public class ResourceServiceImpl implements ResourceService {
     Negotiation negotiation = fetchNegotiationFromDB(negotiationId);
     Set<Resource> resourcesToUpdate = fetchResourcesFromDB(updateResourcesDTO.getResourceIds());
     addAnyNewResourcesToNegotiation(resourcesToUpdate, negotiation);
-    if (!negotiation.getCurrentState().equals(NegotiationState.DRAFT)) {
-      setStatusForUpdatedResources(negotiation, resourcesToUpdate, updateResourcesDTO.getState());
+    if (!nameOf(negotiation.getCurrentState()).equals(WellKnownNegotiationStates.DRAFT)) {
+      setStatusForUpdatedResources(
+          negotiation, resourcesToUpdate, nameOf(updateResourcesDTO.getState()));
     }
     negotiationRepository.saveAndFlush(negotiation);
-    if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
+    if (nameOf(negotiation.getCurrentState()).equals(WellKnownNegotiationStates.IN_PROGRESS)) {
       applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
     }
     return getResourceWithStatusDTOS(negotiationId);
   }
 
   private void setStatusForUpdatedResources(
-      Negotiation negotiation, Set<Resource> resourcesToUpdate, NegotiationResourceState state) {
+      Negotiation negotiation, Set<Resource> resourcesToUpdate, String state) {
     verifyAuthForStatusUpdate(resourcesToUpdate);
     resourcesToUpdate.forEach(resource -> updateResourceStatus(negotiation, state, resource));
   }
 
-  private void updateResourceStatus(
-      Negotiation negotiation, NegotiationResourceState state, Resource resource) {
-    NegotiationResourceState before =
-        negotiation.getCurrentStateForResource(resource.getSourceId());
+  private void updateResourceStatus(Negotiation negotiation, String state, Resource resource) {
+    String before = nameOf(negotiation.getCurrentStateForResource(resource.getSourceId()));
     if (isUninitialized(state, before)) {
       negotiation.setStateForResource(resource.getSourceId(), state);
     } else if (isStateMachineInitialized(state)) {
       negotiation.setStateForResource(resource.getSourceId(), state);
       applicationEventPublisher.publishEvent(
-          new ResourceStateChangeEvent(
+          ResourceStateChangeEvent.fromNames(
               this,
               negotiation.getId(),
               resource.getSourceId(),
               before,
               state,
-              NegotiationResourceEvent.OVERRIDE));
+              WellKnownResourceEvents.OVERRIDE));
     }
   }
 

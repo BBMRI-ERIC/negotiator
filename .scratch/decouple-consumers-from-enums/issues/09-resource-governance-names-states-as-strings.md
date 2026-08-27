@@ -1,6 +1,6 @@
 # Resource governance names States as strings
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -24,13 +24,13 @@ would be.
 
 ## Acceptance criteria
 
-- [ ] Both files name no Lifecycle enum.
-- [ ] Adding and removing a Resource is permitted and refused for exactly the same Negotiation States
+- [x] Both files name no Lifecycle enum.
+- [x] Adding and removing a Resource is permitted and refused for exactly the same Negotiation States
       as before, with identical error messages and status codes.
-- [ ] The administrator's direct state change still records history under the Override Event's name.
-- [ ] The non-represented Resources handler selects the same Resources for the same data.
-- [ ] The existing resource controller and repository tests are extended rather than replaced.
-- [ ] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
+- [x] The administrator's direct state change still records history under the Override Event's name.
+- [x] The non-represented Resources handler selects the same Resources for the same data.
+- [x] The existing resource controller and repository tests are extended rather than replaced.
+- [x] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
 
 ## Notes
 
@@ -48,3 +48,18 @@ not. Change none of them.
 ## Blocked by
 
 - [01 The three Well-known name holders](01-well-known-name-holders.md)
+
+## Resolution
+
+`ResourceServiceImpl` and `NonRepresentedResourcesHandlerImpl` now compare and write State and Event
+names through the three holders. Temporary conversions live at the enum-owning entity, repository
+and application-event seams, ready to disappear in slices 10 and 11.
+
+The existing resource controller, resource repository and handler tests now pin the returned State
+names, draft initialization, non-draft authorization response, and unchanged selection of only
+unreachable Resources in ongoing Negotiations. The existing Lifecycle event characterization still
+pins the direct State change under `OVERRIDE`.
+
+Verification on 2026-08-27: focused resource and event tests green; full backend suite 1463 tests in
+158 classes, 0 failures, 0 errors, 16 skipped; parity 255 tests in 24 classes, 0 failures, 0 errors,
+1 skipped; intended deltas 8 tests, 0 failures, 0 errors, 0 skipped.

@@ -169,6 +169,20 @@ public class Negotiation extends AuditEntity {
   }
 
   /**
+   * Sets the current state for a linked Resource, naming the State as a string.
+   *
+   * <p>Temporary while this entity still stores the State as an enum. Once the field becomes a
+   * {@code String}, this overload becomes the sole method and the conversion disappears.
+   *
+   * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   * @param stateName the name of the State to be set.
+   */
+  public void setStateForResource(String resourceId, String stateName) {
+    setStateForResource(
+        resourceId, stateName == null ? null : NegotiationResourceState.valueOf(stateName));
+  }
+
+  /**
    * Sets the current state for a liked Resource.
    *
    * @param resourceId the source/external ID of the Resource. Not the internal ID!

@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -210,9 +211,9 @@ public class ResourceControllerTests {
   @Transactional
   void getAllResources_approvedNegotiation_resourceContainsLifecycleLinks() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().stream().findFirst().get();
+    Resource resource = negotiation.getResources().iterator().next();
     negotiation.setStateForResource(
-        negotiation.getResources().iterator().next().getSourceId(),
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
     negotiationRepository.save(negotiation);
     mockMvc
         .perform(
@@ -222,6 +223,11 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._links").isNotEmpty())
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
+        .andExpect(
+            jsonPath(
+                    "$._embedded.resources[?(@.sourceId == '%s')].currentState"
+                        .formatted(resource.getSourceId()))
+                .value(hasItem("REPRESENTATIVE_CONTACTED")))
         .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
         .andExpect(jsonPath("$._embedded.resources[0].name").isString())
         .andExpect(jsonPath("$._embedded.resources[0].description").isString())
