@@ -270,14 +270,30 @@ the source of truth and this guard's reading list has to be decided again.
 
 ## What slice 04 established for slices 05, 08, 09, 10 and 11
 
-**The wire-format claim is discharged, once, for the whole slab.** Four assertions compare a whole
-serialised payload object — the mapper's output, and the HTTP body WireMock received — and they were
-run green against the *enum-typed* records before the type swap and again after it, with the same
-expected JSON both times. So no later slice has to re-argue that a State or an Event serialises as
-its name: nothing configures `WRITE_ENUMS_USING_TO_STRING`, no enum carries `@JsonValue`, and the
-only thing that would have broken it is a `label`-valued `toString` on one of the four enums, which
-none of them has. `NegotiationState` does expose `getLabel`, `getDescription` and `getValue`, so a
-`@JsonValue` added to any of them at any point is the failure mode these four tests now catch.
+**The wire-format claim is discharged, once, for the whole slab — and at two heights that prove
+different things.** Eight assertions in total: four in the mapper unit test comparing the whole
+serialised payload object, and four in the listener integration test comparing the whole `data`
+object of the body WireMock received. All were run green against the *enum-typed* records before the
+type swap and again after it, with the same expected JSON both times.
+
+**Read the two heights precisely, because only one of them covers Jackson configuration.** The
+mapper unit test builds its own `new ObjectMapper()`, so it measures Jackson's *defaults*; the
+integration test goes through the application's configured mapper and a real HTTP body, and it is
+that one which discharges the PRD's claim about "Jackson's behaviour". What the pair establishes for
+the slab: Jackson's default enum serialisation is `name()`, and nothing here configures
+`WRITE_ENUMS_USING_TO_STRING`, so a State or an Event reached the wire as its name — which is
+exactly the string these consumers now pass.
+
+**Two corrections to how far that generalises**, made in review because a later slice would have
+over-trusted the looser version. A `label`-valued `toString` on one of the four enums would *not*
+have changed the wire format, since that feature is unset and `toString` is therefore never
+consulted — the live risk was only ever a `@JsonValue`, and `NegotiationState` exposes `getLabel`,
+`getDescription` and `getValue` for one to be added to. And after this slice the two Negotiation
+payloads are no longer sensitive to any of it: their strategy calls `.name()` itself, so Jackson
+never sees an enum on that path. Only `NegotiationResourceStateUpdatedWebhookEvent` still converts
+an enum through Jackson, via `convertValue`, so it is the one payload whose tests still guard enum
+serialisation config. Slices 08–10 should not read "the enum-serialisation question is settled" as
+"our JSON is pinned" — pin the JSON where you change it.
 
 **Compare the object, not the paths.** The listener test already asserted every field of the
 state-change delivery with `matchingJsonPath`, and it would have stayed green if a *seventh* field

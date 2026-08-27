@@ -53,9 +53,9 @@ class NegotiationStateChangeWebhookMappingStrategy
   }
 
   /**
-   * Reads a name off the change event, which still deals in enums. Null-preserving, so a payload
-   * field that could carry a null before this translation existed still carries one rather than
-   * throwing.
+   * Reads a name off the change event, which still deals in enums. Null-preserving so that adding
+   * the translation cannot turn a null into an exception; the only producer builds all three values
+   * with {@code valueOf} and so cannot currently pass one.
    */
   private static String nameOf(Enum<?> stateOrEvent) {
     return stateOrEvent == null ? null : stateOrEvent.name();

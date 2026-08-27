@@ -307,9 +307,13 @@ class WebhookEventMapperTest {
   }
 
   /**
-   * Asserts the payload a subscriber receives, field by field. A State or an Event is a JSON string
-   * on the wire; this compares the serialised object as a whole, so a renamed field, a dropped
-   * field or a value that stops being that string all fail here.
+   * Asserts how the payload record itself serialises, under Jackson's defaults. A State or an Event
+   * is a JSON string; comparing the serialised object as a whole means a renamed field, a dropped
+   * field, an added field or a value that stops being that string all fail here.
+   *
+   * <p>This is the lower of the two heights that pin the wire format. {@code
+   * WebhookEventListenerIntegrationTest} pins the upper one - the body a subscriber's endpoint
+   * actually receives, through the application's own configured {@code ObjectMapper}.
    */
   private static void assertSerialisedDataEquals(
       WebhookPayloadEnvelope<?> envelope, String expectedJson) throws Exception {

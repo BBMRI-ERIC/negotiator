@@ -52,7 +52,12 @@ breaks, because the values on the wire are identical.
       creation — still pass unedited.
 - [x] Schema metadata reads as a string type and keeps a worked example on every State and Event
       field. Six fields across the three records; each `@Schema` keeps its example and its
-      description now says it carries a name.
+      description now says it carries a name. The description rewrite is more than the criterion
+      asked for and is deliberate: the published text is what a subscriber reads instead of the
+      `enum` constraint this slice gives up, which is PRD user story 15's concern. One neighbouring
+      description was also fixed, for the glossary rather than for this slice —
+      `backend/CONTEXT.md` binds `_Avoid_: state machine`, and the resource payload's own
+      `@WebhookEventDoc` still shipped it.
 - [x] The existing webhook mapper and listener integration tests are extended rather than replaced.
       The mapper test goes 10 → 14 tests, with the four pre-existing State-carrying assertions
       keeping their shape and only their expected values becoming strings; the listener test stays at
@@ -66,14 +71,17 @@ breaks, because the values on the wire are identical.
 ## What resolving it established
 
 **The wire format is now proven rather than argued, and the proof is the order the tests were
-written in.** The four whole-object JSON assertions were added and run *against the unchanged
-enum-typed records* — 14 tests green — and then run again after the type swap with the same expected
-JSON. Both heights: the payload as Jackson serialises it, and the body a subscriber's endpoint
-receives over HTTP. So "enums already serialise as JSON strings" is measured on this codebase's own
-`ObjectMapper` configuration, which is what the slab's safety rests on. Nothing configures
-`WRITE_ENUMS_USING_TO_STRING` and no enum carries `@JsonValue`, which is why the claim held; a
-`label`-valued `toString` on `NegotiationState` would have broken it and nothing else would have
-noticed.
+written in.** The whole-object JSON assertions were added and run *against the unchanged enum-typed
+records* — mapper test 14 green, listener test 9 green — and then run again after the type swap with
+the same expected JSON. Two heights, and they are not interchangeable: the mapper test builds its own
+`new ObjectMapper()` and so pins the record's serialisation under Jackson's *defaults*, while the
+listener test goes through the application's configured mapper and a real HTTP body. **It is the
+integration test that discharges the PRD's claim about Jackson's behaviour**; the unit test would not
+notice a Spring-level `WRITE_ENUMS_USING_TO_STRING`. Corrected in review, along with a related
+overstatement: with that feature unset a `label`-valued `toString` could never have changed the wire
+format either, so the live risk was only ever a `@JsonValue` on one of the enums' accessors. See
+`STATUS.md` for how far this generalises — after this slice, only the Resource payload still converts
+an enum through Jackson at all.
 
 **`NegotiationResourceStateUpdatedWebhookEvent` is built by neither mapping strategy.** It comes out
 of `DefaultWebhookMappingStrategy.of(...)` via `objectMapper.convertValue(event, payloadType)`, so
