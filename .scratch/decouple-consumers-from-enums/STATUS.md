@@ -14,7 +14,7 @@ here are settled; do not relitigate them in a later slice.
 |---|---|---|
 | [01 Well-known name holders](issues/01-well-known-name-holders.md) | **done** | 8 tests green; full suite 1435/0/0/16; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [02 The Enum-Backed Lifecycle Catalog](issues/02-enum-backed-lifecycle-catalog.md) | **done** | catalog test 13/0/0/0; whole suite not measured at this tip - reconstructed as 1444, see this slice's section; parity and deltas green over it rather than at it |
-| [03 Pin the raw State names in SQL](issues/03-pin-the-raw-state-names-in-sql.md) | **done** | 6 tests green; full suite 1450/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
+| [03 Pin the raw State names in SQL](issues/03-pin-the-raw-state-names-in-sql.md) | **done** | 6 tests green; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
@@ -243,14 +243,22 @@ guard. Slices 06 and 11 will trip it; the failure pairs each old line with its n
 update the number and nothing else. Loosening the rule is the one repair that must not be made —
 the compiler cannot see any of these names, so this list is the only place they are written down.
 
-**The whole-suite count is 1450/0/0/16 in 158 classes, and it does not reconcile with 1435.**
-This slice adds one test file and six tests — `git show --stat` on its commit shows nothing else —
-so the branch stood at 1444 before it. Slice 01 recorded 1435 and slice 02 added a 13-test class
-and touched no other test file, which predicts 1448. The four-test gap therefore predates this
-slice and is not attributable from here without re-running an earlier commit. **Take 1450 as the
-baseline** and do not try to reconcile against 1435; this is the second time the recorded figure
-has gone stale relative to the branch, for the same reason slice 01 gave — the number is measured
-in a worktree, at a moment, and the branch moves under it.
+**The whole-suite count is 1453/0/0/16 in 158 classes, and it does not reconcile with 1435.**
+Measured after rebasing onto slice 07, which is what actually lands. This slice adds one test file
+and six tests — `git show --stat` on its commits shows nothing else — and slice 07 accounts for
+three, so the branch stood at 1444 at slice 02's tip. Slice 01 recorded 1435 and slice 02 added a
+13-test class and touched no other test file, which predicts 1448. The four-test gap therefore
+predates this slice and is not attributable from here without re-running an earlier commit.
+**Take 1453 as the baseline** and do not try to reconcile against 1435; this is the second time the
+recorded figure has gone stale relative to the branch, for the same reason slice 01 gave — the
+number is measured in a worktree, at a moment, and the branch moves under it.
+
+**`nix develop` stopped working here after `bacf4391 dev: bump toolchain`**: it fails with
+`permission denied` creating a directory under `/nix/var/nix/builds`, so the commands written into
+`characterization/package-info.java` and below do not run as documented. `mvn` and Java 21 are on
+`PATH` regardless, so dropping the `nix develop .#opencode --command` prefix and invoking
+`test-backend.sh` directly works. Whether that is this sandbox or the bump itself is not
+established.
 
 **Two things the guard deliberately does not cover.** Flyway migrations under `src/main/resources`
 name plenty of States in check constraints, but a landed migration is immutable by checksum: it
