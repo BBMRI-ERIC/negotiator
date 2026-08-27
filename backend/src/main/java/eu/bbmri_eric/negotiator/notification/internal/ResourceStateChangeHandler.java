@@ -49,8 +49,8 @@ public class ResourceStateChangeHandler implements NotificationStrategy<Resource
             BODY.formatted(
                 event.getResourceId(),
                 negotiation.getTitle(),
-                resourceStateLabel(event.getFromState().name()),
-                resourceStateLabel(event.getToState().name())),
+                resourceStateLabel(event.getFromState()),
+                resourceStateLabel(event.getToState())),
             event.getNegotiationId()));
   }
 

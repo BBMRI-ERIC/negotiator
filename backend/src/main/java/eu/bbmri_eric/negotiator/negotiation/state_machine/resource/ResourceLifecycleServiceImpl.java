@@ -58,9 +58,9 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   }
 
   @Override
-  public Set<NegotiationResourceEvent> getPossibleEvents(String negotiationId, String resourceId)
+  public Set<String> getPossibleEvents(String negotiationId, String resourceId)
       throws EntityNotFoundException {
-    NegotiationResourceState currentState;
+    String currentState;
     try {
       currentState = getCurrentStateForResource(negotiationId, resourceId);
     } catch (EntityNotFoundException e) {
@@ -104,39 +104,37 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   }
 
   @Override
-  public NegotiationResourceState sendEvent(
-      String negotiationId, String resourceId, NegotiationResourceEvent negotiationResourceEvent)
+  public String sendEvent(String negotiationId, String resourceId, String event)
       throws WrongRequestException, EntityNotFoundException {
-    if (requirementRepository.existsByForEvent(negotiationResourceEvent.name())
+    if (requirementRepository.existsByForEvent(event)
         && !requirementSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resourceId, negotiationId)) {
       throw new StateMachineException(
           "The requirement for this operation was not met. Please make sure you have submitted the required form and try again.");
     }
-    if (!getPossibleEvents(negotiationId, resourceId).contains(negotiationResourceEvent)) {
+    if (!getPossibleEvents(negotiationId, resourceId).contains(event)) {
       return getCurrentStateForResource(negotiationId, resourceId);
     }
     persistStateMachineHandler
         .handleEventWithStateReactively(
-            MessageBuilder.withPayload(negotiationResourceEvent.name())
+            MessageBuilder.withPayload(event)
                 .setHeader("negotiationId", negotiationId)
                 .setHeader("resourceId", resourceId)
                 .build(),
-            getCurrentStateForResource(negotiationId, resourceId).name())
+            getCurrentStateForResource(negotiationId, resourceId))
         .subscribe();
     return getCurrentStateForResource(negotiationId, resourceId);
   }
 
-  private NegotiationResourceState getCurrentStateForResource(
-      String negotiationId, String resourceId) throws EntityNotFoundException {
+  private String getCurrentStateForResource(String negotiationId, String resourceId)
+      throws EntityNotFoundException {
     return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
-        .map(NegotiationResourceState::valueOf)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
-  private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
-      String negotiationId, String resourceId, NegotiationResourceState resourceState) {
+  private Set<String> getPossibleEventsForCurrentStateMachine(
+      String negotiationId, String resourceId, String resourceState) {
     Negotiation negotiation =
         negotiationRepository
             .findById(negotiationId)
@@ -145,12 +143,11 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       return Set.of();
     }
     return stateMachine.getTransitions().stream()
-        .filter(transition -> transition.getSource().getId().equals(resourceState.toString()))
+        .filter(transition -> transition.getSource().getId().equals(resourceState))
         .filter(
             transition ->
                 isSecurityRuleMet(transition.getSecurityRule(), negotiationId, resourceId))
         .map(transition -> transition.getTrigger().getEvent())
-        .map(NegotiationResourceEvent::valueOf)
         .collect(Collectors.toSet());
   }
 

@@ -11,7 +11,7 @@ import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionController;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionService;
 import eu.bbmri_eric.negotiator.info_submission.SubmittedInformationDTO;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,16 +33,19 @@ public class ResourceWithStatusAssembler
   private final ResourceLifecycleService resourceLifecycleService;
   private final InformationRequirementService informationRequirementService;
   private final InformationSubmissionService informationSubmissionService;
+  private final EnumBackedLifecycleCatalog lifecycleCatalog;
   private static List<InformationRequirementDTO> requirementsCache = new ArrayList<>();
   private List<SubmittedInformationDTO> submittedInformationCache = new ArrayList<>();
 
   public ResourceWithStatusAssembler(
       ResourceLifecycleService resourceLifecycleService,
       InformationRequirementService informationRequirementService,
-      InformationSubmissionService informationSubmissionService) {
+      InformationSubmissionService informationSubmissionService,
+      EnumBackedLifecycleCatalog lifecycleCatalog) {
     this.resourceLifecycleService = resourceLifecycleService;
     this.informationRequirementService = informationRequirementService;
     this.informationSubmissionService = informationSubmissionService;
+    this.lifecycleCatalog = lifecycleCatalog;
   }
 
   @Override
@@ -144,10 +147,10 @@ public class ResourceWithStatusAssembler
 
   private void addLifecycleLink(@NonNull ResourceWithStatusDTO entity, List<Link> links) {
     try {
-      Set<NegotiationResourceEvent> events =
+      Set<String> events =
           resourceLifecycleService.getPossibleEvents(
               entity.getNegotiationId(), entity.getSourceId());
-      for (NegotiationResourceEvent event : events) {
+      for (String event : events) {
         addLifecycleEventLink(entity, event, links);
       }
     } catch (Exception e) {
@@ -155,15 +158,29 @@ public class ResourceWithStatusAssembler
     }
   }
 
-  private static void addLifecycleEventLink(
-      @NonNull ResourceWithStatusDTO entity, NegotiationResourceEvent event, List<Link> links) {
+  private void addLifecycleEventLink(
+      @NonNull ResourceWithStatusDTO entity, String event, List<Link> links) {
     links.add(
         linkTo(
                 methodOn(NegotiationController.class)
                     .sendEventForNegotiationResource(
                         entity.getNegotiationId(), entity.getSourceId(), event))
-            .withRel(event.toString())
+            .withRel(event)
             .withTitle("Next Lifecycle event")
-            .withName(event.getLabel()));
+            .withName(eventLabel(event)));
+  }
+
+  /**
+   * Reads a Resource Event's human label off the catalog rather than off the enum this assembler
+   * has stopped naming. Replaced by the label on the named {@code event} row at the Lifecycle
+   * cutover.
+   */
+  private String eventLabel(String event) {
+    return lifecycleCatalog
+        .metadata(
+            EnumBackedLifecycleCatalog.Scope.RESOURCE,
+            EnumBackedLifecycleCatalog.Element.EVENT,
+            event)
+        .label();
   }
 }

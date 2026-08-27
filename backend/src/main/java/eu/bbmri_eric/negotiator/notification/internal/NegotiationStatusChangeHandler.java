@@ -36,7 +36,7 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    switch (event.getToState().name()) {
+    switch (event.getToState()) {
       case WellKnownNegotiationStates.SUBMITTED ->
           createConfirmationNotification(event.getNegotiationId());
       case WellKnownNegotiationStates.IN_PROGRESS,
@@ -71,7 +71,7 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
       return;
     }
     String title = "Request Status Update";
-    String message = createStatusChangeMessage(event.getToState().name(), negotiation.getTitle());
+    String message = createStatusChangeMessage(event.getToState(), negotiation.getTitle());
 
     NotificationCreateDTO notification =
         new NotificationCreateDTO(

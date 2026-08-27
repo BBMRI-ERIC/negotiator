@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +27,8 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   @Autowired NegotiationRepository negotiationRepository;
 
+  @Autowired private EnumBackedLifecycleCatalog lifecycleCatalog;
+
   @Autowired
   @Qualifier("persistHandler")
   private PersistStateMachineHandler persistStateMachineHandler;
@@ -35,55 +38,64 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   private StateMachine<String, String> stateMachine;
 
   @Override
-  public Set<NegotiationEvent> getPossibleEvents(String negotiationId)
-      throws EntityNotFoundException {
+  public Set<String> getPossibleEvents(String negotiationId) throws EntityNotFoundException {
     return getPossibleEventsForCurrentStateMachine(negotiationId);
   }
 
   @Override
-  public NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent)
+  public String sendEvent(String negotiationId, String event)
       throws WrongRequestException, EntityNotFoundException {
-    changeStateMachine(negotiationId, negotiationEvent, null);
+    changeStateMachine(negotiationId, event, null);
     return getCurrentStateForNegotiation(negotiationId);
   }
 
   @Override
-  public NegotiationState sendEvent(
-      String negotiationId, NegotiationEvent negotiationEvent, String message)
+  public String sendEvent(String negotiationId, String event, String message)
       throws WrongRequestException, EntityNotFoundException {
-    changeStateMachine(negotiationId, negotiationEvent, message);
+    changeStateMachine(negotiationId, event, message);
     return getCurrentStateForNegotiation(negotiationId);
   }
 
-  private void changeStateMachine(
-      String negotiationId, NegotiationEvent negotiationEvent, String message) {
-    if (!getPossibleEvents(negotiationId).contains(negotiationEvent)) {
+  private void changeStateMachine(String negotiationId, String event, String message) {
+    if (!getPossibleEvents(negotiationId).contains(event)) {
       throw new ForbiddenRequestException(
-          "You are not allowed to %s the Negotiation"
-              .formatted(negotiationEvent.getLabel().toLowerCase()));
+          "You are not allowed to %s the Negotiation".formatted(eventLabel(event).toLowerCase()));
     }
 
     persistStateMachineHandler
         .handleEventWithStateReactively(
-            MessageBuilder.withPayload(negotiationEvent.name())
+            MessageBuilder.withPayload(event)
                 .setHeader("negotiationId", negotiationId)
                 .setHeader("postBody", message)
                 .setHeader(
                     "postSenderId",
                     AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
                 .build(),
-            getCurrentStateForNegotiation(negotiationId).name())
+            getCurrentStateForNegotiation(negotiationId))
         .subscribe();
   }
 
-  private NegotiationState getCurrentStateForNegotiation(String negotiationId) {
+  /**
+   * Reads a Negotiation Event's human label off the catalog rather than off the enum this service
+   * is about to lose. Replaced by the label on the named {@code event} row at the Lifecycle
+   * cutover.
+   */
+  private String eventLabel(String event) {
+    return lifecycleCatalog
+        .metadata(
+            EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+            EnumBackedLifecycleCatalog.Element.EVENT,
+            event)
+        .label();
+  }
+
+  private String getCurrentStateForNegotiation(String negotiationId) {
     return negotiationRepository
         .findNegotiationStateById(negotiationId)
-        .map(NegotiationState::valueOf)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
-  private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
+  private Set<String> getPossibleEventsForCurrentStateMachine(String negotiationId) {
     Long userId;
     try {
       userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
@@ -98,10 +110,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
     return stateMachine.getTransitions().stream()
         .filter(
             transition ->
-                transition
-                    .getSource()
-                    .getId()
-                    .equals(getCurrentStateForNegotiation(negotiationId).toString()))
+                transition.getSource().getId().equals(getCurrentStateForNegotiation(negotiationId)))
         .filter(
             transition -> {
               if (Objects.nonNull(transition.getSecurityRule())) {
@@ -111,7 +120,6 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
               return true;
             })
         .map(transition -> transition.getTrigger().getEvent())
-        .map(NegotiationEvent::valueOf)
         .collect(Collectors.toSet());
   }
 }

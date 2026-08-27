@@ -35,7 +35,7 @@ class NegotiationSubmissionHandler implements NotificationStrategy<NegotiationSt
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    if (WellKnownNegotiationStates.SUBMITTED.equals(nameOf(event.getToState()))) {
+    if (WellKnownNegotiationStates.SUBMITTED.equals(event.getToState())) {
       notifyAdminsAboutNewSubmission(event.getNegotiationId());
     }
   }
@@ -55,13 +55,5 @@ class NegotiationSubmissionHandler implements NotificationStrategy<NegotiationSt
               + " administrators about new negotiation submission: "
               + negotiationId);
     }
-  }
-
-  /**
-   * Reads a name off the state change event, which still deals in enums. Null-preserving, so an
-   * event with no destination State is passed over rather than throwing, as {@code ==} did.
-   */
-  private static String nameOf(Enum<?> state) {
-    return state == null ? null : state.name();
   }
 }

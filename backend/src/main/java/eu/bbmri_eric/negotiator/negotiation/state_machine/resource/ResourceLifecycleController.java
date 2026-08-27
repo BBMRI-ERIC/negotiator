@@ -15,10 +15,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "/v3", produces = MediaTypes.HAL_JSON_VALUE)
@@ -68,9 +70,26 @@ public class ResourceLifecycleController {
 
   @GetMapping(value = "/resource-lifecycle/events/{event}")
   @Operation(summary = "Retrieve metadata about all a specific resource event")
-  public EntityModel<ResourceEventMetadataDto> getEvent(
-      @Valid @PathVariable NegotiationResourceEvent event) {
-    return resourceEventAssembler.toModel(modelMapper.map(event, ResourceEventMetadataDto.class));
+  public EntityModel<ResourceEventMetadataDto> getEvent(@Valid @PathVariable String event) {
+    return resourceEventAssembler.toModel(
+        modelMapper.map(eventNamed(event), ResourceEventMetadataDto.class));
+  }
+
+  /**
+   * Resolves the Event named in the path exactly as the deleted {@code
+   * NegotiationResourceEventConverter} did during argument binding - upper-casing the input, and
+   * refusing an unknown name with an empty 400. It sits here so the path variable can be a bare
+   * {@code String}.
+   *
+   * <p>The Event constant itself stays: this endpoint publishes the metadata of the whole closed
+   * Event set, which is the question ticket 04 reopens. It goes when that question is answered.
+   */
+  private static NegotiationResourceEvent eventNamed(String event) {
+    try {
+      return NegotiationResourceEvent.valueOf(event.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
   }
 
   @GetMapping(value = "/resource-lifecycle")
