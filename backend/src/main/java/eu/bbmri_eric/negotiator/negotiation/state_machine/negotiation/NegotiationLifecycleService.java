@@ -10,8 +10,9 @@ import org.springframework.stereotype.Service;
  * level.
  *
  * <p>States and Events cross this seam as bare names, so a caller neither imports nor reaches a
- * Lifecycle enum through it. An unknown Event name is refused the same way an Event that is not
- * currently possible is.
+ * Lifecycle enum through it. Both callers validate the name before it arrives here - the REST
+ * controller against the Lifecycle catalog, the characterization adapter against the enums - so an
+ * unknown name is refused, but not by the same answer a known-but-impossible Event gets.
  */
 @Service
 public interface NegotiationLifecycleService {

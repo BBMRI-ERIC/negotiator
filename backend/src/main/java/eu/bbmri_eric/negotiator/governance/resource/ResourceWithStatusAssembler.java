@@ -160,6 +160,11 @@ public class ResourceWithStatusAssembler
 
   private void addLifecycleEventLink(
       @NonNull ResourceWithStatusDTO entity, String event, List<Link> links) {
+    String label =
+        lifecycleCatalog.label(
+            EnumBackedLifecycleCatalog.Scope.RESOURCE,
+            EnumBackedLifecycleCatalog.Element.EVENT,
+            event);
     links.add(
         linkTo(
                 methodOn(NegotiationController.class)
@@ -167,20 +172,6 @@ public class ResourceWithStatusAssembler
                         entity.getNegotiationId(), entity.getSourceId(), event))
             .withRel(event)
             .withTitle("Next Lifecycle event")
-            .withName(eventLabel(event)));
-  }
-
-  /**
-   * Reads a Resource Event's human label off the catalog rather than off the enum this assembler
-   * has stopped naming. Replaced by the label on the named {@code event} row at the Lifecycle
-   * cutover.
-   */
-  private String eventLabel(String event) {
-    return lifecycleCatalog
-        .metadata(
-            EnumBackedLifecycleCatalog.Scope.RESOURCE,
-            EnumBackedLifecycleCatalog.Element.EVENT,
-            event)
-        .label();
+            .withName(label));
   }
 }

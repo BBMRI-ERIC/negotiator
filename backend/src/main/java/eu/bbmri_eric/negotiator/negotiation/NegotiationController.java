@@ -289,7 +289,7 @@ public class NegotiationController {
    *
    * <p>This is what the two deleted Event path converters did during argument binding, moved into
    * the handler so that the path variable can stay a bare {@code String}. It runs before anything
-   * else in both handlers, because binding did: an unknown Event is refused ahead of the permission
+   * else in both handlers, because binding did: an unknown Event is refused ahead of the authority
    * check, and a caller allowed to do neither still learns which of the two failed.
    */
   private String lifecycleEventNamed(EnumBackedLifecycleCatalog.Scope scope, String event) {

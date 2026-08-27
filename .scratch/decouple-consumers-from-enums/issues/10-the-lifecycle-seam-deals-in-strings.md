@@ -95,7 +95,21 @@ metadata controllers' `getEvent`, because both bound through them and the charac
 their case handling and their 400 body. And ticket 03's "nothing pins this today" is wrong: the status
 code was pinned for both lifecycle paths, and the *body* was what was not - along with the fact that
 an unknown Event is refused before the caller is, which is the property a check placed after the
-permission test would have broken silently.
+authority test would have broken silently.
+
+**One accepted deviation from the PRD's "any behaviour change whatsoever", stated here and not only
+in `STATUS.md`.** A request to `PUT /negotiations/{id}/lifecycle/{event}` carrying *both* an unknown
+Event *and* an unreadable body used to get the converter's empty 400, because path variables were
+bound before the body was read; it now gets the body's `"Wrong request"` 400. Both are 400, no client
+sending valid JSON can reach it, and it is unavoidable once the converter goes - which is what this
+slice's own acceptance criterion asks for. Recorded rather than preserved.
+
+**Two things a reviewer should know are deliberate.** The sweep for the converters returns two hits,
+both Javadoc lines that name them as the reason their behaviour now sits inline; nothing functional
+references them. And the two inline `eventNamed` helpers in the metadata controllers were considered
+for extraction and left as two copies: they return the *enum constant* their `ModelMapper` call
+needs, they live in two different packages, and a shared home would mean a new class inside the
+package the cutover deletes.
 
 **This slice landed after slice 11 and was rebased onto it.** The two met in four files and each
 side's translation was what the other deletes, so the resolution deleted both - the third time this

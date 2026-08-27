@@ -49,21 +49,15 @@ public class ResourceStateChangeHandler implements NotificationStrategy<Resource
             BODY.formatted(
                 event.getResourceId(),
                 negotiation.getTitle(),
-                resourceStateLabel(event.getFromState()),
-                resourceStateLabel(event.getToState())),
+                stateLabel(event.getFromState()),
+                stateLabel(event.getToState())),
             event.getNegotiationId()));
   }
 
-  /**
-   * Reads a Resource State's human label off the catalog rather than off the enum this handler is
-   * about to lose. Replaced by the label on the named {@code state} row at the Lifecycle cutover.
-   */
-  private String resourceStateLabel(String stateName) {
-    return lifecycleCatalog
-        .metadata(
-            EnumBackedLifecycleCatalog.Scope.RESOURCE,
-            EnumBackedLifecycleCatalog.Element.STATE,
-            stateName)
-        .label();
+  private String stateLabel(String stateName) {
+    return lifecycleCatalog.label(
+        EnumBackedLifecycleCatalog.Scope.RESOURCE,
+        EnumBackedLifecycleCatalog.Element.STATE,
+        stateName);
   }
 }

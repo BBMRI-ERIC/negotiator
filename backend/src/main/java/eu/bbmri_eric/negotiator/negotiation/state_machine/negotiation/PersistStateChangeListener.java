@@ -64,8 +64,8 @@ public class PersistStateChangeListener
 
   /**
    * Publishes the change as three names. The {@code valueOf} calls are the check, not a conversion:
-   * a state machine id the enums do not know means no event is published at all, exactly as before.
-   * They go with the enums at the Lifecycle cutover.
+   * a Spring Statemachine id the enums do not know means no event is published at all, exactly as
+   * before. They go with the enums at the Lifecycle cutover.
    */
   private void publishChangeEvent(
       State<String, String> state, Transition<String, String> transition, String negotiationId) {

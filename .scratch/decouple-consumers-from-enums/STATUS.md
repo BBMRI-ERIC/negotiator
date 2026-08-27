@@ -769,9 +769,9 @@ assertion rather than adding a class.
 
 **A third thing was pinned by nothing and is the one that would actually have broken.** The Resource
 lifecycle endpoint refuses an unknown Event *before* it refuses the caller, because binding ran
-before the handler body. A check written into the handler after the permission test would have turned
+before the handler body. A check written into the handler after the authority test would have turned
 that 400 into a 403 for any caller who is neither representative nor creator - green under every
-existing assertion. `sendEvent_invalidResourceEventAndNoPermission_refusesTheEventNotTheCaller` pins
+existing assertion. `sendEvent_invalidResourceEventAndNoAuthority_refusesTheEventNotTheCaller` pins
 it, was run green against the enum-typed path variable, and is why `lifecycleEventNamed(...)` is the
 first statement of both handlers rather than sitting next to the call it guards.
 
@@ -839,9 +839,27 @@ because the controller validates and `EnumBackedLifecycleTestAdapter` validates.
   where a *known* but impossible Event still gives 403.
 - `ResourceLifecycleService.sendEvent` with an unknown Event name: silently returns the Resource's
   current State, which is what it already did for a known-but-impossible Event.
-- `getPossibleEvents` no longer resolves the state machine's trigger ids through `valueOf`, so a
+- `getPossibleEvents` no longer resolves Spring Statemachine's trigger ids through `valueOf`, so a
   trigger id outside the enums would be reported rather than throwing. The configuration is built
   from the enums, so it cannot happen while they exist.
+
+**Both services now compare Event names case-sensitively and validate none of them internally**, so
+their correctness rests on every caller passing a canonical name. `existsByForEvent(event)` and
+`getPossibleEvents(...).contains(event)` are plain `String` compares where they used to be enum
+identity. Every caller does pass one today - the controller upper-cases and checks the catalog, the
+adapter resolves through the enums - but the *type* no longer enforces it. The cutover slab should
+decide on purpose whether the seam validates or keeps trusting its callers; this slice kept trusting
+them, because doing otherwise would have added a refusal where there was none.
+
+**`EnumBackedLifecycleCatalog` gained a fourth method, `label(Scope, Element, String)`, and it is
+derived rather than new knowledge.** Four call sites wanted only the label and each had written the
+same private `metadata(...).label()` helper - three of them in this slice, the fourth slice 05's.
+The method is one line over `metadata`, respects slice 02's coordinates, and keeps the walk to a
+label in the one class the cutover deletes. **This changed slice 05's `ResourceStateChangeHandler`,
+so that section's "two `metadata(Scope.RESOURCE, Element.STATE, name).label()` calls" now reads
+`label(...)`; the two calls, the two States and the message are unchanged.** Slice 02's "do not let
+it grow" is about behaviour - a method that decides whether a Transition may fire - and this is not
+that.
 
 **One accepted micro-delta, on argument-resolution order.** `PUT /negotiations/{id}/lifecycle/{event}`
 resolved its path variables before its `@RequestBody`, so a request with *both* an unknown Event and

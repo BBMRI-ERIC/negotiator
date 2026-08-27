@@ -57,12 +57,17 @@ public class NegotiationModelAssembler
               .withTitle(requirement.getRequiredAccessForm().getName() + " summary"));
     }
     for (String event : negotiationLifecycleService.getPossibleEvents(entity.getId())) {
+      String label =
+          lifecycleCatalog.label(
+              EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
+              EnumBackedLifecycleCatalog.Element.EVENT,
+              event);
       entityModel.add(
           WebMvcLinkBuilder.linkTo(
                   methodOn(NegotiationController.class).sendEvent(entity.getId(), event, null))
               .withRel(event)
               .withTitle("Next Lifecycle event")
-              .withName(eventLabel(event)));
+              .withName(label));
     }
     if (entity.isPayloadUpdatable()) {
       entityModel.add(
@@ -71,20 +76,6 @@ public class NegotiationModelAssembler
               .withRel("Update"));
     }
     return entityModel;
-  }
-
-  /**
-   * Reads a Negotiation Event's human label off the catalog rather than off the enum this assembler
-   * has stopped naming. Replaced by the label on the named {@code event} row at the Lifecycle
-   * cutover.
-   */
-  private String eventLabel(String event) {
-    return lifecycleCatalog
-        .metadata(
-            EnumBackedLifecycleCatalog.Scope.NEGOTIATION,
-            EnumBackedLifecycleCatalog.Element.EVENT,
-            event)
-        .label();
   }
 
   @Override
