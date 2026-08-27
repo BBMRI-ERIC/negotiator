@@ -1,16 +1,17 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Webhook data payload for a negotiation state transition.
  *
+ * <p>The States and the Event are names carried as data: they are JSON strings on the wire, exactly
+ * as they were when this record held enums.
+ *
  * @param negotiationId identifier of the affected negotiation
- * @param fromState source negotiation state before transition
- * @param toState target negotiation state after transition
- * @param event state-machine event that triggered the transition
+ * @param fromState name of the source negotiation state before transition
+ * @param toState name of the target negotiation state after transition
+ * @param event name of the lifecycle event that triggered the transition
  */
 @WebhookEventDoc(
     summary = "Negotiation state changed",
@@ -19,9 +20,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 record NegotiationStateUpdatedWebhookEvent(
     @Schema(description = "Identifier of the affected negotiation", example = "negotiation-2")
         String negotiationId,
-    @Schema(description = "Source state before transition", example = "DRAFT")
-        NegotiationState fromState,
-    @Schema(description = "Target state after transition", example = "SUBMITTED")
-        NegotiationState toState,
-    @Schema(description = "State-machine event that triggered the transition", example = "SUBMIT")
-        NegotiationEvent event) {}
+    @Schema(description = "Name of the source state before transition", example = "DRAFT")
+        String fromState,
+    @Schema(description = "Name of the target state after transition", example = "SUBMITTED")
+        String toState,
+    @Schema(
+            description = "Name of the lifecycle event that triggered the transition",
+            example = "SUBMIT")
+        String event) {}

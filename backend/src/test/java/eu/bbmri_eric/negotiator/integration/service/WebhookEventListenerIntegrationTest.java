@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.bbmri_eric.negotiator.email.EmailService;
@@ -99,6 +101,16 @@ class WebhookEventListenerIntegrationTest {
                       .withRequestBody(matchingJsonPath("$.data.fromState", equalTo("SUBMITTED")))
                       .withRequestBody(matchingJsonPath("$.data.toState", equalTo("IN_PROGRESS")))
                       .withRequestBody(matchingJsonPath("$.data.event", equalTo("APPROVE"))));
+              assertDeliveredData(
+                  "/negotiation-one",
+                  """
+                  {
+                    "negotiationId": "negotiation-1",
+                    "fromState": "SUBMITTED",
+                    "toState": "IN_PROGRESS",
+                    "event": "APPROVE"
+                  }
+                  """);
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/negotiation-two"))
@@ -148,6 +160,14 @@ class WebhookEventListenerIntegrationTest {
                           matchingJsonPath("$.data.negotiationId", equalTo("negotiation-1")))
                       .withRequestBody(
                           matchingJsonPath("$.data.currentState", equalTo("SUBMITTED"))));
+              assertDeliveredData(
+                  "/negotiation-add-one",
+                  """
+                  {
+                    "negotiationId": "negotiation-1",
+                    "currentState": "SUBMITTED"
+                  }
+                  """);
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/negotiation-add-two"))
@@ -204,6 +224,17 @@ class WebhookEventListenerIntegrationTest {
                           matchingJsonPath("$.data.toState", equalTo("RESOURCE_AVAILABLE")))
                       .withRequestBody(
                           matchingJsonPath("$.data.event", equalTo("MARK_AS_AVAILABLE"))));
+              assertDeliveredData(
+                  "/resource-one",
+                  """
+                  {
+                    "negotiationId": "negotiation-2",
+                    "resourceId": "resource-1",
+                    "fromState": "SUBMITTED",
+                    "toState": "RESOURCE_AVAILABLE",
+                    "event": "MARK_AS_AVAILABLE"
+                  }
+                  """);
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/resource-two"))
@@ -291,6 +322,14 @@ class WebhookEventListenerIntegrationTest {
                           matchingJsonPath("$.data.negotiationId", equalTo("negotiation-4")))
                       .withRequestBody(
                           matchingJsonPath("$.data.currentState", equalTo("SUBMITTED"))));
+              assertDeliveredData(
+                  "/new-negotiation-one",
+                  """
+                  {
+                    "negotiationId": "negotiation-4",
+                    "currentState": "SUBMITTED"
+                  }
+                  """);
               wireMockServer.verify(
                   1,
                   postRequestedFor(urlEqualTo("/new-negotiation-two"))
@@ -435,6 +474,25 @@ class WebhookEventListenerIntegrationTest {
               assertTrue(request.getHeader(WebhookHeaders.TIMESTAMP).matches("\\d+"));
               assertFalse(request.containsHeader(WebhookHeaders.SIGNATURE));
             });
+  }
+
+  /**
+   * Asserts the whole {@code data} object of the payload delivered to one subscriber. A State or an
+   * Event is a JSON string on the wire, and this compares the delivered object as a whole rather
+   * than one path at a time - so a renamed field, a dropped field, an added field or a value that
+   * stops being that string all fail here.
+   */
+  private void assertDeliveredData(String url, String expectedDataJson) throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+    var serveEvents =
+        wireMockServer.getAllServeEvents().stream()
+            .filter(event -> event.getRequest().getUrl().equals(url))
+            .toList();
+
+    assertEquals(1, serveEvents.size());
+    JsonNode delivered =
+        objectMapper.readTree(serveEvents.get(0).getRequest().getBodyAsString()).get("data");
+    assertEquals(objectMapper.readTree(expectedDataJson), delivered);
   }
 
   private Webhook createWebhook(String url, boolean active) {

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import java.time.Instant;
 import java.util.Map;
@@ -20,10 +20,12 @@ class NegotiationStateChangeWebhookMappingStrategy
   @Override
   public Optional<WebhookPayloadEnvelope<?>> map(
       NegotiationStateChangeEvent event, ObjectMapper objectMapper) {
-    if (event.getFromState() == NegotiationState.DRAFT
-        && event.getToState() == NegotiationState.SUBMITTED) {
+    String fromState = nameOf(event.getFromState());
+    String toState = nameOf(event.getToState());
+    if (WellKnownNegotiationStates.DRAFT.equals(fromState)
+        && WellKnownNegotiationStates.SUBMITTED.equals(toState)) {
       NegotiationAddedWebhookEvent payload =
-          new NegotiationAddedWebhookEvent(event.getNegotiationId(), event.getToState());
+          new NegotiationAddedWebhookEvent(event.getNegotiationId(), toState);
       return Optional.of(
           new WebhookPayloadEnvelope<>(
               WebhookEventType.NEGOTIATION_ADDED,
@@ -33,7 +35,7 @@ class NegotiationStateChangeWebhookMappingStrategy
 
     NegotiationStateUpdatedWebhookEvent payload =
         new NegotiationStateUpdatedWebhookEvent(
-            event.getNegotiationId(), event.getFromState(), event.getToState(), event.getEvent());
+            event.getNegotiationId(), fromState, toState, nameOf(event.getEvent()));
     return Optional.of(
         new WebhookPayloadEnvelope<>(
             WebhookEventType.NEGOTIATION_STATE_UPDATED,
@@ -48,5 +50,14 @@ class NegotiationStateChangeWebhookMappingStrategy
         NegotiationAddedWebhookEvent.class,
         WebhookEventType.NEGOTIATION_STATE_UPDATED,
         NegotiationStateUpdatedWebhookEvent.class);
+  }
+
+  /**
+   * Reads a name off the change event, which still deals in enums. Null-preserving, so a payload
+   * field that could carry a null before this translation existed still carries one rather than
+   * throwing.
+   */
+  private static String nameOf(Enum<?> stateOrEvent) {
+    return stateOrEvent == null ? null : stateOrEvent.name();
   }
 }
