@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.EnumBackedLifecycleCatalog;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
@@ -36,7 +37,9 @@ class ResourceStateChangeHandlerTest {
 
   @BeforeEach
   void setUp() {
-    handler = new ResourceStateChangeHandler(negotiationRepository, notificationService);
+    handler =
+        new ResourceStateChangeHandler(
+            negotiationRepository, notificationService, new EnumBackedLifecycleCatalog());
     lenient().when(requester.getId()).thenReturn(42L);
     lenient().when(negotiation.getCreatedBy()).thenReturn(requester);
     lenient().when(negotiation.getTitle()).thenReturn("Test Negotiation");

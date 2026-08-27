@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownResourceStates;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
@@ -84,10 +85,9 @@ class ResourceNotificationServiceTest {
     service.notifyResourceRepresentatives(negotiationId);
 
     // Only resource2 should be processed
-    verify(negotiation, never())
-        .setStateForResource(eq("resource-1"), any(NegotiationResourceState.class));
+    verify(negotiation, never()).setStateForResource(eq("resource-1"), anyString());
     verify(negotiation)
-        .setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .setStateForResource("resource-2", WellKnownResourceStates.REPRESENTATIVE_CONTACTED);
 
     ArgumentCaptor<NotificationCreateDTO> notificationCaptor =
         ArgumentCaptor.forClass(NotificationCreateDTO.class);
@@ -117,9 +117,9 @@ class ResourceNotificationServiceTest {
     service.notifyResourceRepresentatives(negotiationId);
 
     verify(negotiation)
-        .setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+        .setStateForResource("resource-1", WellKnownResourceStates.REPRESENTATIVE_UNREACHABLE);
     verify(negotiation)
-        .setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+        .setStateForResource("resource-2", WellKnownResourceStates.REPRESENTATIVE_UNREACHABLE);
 
     // No notifications should be sent since no representatives
     verify(notificationService, never()).createNotifications(any());
@@ -147,9 +147,9 @@ class ResourceNotificationServiceTest {
     service.notifyResourceRepresentatives(negotiationId);
 
     verify(negotiation)
-        .setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .setStateForResource("resource-1", WellKnownResourceStates.REPRESENTATIVE_CONTACTED);
     verify(negotiation)
-        .setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .setStateForResource("resource-2", WellKnownResourceStates.REPRESENTATIVE_CONTACTED);
 
     ArgumentCaptor<NotificationCreateDTO> notificationCaptor =
         ArgumentCaptor.forClass(NotificationCreateDTO.class);
@@ -192,11 +192,10 @@ class ResourceNotificationServiceTest {
     service.notifyResourceRepresentatives(negotiationId);
 
     verify(negotiation)
-        .setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    verify(negotiation, never())
-        .setStateForResource(eq("resource-2"), any(NegotiationResourceState.class));
+        .setStateForResource("resource-1", WellKnownResourceStates.REPRESENTATIVE_CONTACTED);
+    verify(negotiation, never()).setStateForResource(eq("resource-2"), anyString());
     verify(negotiation)
-        .setStateForResource("resource-3", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+        .setStateForResource("resource-3", WellKnownResourceStates.REPRESENTATIVE_UNREACHABLE);
 
     ArgumentCaptor<NotificationCreateDTO> notificationCaptor =
         ArgumentCaptor.forClass(NotificationCreateDTO.class);
@@ -228,7 +227,7 @@ class ResourceNotificationServiceTest {
     service.notifyResourceRepresentatives(negotiationId);
 
     verify(negotiation)
-        .setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .setStateForResource("resource-1", WellKnownResourceStates.REPRESENTATIVE_CONTACTED);
 
     ArgumentCaptor<NotificationCreateDTO> notificationCaptor =
         ArgumentCaptor.forClass(NotificationCreateDTO.class);
@@ -261,9 +260,9 @@ class ResourceNotificationServiceTest {
     service.notifyResourceRepresentatives(negotiationId);
 
     verify(negotiation)
-        .setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .setStateForResource("resource-1", WellKnownResourceStates.REPRESENTATIVE_CONTACTED);
     verify(negotiation)
-        .setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        .setStateForResource("resource-2", WellKnownResourceStates.REPRESENTATIVE_CONTACTED);
 
     ArgumentCaptor<NotificationCreateDTO> notificationCaptor =
         ArgumentCaptor.forClass(NotificationCreateDTO.class);
@@ -293,8 +292,7 @@ class ResourceNotificationServiceTest {
 
     service.notifyResourceRepresentatives(negotiationId);
 
-    verify(negotiation, never())
-        .setStateForResource(anyString(), any(NegotiationResourceState.class));
+    verify(negotiation, never()).setStateForResource(anyString(), anyString());
     verify(notificationService, never()).createNotifications(any());
   }
 

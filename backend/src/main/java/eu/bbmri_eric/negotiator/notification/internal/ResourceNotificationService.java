@@ -2,10 +2,10 @@ package eu.bbmri_eric.negotiator.notification.internal;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownNegotiationStates;
+import eu.bbmri_eric.negotiator.lifecycle.WellKnownResourceStates;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -44,7 +44,7 @@ class ResourceNotificationService {
 
   private void handleResourceStateManagement(String negotiationId) {
     Negotiation negotiation = findNegotiation(negotiationId);
-    if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
+    if (!WellKnownNegotiationStates.IN_PROGRESS.equals(negotiation.getCurrentState().name())) {
       return;
     }
     Set<Person> contactedRepresentatives = new HashSet<>();
@@ -54,10 +54,10 @@ class ResourceNotificationService {
       }
       if (resource.getRepresentatives().isEmpty()) {
         negotiation.setStateForResource(
-            resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+            resource.getSourceId(), WellKnownResourceStates.REPRESENTATIVE_UNREACHABLE);
       } else {
         negotiation.setStateForResource(
-            resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+            resource.getSourceId(), WellKnownResourceStates.REPRESENTATIVE_CONTACTED);
         contactedRepresentatives.addAll(resource.getRepresentatives());
       }
     }
