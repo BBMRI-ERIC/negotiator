@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -574,7 +576,38 @@ public class NetworkControllerTests {
         .andExpect(jsonPath("$.networkId", is(1)))
         .andExpect(jsonPath("$.totalNumberOfNegotiations", is(4)))
         .andExpect(jsonPath("$.numberOfIgnoredNegotiations", is(0)))
+        .andExpect(jsonPath("$.medianResponseTime", is(nullValue())))
+        .andExpect(jsonPath("$.numberOfSuccessfulNegotiations", is(0)))
+        .andExpect(jsonPath("$.numberOfNewRequesters", is(1)))
+        .andExpect(jsonPath("$.numberOfActiveRepresentatives", is(1)))
+        .andExpect(jsonPath("$.negotiationIds.Ignored", hasSize(0)))
+        .andExpect(jsonPath("$.negotiationIds.Successful", hasSize(0)))
         .andExpect(jsonPath("$.statusDistribution.ABANDONED", is(1)));
+  }
+
+  /**
+   * The per-status distribution is a map whose keys a network manager reads as State names. Nothing
+   * pinned the whole map before, so a key that changed spelling or a state that started or stopped
+   * appearing would have gone unnoticed behind the single ABANDONED assertion above.
+   *
+   * <p>The absent DRAFT key is the load-bearing one: {@code negotiation-6} is a DRAFT inside this
+   * window on a resource of this network, and only the {@code != 'DRAFT'} filter in {@code
+   * countStatusDistribution} keeps it out.
+   */
+  @Test
+  @Transactional
+  @WithUserDetails("admin")
+  void getStatistics_validNetwork_distributionIsKeyedByStateNameAndOmitsDrafts() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                NETWORKS_URL + "/1/statistics?since=2024-01-01&until=2024-12-18"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.statusDistribution.length()", is(3)))
+        .andExpect(jsonPath("$.statusDistribution.SUBMITTED", is(1)))
+        .andExpect(jsonPath("$.statusDistribution.IN_PROGRESS", is(2)))
+        .andExpect(jsonPath("$.statusDistribution.ABANDONED", is(1)))
+        .andExpect(jsonPath("$.statusDistribution.DRAFT").doesNotExist());
   }
 
   @Test
