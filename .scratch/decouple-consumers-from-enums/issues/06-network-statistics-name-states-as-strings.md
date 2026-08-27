@@ -1,6 +1,6 @@
 # Network statistics name States as strings
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -26,12 +26,29 @@ Slice 3 has already pinned the literals, so this slice cannot quietly alter one.
 
 ## Acceptance criteria
 
-- [ ] The three statistics files name no Lifecycle enum.
-- [ ] The status-distribution map is keyed by name and its schema example is unchanged.
-- [ ] No query text is altered — slice 3's guard stays green without amendment.
-- [ ] Every statistic returns the same number as before for the same data.
-- [ ] The schema metadata for the distribution keeps its worked example.
-- [ ] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
+- [x] The three statistics files name no Lifecycle enum. `NetworkStatistics`,
+      `SimpleNetworkStatistics` and `NetworkStatisticsServiceImpl` each dropped the
+      `NegotiationState` import; a grep over the whole `governance/network/stats` package finds no
+      occurrence of any of the four enum names.
+- [x] The status-distribution map is keyed by name and its schema example is unchanged.
+      `Map<String, Integer>` on the interface, the DTO field and the local in the service. Both
+      `@Schema(example = …)` annotations are byte-identical — the diff touches neither line.
+- [x] No query text is altered — slice 3's guard stays green without amendment.
+      `NetworkStatsRepositoryImpl` is not in the diff at all, so none of the guard's eleven pinned
+      lines in it can have moved. `RawStateNamesInSqlGuardTest` 6/0/0/0, unamended.
+- [x] Every statistic returns the same number as before for the same data. The endpoint's whole
+      body was captured before the change and pinned in `NetworkControllerTests`: all seven
+      statistics, both `negotiationIds` lists and all three distribution entries. The pin was
+      written and run **green against the enum-keyed code first**, so it records the old numbers
+      rather than the new ones.
+- [x] The schema metadata for the distribution keeps its worked example. Both examples survive,
+      including the interface's `{"OPEN": 50, "CLOSED": 90, "PENDING": 10}` — which names three
+      States that do not exist and never did. Left alone deliberately: correcting it would be a
+      published-schema change this slice did not come to make, and the AC asks for it unchanged.
+      Filed below.
+- [x] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0. Measured in the worktree at
+      the tip of this slice: parity 255 in 24 classes, 0 failures, 0 errors, 1 skipped, no report
+      written for the delta class; deltas 8/0/0/0; full suite 1473/0/0/16 in 159 classes.
 
 ## Notes
 
@@ -41,6 +58,27 @@ ticket 10's question, recorded so this slice does not try to answer it.
 
 **No dependency on the holders.** These three files reference the enums as types only — no constant
 appears in ticket 03's sweep for this subsystem — so this slice needs nothing from slice 1.
+
+**The only observable difference is JSON key order, and it was never stable.** Before: the keys came
+out in a `HashMap`'s order over enum keys, and an enum's `hashCode` is its identity hash — so the
+order varied from one JVM run to the next. After: the same `HashMap`, keyed by strings, so the order
+is `String.hashCode` and is now the *same* on every run. No subscriber could have depended on the
+old order, and nothing about the set of keys or their values moved. Recorded because the observed
+bodies differ textually, and a later reader comparing them should not read that as a regression.
+
+**Two facts slice 03 handed this slice, both confirmed.** `getMedianResponseForNetwork` exists twice
+with identical SQL and the service calls the `NegotiationRepository` copy, so
+`NetworkStatsRepositoryImpl:64` is unreachable from production. And three of that file's nine
+methods have no production caller. Neither changes this slice's work — no enum reached the queries —
+but both were checked rather than trusted, because "network statistics" reads as a bigger surface
+than the five methods the service actually calls.
+
+**The stale schema example is filed, not fixed.** `NetworkStatistics.getStatusDistribution`'s
+`@Schema(example = "{\"OPEN\": 50, \"CLOSED\": 90, \"PENDING\": 10}")` names three States that
+are in no Definition Family and in none of the four enums; `SimpleNetworkStatistics` carries a
+correct example on the same field. Which one the published schema shows depends on which class
+springdoc resolves the property from. Out of scope here by AC, and it is not a decoupling defect —
+it is a documentation bug that predates the slab and outlives it.
 
 ## Blocked by
 

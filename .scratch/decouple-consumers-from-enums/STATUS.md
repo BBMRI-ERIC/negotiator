@@ -17,6 +17,7 @@ here are settled; do not relitigate them in a later slice.
 | [03 Pin the raw State names in SQL](issues/03-pin-the-raw-state-names-in-sql.md) | **done** | 6 tests green; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [04 Webhook payloads name States as strings](issues/04-webhook-payloads-name-states-as-strings.md) | **done** | mapper test 10 → 14, listener test 9 unchanged in count; full suite 1457/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [05 Notification handlers name States as strings](issues/05-notification-handlers-name-states-as-strings.md) | **done** | +8 tests: new `ResourceStateChangeHandlerTest` 4, status-change handler 8 -> 12; full suite 1472/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
+| [06 Network statistics name States as strings](issues/06-network-statistics-name-states-as-strings.md) | **done** | +1 test: `NetworkControllerTests` 26 -> 27; full suite 1473/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 | [08 DTOs, mappers and the Negotiation timeline](issues/08-dtos-mappers-and-the-negotiation-timeline.md) | **done** | mapper test 7 -> 10, timeline test 4 -> 5, controller test +1; full suite 1462/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured at base `a3e02e59`, before 09 landed; see the rebase note in 08's section |
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
@@ -431,6 +432,78 @@ confirming one.** This slice added exactly 8 tests and one class, so the tip bef
 slice's and it is not new: it is the same unattributed four that slice 02's section reports from the
 other side. Take **1472/0/0/16 in 159 classes** as the baseline and do not try to reconcile against
 1468.
+
+## What slice 06 settled, for slice 11
+
+The three files are `NetworkStatistics`, `SimpleNetworkStatistics` and
+`NetworkStatisticsServiceImpl`, and the type change is one line in each. `NetworkStatsRepositoryImpl`
+is **not** one of them and is not in the diff: it names no enum, only quoted State names inside
+query text, and slice 03 pinned those by line.
+
+**The translation is `stateNameOf(Object)`, and it reads both shapes deliberately.** Every other
+slice so far translated at a *typed* accessor, so a `nameOf(Enum<?>)` helper was enough and slice 11
+gets a compile error when the accessor's type flips. This call site is different:
+`countStatusDistribution` returns `List<Object[]>`, so the projected State arrives as an `Object`
+and **any cast here compiles clean forever**. Writing `((Enum<?>) result[0]).name()` would therefore
+have gone green today and thrown `ClassCastException` at runtime the moment slice 11 makes
+`Negotiation.currentState` a `String` — the precise silent-breakage failure mode the PRD's user
+story 2 exists to prevent, with no compiler and no type to catch it. So the helper is
+
+```java
+private static String stateNameOf(Object projectedState) {
+  return projectedState instanceof Enum<?> state ? state.name() : (String) projectedState;
+}
+```
+
+**Slice 11 needs no edit in this subsystem, and should confirm that rather than assume it.** When the
+entity field becomes a `String`, the projection starts yielding strings, the second branch takes
+over, and the map is keyed identically. The check is
+`NetworkControllerTests#getStatistics_validNetwork_distributionIsKeyedByStateNameAndOmitsDrafts`,
+which fails loudly if the keys change shape. Slice 11 may then delete the `Enum<?>` branch — that is
+a cleanup, not a fix, and the test proves either version.
+
+**Only one thing about the response differs at all, and it is JSON key order.** Before, the keys came
+out of a `HashMap` keyed by enums, and an enum's `hashCode` is its identity hash — so the order
+varied between JVM runs. `{"SUBMITTED":1,"ABANDONED":1,"IN_PROGRESS":2}` before,
+`{"IN_PROGRESS":2,"ABANDONED":1,"SUBMITTED":1}` after, same `HashMap`, now ordered by
+`String.hashCode` and therefore stable run to run. The set of keys, their spelling and their values
+are unchanged. **This is recorded so a later reader diffing two captured bodies does not read it as a
+regression** — the old order was never a contract anything could have depended on, and the change is
+toward determinism, not away from it.
+
+**The endpoint had almost no pin, and now has one.** `getStatistics_validNetwork_ok` asserted three
+numbers and one distribution entry out of a body carrying seven statistics, two id lists and three
+entries. The other four statistics — median, successful, new requesters, active representatives —
+were asserted by nothing anywhere. The method now pins the whole body, and a second method pins the
+map's keying and the absent `DRAFT`. Both were written from a body **captured before the type
+change** and run green against the enum-keyed code first, which is what makes them a record of the
+old numbers rather than a description of the new ones. Net +1 test.
+
+**The absent `DRAFT` key is a real assertion, not a vacuous one.** `negotiation-6` in the test seed
+is a `DRAFT` created 2024-11-12 on resource 4, resource 4 is in network 1, and the window the test
+uses contains that date — so the row is in scope and only the `!= 'DRAFT'` literal at
+`NetworkStatsRepositoryImpl:163` keeps it out of the distribution. That literal is one of slice 03's
+fourteen, so the SQL side and the response side are now pinned from both ends.
+
+**Slice 03's two handed-over facts, both confirmed by reading the callers.** The service takes its
+count and its median off `NegotiationRepository`, not off `NetworkStatsRepositoryImpl` — so that
+file's `getMedianResponseForNetwork` is unreachable from production, and it reaches five of the
+file's nine methods. Neither affects this slice, since no enum reached any query; both were checked
+because "the network statistics subsystem" reads as a much larger surface than it is.
+
+**The whole-suite count is 1473/0/0/16 in 159 classes, and for once it reconciles exactly.** Slice
+05 recorded 1472 in 159 and asked later slices to take it as the baseline; this slice adds one test
+and no class, which predicts 1473 in 159. That is what the run reports. The four unattributed tests
+slices 02, 03 and 05 each reported from a different side are still unattributed — they are inside the
+1472, not introduced or resolved here.
+
+**One documentation bug found and deliberately not fixed.**
+`NetworkStatistics.getStatusDistribution` carries
+`@Schema(example = "{\"OPEN\": 50, \"CLOSED\": 90, \"PENDING\": 10}")`, naming three States
+that appear in no enum and no Definition Family; `SimpleNetworkStatistics` carries a correct example
+on the same field. The slice's AC asks for the example unchanged and correcting it would be a
+published-schema edit this slice did not come to make, so it is filed in the issue and left. It is
+not a decoupling defect — it predates the slab and will outlive it.
 
 ## What slice 07 settled, for slices 08, 10 and 11
 
