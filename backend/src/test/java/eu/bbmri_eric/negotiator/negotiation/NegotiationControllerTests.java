@@ -1411,6 +1411,23 @@ public class NegotiationControllerTests {
         .andExpect(status().isNotFound());
   }
 
+  /**
+   * An unparseable Resource State name in the body is refused at binding, before any of the update
+   * rules run. Pinned because nothing else does, and because the field's Java type is what enforces
+   * it.
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void addResources_unknownState_400() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, "negotiation-1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"resourceIds\":[1],\"state\":\"NOT_A_STATE\"}"))
+        .andExpect(status().isBadRequest());
+  }
+
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   @Transactional
