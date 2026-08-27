@@ -1340,14 +1340,22 @@ public class NegotiationControllerTests {
         .andExpect(status().isForbidden());
   }
 
+  /**
+   * Checks the whole response an API client sees for an unknown Event in a Negotiation Lifecycle
+   * URL path, not only its status code: an empty body and no content type.
+   */
   @Test
   @WithMockUser(authorities = "ROLE_ADMIN")
   void sendEvent_InvalidEvent_BadRequest() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put(
-                "%s/negotiation-1/lifecycle/NONE_EXISTING_VALUE".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isBadRequest());
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.put(
+                    "%s/negotiation-1/lifecycle/NONE_EXISTING_VALUE".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isBadRequest())
+            .andReturn();
+    assertEquals("", result.getResponse().getContentAsString());
+    assertNull(result.getResponse().getContentType());
   }
 
   @Test
@@ -1392,9 +1400,37 @@ public class NegotiationControllerTests {
     Assertions.assertEquals(numberOfPost + 1, posts.size());
   }
 
+  /**
+   * The same check as {@link #sendEvent_InvalidEvent_BadRequest}, for the Resource Lifecycle path.
+   */
   @Test
   @WithUserDetails("TheBiobanker")
   void sendEvent_InvalidResourceEvent_BadRequest() throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.put(
+                    "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/NONE_EXISTING_VALUE"
+                        .formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isBadRequest())
+            .andReturn();
+    assertEquals("", result.getResponse().getContentAsString());
+    assertNull(result.getResponse().getContentType());
+  }
+
+  /**
+   * Pins the order in which the Resource lifecycle endpoint rejects a caller: the unknown Event is
+   * refused before the representative-or-creator check, so a caller allowed to do neither still
+   * learns that the Event does not exist.
+   *
+   * <p>Today that order is free - the path variable is converted during argument resolution, before
+   * the handler body runs at all. A check moved into the body would silently turn this 400 into a
+   * 403, which is why it is pinned here rather than left to the status code above.
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 102L)
+  void sendEvent_invalidResourceEventAndNoPermission_refusesTheEventNotTheCaller()
+      throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
