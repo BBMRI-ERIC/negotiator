@@ -21,6 +21,7 @@ here are settled; do not relitigate them in a later slice.
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 | [08 DTOs, mappers and the Negotiation timeline](issues/08-dtos-mappers-and-the-negotiation-timeline.md) | **done** | mapper test 7 -> 10, timeline test 4 -> 5, controller test +1; full suite 1462/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured at base `a3e02e59`, before 09 landed; see the rebase note in 08's section |
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
+| [10 The Lifecycle seam deals in strings](issues/10-the-lifecycle-seam-deals-in-strings.md) | **done** | +1 test; full suite PENDING_SUITE; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - landed after 11 and rebased onto it, so every figure here is measured at the rebased tip |
 | [11 Entities and JPA queries name States as strings](issues/11-entities-and-jpa-queries-name-states-as-strings.md) | **done** | +6 tests: PDF generation 8 -> 10, `NegotiationControllerTests` 115 -> 118, raw-SQL guard 6 -> 7; full suite 1479/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - parity and deltas measured twice, at the refactor tip and again at the review tip |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
@@ -717,6 +718,187 @@ recorded count has gone stale for the reason slices 01 and 03 both gave.
 nothing sets `WRITE_ENUMS_USING_TO_STRING`, so the serialised value was the name before and is the
 same name now.
 
+## What slice 10 settled, for slice 12
+
+**The batch is 25 production files and 11 test files, and the slice was not split.** The issue asked
+whether it should be, and the answer is no for a reason worth recording: the four seam types are one
+compile unit. There is no ordering of them that leaves an intermediate commit both green and honest -
+flipping an event without its readers does not compile, and flipping a reader without its event
+compiles into a comparison that is always false. What *was* separable is the pinning test, and it is
+its own commit. The issue's warning that "size is not well predicted by file count" turned out to be
+true of the *test* tree rather than the production one: 22 of the 25 production files are a one- or
+two-line change.
+
+**The three assemblers are four, and the fourth was invisible to every grep.** `ResourceEventAssembler`
+builds a link to `ResourceLifecycleController.getEvent` and was already passing `entity.getValue()`
+straight through - which compiled only because `ResourceEventMetadataDto.getValue()` is *itself*
+enum-typed. It names no Lifecycle enum, so it appears in no identifier scan, and it moved in the
+opposite direction from the other three: it *gained* a `.name()` rather than losing a conversion,
+because the DTO behind it is one of ticket 04's three carve-outs and must stay enum-typed. **Slice 12
+should expect this shape to exist and to be legal**: a file that reaches an enum through a
+carved-out DTO's accessor, importing nothing. The guard's second rule covers the four seam accessors
+and the two service interfaces; it does not cover the three metadata DTOs, and it should not - the
+carve-out is exactly the statement that those are ticket 04's.
+
+**The two Event path converters could not be deleted without touching the two metadata controllers,
+and that was a hard requirement rather than a judgement call.** `NegotiationLifecycleController.getEvent`
+and `ResourceLifecycleController.getEvent` bound their path variable through the same two registered
+converters. Deleting the converters would have dropped both endpoints onto Spring's default enum
+binding, which is case-*sensitive* and produces a different 400 body - and
+`characterization/rest/LifecycleMetadataEndpointsTest` pins both properties explicitly
+(`caseHandlingOfSingleItemEndpoints_isPinned`, `unrecognisedNegotiationEvent_isPinned`,
+`unrecognisedResourceEvent_isPinned`). So each controller now resolves the name inline, with the
+converter's exact body: `valueOf(event.toUpperCase())` in a try, `ResponseStatusException(BAD_REQUEST)`
+in the catch. **Those two `valueOf` calls are not a translation this slab owes anyone.** They sit
+inside `negotiation/state_machine/`, they exist because the endpoint publishes the metadata of a
+closed Event *universe*, and that is the question ticket 04 reopens. They go when it is answered.
+
+**The 400's shape is `ResponseStatusException(HttpStatus.BAD_REQUEST)` with no reason, and that means
+an empty body and no content type.** `NegotiatorExceptionHandler` has no handler for it or for
+`MethodArgumentTypeMismatchException`, so the status resolver's `sendError` is what a client actually
+sees. Anything that produces this 400 in a later slab must throw that exact exception; a
+`WrongRequestException` or an `IllegalArgumentException` would land on 400 with a `ProblemDetail`
+body and break the pin.
+
+**Ticket 03's "nothing pins this today" is wrong, and the correction is the useful half.** The
+*status code* was already pinned for both lifecycle paths - `sendEvent_InvalidEvent_BadRequest` and
+`sendEvent_InvalidResourceEvent_BadRequest` - and the lower-case acceptance was pinned too. What was
+pinned by nothing is the response **body**, which is the part that a moved check silently changes. So
+the test written before the change extends those two methods with an empty-body and null-content-type
+assertion rather than adding a class.
+
+**A third thing was pinned by nothing and is the one that would actually have broken.** The Resource
+lifecycle endpoint refuses an unknown Event *before* it refuses the caller, because binding ran
+before the handler body. A check written into the handler after the permission test would have turned
+that 400 into a 403 for any caller who is neither representative nor creator - green under every
+existing assertion. `sendEvent_invalidResourceEventAndNoPermission_refusesTheEventNotTheCaller` pins
+it, was run green against the enum-typed path variable, and is why `lifecycleEventNamed(...)` is the
+first statement of both handlers rather than sitting next to the call it guards.
+
+**Four new catalog callers, all metadata readers, none of them deciding anything.**
+`NegotiationController` (label *and* description, for the possible-events DTO - one `metadata` call
+per Event, as slice 02 asked), `NegotiationModelAssembler` (label, for a link's display name),
+`ResourceWithStatusAssembler` (label, same) and `NegotiationLifecycleServiceImpl` (label, for the
+"You are not allowed to %s the Negotiation" message). With slice 05's handler that is five, and every
+one of them reaches through the `Scope`/`Element` coordinates.
+
+**`ResourceStateChangeListener`'s two `.name()` calls stay, and slice 08's prediction about them was
+wrong.** Slice 08 assigned them here, expecting them to disappear "when `ResourceWithStatusDTO`'s
+producer and the change event both deal in names". They do not, and the reason is worth stating
+because it recurs: the enum is on the **constant** side of the comparison, not on an accessor.
+`resource.getCurrentState().equals(NegotiationResourceState.RESOURCE_UNAVAILABLE.name())` compares a
+`String` field against a constant that is not one of the nine Well-known names, so removing the
+`.name()` would make the comparison always false rather than removing a conversion. The file sits
+inside `negotiation/state_machine/`, so the reference is gate-legal and dies with the enums. Adding
+those two names to `WellKnownResourceStates` was the alternative and is refused: slice 01's growth
+rule is a test, and "the two terminal Resource States" is a modelling decision, not a name this slab
+discovered it needed.
+
+**This slice landed *after* slice 11 and was rebased onto it, and the two met in four files - the
+third time this slab has hit slice 08's collision.** Both slices changed the two Lifecycle service
+impls, `ResourcePersistStateChangeListener` and `NegotiationLifecycleServiceImplTest` for the same
+reason from opposite ends: 11 made the entity fields and the JPA projections deal in names and wrote
+translations at the seam; 10 made the seam deal in names and wrote translations at the entity. **Each
+side's translation was exactly what the other side deletes, so the resolution deleted both**, as it
+did when 08 met 09.
+
+- Both current-State readers lost their `.map(...)`: 11's `.map(NegotiationState::valueOf)` and 10's
+  `.map(Enum::name)` are gone, because `findNegotiationStateById` and
+  `findNegotiationResourceStateById` now return `Optional<String>` and the seam wants a name.
+- `ResourcePersistStateChangeListener.nameOf(Enum<?>)` is gone with them - the link row's accessor
+  returns a name, so there was nothing left to convert - and the publication went back from 11's
+  `ResourceStateChangeEvent.fromNames(...)` to the plain constructor, because this slice deletes that
+  factory.
+- **The `valueOf` that `fromNames` performed had to be kept by hand**, as
+  `.map(event -> NegotiationResourceEvent.valueOf(event).name())`. It is easy to lose here: 11 did
+  not drop that check, it moved it *into* `fromNames`, and deleting the factory without carrying the
+  check back out would have widened the seam's contract with nothing failing.
+- `NegotiationLifecycleServiceImplTest`'s "no change" assertion had a `.name()` on each side in turn
+  - 11 on the seam's result, 10 on the entity's expectation - and now needs neither.
+
+**The `valueOf` calls left in the two persist listeners are a check, not a conversion, and should not
+be read as leftovers.** `PersistStateChangeListener` publishes no event at all when a state machine
+id does not resolve, and that log-and-skip branch is the only thing keeping a malformed Transition
+out of every downstream handler. Writing `valueOf(x).name()` keeps it exactly; dropping the `valueOf`
+would have widened the seam's contract silently.
+
+**Slice 05's one accepted null delta is undone here, in the direction slice 05 asked for.**
+`NegotiationInProgressHandler` reads `WellKnownNegotiationStates.IN_PROGRESS.equals(event.getToState())`
+- constant first, so a null destination State is passed over rather than throwing, which is what the
+pre-slab `==` did. Carve-out 2's "no new member in that file" is satisfied because no member was
+needed. `NegotiationStatusChangeHandler`'s `switch` still throws on a null, as its `switch` over a
+null enum did.
+
+**Three new properties of the two service interfaces, for the cutover slab to decide on purpose
+rather than by accident.** All three were previously unreachable, because the path converters refused
+an unknown name before any of this code ran, and all three are unreachable *today* through HTTP,
+because the controller validates and `EnumBackedLifecycleTestAdapter` validates.
+
+- `NegotiationLifecycleService.sendEvent` with an unknown Event name: not in the possible set, so the
+  label lookup for the refusal message throws `IllegalArgumentException` → 400 `"Bad request."`,
+  where a *known* but impossible Event still gives 403.
+- `ResourceLifecycleService.sendEvent` with an unknown Event name: silently returns the Resource's
+  current State, which is what it already did for a known-but-impossible Event.
+- `getPossibleEvents` no longer resolves the state machine's trigger ids through `valueOf`, so a
+  trigger id outside the enums would be reported rather than throwing. The configuration is built
+  from the enums, so it cannot happen while they exist.
+
+**One accepted micro-delta, on argument-resolution order.** `PUT /negotiations/{id}/lifecycle/{event}`
+resolved its path variables before its `@RequestBody`, so a request with *both* an unknown Event and
+an unreadable body used to get the converter's empty 400. It now gets the body's
+`"Wrong request"` 400, because the Event check moved into the handler and the body is deserialised
+before the handler runs. Both are 400 and no client sending valid JSON can see the difference. It is
+recorded rather than preserved: preserving it would mean keeping a converter, which is what the slice
+came to delete.
+
+**The characterization adapter converts nothing any more, and still names the enums on purpose.**
+`EnumBackedLifecycleTestAdapter`'s three helpers are now `negotiationEventName`,
+`resourceEventName` and `resourceStateName` - `valueOf(x).name()`, so the *only* thing the enums are
+used for is failing loudly on a misspelled name in a characterization test. Slice 08 asked that the
+typo guard survive; this is what surviving looks like once there is nothing left to convert. Not one
+assertion in the suite changed.
+
+**`StateChangeEvents` stopped being a conversion and no assertion downstream noticed**, which is the
+clearest evidence the suite was written the way slice 01's argument said it should be. Its
+`nameOf(Enum<?>)` is gone and the two records read the payload directly.
+
+**Test churn is 11 files and slice 05's "the other seven" is five.** The five notification test files
+are `NegotiationInProgressHandlerTest`, `NegotiationStatusChangeHandlerTest`,
+`NegotiationSubmissionHandlerTest`, `NotificationListenerTest` and `ResourceStateChangeHandlerTest`;
+three of them now name no Lifecycle enum at all, and the two that still do
+(`@EnumSource` over `NegotiationState`, and a `List<NegotiationState>` iterated into the event) do it
+for their own reasons and take `.name()` at the constructor. The other two of slice 05's seven -
+`NegotiationCreationNotificationHandlerTest` and `PendingNegotiationReminderHandlerTest` - never
+needed a change: they name enums for the entity, not for the change event, so they are **slice 11's**.
+The rest of the churn is `WebhookEventMapperTest`, `WebhookEventListenerIntegrationTest`,
+`NegotiationLifecycleServiceImplTest`, `NegotiationModelAssemblerTest` (a third `null` constructor
+argument) and the two characterization helpers.
+
+**`NegotiationLifecycleServiceImplTest` moved to string literals rather than to `.name()`, and that
+is the slab's precedent rather than a new choice.** Slices 07 and 08 did the same for constructor
+arguments. Here it is also what makes the test read as a consumer of the seam does; a typo in one of
+those literals fails loudly, because every one of them is either an input the service refuses or an
+expected value being asserted.
+
+**`Objects.toString(obj, null)` in `getPossibleEventsForNegotiationResource` was an enum-to-string
+conversion and is now `List.copyOf`.** Worth naming because it is the one place in this slice where
+the old code's *intent* was invisible: written over `Object`, it survived the type change with no
+compile error and no behaviour change, and a reader arriving later would have had no way to tell it
+had ever done anything. Slice 06 hit the same shape from the dangerous side and had to keep a cast
+that read both types.
+
+**The whole-suite count is PENDING_SUITE, and it is the first figure in this slab measured on a
+tree that holds every slice from 01 to 11.** Slice 11 recorded 1479 in 159 classes. This slice adds
+exactly one test - the 400-before-403 ordering pin in `NegotiationControllerTests` - and no other
+test file changes count, which predicts 1480 in 159. Parity is 255 tests in 24 classes, 0 failures,
+0 errors, 1 skipped; intended deltas are 8 tests, 0 failures, 0 errors, 0 skipped. All three numbers
+were read out of `backend/target/surefire-reports` filtered by mtime, at the rebased tip.
+**Take PENDING_SUITE as the baseline for slice 12.** The four tests slices 02, 03 and 05 each
+reported unattributed from a different side are still inside it and still unattributed.
+
+An earlier figure of 1474/0/0/16 was measured for this slice before the rebase, on a tree that did
+not hold slice 11. It is superseded, not reconciled - the two trees are different, and stacking the
+counts is the arithmetic that has gone stale four times in this slab already.
 ## What slice 11 settled, for slices 10 and 12
 
 **The batch is nineteen production files, not the five the issue names.** The five are the two
