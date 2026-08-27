@@ -200,11 +200,13 @@ public class ResourceRepositoryTest {
     assertEquals(res1.getDescription(), resources.get(0).getDescription());
     assertEquals(res1.getContactEmail(), resources.get(0).getContactEmail());
     assertEquals(res1.getUri(), resources.get(0).getUri());
+    assertEquals("SUBMITTED", resources.get(0).getCurrentState().name());
     assertEquals(res2.getSourceId(), resources.get(1).getSourceId());
     assertEquals(res2.getSourceId(), resources.get(1).getSourceId());
     assertEquals(res2.getName(), resources.get(1).getName());
     assertEquals(res2.getDescription(), resources.get(1).getDescription());
     assertEquals(res2.getContactEmail(), resources.get(1).getContactEmail());
     assertEquals(res2.getUri(), resources.get(1).getUri());
+    assertEquals("REPRESENTATIVE_CONTACTED", resources.get(1).getCurrentState().name());
   }
 }

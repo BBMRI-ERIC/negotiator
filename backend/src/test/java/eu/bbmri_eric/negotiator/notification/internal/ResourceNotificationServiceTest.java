@@ -84,7 +84,8 @@ class ResourceNotificationServiceTest {
     service.notifyResourceRepresentatives(negotiationId);
 
     // Only resource2 should be processed
-    verify(negotiation, never()).setStateForResource(eq("resource-1"), any());
+    verify(negotiation, never())
+        .setStateForResource(eq("resource-1"), any(NegotiationResourceState.class));
     verify(negotiation)
         .setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
 
@@ -192,7 +193,8 @@ class ResourceNotificationServiceTest {
 
     verify(negotiation)
         .setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    verify(negotiation, never()).setStateForResource(eq("resource-2"), any());
+    verify(negotiation, never())
+        .setStateForResource(eq("resource-2"), any(NegotiationResourceState.class));
     verify(negotiation)
         .setStateForResource("resource-3", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
 
@@ -291,7 +293,8 @@ class ResourceNotificationServiceTest {
 
     service.notifyResourceRepresentatives(negotiationId);
 
-    verify(negotiation, never()).setStateForResource(anyString(), any());
+    verify(negotiation, never())
+        .setStateForResource(anyString(), any(NegotiationResourceState.class));
     verify(notificationService, never()).createNotifications(any());
   }
 
