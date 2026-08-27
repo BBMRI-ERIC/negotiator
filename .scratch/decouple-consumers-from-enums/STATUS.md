@@ -14,6 +14,7 @@ here are settled; do not relitigate them in a later slice.
 |---|---|---|
 | [01 Well-known name holders](issues/01-well-known-name-holders.md) | **done** | 8 tests green; full suite 1435/0/0/16; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [02 The Enum-Backed Lifecycle Catalog](issues/02-enum-backed-lifecycle-catalog.md) | **done** | catalog test 13/0/0/0; whole suite not measured at this tip - reconstructed as 1444, see this slice's section; parity and deltas green over it rather than at it |
+| [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
 **That filtering is not optional here**, and this run showed why: `surefire-reports` is not cleared
@@ -188,6 +189,90 @@ reports from the other side, and it remains unattributed.
 than at it.** Slices 03, 04, 08 and 09 each measured 255 tests in 24 classes, 0 failures, 1 skipped,
 and deltas 8/0/0/0, on trees that contain this class. Backfilling those numbers here as if they had
 been taken at this commit would be the one thing the Landed table exists to prevent.
+
+## What slice 07 settled, for slices 08, 10 and 11
+
+*Recorded retroactively on 2026-08-27. This slice landed at `31c6ed41` with no Landed row, no
+section and its issue still reading `ready-for-agent`; slices 03, 04, 08 and 09 went in on top of it
+before the omission was noticed. The commit sits at its place in the history so the slab reads in
+order, but the evidence below was gathered afterwards - including one fact established by experiment
+during the recording itself, which is flagged where it appears.*
+
+**The batch was four files and turned out to be six.** The entity, the repository and both DTOs, as
+the issue predicted - plus `InformationRequirementServiceImpl.mapToDTO` and a new
+`NegotiationResourceEventNameDeserializer` in `negotiation/state_machine/resource/`. Both additions
+are behaviour *preservation*, and the first of them is the sharpest thing this slice hands the
+slices that come after.
+
+**A ModelMapper implicit match can disappear when the only thing that changed is the property type.
+Measured, not inferred.** `InformationRequirement.forEvent` and
+`InformationRequirementDTO.forResourceEvent` have never shared a name and there is no `TypeMap` for
+the pair, yet ModelMapper matched them implicitly while both were `NegotiationResourceEvent`. With
+both a `String` it does not. Established by experiment during this recording: removing the explicit
+`dto.setForResourceEvent(informationRequirement.getForEvent())` and running the class makes
+`$.forResourceEvent` come back **null** and fails four tests -
+`findRequirementById_existingId_ok`, `updateRequirement_correctBody_ok`,
+`createInformationRequirement_correctBody_ok` and `createInformationRequirement_onlyForAdmin_ok`.
+Without that one line this slice would have silently dropped a field from the admin API's response
+body, in a slab whose entire claim is that nothing observable changes. The mechanism inside
+ModelMapper is *not* established here - only the effect, which is what matters.
+**Slices 10 and 11 must assume nothing about an implicit match surviving a type change.** Slice 08
+met the adjacent trap from the other side - ModelMapper does not coerce a `Converter`'s result to the
+destination type - and `NegotiationModelAssembler`, `NegotiationEventAssembler` and
+`ResourceWithStatusAssembler` are all still ahead. Assert the wire field, never the mapping.
+
+**`equals` moved from `==` to `Objects.equals`, and that is not cosmetic.** Reference comparison is
+correct for enum constants and wrong for names: a `==` left in place would have compiled and then
+compared interned literals against strings loaded from the database. This is precisely the failure
+mode slice 01 warned about - a comparison that silently stops matching rather than failing to
+compile - in its cheapest possible form. Any later slice converting an entity field must inspect
+that entity's own `equals` and `hashCode` in the same diff.
+
+**The 400 on an unknown Event is preserved by a Jackson deserializer, not by the catalog.**
+`@JsonDeserialize(using = NegotiationResourceEventNameDeserializer.class)` on
+`InformationRequirementCreateDTO.forResourceEvent` reads the name, calls
+`NegotiationResourceEvent.valueOf` purely as the check, and returns the string. `@JsonDeserialize`
+instantiates its deserializer reflectively, so it cannot hold the Spring-managed
+`EnumBackedLifecycleCatalog` - this is one of the two places in the slab that genuinely cannot use
+it. Pinned by a new controller test asserting 400 **and** `$.title` of `"Wrong request"`, so the
+body is pinned rather than just the status code. Slice 08 landed the same shape for
+`UpdateResourcesDTO.state`; the two deserializers are siblings and are deleted together at cutover.
+
+**One accepted micro-delta, shared with slice 08.** `FAIL_ON_NUMBERS_FOR_ENUMS` is unset in both
+`application.yaml` and `application-prod.yaml`, so Jackson's default enum binding accepted a JSON
+integer as an ordinal and `{"forResourceEvent": 3}` used to bind to the fourth Resource Event.
+Through the deserializer `getValueAsString()` yields `"3"` and it is refused with a 400. Preserving
+it would have meant writing `values()[i]` by hand - deliberately new ordinal-as-identity coupling,
+inside a class built to be deleted, to keep an accident nothing documents and no client uses.
+Recorded rather than preserved. Slice 08 made the identical call for `UpdateResourcesDTO.state`;
+**if either is ever undone, undo both.**
+
+**The schema reads as a string with a worked example, and it is pinned against the served document.**
+`@Schema(description = ..., example = "CONTACT")` on the field in both DTOs, asserted through
+`GET /v3/api-docs` - `forResourceEvent.type` is `"string"` and `.example` is `"CONTACT"` - rather
+than by reading the annotation back. That is the shape to copy anywhere this slab claims an OpenAPI
+outcome: an annotation assertion proves nothing about what a client actually fetches.
+
+**The seam translation this slice wrote, for slice 10 to delete.** `ResourceLifecycleServiceImpl`
+now calls `existsByForEvent(negotiationResourceEvent.name())`. It sits inside
+`negotiation/state_machine/`, so it is not a gate violation, and it disappears when slice 10 makes
+`sendEvent` take an Event name.
+
+**No migration, no data change, and no re-homing.** The column was already `VARCHAR(255)` and now
+carries `@Column(length = 255)` over the same values. The map's standing decision 6 still owns
+turning the creation DTO's field into an Event reference; this slice only made it a name.
+`isViewableOnlyByAdmin` was touched by nothing and stays unowned.
+
+**Tests are +3, and the full-suite figure is slice 03's measurement rather than one taken here.** The
+two new controller tests - the unknown-Event 400 and the served-schema shape - plus one new entity
+test; every other change across the six touched test files is a constructor argument moving from
+`NegotiationResourceEvent.CONTACT` to `"CONTACT"`. Focused runs are green:
+`InformationRequirementControllerTest` 32/0/0/0, `InformationRequirementServiceTest` 4/0/0/0 and
+`unit/model/InformationRequirementTest` 2/0/0/0. Slice 03 then measured the full suite at
+**1453/0/0/16 in 158 classes**, parity at 255 in 24 classes with 0 failures and 1 skipped, and
+deltas at 8/0/0/0, explicitly *after rebasing onto this slice* - which makes that run this slice's
+full-suite evidence, and the tightest available, since the only content on that tree beyond this
+slice is slice 03 itself.
 
 ## Standing hazards, carried not solved
 
