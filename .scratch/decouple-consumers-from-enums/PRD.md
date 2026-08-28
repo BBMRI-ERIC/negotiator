@@ -1,6 +1,6 @@
 # PRD — Decouple consumers from the Lifecycle enums
 
-Status: ready-for-agent — claimed 2026-08-26, not yet started
+Status: resolved — all twelve slices landed, slab gate green, map ticket 07 closed 2026-08-28
 
 Slab for map ticket
 [07 Decouple consumers from the lifecycle enums](../state-machine-implementation/issues/07-decouple-consumers-from-enums.md)

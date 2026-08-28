@@ -1,7 +1,7 @@
 # Decouple consumers from the lifecycle enums
 
 Type: task
-Status: claimed
+Status: resolved
 Blocked by: 01, 02, 03
 
 ## Question
@@ -148,3 +148,70 @@ a stage early. A disposable **Enum-Backed Lifecycle Catalog** inside `negotiatio
 answers the existence check, the labels and the ordinal instead, and is deleted with the library.
 The cutover slab replaces its three methods with reads of the `state` and `event` rows; that is the
 trigger.
+
+It ran to **twelve** slices, not ten. Information Requirements became a slice of its own once recon
+found it was a fifth consumer subsystem, and the seam conversion split from the entity conversion
+because each side's translation was what the other deletes.
+
+## Resolution
+
+**Resolved 2026-08-28. The slab gate is met and it is a test rather than a sentence.**
+
+The four Lifecycle enums are named in **22 production files**: 19 of the 29 inside
+`negotiation/state_machine/`, plus the three metadata DTOs carve-out 1 named. At `3de318c3` the
+figure was 65, of which 42 were consumers. Every one of those 42 moved, one subsystem per commit,
+with Spring Statemachine running and green throughout. **No Flyway migration, no behaviour change,
+no frontend change.** Parity held at **255 tests in 24 classes, 0 failures, 1 skipped** after every
+slice, and the intended-delta suite at **8 tests, 0 failures**, which is the twelve-times-repeated
+evidence that nothing observable moved.
+
+**What the gate is.** `LifecycleEnumDecouplingGuardTest` (slice 12), in the test tree, scanning
+production sources. Two rules, because coupling can be spelled two ways: an **identifier rule** that
+fails on a whole-word occurrence of an enum's name outside the package and the three DTOs, and a
+**signature rule** that inspects the two application events' accessors and both Lifecycle service
+interfaces reflectively. Finding 3 of the recon above is exactly why the second rule exists — a
+consumer can call `event.getToState().name()` and import nothing, so an identifier grep reports
+green over a codebase still coupled to all four enums. Both rules were run red on purpose before
+being trusted green; the seven injected violations and what each reported are tabulated in the
+slab's `STATUS.md`. The guard is deleted at cutover, whole, together with the enums it names.
+
+**Five things the slab learned that the tickets did not know**, all recorded in the slab's
+`STATUS.md` with the slice that found them:
+
+- **`ResourceEventAssembler` was a fourth assembler no grep could see** — it reached an enum through
+  a carved-out DTO's accessor, importing nothing. The shape is legal and stays uncovered, because
+  the carve-out *is* the statement that those DTOs are ticket 04's.
+- **The raw SQL literals are fourteen across two files, not eight across one**, and six of them
+  filter the audit column ADR 0008 converts to a foreign key. `RawStateNamesInSqlGuardTest` holds
+  them line-exact and outlives this slab; the migration slab's seed must satisfy every one of them
+  or a KPI silently starts reporting zero.
+- **Three consumers needed an existence check the catalog could not serve**, because
+  `@JsonDeserialize` and `@ModelAttribute` resolve differently: two Jackson deserializers and one
+  `ConstraintValidator`. All three read the same enums and die in the same cutover.
+- **`assertEquals(enum, String)` compiles clean and fails only at run time**, which cost three tests
+  in slice 11 and more in slice 10. A green `test-compile` proves nothing about assertion sites.
+- **Two accepted micro-deltas, both recorded rather than preserved**: an ordinal-as-enum JSON
+  binding accident nothing documents, and the argument-resolution order of one 400 that no client
+  sending valid JSON can reach.
+
+**Three things this slab hands forward, each with its trigger.**
+
+1. **The Enum-Backed Lifecycle Catalog is the filed departure from ticket 03's decision 3.** The
+   cutover slab replaces its four methods with reads of the `state` and `event` rows — three when
+   the departure was filed above; slice 10 added `label`, derived from `metadata` rather than new
+   knowledge. Until then
+   `?status=` keeps today's 400 against the enums.
+2. **The two service interfaces now trust their callers.** Both compare Event names as plain strings
+   and validate none of them internally; every caller passes a canonical name today, but the type no
+   longer enforces it. The cutover slab should decide on purpose whether the seam validates.
+3. **`WellKnownResourceStates` is a bet on a family's vocabulary** and `SUBMITTED` is a default as
+   well as a comparison. Nothing in stage 1 can make the bet lose; the second Resource family is
+   where it is decided.
+
+**`DefinitionInertnessGuardTest` is untouched and green**, so the slab that first reads the
+Definition Version tables still deletes it as a visible line in its own diff. That slab is still not
+this one.
+
+The slab's `STATUS.md` is **kept, not deleted**: its twelve per-slice sections are the working
+reference for the cutover, and three of them (slices 03, 10 and 11) carry facts two later slabs
+consume directly.
