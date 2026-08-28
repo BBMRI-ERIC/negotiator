@@ -76,7 +76,7 @@ Standing decision 5 still requires running the app and looking.
 
 ## Resolution
 
-**`eu.bbmri_eric.negotiator.lifecycle.LifecycleEnumDecouplingGuardTest`, seven tests, no production
+**`eu.bbmri_eric.negotiator.lifecycle.LifecycleEnumDecouplingGuardTest`, eight tests, no production
 file touched.** It sits beside `WellKnownNamesTest` and `RawStateNamesInSqlGuardTest`. Both rules are
 green with exactly the two exemptions the PRD names — the Lifecycle package and the three metadata
 DTOs — and nothing else. `DefinitionInertnessGuardTest` is untouched and green at 6; slice 3's
@@ -113,7 +113,23 @@ are `?status=NOT_A_STATE` still answering **400** through slice 11's validator, 
 `POST /v3/info-requirements` with an unknown Event name still answering **400** through slice 07's
 deserializer. The PDF renders.
 
-**Verification:** full backend suite 1487 tests in 160 classes, 0 failures, 0 errors, 16 skipped;
+**Review changed three things, and one of them mattered.** The scan-root resolver had been copied
+from the *older* of the two sibling guards, so its "refuse rather than find nothing" branch was
+exercised by nothing standing — the same vacuity trap in a third disguise, in the very slice that
+had just fixed it for the signature rule. It now takes its path components as arguments, as slice
+03's guard already did, and `resolvingTheScanRoot_failsRatherThanFindingNothing` watches it refuse.
+The other two were readability: three whole-tree walks used to read three known files became a
+direct read, and the seam assertion's two idioms became one, dropping a stringly-typed comparison
+against `"java.util.Set<java.lang.String>"` in favour of a structural one.
+
+**The four unattributed tests three earlier slices reported are found, and they were never
+missing.** Surefire's plain-text writer reports `Tests run: 0` for the one class in the tree with an
+`@Nested` inner class, while its XML records the real 4. Every `.txt`-based whole-suite sum in this
+slab has been four low since slice 01, which is why the gap never moved and never attached to a
+slice. Parity and the deltas are unaffected — no characterization class uses `@Nested`. Recorded in
+`STATUS.md`, with the instruction to sum the XML reports.
+
+**Verification:** full backend suite 1492 tests in 160 classes, 0 failures, 0 errors, 16 skipped;
 parity 255 tests in 24 classes, 0 failures, 0 errors, 1 skipped; intended deltas 8 tests, 0 failures,
 0 errors, 0 skipped — all three partitioned out of one `--all` run. Map ticket 07 is resolved and the
 map's Decisions-so-far carries its entry.

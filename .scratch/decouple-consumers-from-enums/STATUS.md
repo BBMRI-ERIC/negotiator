@@ -23,7 +23,7 @@ here are settled; do not relitigate them in a later slice.
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [10 The Lifecycle seam deals in strings](issues/10-the-lifecycle-seam-deals-in-strings.md) | **done** | +1 test; full suite 1480/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - landed after 11 and rebased onto it, so every figure here is measured at the rebased tip |
 | [11 Entities and JPA queries name States as strings](issues/11-entities-and-jpa-queries-name-states-as-strings.md) | **done** | +6 tests: PDF generation 8 -> 10, `NegotiationControllerTests` 115 -> 118, raw-SQL guard 6 -> 7; full suite 1479/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - parity and deltas measured twice, at the refactor tip and again at the review tip |
-| [12 The decoupling gate](issues/12-the-decoupling-gate.md) | **done** | +7 tests, one new class `LifecycleEnumDecouplingGuardTest`, no production file touched; full suite 1487/0/0/16 in 160 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - all three partitioned out of one `--all` run |
+| [12 The decoupling gate](issues/12-the-decoupling-gate.md) | **done** | +8 tests, one new class `LifecycleEnumDecouplingGuardTest`, no production file touched; full suite 1492/0/0/16 in 160 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - all three partitioned out of one `--all` run. **This row's whole-suite figure is an XML sum; every row above it is a `.txt` sum and is four low** - see slice 12's section |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
 **That filtering is not optional here**, and this run showed why: `surefire-reports` is not cleared
@@ -32,6 +32,11 @@ classes. The parity run rewrites 24 of them and correctly leaves
 `delta.IntendedDeltasAdr0005WillInvertTest` untouched, because the tag excluded it - so a naive sum
 over the directory reads 263 and looks like the parity count has moved. Take the mtime window of
 the run you just did, then check that the classes outside it are the ones you expect to be stale.
+
+**Sum the `TEST-*.xml` reports, not the `.txt` ones.** Slice 12 found that surefire's plain-text
+writer reports `Tests run: 0` for a class with an `@Nested` inner class while the XML records its
+real count, and that this is the whole of the four-test gap three earlier slices reported as
+unattributed. The mtime rule above is still necessary; it was never sufficient.
 
 ## What slice 01 fixed for slices 04, 05, 08, 09 and 11
 
@@ -1146,15 +1151,40 @@ answer correctly with real data from a real Postgres. Two facts make the remaini
 wire format is byte-identical by construction, and slice 08 and slice 10 each read the frontend's
 State handling and found it reads `currentState` as a string key with no generated client.
 
-**The whole-suite count is 1487/0/0/16 in 160 classes, and it reconciles exactly.** Slice 10 asked
-for 1480 in 159 to be taken as the baseline; this slice adds one class of seven tests and changes no
-other test file, which predicts 1487 in 160. That is what the run reports - the third exact
-reconciliation in a row after four stale figures earlier in the slab. Parity is 255 tests in 24
-classes, 0 failures, 0 errors, 1 skipped; intended deltas are 8 tests, 0 failures, 0 errors, 0
-skipped. **All three came out of one `--all` run**, partitioned by class rather than re-run, which
-is the stronger form slice 10 used: 255 + 8 = 263 in 25 classes is also the cross-package ordering
-check. The four tests slices 02, 03 and 05 each reported unattributed from a different side are
-still inside the baseline and still unattributed.
+**The four unattributed tests are found, and they were never missing.** Slices 02, 03 and 05 each
+reported the same four-test gap from a different side, and four sections of this file record it as
+outstanding. It is a **surefire reporting artifact, not four tests**.
+`eu.bbmri_eric.negotiator.unit.mappers.RequestModelMapperTest` is the only class in the tree with an
+`@Nested` inner class, and surefire's *plain-text* writer reports `Tests run: 0` for it while its
+XML records the real 4:
+
+```
+$ grep 'Tests run' surefire-reports/....RequestModelMapperTest.txt
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0
+$ grep -o 'tests="[0-9]*"' surefire-reports/TEST-....RequestModelMapperTest.xml
+tests="4"
+```
+
+The class predates the whole effort - `git log` shows it last touched by the repository merge - so
+**every `.txt`-based whole-suite sum in this slab has been exactly four low, from slice 01 onward**.
+That is why the gap never moved and never attached to a slice: nothing introduced it. The two
+sources were compared class by class and this is the *only* class they disagree on, so parity's
+255 and the deltas' 8 are unaffected - no characterization class uses `@Nested`.
+
+**Read whole-suite counts out of the XML reports, not the `.txt` ones.** The mtime rule this file
+already insists on is necessary and was not sufficient. The `.txt` summaries are what every slice
+summed and they are consistent with each other, so each slice's reconciliation arithmetic still
+holds - the slices were comparing like with like - but the absolute figures recorded in the Landed
+table above are all four understated for this reason. They are left as measured rather than
+retro-corrected, because a number nobody re-measured is not a measurement.
+
+**The whole-suite count is 1492/0/0/16 in 160 classes, and it reconciles exactly.** Slice 10 asked
+for 1480 in 159 to be taken as the baseline; that is a `.txt` sum, so the comparable figure is 1484.
+This slice adds one class of eight tests and changes no other test file, which predicts 1492 in 160.
+That is what the run reports. Parity is 255 tests in 24 classes, 0 failures, 0 errors, 1 skipped;
+intended deltas are 8 tests, 0 failures, 0 errors, 0 skipped. **All three came out of one `--all`
+run**, partitioned by class rather than re-run, which is the stronger form slice 10 used: 255 + 8 =
+263 in 25 classes is also the cross-package ordering check.
 
 ## Standing hazards, carried not solved
 

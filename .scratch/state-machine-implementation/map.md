@@ -147,7 +147,7 @@ These were agreed with the user during charting. They are not ticket resolutions
   holders under `eu.bbmri_eric.negotiator.lifecycle`. **No Flyway migration, no behaviour change, no
   frontend change** — the columns were already `VARCHAR` and the enums already serialised as JSON
   strings. Parity **255/24/1 skipped** and deltas **8/0/0/0** after *every* slice; full suite
-  1415 → **1487/0/0/16 in 160 classes**. **The gate is a test, and it needed two rules** —
+  **1492/0/0/16 in 160 classes**. **The gate is a test, and it needed two rules** —
   `LifecycleEnumDecouplingGuardTest`. An identifier scan alone reports green over a codebase where
   every consumer reaches an enum through `event.getToState()`, importing nothing, so a **signature
   rule** inspects the two application events and both service interfaces reflectively, at any
@@ -165,6 +165,10 @@ These were agreed with the user during charting. They are not ticket resolutions
   them, six on the audit column ADR 0008 converts to an FK, and the migration slab's seed must
   satisfy all fourteen or a KPI silently reports zero.
   `DefinitionInertnessGuardTest` is untouched and green, so PRD user story 4's gate still stands.
+  **One measurement correction for every later slab:** sum the `TEST-*.xml` surefire reports, not the
+  `.txt` ones — the plain-text writer reports `Tests run: 0` for the single class in the tree with an
+  `@Nested` inner class, which is the whole of the four-test gap three slices of this slab logged as
+  unattributed, and which made every `.txt`-based whole-suite figure four low.
   The slab's **`STATUS.md` is kept, not deleted.**
 
 - **[08 Definition schema and entities](issues/08-definition-schema-and-entities.md)** — **resolved.**
