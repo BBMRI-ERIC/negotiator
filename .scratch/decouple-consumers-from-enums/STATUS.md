@@ -23,6 +23,7 @@ here are settled; do not relitigate them in a later slice.
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
 | [10 The Lifecycle seam deals in strings](issues/10-the-lifecycle-seam-deals-in-strings.md) | **done** | +1 test; full suite 1480/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - landed after 11 and rebased onto it, so every figure here is measured at the rebased tip |
 | [11 Entities and JPA queries name States as strings](issues/11-entities-and-jpa-queries-name-states-as-strings.md) | **done** | +6 tests: PDF generation 8 -> 10, `NegotiationControllerTests` 115 -> 118, raw-SQL guard 6 -> 7; full suite 1479/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - parity and deltas measured twice, at the refactor tip and again at the review tip |
+| [12 The decoupling gate](issues/12-the-decoupling-gate.md) | **done** | +7 tests, one new class `LifecycleEnumDecouplingGuardTest`, no production file touched; full suite 1487/0/0/16 in 160 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - all three partitioned out of one `--all` run |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
 **That filtering is not optional here**, and this run showed why: `surefire-reports` is not cleared
@@ -1044,6 +1045,117 @@ the agreement worth anything: the number was written down before it was measured
 The four tests slices 02, 03 and 05 each reported from a different side are still unattributed. They
 are inside the 1473 baseline, not introduced or resolved here.
 
+## What slice 12 closed, for the cutover slab
+
+**The gate is `eu.bbmri_eric.negotiator.lifecycle.LifecycleEnumDecouplingGuardTest`, seven tests,
+and it touches no production file.** It sits beside `WellKnownNamesTest` and
+`RawStateNamesInSqlGuardTest`, which is where this slab's standing facts live. Its javadoc says what
+every other guard in this tree says: it is deleted at cutover, whole, together with the enums it
+forbids naming - and it will say so loudly, because it imports all four of them and those imports
+stop compiling the day they go.
+
+**The end state, counted rather than claimed.** Four enums, named in **22 production files**: 19 of
+the 29 inside `negotiation/state_machine/`, plus the three carved-out metadata DTOs. At `3de318c3`
+the figure was 65 in main sources, 42 of them consumers. Slice 10 predicted this exact shape from
+the other side and it holds - **the gate closes with the three exemptions the PRD names and no
+others.**
+
+**Both rules were run red on purpose, seven times, before being trusted green.** A guard that has
+only ever passed is a guard whose scanner might match nothing, and this slab has now been bitten by
+that twice - slab 08's table rule, and slice 11's discovery that slice 03's replacement test had
+gone vacuous when the tree lost its last bare name. What was injected, and what each one proved:
+
+| Injected | Reported |
+|---|---|
+| `import ...NegotiationState;` into `NegotiationInProgressHandler` | **one** violation with file and line - the file's two `NegotiationStateChangeEvent` lines were spared, which is the word-boundary trap holding |
+| `default Set<NegotiationEvent> ...` on `NegotiationLifecycleService` | the signature rule, naming the method and the enum. **The identifier rule stayed green** - the method sits in the exempt package - which is the whole reason this slice exists |
+| a non-`String` accessor present on only one of the two events | the missing-accessor path, naming the class and method |
+| the same accessor on both | the return-type path, `expected: <java.lang.String> but was: <java.lang.Object>` |
+| `MINIMUM_PRODUCTION_SOURCES` raised past the tree size | "Only 437 production sources found ... the guard must never pass by scanning nothing" |
+| the package exemption pointed at a package that does not exist | both anti-vacuity assertions: the exemption is gone, **and** the rule now matches nothing anywhere |
+| the scan root pointed at a package that does not exist | `IllegalStateException` out of `moduleRoot`, on every test that walks the tree |
+| an exemption pointed at a file that names no enum | "the exemption buys nothing and hides everything" |
+
+**Slice 11's lesson is applied, and it changed the design.** Its warning was that a guard checking a
+property through its own scanner needs the scanner checked separately, and that "the tree no longer
+contains an example" is exactly when that stops being true by accident. The identifier rule was
+already safe - `theIdentifierRule_matchesWhatItForbidsAndNothingElse` feeds it synthetic lines, and
+the state_machine package is a live positive control. **The signature rule was not.** Its detector
+is only ever pointed at four types that mention no enum, so a walker that always returned an empty
+set would have reported green forever. So the class carries a private `CoupledSeamFixture`
+interface - three methods, one per way a signature can hide an enum from an identifier scan: as a
+type argument, as a bare return type, as a parameter. It is a fixture, not a rule; nothing
+implements it and nothing scans it.
+
+**An exemption that stops being necessary fails the guard, deliberately.** Each of the three
+metadata DTOs is checked twice: the file still exists, *and* it still names an enum. The second half
+is the unusual one, and it is aimed at ticket 04: when that ticket decouples a metadata DTO, the
+same diff has to delete the exemption, and a reviewer sees the removal rather than having to notice
+its absence. The failure message says so. This is also the reason the exemptions are pinned by full
+path rather than by simple name - a fourth DTO borrowing one of these names elsewhere would
+otherwise be quietly exempt too.
+
+**"All production sources" is read as `src/main/java`, and the alternative was checked rather than
+assumed.** A whole-word scan of `src/main/resources` for the four names returns **zero** hits, so
+including it would have bought nothing today; and the rule's exemption model is package-shaped,
+which resources are not. `DefinitionInertnessGuardTest` made the same call for its own reason. The
+gap this leaves is a fully-qualified enum name in a configuration string, which nothing in this
+repository does.
+
+**The shape slice 10 warned about is legal and stays uncovered, correctly.**
+`ResourceEventAssembler` reaches an enum through `ResourceEventMetadataDto.getValue()`, importing
+nothing - so it appears in no identifier scan, and the signature rule covers the four seam types
+rather than the three metadata DTOs. That is not a hole: the carve-out *is* the statement that those
+DTOs are ticket 04's. When ticket 04 answers, the assembler's `.name()` goes with the DTO's enum.
+
+**Both blocked-on guards are intact.** `DefinitionInertnessGuardTest` is untouched and green at 6
+tests - this slab read no Definition Version table, so PRD user story 4 still has its gate.
+`RawStateNamesInSqlGuardTest` is green at 7 with no amendment; slice 11 spent its one amendment and
+this slice needed none.
+
+**Copy rather than extract, for the third time.** The scan root, the comment-blanking reader and the
+violation report are the fourth copy of the same forty lines. Slab 08 recorded why and slice 03
+repeated it: these guards have different lifetimes and each is meant to be deleted whole. This one
+outlives the slab and dies at cutover; `RawStateNamesInSqlGuardTest` outlives the cutover and is
+consumed by the migration slab and ADR 0008.
+
+**Standing decision 5 is discharged for the whole slab here, not just for this slice.** This slice
+changes no production file, so nothing it did could break a screen - but it is the slab's closing
+slice and no earlier one ran the app, so the check is done once, at the tip, against everything
+slices 01-11 changed. The app was started from `target/negotiator-spring-boot.jar` on the `dev`
+profile against the compose Postgres, with the published frontend, Traefik and the OIDC mock beside
+it, and driven with a real user token obtained headlessly through the authorization-code + PKCE
+flow. **Startup is itself the strongest part of the check**: Hibernate validates every named query
+at context build, which is where slice 11's entity and JPQL changes would have failed loudly.
+
+| Screen | Exercised | Result |
+|---|---|---|
+| Negotiation list | `GET /v3/negotiations`, `?status=SUBMITTED`, `?sortBy=currentState` | 200, rows render, the filter and the sort key both work off the now-`String` column |
+| Negotiation list | `?status=NOT_A_STATE` | **400**, `Wrong request parameters`, `{status=must name States of the Negotiation Lifecycle}` - slice 11's `@KnownNegotiationStateNames` answering through the catalog, live |
+| Negotiation page | detail, `/resources`, `/lifecycle`, `/timeline` | 200; possible Events carry label and description from the catalog, and the timeline renders `"changed the status of the Negotiation to Draft"` - a label, not a name |
+| Negotiation page | `/pdf` | 200, a real PDF - the silent-breakage candidate finding 5 named |
+| Lifecycle metadata | all four `/*-lifecycle/{states,events}` | 200, `value` / `label` / `description` and Resource State `ordinal` unchanged, which is the wire shape the frontend hand-codes against |
+| IR admin | `GET /v3/info-requirements`, `GET /v3/access-forms` | 200 |
+| IR admin | `POST /v3/info-requirements` with `forResourceEvent: "CONTACT"` | 201-shaped 200, row created and then deleted again |
+| IR admin | the same with `"NOT_AN_EVENT"` | **400** through slice 07's `NegotiationResourceEventNameDeserializer` |
+
+**What this does not cover, stated so it is not over-trusted.** No human looked at a rendered page;
+the frontend was confirmed to serve (200 on `/`) and its API surface was exercised directly, which
+is one step short of what standing decision 5 literally asks for. The three screens' *endpoints* all
+answer correctly with real data from a real Postgres. Two facts make the remaining gap small: the
+wire format is byte-identical by construction, and slice 08 and slice 10 each read the frontend's
+State handling and found it reads `currentState` as a string key with no generated client.
+
+**The whole-suite count is 1487/0/0/16 in 160 classes, and it reconciles exactly.** Slice 10 asked
+for 1480 in 159 to be taken as the baseline; this slice adds one class of seven tests and changes no
+other test file, which predicts 1487 in 160. That is what the run reports - the third exact
+reconciliation in a row after four stale figures earlier in the slab. Parity is 255 tests in 24
+classes, 0 failures, 0 errors, 1 skipped; intended deltas are 8 tests, 0 failures, 0 errors, 0
+skipped. **All three came out of one `--all` run**, partitioned by class rather than re-run, which
+is the stronger form slice 10 used: 255 + 8 = 263 in 25 classes is also the cross-package ordering
+check. The four tests slices 02, 03 and 05 each reported unattributed from a different side are
+still inside the baseline and still unattributed.
+
 ## Standing hazards, carried not solved
 
 **`WellKnownResourceStates` is a bet on a family's vocabulary; the Negotiation holder is not.** ADR
@@ -1078,3 +1190,20 @@ Run the formatter before committing any Java; it is not bound to the `test` phas
 ```
 nix develop .#opencode --command mvn -f backend -q com.spotify.fmt:fmt-maven-plugin:2.25:format
 ```
+
+**`nix develop` stopped working during slice 12, and the wrapper turned out to be unnecessary.**
+Every invocation - from the worktree and from the main checkout alike - fails with `error: setting
+up a private mount namespace: Operation not permitted`, which is the sandbox refusing Nix its
+namespaces rather than anything about this repository. It cost nothing: `mvn` and `java` are already
+on `PATH` in an agent shell (Maven 3.9.16, OpenJDK 21.0.12), so every command in
+[parity-gate.md](../state-machine-implementation/parity-gate.md) works with the
+`nix develop .#opencode --command` prefix simply dropped. Try the prefix first - it is what the gate
+document specifies and it may well work again - and fall back to a bare `mvn` rather than treating
+the failure as a blocker.
+
+**The JDT/Lombok `target/` pollution is real, and it fires on ordinary editing.** Slab 08 recorded
+it; this slice hit it. The language server compiles without Lombok, so `target/classes` ends up
+holding a `NegotiationStateChangeEvent` with no getters, and the next `testCompile` reports 45
+`cannot find symbol` errors in `characterization/service/StateChangeEvents.java` - a file nobody
+touched. `mvn -f backend clean` clears it. The tell is that the errors are all missing Lombok
+members, and that the same tree compiled clean an hour earlier.

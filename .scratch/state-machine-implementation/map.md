@@ -139,6 +139,34 @@ These were agreed with the user during charting. They are not ticket resolutions
   revealed drafts. One new ticket ([10](issues/10-network-kpis-name-resource-states.md)); the
   `ordinal` ordering contract is routed to ticket 04.
 
+- **[07 Decouple consumers from the lifecycle enums](issues/07-decouple-consumers-from-enums.md)** —
+  **resolved.** Standing decision 2 executed: all **42** consumers moved off the four enums while
+  Spring Statemachine kept running, in **twelve** slices across five subsystems (the recon found a
+  fifth, `info_requirement`, that no commit-order line named). A State or an Event is now a bare
+  `String` at every boundary outside the Lifecycle; **nine** names keep Java constants, in three
+  holders under `eu.bbmri_eric.negotiator.lifecycle`. **No Flyway migration, no behaviour change, no
+  frontend change** — the columns were already `VARCHAR` and the enums already serialised as JSON
+  strings. Parity **255/24/1 skipped** and deltas **8/0/0/0** after *every* slice; full suite
+  1415 → **1487/0/0/16 in 160 classes**. **The gate is a test, and it needed two rules** —
+  `LifecycleEnumDecouplingGuardTest`. An identifier scan alone reports green over a codebase where
+  every consumer reaches an enum through `event.getToState()`, importing nothing, so a **signature
+  rule** inspects the two application events and both service interfaces reflectively, at any
+  generic depth. That is slab 08's table-rule lesson in mirror image, and slice 11's separate
+  discovery — that a detector exercised only against a tree with no examples goes vacuous silently —
+  is why the signature rule carries its own fixture. Every failure path was run red on purpose
+  before being trusted green. **The enums survive in 22 files: 19 in `negotiation/state_machine/`,
+  3 carved out to ticket [04](issues/04-global-state-event-metadata-contract.md).** **Two things
+  this hands the cutover slab, each with a trigger:** the disposable **Enum-Backed Lifecycle
+  Catalog** answers `?status=`, labels and the Resource ordinal from the enums, and is replaced by
+  reads of the `state` and `event` rows (the filed departure from ticket 03's decision 3); and both
+  service interfaces now compare Event names as plain strings and **validate none of them**, so
+  whether the seam validates is a decision to take on purpose. **`RawStateNamesInSqlGuardTest` is
+  the durable artifact** — fourteen State names live in query text where the compiler sees none of
+  them, six on the audit column ADR 0008 converts to an FK, and the migration slab's seed must
+  satisfy all fourteen or a KPI silently reports zero.
+  `DefinitionInertnessGuardTest` is untouched and green, so PRD user story 4's gate still stands.
+  The slab's **`STATUS.md` is kept, not deleted.**
+
 - **[08 Definition schema and entities](issues/08-definition-schema-and-entities.md)** — **resolved.**
   ADR 0002/0003's schema exists and is **inert**: five migrations `V36.0`–`V36.4` (one per slice,
   never appending to an applied file — that changes its checksum and fails Flyway validation on a
