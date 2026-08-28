@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.lifecycle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -195,45 +196,55 @@ class LifecycleEnumDecouplingGuardTest {
       }
     }
 
-    assertEquals(
-        "java.util.Set<java.lang.String>",
-        declaredMethod(NegotiationLifecycleService.class, "getPossibleEvents", String.class)
-            .getGenericReturnType()
-            .getTypeName(),
-        "NegotiationLifecycleService.getPossibleEvents must answer with Event names.");
-    assertEquals(
-        "java.util.Set<java.lang.String>",
+    assertAnswersWithAName(
+        declaredMethod(NegotiationLifecycleService.class, "sendEvent", String.class, String.class));
+    assertAnswersWithAName(
         declaredMethod(
-                ResourceLifecycleService.class, "getPossibleEvents", String.class, String.class)
-            .getGenericReturnType()
-            .getTypeName(),
-        "ResourceLifecycleService.getPossibleEvents must answer with Event names.");
+            NegotiationLifecycleService.class,
+            "sendEvent",
+            String.class,
+            String.class,
+            String.class));
+    assertAnswersWithAName(
+        declaredMethod(
+            ResourceLifecycleService.class, "sendEvent", String.class, String.class, String.class));
+
+    assertAnswersWithNames(
+        declaredMethod(NegotiationLifecycleService.class, "getPossibleEvents", String.class));
+    assertAnswersWithNames(
+        declaredMethod(
+            ResourceLifecycleService.class, "getPossibleEvents", String.class, String.class));
+  }
+
+  /** A seam method that answers with one State or Event answers with its name. */
+  private static void assertAnswersWithAName(Method method) {
     assertEquals(
         String.class,
-        declaredMethod(NegotiationLifecycleService.class, "sendEvent", String.class, String.class)
-            .getReturnType(),
-        "NegotiationLifecycleService.sendEvent must take an Event name and answer with a State"
-            + " name.");
+        method.getReturnType(),
+        """
+        %s must answer with a name. Its callers are outside the Lifecycle and cannot be handed a
+        type the redesign deletes."""
+            .formatted(signatureOf(method)));
+  }
+
+  /**
+   * A seam method that answers with several of them answers with a {@code Set} of names. Asserted
+   * structurally rather than against the spelled-out type name, so the type argument is compared to
+   * {@code String.class} the same way the signature rule compares one to an enum.
+   */
+  private static void assertAnswersWithNames(Method method) {
+    Type returned = method.getGenericReturnType();
     assertEquals(
-        String.class,
-        declaredMethod(
-                NegotiationLifecycleService.class,
-                "sendEvent",
-                String.class,
-                String.class,
-                String.class)
-            .getReturnType(),
-        "The message-carrying NegotiationLifecycleService.sendEvent must do the same.");
-    assertEquals(
-        String.class,
-        declaredMethod(
-                ResourceLifecycleService.class,
-                "sendEvent",
-                String.class,
-                String.class,
-                String.class)
-            .getReturnType(),
-        "ResourceLifecycleService.sendEvent must take an Event name and answer with a State name.");
+        Set.class,
+        method.getReturnType(),
+        "%s must answer with a Set.".formatted(signatureOf(method)));
+    assertTrue(
+        returned instanceof ParameterizedType parameterized
+            && List.of(parameterized.getActualTypeArguments()).equals(List.of(String.class)),
+        """
+        %s must answer with names. A raw Set, or one of anything but String, hands its callers
+        something the redesign deletes - and the type argument is where that hides."""
+            .formatted(signatureOf(method)));
   }
 
   @Test
@@ -346,6 +357,29 @@ class LifecycleEnumDecouplingGuardTest {
   }
 
   @Test
+  @DisplayName("the scan root refuses to resolve rather than finding nothing")
+  void resolvingTheScanRoot_failsRatherThanFindingNothing() {
+    IllegalStateException refused =
+        assertThrows(
+            IllegalStateException.class,
+            () -> moduleHolding("src/main/nowhere", NEGOTIATOR_PACKAGE_PATH),
+            """
+            Asked for a source directory that does not exist, the resolution step returned a path
+            instead of refusing. Everything both rules report is relative to that path, so a wrong
+            one walks an empty tree, finds no reference, and reports green over a codebase it never
+            looked at.""");
+    assertTrue(
+        refused.getMessage().contains("src/main/nowhere"),
+        "The refusal must name the path it could not find, or it cannot be acted on: "
+            + refused.getMessage());
+
+    assertEquals(
+        moduleRoot().resolve(PRODUCTION_SOURCE_PATH),
+        productionRoot(),
+        "The real scan root must still resolve through the same step the wrong one was refused by.");
+  }
+
+  @Test
   @DisplayName("the guard exempts only files that still exist and still need exempting")
   void guard_exemptsOnlyWhatItStillHasTo() {
     Path stateMachineRoot = productionRoot().resolve(STATE_MACHINE_PACKAGE_PATH);
@@ -366,11 +400,8 @@ class LifecycleEnumDecouplingGuardTest {
           this exemption in the same change - otherwise the guard exempts a file that is not
           there, and whatever replaced it is unguarded."""
               .formatted(dto));
-      assertFalse(
-          scan(
-                  candidate -> candidate.equals(file),
-                  LifecycleEnumDecouplingGuardTest::namesALifecycleEnum)
-              .isEmpty(),
+      assertTrue(
+          codeLines(file).stream().anyMatch(LifecycleEnumDecouplingGuardTest::namesALifecycleEnum),
           """
           The exempted metadata DTO %s no longer names a Lifecycle enum, so the exemption buys
           nothing and hides everything. Delete its entry from METADATA_DTO_FILES: an exemption
@@ -567,19 +598,29 @@ class LifecycleEnumDecouplingGuardTest {
     return moduleRoot().resolve(PRODUCTION_SOURCE_PATH);
   }
 
+  private static Path moduleRoot() {
+    return moduleHolding(PRODUCTION_SOURCE_PATH, NEGOTIATOR_PACKAGE_PATH);
+  }
+
   /**
    * Resolves the production tree from the working directory rather than the classpath, because the
    * identifier rule is about source text and a compiled class no longer shows an import. Surefire
    * runs with the module directory as working directory; the walk upwards keeps the guard working
    * when tests are launched from the repository root or from an IDE.
+   *
+   * <p>It takes its two path components as arguments rather than reading the constants, so that
+   * {@link #resolvingTheScanRoot_failsRatherThanFindingNothing()} can ask for a directory that does
+   * not exist and watch it refuse. Slice 03's guard extracted this for the same reason and this one
+   * had copied the older, untestable form: a resolution step that can only ever be run against the
+   * real tree is a step whose failure branch nobody has seen work, which is the vacuity trap in its
+   * third disguise.
    */
-  private static Path moduleRoot() {
+  private static Path moduleHolding(String sourcePath, String packagePath) {
     Path start = Path.of("").toAbsolutePath();
     for (Path candidate = start; candidate != null; candidate = candidate.getParent()) {
       for (String modulePrefix : List.of("", "backend")) {
         Path module = candidate.resolve(modulePrefix);
-        if (Files.isDirectory(
-            module.resolve(PRODUCTION_SOURCE_PATH).resolve(NEGOTIATOR_PACKAGE_PATH))) {
+        if (Files.isDirectory(module.resolve(sourcePath).resolve(packagePath))) {
           return module;
         }
       }
@@ -587,7 +628,7 @@ class LifecycleEnumDecouplingGuardTest {
     throw new IllegalStateException(
         ("Could not locate a module holding %s/%s from working directory %s."
                 + " The guard must never pass by finding nothing.")
-            .formatted(PRODUCTION_SOURCE_PATH, NEGOTIATOR_PACKAGE_PATH, start));
+            .formatted(sourcePath, packagePath, start));
   }
 
   /**
