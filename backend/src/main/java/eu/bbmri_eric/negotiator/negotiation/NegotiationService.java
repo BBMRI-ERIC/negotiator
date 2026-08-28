@@ -110,7 +110,7 @@ public interface NegotiationService {
   /**
    * Retrieves all Negotiations with specific current state.
    *
-   * @param negotiationState current state of interest.
+   * @param stateName current state of interest.
    * @return A list of NegotiationDTOs with specific state.
    */
   List<NegotiationDTO> findAllWithCurrentState(String stateName);

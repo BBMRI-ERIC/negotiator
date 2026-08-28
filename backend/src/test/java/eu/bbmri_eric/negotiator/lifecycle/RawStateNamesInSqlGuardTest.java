@@ -450,6 +450,36 @@ class RawStateNamesInSqlGuardTest {
   }
 
   @Test
+  @DisplayName("the spelling detector tells a quoted name from a bare one")
+  void theSpellingDetector_distinguishesQuotedFromBare() {
+    assertEquals(
+        Spelling.QUOTED,
+        spellingOfTheNameIn("where n.current_state = 'DRAFT' and x = 1"),
+        "A name inside SQL quotes is a literal the database compares against.");
+    assertEquals(
+        Spelling.BARE,
+        spellingOfTheNameIn("where n.currentState != DRAFT and x = 1"),
+        """
+        A name with no quotes around it reads as QUOTED, so the detector cannot tell the two apart.
+
+        Every other check here runs through this method. Until slice 11 the tree held one bare
+        name and reading it wrongly would have failed loudly; now it holds none, so a detector
+        stuck on QUOTED would leave both the exactness check and the no-bare-names check green
+        over a query the database will reject.""");
+  }
+
+  /** The spelling the scan would record for the one Lifecycle name in {@code query}. */
+  private static Spelling spellingOfTheNameIn(String query) {
+    Matcher words = WORD.matcher(query);
+    while (words.find()) {
+      if (LIFECYCLE_NAMES.contains(words.group())) {
+        return spellingAt(query, words.start(), words.end());
+      }
+    }
+    return fail("No Lifecycle name in: " + query);
+  }
+
+  @Test
   @DisplayName("the query rule separates query text from prose that names a State")
   void theQueryRule_matchesQueriesAndNotProse() {
     assertTrue(

@@ -89,12 +89,4 @@ class PendingNegotiationReminderHandler
             + " representatives for negotiation: "
             + negotiation.getId());
   }
-
-  /**
-   * Reads a name off the entity, which still holds a Resource State as an enum. Null-preserving, so
-   * a Resource with no State is passed over rather than throwing.
-   */
-  private static String nameOf(Enum<?> state) {
-    return state == null ? null : state.name();
-  }
 }
