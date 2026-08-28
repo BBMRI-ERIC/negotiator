@@ -73,12 +73,25 @@ no report exists for the delta class; with `-Dgroups`, no report exists for anyt
   Maven command runs from the repository root as `nix develop .#opencode --command <command>`. That
   gives JDK 21 and Maven 3.9.12. It prints `warning: Git tree ... is dirty` to stderr while there is
   uncommitted work, which is **not** an error, and the first invocation is slower than the rest.
+  **Both halves of that stopped being true during slab 07.** `nix develop` began failing outright
+  with `error: setting up a private mount namespace: Operation not permitted` — the sandbox refusing
+  Nix its namespaces, from every directory, unrelated to this repository — and it turned out not to
+  be needed, because `mvn` and `java` *were* on `PATH` (Maven 3.9.16, OpenJDK 21.0.12). Try the
+  prefix first, since it is what this document specifies and it may work again; if it fails, drop it
+  and run the command bare rather than treating it as a blocker.
 - **There is no `scripts/test-backend.sh` at the repository root.** Several early tickets recorded
   that path; it exits 127. The script ships with the `focused-backend-tests` skill, at the absolute
   path used above.
 - **Read the numbers out of `backend/target/surefire-reports/`, not out of a summary line.** Check
   that every report's mtime is *after* the run started — an aborted run leaves stale reports behind
   that will otherwise be counted.
+- **Sum the `TEST-*.xml` reports, not the `.txt` ones.** Surefire's plain-text writer reports `Tests
+  run: 0` for a class that has an `@Nested` inner class, while the XML records its real count. Today
+  exactly one class in the tree does that — `unit.mappers.RequestModelMapperTest`, 4 tests — so every
+  `.txt`-based whole-suite figure recorded before slab 07 closed is four low. **The two gate numbers
+  above are unaffected**: no characterization class uses `@Nested`, and the `.txt` and XML sums were
+  compared class by class to confirm it. Found the slow way — three slices of slab 07 logged the same
+  four-test gap as unattributed before anyone compared the two writers.
 - `backend/target/` gets polluted by the JDT language server compiling without Lombok, which presents
   as ~200 bogus `cannot find symbol` errors in unrelated test files. One `clean` clears it.
 - Testcontainers needs docker group membership; `postgres:16-alpine` and `testcontainers/ryuk:0.12.0`
