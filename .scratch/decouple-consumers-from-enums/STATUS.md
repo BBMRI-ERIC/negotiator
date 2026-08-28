@@ -21,7 +21,7 @@ here are settled; do not relitigate them in a later slice.
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 | [08 DTOs, mappers and the Negotiation timeline](issues/08-dtos-mappers-and-the-negotiation-timeline.md) | **done** | mapper test 7 -> 10, timeline test 4 -> 5, controller test +1; full suite 1462/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured at base `a3e02e59`, before 09 landed; see the rebase note in 08's section |
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
-| [11 Entities and JPA queries name States as strings](issues/11-entities-and-jpa-queries-name-states-as-strings.md) | **done** | +6 tests: PDF generation 8 -> 10, `NegotiationControllerTests` 115 -> 118, raw-SQL guard 6 -> 7; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - both measured twice, at the refactor tip and again at the review tip. **Full suite deliberately not run**, at the operator's instruction; see this slice's section |
+| [11 Entities and JPA queries name States as strings](issues/11-entities-and-jpa-queries-name-states-as-strings.md) | **done** | +6 tests: PDF generation 8 -> 10, `NegotiationControllerTests` 115 -> 118, raw-SQL guard 6 -> 7; full suite 1479/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - parity and deltas measured twice, at the refactor tip and again at the review tip |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
 **That filtering is not optional here**, and this run showed why: `surefire-reports` is not cleared
@@ -818,13 +818,20 @@ was verified the way [parity-gate.md](../state-machine-implementation/parity-gat
 by which surefire reports exist, not by a pass count: the parity run wrote none for
 `delta.IntendedDeltasAdr0005WillInvertTest`, the delta run wrote only that one.
 
-**The whole-suite figure is missing on purpose, and this row is the first without one.** The
-operator asked for the full suite not to be run. Focused runs are green across every class this
-slice touched - repository, controller, PDF, notification, mapper, model, lifecycle service,
-webhook mapper and the raw-SQL guard - and the slice adds 6 tests, which predicts **1479 in 159
-classes** from slice 06's measured 1473. That is arithmetic, not a measurement, and the next slice
-should measure rather than trust it. This is the fourth time the recorded count has been unavailable
-or stale, for the reason slices 01, 03 and 08 each gave.
+**The whole-suite count is 1479/0/0/16 in 159 classes, and for the second time in this slab it
+reconciles exactly.** Slice 06 measured 1473 in 159 and asked later slices to take it as the
+baseline; this slice adds 6 tests and no class, which predicts 1479 in 159, and that is what the run
+reports. The 6 are the three status-filter cases in `NegotiationControllerTests`, the two PDF pins,
+and the guard's new spelling-detector test.
+
+*Recorded in two passes.* The figure was deliberately absent when this section was first written -
+the operator had asked for the full suite not to be run, and the row went in carrying the arithmetic
+above, explicitly labelled as arithmetic. The suite was then run on request and the prediction
+became a measurement. **Nothing else in this section was revised afterwards**, which is what makes
+the agreement worth anything: the number was written down before it was measured.
+
+The four tests slices 02, 03 and 05 each reported from a different side are still unattributed. They
+are inside the 1473 baseline, not introduced or resolved here.
 
 ## Standing hazards, carried not solved
 
