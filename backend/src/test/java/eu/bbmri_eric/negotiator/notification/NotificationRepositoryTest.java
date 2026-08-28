@@ -10,7 +10,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
@@ -96,7 +95,7 @@ public class NotificationRepositoryTest {
     Negotiation negotiation =
         Negotiation.builder()
             .resources(resources)
-            .currentState(NegotiationState.SUBMITTED)
+            .currentState("SUBMITTED")
             .humanReadable("#1 Material Type: DNA")
             .publicPostsEnabled(false)
             .discoveryService(discoveryService)

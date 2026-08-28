@@ -314,7 +314,7 @@ public class NegotiationLifecycleServiceImplTest {
               .forEach(
                   resource -> {
                     assertEquals(
-                        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+                        "REPRESENTATIVE_CONTACTED",
                         negotiation.getCurrentStateForResource(resource.getSourceId()));
                   });
         });
@@ -408,8 +408,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Transactional
   void sendEventForResource_notAuthorized_noChange() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
-    NegotiationResourceState before =
-        negotiation.getCurrentStateForResource("biobank:1:collection:1");
+    String before = negotiation.getCurrentStateForResource("biobank:1:collection:1");
     assertThrows(
         ForbiddenRequestException.class,
         () ->
@@ -465,8 +464,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         Set.of(),
         resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:1"));
-    negotiation.setStateForResource(
-        "biobank:1:collection:1", NegotiationResourceState.RESOURCE_AVAILABLE);
+    negotiation.setStateForResource("biobank:1:collection:1", "RESOURCE_AVAILABLE");
     assertEquals(
         Set.of(),
         resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:1"));
@@ -559,8 +557,8 @@ public class NegotiationLifecycleServiceImplTest {
   void newNegotiation_findAllWithState_oneWithSubmitted() throws IOException {
     saveNegotiation();
     assertTrue(
-        negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).stream()
-            .allMatch(dto -> Objects.equals(dto.getStatus(), NegotiationState.SUBMITTED.name())));
+        negotiationService.findAllWithCurrentState("SUBMITTED").stream()
+            .allMatch(dto -> Objects.equals(dto.getStatus(), "SUBMITTED")));
   }
 
   @Test
@@ -578,7 +576,7 @@ public class NegotiationLifecycleServiceImplTest {
             () -> {
               Negotiation negotiation =
                   negotiationRepository.findById(negotiationDTO.getId()).get();
-              assertEquals(NegotiationState.IN_PROGRESS, negotiation.getCurrentState());
+              assertEquals("IN_PROGRESS", negotiation.getCurrentState());
             });
 
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
@@ -612,7 +610,7 @@ public class NegotiationLifecycleServiceImplTest {
         .untilAsserted(
             () -> {
               assertEquals(
-                  NegotiationState.CONCLUDED,
+                  "CONCLUDED",
                   negotiationRepository.findNegotiationStateById(negotiation.getId()).get());
             });
   }

@@ -14,8 +14,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceLink;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationResourceLinkId;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,8 +92,7 @@ class DefinitionVersionPinRepositoryTest {
   void save_resourceLinkPinnedToADefinition_roundTrips() {
     Negotiation negotiation = negotiations.saveAndFlush(negotiationPinnedTo(null));
     entityManager.persist(
-        new NegotiationResourceLink(
-            negotiation, resource, NegotiationResourceState.SUBMITTED, definition.getId()));
+        new NegotiationResourceLink(negotiation, resource, "SUBMITTED", definition.getId()));
     entityManager.flush();
     entityManager.clear();
 
@@ -112,8 +109,7 @@ class DefinitionVersionPinRepositoryTest {
   @Test
   void save_resourceLinkWithoutAPin_isAccepted() {
     Negotiation negotiation = negotiations.saveAndFlush(negotiationPinnedTo(null));
-    entityManager.persist(
-        new NegotiationResourceLink(negotiation, resource, NegotiationResourceState.SUBMITTED));
+    entityManager.persist(new NegotiationResourceLink(negotiation, resource, "SUBMITTED"));
     entityManager.flush();
     entityManager.clear();
 
@@ -189,8 +185,7 @@ class DefinitionVersionPinRepositoryTest {
   void delete_aDefinitionPinnedByAResourceLink_isRefused() {
     Negotiation negotiation = negotiations.saveAndFlush(negotiationPinnedTo(null));
     entityManager.persist(
-        new NegotiationResourceLink(
-            negotiation, resource, NegotiationResourceState.SUBMITTED, definition.getId()));
+        new NegotiationResourceLink(negotiation, resource, "SUBMITTED", definition.getId()));
     entityManager.flush();
 
     assertThrows(
@@ -203,7 +198,7 @@ class DefinitionVersionPinRepositoryTest {
 
   private Negotiation negotiationPinnedTo(Long definitionId) {
     return Negotiation.builder()
-        .currentState(NegotiationState.SUBMITTED)
+        .currentState("SUBMITTED")
         .discoveryService(discoveryService)
         .humanReadable("#1 Material Type: DNA")
         .payload(PAYLOAD)

@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.negotiation.dto;
 import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRole;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -29,8 +28,11 @@ public class NegotiationFilterDTO implements FilterDTO {
           "The role that the user has in the negotiations. It should be one of AUTHOR or REPRESENTATIVE")
   NegotiationRole role;
 
-  @Schema(description = "List of required statuses")
-  List<NegotiationState> status;
+  @Schema(
+      description = "List of required statuses, each named as a State of the Negotiation Lifecycle",
+      example = "IN_PROGRESS")
+  @KnownNegotiationStateNames
+  List<String> status;
 
   @Schema(description = "List of IDs of Organizations for which Negotiations should be fetched")
   List<Long> organizationId;

@@ -40,7 +40,7 @@ class NewNegotiationHandler implements NotificationStrategy<NewNegotiationEvent>
   @Override
   @Transactional
   public void notify(NewNegotiationEvent event) {
-    if (!WellKnownNegotiationStates.SUBMITTED.equals(nameOf(event.getCurrentState()))) {
+    if (!WellKnownNegotiationStates.SUBMITTED.equals(event.getCurrentState())) {
       return;
     }
     createResearcherConfirmationNotification(event.getNegotiationId());
@@ -82,13 +82,5 @@ class NewNegotiationHandler implements NotificationStrategy<NewNegotiationEvent>
               + " administrators about new negotiation: "
               + negotiationId);
     }
-  }
-
-  /**
-   * Reads a name off the creation event, which still deals in enums. Null-preserving, so a
-   * Negotiation whose State is unset is still passed over rather than throwing.
-   */
-  private static String nameOf(Enum<?> state) {
-    return state == null ? null : state.name();
   }
 }

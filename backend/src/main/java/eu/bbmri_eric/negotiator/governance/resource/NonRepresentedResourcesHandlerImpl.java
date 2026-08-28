@@ -25,8 +25,7 @@ public class NonRepresentedResourcesHandlerImpl implements NonRepresentedResourc
         negotiationRepository.findAllByCurrentState(WellKnownNegotiationStates.IN_PROGRESS)) {
       String state;
       try {
-        var currentState = negotiation.getCurrentStateForResource(sourceId);
-        state = currentState == null ? null : currentState.name();
+        state = negotiation.getCurrentStateForResource(sourceId);
       } catch (IllegalArgumentException e) {
         continue;
       }

@@ -135,7 +135,8 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
           "You are not allowed to %s for this Resource"
               .formatted(negotiationResourceEvent.getLabel().toLowerCase()));
     }
-    NegotiationState negotiationState = getNegotiation(negotiationId).getCurrentState();
+    NegotiationState negotiationState =
+        NegotiationState.valueOf(getNegotiation(negotiationId).getCurrentState());
     if (!negotiationState.equals(NegotiationState.IN_PROGRESS)) {
       throw new LifecycleConflictException(
           LifecycleProblemType.DOMAIN_STATE_CONFLICT,
@@ -160,13 +161,14 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       String negotiationId, String resourceId) throws EntityNotFoundException {
     return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
+        .map(NegotiationResourceState::valueOf)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
   private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
       String negotiationId, String resourceId, NegotiationResourceState resourceState) {
     Negotiation negotiation = getNegotiation(negotiationId);
-    if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
+    if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS.name())) {
       return Set.of();
     }
     return stateMachine.getTransitions().stream()

@@ -61,17 +61,16 @@ public class ResourcePersistStateChangeListener
       Transition<String, String> transition,
       Negotiation negotiation,
       String resourceId) {
-    NegotiationResourceState fromState = negotiation.getCurrentStateForResource(resourceId);
-    negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
-    NegotiationResourceState toState = negotiation.getCurrentStateForResource(resourceId);
-    NegotiationResourceEvent resourceEvent =
+    String fromState = negotiation.getCurrentStateForResource(resourceId);
+    negotiation.setStateForResource(resourceId, state.getId());
+    String toState = negotiation.getCurrentStateForResource(resourceId);
+    String resourceEvent =
         Optional.ofNullable(transition)
             .map(Transition::getTrigger)
             .map(Trigger::getEvent)
-            .map(NegotiationResourceEvent::valueOf)
             .orElse(null);
     eventPublisher.publishEvent(
-        new ResourceStateChangeEvent(
+        ResourceStateChangeEvent.fromNames(
             this, negotiation.getId(), resourceId, fromState, toState, resourceEvent));
     return Optional.of(negotiationRepository.save(negotiation));
   }

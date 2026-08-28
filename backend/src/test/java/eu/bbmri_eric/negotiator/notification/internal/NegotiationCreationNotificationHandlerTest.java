@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -60,8 +59,7 @@ class NewNegotiationHandlerTest {
   void notify_WhenNewNegotiation_SendsBothResearcherAndAdminNotifications() {
     // Given
     String negotiationId = "NEG-123";
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, negotiationId, NegotiationState.SUBMITTED);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId, "SUBMITTED");
 
     Person admin1 = createPerson(1L, "admin1@test.com");
     Person admin2 = createPerson(2L, "admin2@test.com");
@@ -99,8 +97,7 @@ class NewNegotiationHandlerTest {
   void notify_WhenNegotiationNotFound_OnlyNotifiesAdmins() {
     // Given
     String negotiationId = "NEG-123";
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, negotiationId, NegotiationState.SUBMITTED);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId, "SUBMITTED");
 
     Person admin = createPerson(1L, "admin@test.com");
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
@@ -123,8 +120,7 @@ class NewNegotiationHandlerTest {
   void notify_WhenNoAdmins_OnlyNotifiesResearcher() {
     // Given
     String negotiationId = "NEG-123";
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, negotiationId, NegotiationState.SUBMITTED);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId, "SUBMITTED");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
     when(personRepository.findAllByAdminIsTrue()).thenReturn(Collections.emptyList());
@@ -146,8 +142,7 @@ class NewNegotiationHandlerTest {
   void notify_WhenNeitherNegotiationNorAdminsExist_DoesNotCreateNotifications() {
     // Given
     String negotiationId = "NEG-123";
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, negotiationId, NegotiationState.SUBMITTED);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId, "SUBMITTED");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
     when(personRepository.findAllByAdminIsTrue()).thenReturn(Collections.emptyList());
@@ -163,8 +158,7 @@ class NewNegotiationHandlerTest {
   void createResearcherConfirmationNotification_CreatesCorrectNotification() {
     // Given
     String negotiationId = "NEG-123";
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, negotiationId, NegotiationState.SUBMITTED);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId, "SUBMITTED");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
     when(personRepository.findAllByAdminIsTrue()).thenReturn(Collections.emptyList());
@@ -189,8 +183,7 @@ class NewNegotiationHandlerTest {
   void notifyAdminsAboutNewNegotiation_CreatesCorrectNotification() {
     // Given
     String negotiationId = "NEG-123";
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, negotiationId, NegotiationState.SUBMITTED);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId, "SUBMITTED");
 
     Person admin1 = createPerson(1L, "admin1@test.com");
     Person admin2 = createPerson(2L, "admin2@test.com");
@@ -217,8 +210,7 @@ class NewNegotiationHandlerTest {
   @Test
   void notify_WhenDraftNegotiation_DoesNotCreateNotifications() {
     String negotiationId = "NEG-123";
-    NewNegotiationEvent event =
-        new NewNegotiationEvent(this, negotiationId, NegotiationState.DRAFT);
+    NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId, "DRAFT");
 
     handler.notify(event);
 

@@ -100,6 +100,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   private NegotiationState getCurrentStateForNegotiation(String negotiationId) {
     return negotiationRepository
         .findNegotiationStateById(negotiationId)
+        .map(NegotiationState::valueOf)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
