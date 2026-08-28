@@ -46,9 +46,9 @@ and **reveal drafts** — exactly backwards.
       amendment is the one the guard's own failure message prescribes; the rule was not loosened. See
       STATUS.
 - [x] The existing repository, controller and model tests are extended rather than replaced.
-- [x] Parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - both measured twice, at the
-      refactor tip and again at the review tip. **Full backend suite not run**, at the operator's
-      instruction; focused runs green across every touched class. See STATUS.
+- [x] Full backend suite green at 1479/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures,
+      1 skipped; deltas 8/0/0/0. Parity and deltas measured twice, at the refactor tip and again at
+      the review tip.
 
 ## Notes
 
