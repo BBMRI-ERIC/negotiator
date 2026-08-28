@@ -116,5 +116,5 @@ side's translation was what the other deletes, so the resolution deleted both - 
 slab has hit that collision. `STATUS.md` records each hunk, including the one `valueOf` that had to
 be carried back out of the deleted `fromNames` factory by hand.
 
-Verification at the rebased tip: full backend suite PENDING_SUITE; parity 255 tests in 24 classes, 0
+Verification at the rebased tip: full backend suite 1480 tests in 159 classes, 0 failures, 0 errors, 16 skipped; parity 255 tests in 24 classes, 0
 failures, 0 errors, 1 skipped; intended deltas 8 tests, 0 failures, 0 errors, 0 skipped.

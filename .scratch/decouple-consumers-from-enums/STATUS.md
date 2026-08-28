@@ -21,7 +21,7 @@ here are settled; do not relitigate them in a later slice.
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 | [08 DTOs, mappers and the Negotiation timeline](issues/08-dtos-mappers-and-the-negotiation-timeline.md) | **done** | mapper test 7 -> 10, timeline test 4 -> 5, controller test +1; full suite 1462/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured at base `a3e02e59`, before 09 landed; see the rebase note in 08's section |
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
-| [10 The Lifecycle seam deals in strings](issues/10-the-lifecycle-seam-deals-in-strings.md) | **done** | +1 test; full suite PENDING_SUITE; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - landed after 11 and rebased onto it, so every figure here is measured at the rebased tip |
+| [10 The Lifecycle seam deals in strings](issues/10-the-lifecycle-seam-deals-in-strings.md) | **done** | +1 test; full suite 1480/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - landed after 11 and rebased onto it, so every figure here is measured at the rebased tip |
 | [11 Entities and JPA queries name States as strings](issues/11-entities-and-jpa-queries-name-states-as-strings.md) | **done** | +6 tests: PDF generation 8 -> 10, `NegotiationControllerTests` 115 -> 118, raw-SQL guard 6 -> 7; full suite 1479/0/0/16 in 159 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - parity and deltas measured twice, at the refactor tip and again at the review tip |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
@@ -843,6 +843,14 @@ because the controller validates and `EnumBackedLifecycleTestAdapter` validates.
   trigger id outside the enums would be reported rather than throwing. The configuration is built
   from the enums, so it cannot happen while they exist.
 
+**One result the rebase produced that neither slice could have measured alone.** With slices 10 and
+11 both in, the only production files outside `negotiation/state_machine/` that still name a
+Lifecycle enum are the three carved-out metadata DTOs - `NegotiationStateMetadataDto`,
+`ResourceStateMetadataDto` and `ResourceEventMetadataDto`. That is the slab's stated end state
+reached, and it means **slice 12's decoupling guard should close with exactly the three exemptions
+the PRD names, and no others**. Slice 08's known deliberate violation in `NegotiationModelMapper` is
+gone too, deleted by slice 11 as that section predicted.
+
 **Both services now compare Event names case-sensitively and validate none of them internally**, so
 their correctness rests on every caller passing a canonical name. `existsByForEvent(event)` and
 `getPossibleEvents(...).contains(event)` are plain `String` compares where they used to be enum
@@ -905,13 +913,16 @@ compile error and no behaviour change, and a reader arriving later would have ha
 had ever done anything. Slice 06 hit the same shape from the dangerous side and had to keep a cast
 that read both types.
 
-**The whole-suite count is PENDING_SUITE, and it is the first figure in this slab measured on a
-tree that holds every slice from 01 to 11.** Slice 11 recorded 1479 in 159 classes. This slice adds
+**The whole-suite count is 1480/0/0/16 in 159 classes, it is the first figure in this slab
+measured on a tree that holds every slice from 01 to 11, and it reconciles exactly.** Slice 11 recorded 1479 in 159 classes. This slice adds
 exactly one test - the 400-before-403 ordering pin in `NegotiationControllerTests` - and no other
-test file changes count, which predicts 1480 in 159. Parity is 255 tests in 24 classes, 0 failures,
-0 errors, 1 skipped; intended deltas are 8 tests, 0 failures, 0 errors, 0 skipped. All three numbers
-were read out of `backend/target/surefire-reports` filtered by mtime, at the rebased tip.
-**Take PENDING_SUITE as the baseline for slice 12.** The four tests slices 02, 03 and 05 each
+test file changes count, which predicts 1480 in 159. That is what the run reports. Parity is 255
+tests in 24 classes, 0 failures, 0 errors, 1 skipped; intended deltas are 8 tests, 0 failures, 0
+errors, 0 skipped. **All three came out of one `--all` run at the rebased tip**, read from
+`backend/target/surefire-reports` filtered by mtime and partitioned by class - which is the stronger
+form of the gate, because 255 + 8 = 263 in 25 classes is also the cross-package ordering check the
+parity-gate document describes.
+**Take 1480/0/0/16 in 159 classes as the baseline for slice 12.** The four tests slices 02, 03 and 05 each
 reported unattributed from a different side are still inside it and still unattributed.
 
 An earlier figure of 1474/0/0/16 was measured for this slice before the rebase, on a tree that did
