@@ -83,12 +83,4 @@ class NewNegotiationHandler implements NotificationStrategy<NewNegotiationEvent>
               + negotiationId);
     }
   }
-
-  /**
-   * Reads a name off the creation event, which still deals in enums. Null-preserving, so a
-   * Negotiation whose State is unset is still passed over rather than throwing.
-   */
-  private static String nameOf(Enum<?> state) {
-    return state == null ? null : state.name();
-  }
 }

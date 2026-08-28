@@ -31,7 +31,8 @@ public class NegotiationModelMapper {
     TypeMap<Negotiation, NegotiationDTO> typeMap =
         modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
 
-    Converter<String, String> negotiationStatusConverter = status -> nameOf(status.getSource());
+    Converter<String, String> negotiationStatusConverter =
+        status -> statusTextFor(status.getSource());
 
     Converter<String, JsonNode> payloadConverter =
         p -> {
@@ -84,12 +85,14 @@ public class NegotiationModelMapper {
   }
 
   /**
-   * The name the DTO carries for the Negotiation's State. Not the identity function, despite both
-   * sides now being names: the empty string for an absent State is what the wire has always
-   * carried, and {@code @JsonInclude(NON_NULL)} on the DTO would drop {@code status} from the
-   * response body entirely if this returned null.
+   * The text the DTO carries for the Negotiation's State: its name, or the empty string when it has
+   * none.
+   *
+   * <p>The empty string is the whole reason this is not the identity function. It is what the wire
+   * has always carried for a Negotiation with no State, and {@code @JsonInclude(NON_NULL)} on the
+   * DTO would drop {@code status} from the response body entirely if this returned null.
    */
-  private String nameOf(String currentState) {
+  private String statusTextFor(String currentState) {
     if (Objects.isNull(currentState)) {
       return "";
     }
