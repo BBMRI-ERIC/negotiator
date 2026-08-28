@@ -21,6 +21,7 @@ here are settled; do not relitigate them in a later slice.
 | [07 Information Requirements name their Event as a string](issues/07-information-requirements-name-their-event-as-a-string.md) | **done** | +3 tests; controller 32/0/0/0, service 4/0/0/0, model 2/0/0/0; full suite 1453/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured by slice 03 on a tree rebased onto this slice |
 | [08 DTOs, mappers and the Negotiation timeline](issues/08-dtos-mappers-and-the-negotiation-timeline.md) | **done** | mapper test 7 -> 10, timeline test 4 -> 5, controller test +1; full suite 1462/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - measured at base `a3e02e59`, before 09 landed; see the rebase note in 08's section |
 | [09 Resource governance names States as strings](issues/09-resource-governance-names-states-as-strings.md) | **done** | focused resource/event tests green; full suite 1463/0/0/16 in 158 classes; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 |
+| [11 Entities and JPA queries name States as strings](issues/11-entities-and-jpa-queries-name-states-as-strings.md) | **done** | +6 tests: PDF generation 8 -> 10, `NegotiationControllerTests` 115 -> 118, raw-SQL guard 6 -> 7; parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - both measured twice, at the refactor tip and again at the review tip. **Full suite deliberately not run**, at the operator's instruction; see this slice's section |
 
 Parity and delta numbers are summed from `backend/target/surefire-reports`, filtered by mtime.
 **That filtering is not optional here**, and this run showed why: `surefire-reports` is not cleared
@@ -715,6 +716,115 @@ recorded count has gone stale for the reason slices 01 and 03 both gave.
 (`NegotiationList.vue`, `FilterSort.vue`). Neither enum carries `@JsonValue` or `@JsonFormat`, and
 nothing sets `WRITE_ENUMS_USING_TO_STRING`, so the serialised value was the name before and is the
 same name now.
+
+## What slice 11 settled, for slices 10 and 12
+
+**The batch is nineteen production files, not the five the issue names.** The five are the two
+entities, the repository, the specification and the filter DTO. The other fourteen are forced: six
+translations earlier slices wrote against the entity and bound to this slice by name, the two audit
+records, `NewNegotiationEvent` and its two consumers, `NegotiationModelMapper`, and four files
+inside `negotiation/state_machine/` that had to start translating at their own boundary because the
+entity stopped doing it for them. Every one of the fourteen was reached by a compile error, which is
+the good case and is why the count could be wrong in the issue without costing anything.
+
+**The `assertEquals(enum, String)` hazard is real, it is silent, and it cost three tests.** Slice 06
+met this from the SQL-projection side and warned that a cast there compiles clean forever. The test
+side has the same shape and is worse, because it is everywhere: `assertEquals(Object, Object)`
+accepts an enum on one side and a name on the other, compiles without a murmur, and fails only when
+the test runs. Three sites did exactly that - `NegotiationControllerTests` comparing the entity
+against `NegotiationResourceState.valueOf(json)`, and two in `NegotiationLifecycleServiceImplTest`
+comparing the entity against a constant. **Slice 10 will meet more of these than this slice did**,
+because the seam's accessors are what the notification and webhook tests assert on. A green
+`test-compile` proves nothing about assertion sites; run the class.
+
+**The four enums now appear outside `negotiation/state_machine/` in exactly seven files, and every
+one of them is slice 10's or ticket 04's.** The three metadata DTOs the gate exempts, plus
+`NegotiationModelAssembler`, `NegotiationEventAssembler`, `ResourceWithStatusAssembler` and
+`NegotiationController` - which issue 10 already claims. Slice 08's known deliberate gate violation
+in `NegotiationModelMapper` is gone: the `Converter<Boolean, NegotiationState>` and its `valueOf`
+became `Converter<Boolean, String>` returning `initialStateFor(...)` directly, exactly as 08
+predicted. **So slice 12's gate closes on slice 10's work alone.**
+
+**The empty-string branch survived, and it is not the identity function.** Slice 08 said the
+entity-to-DTO conversion "must keep the empty-string branch" and it does, now named `statusTextFor`
+rather than `nameOf` - with both sides names, substituting `""` for an absent State is the only
+thing the method still does, and `@JsonInclude(NON_NULL)` on `NegotiationDTO` would drop `status`
+from the body entirely if it returned null.
+
+**The audit records keep their enums and gained a named factory each.** ADR 0008 owns
+`changed_to`, not this slab, so `NegotiationLifecycleRecord` and
+`NegotiationResourceLifecycleRecord` still store `NegotiationState` and `NegotiationResourceState`.
+`forStateNamed` is where the translation went, deliberately inside the package the enums live in,
+and deliberately the loud kind: a name no State carries fails at that call rather than reaching the
+history table. Both are null-preserving, because a Negotiation with no State recorded a row with no
+State before. **They are the successor to the `valueOf` that used to sit in
+`PersistStateChangeListener`** - the loud failure moved, it was not spent.
+
+**The 400 on `?status=` is preserved by a bean-validation constraint, and this is the third shape
+the slab has used for the same job.** `@KnownNegotiationStateNames` on the filter's list, answered
+by `EnumBackedLifecycleCatalog.nameExists` through a Spring-injected `ConstraintValidator`. Slices
+07 and 08 both needed a Jackson deserializer instead, because `@JsonDeserialize` instantiates
+reflectively and cannot hold a Spring bean; a `@ModelAttribute` has no such problem, so **this is
+the first consumer to reach the catalog the way slice 02 intended**. The cutover replaces the
+catalog's three methods and nothing here changes.
+
+**One accepted delta in that 400, and it is in the body rather than the status.** The old refusal
+came from Spring's own conversion failure, so its `detail` read `Failed to convert property value of
+type 'java.lang.String' to required type 'java.util.List' ... for value [NOT_A_STATE]` and named
+`NegotiationState` in full. That string could not survive a change whose whole point is that the
+type is gone. What is unchanged and is pinned: the 400, the ProblemDetail `title` of `Wrong request
+parameters`, and the field error still landing on `status`. A client branching on status code or
+title sees nothing; a client parsing that sentence was reading an implementation detail.
+
+**Slice 03's guard was amended, the AC said it would not be, and the AC was unsatisfiable.** The
+issue asks that "slice 3's guard stays green without amendment" while also predicting, two
+paragraphs earlier, that the unquoted JPQL reference "breaks at Hibernate query validation once the
+field is a string, which is the good case". Both cannot hold: repairing the break means quoting the
+name, and the guard pins spelling. It broke exactly as predicted, and **the guard's own failure
+message prescribes the repair that was made** - "move this entry into PINNED_NAMES as a QUOTED
+literal and say in its reason why the loud failure was given up". So the population is still
+fourteen, still line-exact, and the rule was not loosened. Two line numbers moved (35 -> 33,
+74 -> 71) and one spelling changed. **Read the AC as "do not loosen the rule", because that is the
+only reading under which it can be met.**
+
+**The guard's replacement test had a hole that no failure would have shown, and the review found
+it.** `theUnquotedReference_isStillBare` read the source line directly, independent of the scanner.
+Its replacement, `noQuerySpellsANameBare`, runs entirely through `spellingAt` - and this slice
+removed the last bare name from the tree, so nothing was left to prove the detector can still
+recognise one. A `spellingAt` stuck on `QUOTED` would have reported green over a query Hibernate
+refuses to start with. It now has a two-branch test of its own. **The general lesson for slice 12,
+which is writing two more mechanical guards: a guard that checks a property through its own scanner
+needs the scanner checked separately, and "the tree no longer contains an example" is exactly when
+that stops being true by accident.**
+
+**Two methods that no production path reaches, found while tracing callers and left alone.**
+`NegotiationService.findAllByCurrentStatus` has no caller anywhere, not even a test.
+`PdfContextBuilder` is a `@Component` nothing injects - which is why its status text got a pin of
+its own: a change there is invisible to every other test in the suite, including the PDF endpoint's.
+Neither is this slice's to delete.
+
+**Three spellings of a Well-known name now coexist inside `negotiation/state_machine/`, and slice 10
+removes the third.** The holder constant, the enum constant, and `NegotiationState.SUBMITTED.name()`
+in `PersistStateChangeListener` and `NegotiationState.IN_PROGRESS.name()` in
+`ResourceLifecycleServiceImpl` - both introduced here, both comparing an enum's name against the
+entity's name. They are legal where they sit and they are ugly; when the seam deals in strings they
+become holder comparisons.
+
+**Parity and deltas were measured twice, at two tips, and the second one is the evidence.** 255
+tests in 24 classes, 0 failures, 0 errors, 1 skipped; deltas 8, 0 failures, 0 errors, 0 skipped.
+Taken once at the refactor commit and again after the review fixes, because the slab's rule is 255
+after every commit and a number from one commit earlier is not this commit's number. The tag split
+was verified the way [parity-gate.md](../state-machine-implementation/parity-gate.md) insists -
+by which surefire reports exist, not by a pass count: the parity run wrote none for
+`delta.IntendedDeltasAdr0005WillInvertTest`, the delta run wrote only that one.
+
+**The whole-suite figure is missing on purpose, and this row is the first without one.** The
+operator asked for the full suite not to be run. Focused runs are green across every class this
+slice touched - repository, controller, PDF, notification, mapper, model, lifecycle service,
+webhook mapper and the raw-SQL guard - and the slice adds 6 tests, which predicts **1479 in 159
+classes** from slice 06's measured 1473. That is arithmetic, not a measurement, and the next slice
+should measure rather than trust it. This is the fourth time the recorded count has been unavailable
+or stale, for the reason slices 01, 03 and 08 each gave.
 
 ## Standing hazards, carried not solved
 

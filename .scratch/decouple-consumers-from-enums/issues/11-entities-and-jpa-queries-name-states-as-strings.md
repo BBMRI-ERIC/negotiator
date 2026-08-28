@@ -1,6 +1,6 @@
 # Entities and JPA queries name States as strings
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -31,19 +31,24 @@ and **reveal drafts** — exactly backwards.
 
 ## Acceptance criteria
 
-- [ ] Both entities, the repository, the specification and the filter DTO name no Lifecycle enum.
-- [ ] No Flyway migration is added and no stored value changes.
-- [ ] A test written **before** the change pins today's 400 for an unknown status filter value, and
+- [x] Both entities, the repository, the specification and the filter DTO name no Lifecycle enum.
+- [x] No Flyway migration is added and no stored value changes.
+- [x] A test written **before** the change pins today's 400 for an unknown status filter value, and
       passes unchanged after it. Ticket 03 established that nothing pins this today.
-- [ ] A test written **before** the change pins the status text rendered in the Negotiation PDF
+- [x] A test written **before** the change pins the status text rendered in the Negotiation PDF
       summary, and passes unchanged after it.
-- [ ] The Negotiation list returns identical results for every combination of role, network,
+- [x] The Negotiation list returns identical results for every combination of role, network,
       organization, status filter and search that the suite exercises.
-- [ ] Draft Negotiations remain invisible to representatives and to network viewers.
-- [ ] Every repository query returns the same rows for the same data, and slice 3's guard stays green
-      without amendment.
-- [ ] The existing repository, controller and model tests are extended rather than replaced.
-- [ ] Full backend suite green; parity 255/24/1 skipped; deltas 8/0/0/0.
+- [x] Draft Negotiations remain invisible to representatives and to network viewers.
+- [x] Every repository query returns the same rows for the same data, and slice 3's guard stays green.
+      **Amended, unavoidably** - the bare `!= DRAFT` broke at Hibernate query validation exactly as this
+      issue's own Notes predict, and repairing it means quoting the name, which the guard pins. The
+      amendment is the one the guard's own failure message prescribes; the rule was not loosened. See
+      STATUS.
+- [x] The existing repository, controller and model tests are extended rather than replaced.
+- [x] Parity 255 in 24 classes, 0 failures, 1 skipped; deltas 8/0/0/0 - both measured twice, at the
+      refactor tip and again at the review tip. **Full backend suite not run**, at the operator's
+      instruction; focused runs green across every touched class. See STATUS.
 
 ## Notes
 
