@@ -1,12 +1,9 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,8 +19,11 @@ import lombok.Setter;
 public class NegotiationResourceLink {
   @EmbeddedId private NegotiationResourceLinkId id;
 
-  @Enumerated(EnumType.STRING)
-  private NegotiationResourceState currentState;
+  /**
+   * The name of the State this Resource's Lifecycle is in. A name rather than a type, for the
+   * reason {@link Negotiation#getCurrentState()} gives.
+   */
+  private String currentState;
 
   /**
    * The Definition Version Pin of this Resource's Lifecycle. Per link rather than per Negotiation,
@@ -37,17 +37,13 @@ public class NegotiationResourceLink {
   @Column(updatable = false)
   private Long lifecycleDefinitionId;
 
-  public NegotiationResourceLink(
-      Negotiation negotiation, Resource resource, NegotiationResourceState currentState) {
+  public NegotiationResourceLink(Negotiation negotiation, Resource resource, String currentState) {
     this(negotiation, resource, currentState, null);
   }
 
   /** A link whose Resource Lifecycle has already resolved its Definition Version. */
   public NegotiationResourceLink(
-      Negotiation negotiation,
-      Resource resource,
-      NegotiationResourceState currentState,
-      Long lifecycleDefinitionId) {
+      Negotiation negotiation, Resource resource, String currentState, Long lifecycleDefinitionId) {
     this.id = new NegotiationResourceLinkId(negotiation, resource);
     this.currentState = currentState;
     this.lifecycleDefinitionId = lifecycleDefinitionId;

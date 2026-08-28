@@ -14,7 +14,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelMapper;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -47,10 +46,10 @@ public class NegotiationMapperTest {
         Negotiation.builder()
             .humanReadable("#1 Material Type: DNA")
             .resources(resources)
-            .currentState(NegotiationState.SUBMITTED)
+            .currentState("SUBMITTED")
             .build();
     negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
-    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
+    negotiation.setStateForResource("collection:1", "SUBMITTED");
     return negotiation;
   }
 
@@ -94,7 +93,7 @@ public class NegotiationMapperTest {
   @Test
   void map_statePerResource_Ok() {
     Negotiation negotiation = buildNegotiation();
-    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
+    negotiation.setStateForResource("collection:1", "SUBMITTED");
   }
 
   @Test
@@ -130,7 +129,7 @@ public class NegotiationMapperTest {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
 
     Negotiation negotiation = this.mapper.map(negotiationCreateDTO, Negotiation.class);
-    assertEquals(NegotiationState.SUBMITTED, negotiation.getCurrentState());
+    assertEquals("SUBMITTED", negotiation.getCurrentState());
     assertTrue(negotiation.isPublicPostsEnabled());
   }
 
@@ -139,7 +138,7 @@ public class NegotiationMapperTest {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", true);
 
     Negotiation negotiation = this.mapper.map(negotiationCreateDTO, Negotiation.class);
-    assertEquals(NegotiationState.DRAFT, negotiation.getCurrentState());
+    assertEquals("DRAFT", negotiation.getCurrentState());
     assertFalse(negotiation.isPublicPostsEnabled());
   }
 }

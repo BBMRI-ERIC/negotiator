@@ -81,8 +81,9 @@ class RawStateNamesInSqlGuardTest {
     /** Wrapped in SQL single quotes: a string constant the database compares against a column. */
     QUOTED,
     /**
-     * Bare: an unquoted JPQL reference that Hibernate resolves against the enum-typed attribute it
-     * is compared to. See {@link RawStateNamesInSqlGuardTest#UNQUOTED_JPQL_REFERENCE}.
+     * Bare: an unquoted JPQL word, which Hibernate resolves against the type of the attribute it is
+     * compared to. No query uses it, and {@link
+     * RawStateNamesInSqlGuardTest#noQuerySpellsANameBare()} reports one that does.
      */
     BARE
   }
@@ -154,41 +155,14 @@ class RawStateNamesInSqlGuardTest {
   }
 
   /**
-   * The one name in a query that is <em>not</em> a literal, kept apart because it fails in the
-   * opposite way to the other thirteen.
+   * All fourteen names, each with the query that holds it and what breaks it. All fourteen are SQL
+   * string constants, so this list is the only place they are written down.
    *
-   * <p>{@code n.currentState != DRAFT} is JPQL, and Hibernate resolves the bare word against the
-   * type of the attribute it is compared to - today {@code NegotiationState}, so it resolves to the
-   * enum constant. The moment slice 11 makes {@code Negotiation.currentState} a {@code String},
-   * that word has nothing left to resolve against and Hibernate rejects the query while it
-   * validates the named queries, at application startup, before a single request is served.
-   *
-   * <p>That is the safe failure and the reason this one is worth naming separately: it is loud,
-   * immediate, and impossible to ship. The thirteen quoted literals fail the other way - the query
-   * still parses, still runs, and quietly matches no rows. If anyone ever "tidies" this line by
-   * quoting it, it stops being the safe one, which is what {@link
-   * #theUnquotedReference_isStillBare()} exists to notice.
-   */
-  private static final PinnedName UNQUOTED_JPQL_REFERENCE =
-      new PinnedName(
-          NEGOTIATION_REPOSITORY,
-          74,
-          "DRAFT",
-          Spelling.BARE,
-          "countAllNotDraftForNetwork - JPQL, a bare enum reference rather than a literal, excluding"
-              + " drafts from the network's total. The only one of the fourteen whose breakage"
-              + " is a startup failure rather than a silent zero.");
-
-  /**
-   * All fourteen names, each attributed to the query that holds it and to what breaks it. Thirteen
-   * are SQL string constants; the fourteenth is {@link #UNQUOTED_JPQL_REFERENCE}, which is listed
-   * here so the exactness check covers it and documented above because it fails differently.
-   *
-   * <p>Two hazards recur and are named in the reasons. <em>Audit column</em> marks a filter on
-   * {@code negotiation_resource_lifecycle_record.changed_to}, which ADR 0008 converts to a foreign
-   * key - six literals, in three queries, one of which is duplicated across two repositories.
-   * <em>No production caller</em> marks a query only the repository tests reach today: still real
-   * code, still broken by a bad seed, but broken without a user noticing.
+   * <p>Two hazards recur in the reasons. <em>Audit column</em> marks a filter on {@code
+   * negotiation_resource_lifecycle_record.changed_to}, which becomes a foreign key at cutover.
+   * Six literals in three queries filter on it, and one of those queries exists in two
+   * repositories. <em>No production caller</em> marks a query that only repository tests reach. A
+   * bad seed still breaks it, but no user notices.
    */
   private static final List<PinnedName> PINNED_NAMES =
       List.of(
@@ -272,18 +246,25 @@ class RawStateNamesInSqlGuardTest {
                   + " exclusion."),
           new PinnedName(
               NEGOTIATION_REPOSITORY,
-              35,
+              33,
               "CHECKING_AVAILABILITY",
               Spelling.QUOTED,
               "getMedianResponseForNetwork, native, audit column, marking the first representative"
                   + " response. This is the copy NetworkStatisticsServiceImpl calls."),
           new PinnedName(
               NEGOTIATION_REPOSITORY,
-              35,
+              33,
               "RESOURCE_UNAVAILABLE",
               Spelling.QUOTED,
-              "getMedianResponseForNetwork - native, audit column, second half of that filter."),
-          UNQUOTED_JPQL_REFERENCE);
+              "getMedianResponseForNetwork, native, audit column, second half of that filter."),
+          new PinnedName(
+              NEGOTIATION_REPOSITORY,
+              71,
+              "DRAFT",
+              Spelling.QUOTED,
+              "countAllNotDraftForNetwork, JPQL, excluding drafts from the network's total. The"
+                  + " attribute it is compared to is a String, so the name must be quoted, and it"
+                  + " fails as silently as the other thirteen."));
 
   private static final Set<String> LIFECYCLE_NAMES =
       Stream.of(
@@ -352,34 +333,31 @@ class RawStateNamesInSqlGuardTest {
   }
 
   @Test
-  @DisplayName("the one bare JPQL reference is still bare, and so still fails loudly")
-  void theUnquotedReference_isStillBare() {
-    String line = lineOf(UNQUOTED_JPQL_REFERENCE.file(), UNQUOTED_JPQL_REFERENCE.line());
+  @DisplayName("no query spells a State name as a bare word any more")
+  void noQuerySpellsANameBare() {
+    List<Coordinates> bare =
+        scanProductionQueries().stream()
+            .filter(found -> found.spelling() == Spelling.BARE)
+            .toList();
 
     assertTrue(
-        line.contains("!= " + UNQUOTED_JPQL_REFERENCE.name()),
+        bare.isEmpty(),
         """
-        %s:%d no longer compares against a bare %s.
+        A query spells a State or Event name as a bare word: %s
 
-        Line reads: %s
+        No compared attribute is enum-typed, so a bare name has nothing to resolve against.
+        Hibernate rejects the query when it validates the named queries at startup, before any
+        request is served.
 
-        This is the only one of the fourteen that fails safely. Hibernate resolves the bare word
-        against the type of the attribute beside it, so once Negotiation.currentState is a String
-        the query is rejected while the named queries are validated - at startup, before a request
-        is served. Quoting the name turns that into a filter that parses, runs and matches nothing.
-
-        If the comparison genuinely had to change, move this entry into PINNED_NAMES as a QUOTED
-        literal and say in its reason why the loud failure was given up."""
-            .formatted(
-                UNQUOTED_JPQL_REFERENCE.file(),
-                UNQUOTED_JPQL_REFERENCE.line(),
-                UNQUOTED_JPQL_REFERENCE.name(),
-                line.strip()));
+        Quote the name if the comparison is meant to be against a literal, or bind it as a
+        parameter from a Well-known name holder if it is meant to be visible to the compiler."""
+            .formatted(bare));
 
     assertFalse(
-        line.contains("'" + UNQUOTED_JPQL_REFERENCE.name() + "'"),
-        "%s:%d has quoted the one reference whose whole value is that it is unquoted."
-            .formatted(UNQUOTED_JPQL_REFERENCE.file(), UNQUOTED_JPQL_REFERENCE.line()));
+        PINNED_NAMES.stream().anyMatch(pinned -> pinned.coordinates().spelling() == Spelling.BARE),
+        """
+        A pinned name is recorded as BARE while the scan finds none, so the record and the tree
+        disagree about the one distinction this guard draws between them.""");
   }
 
   @Test
@@ -433,6 +411,34 @@ class RawStateNamesInSqlGuardTest {
         moduleRoot().resolve(PRODUCTION_SOURCE_PATH),
         productionRoot(),
         "The real scan root must still resolve through the same step the wrong one was refused by.");
+  }
+
+  @Test
+  @DisplayName("the spelling detector tells a quoted name from a bare one")
+  void theSpellingDetector_distinguishesQuotedFromBare() {
+    assertEquals(
+        Spelling.QUOTED,
+        spellingOfTheNameIn("where n.current_state = 'DRAFT' and x = 1"),
+        "A name inside SQL quotes is a literal the database compares against.");
+    assertEquals(
+        Spelling.BARE,
+        spellingOfTheNameIn("where n.currentState != DRAFT and x = 1"),
+        """
+        A name with no quotes around it reads as QUOTED, so the detector cannot tell the two apart.
+
+        Every other check here runs through this method. The tree holds no bare name, so a
+        detector stuck on QUOTED would leave both the exactness check and the no-bare-names check
+        green over a query the database will reject.""");
+  }
+
+  private static Spelling spellingOfTheNameIn(String query) {
+    Matcher words = WORD.matcher(query);
+    while (words.find()) {
+      if (LIFECYCLE_NAMES.contains(words.group())) {
+        return spellingAt(query, words.start(), words.end());
+      }
+    }
+    return fail("No Lifecycle name in: " + query);
   }
 
   @Test

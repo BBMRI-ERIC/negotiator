@@ -19,7 +19,7 @@ class NewNegotiationWebhookMappingStrategy implements WebhookMappingStrategy<New
   @Override
   public Optional<WebhookPayloadEnvelope<?>> map(
       NewNegotiationEvent event, ObjectMapper objectMapper) {
-    String currentState = nameOf(event.getCurrentState());
+    String currentState = event.getCurrentState();
     if (WellKnownNegotiationStates.DRAFT.equals(currentState)) {
       return Optional.empty();
     }
@@ -35,13 +35,5 @@ class NewNegotiationWebhookMappingStrategy implements WebhookMappingStrategy<New
   @Override
   public Map<WebhookEventType, Class<?>> documentedPayloadTypes() {
     return Map.of(WebhookEventType.NEGOTIATION_ADDED, NegotiationAddedWebhookEvent.class);
-  }
-
-  /**
-   * Reads a name off the creation event, which still deals in enums. Null-preserving, so a
-   * Negotiation whose State is unset still yields a delivery rather than throwing.
-   */
-  private static String nameOf(Enum<?> stateOrEvent) {
-    return stateOrEvent == null ? null : stateOrEvent.name();
   }
 }
