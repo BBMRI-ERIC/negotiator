@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.lifecycle.definition;
+package eu.bbmri_eric.negotiator.lifecycle;
 
 /**
  * Who may fire a Transition. Deliberately a field of the Transition rather than a Guard: asking
@@ -8,8 +8,12 @@ package eu.bbmri_eric.negotiator.lifecycle.definition;
  * <p>Single-valued. Six of the eight Negotiation Transitions are behaviourally {@code IS_ADMIN OR
  * IS_CREATOR} and no value here reproduces that; resolving that is a decision of its own, and
  * inventing a disjunction to get ahead of it is not this schema's call.
+ *
+ * <p>It lives here beside the Well-known name holders for the reason {@link DefinitionScope} gives,
+ * and needs it more: whoever decides whether a caller may fire a move has to be able to name these
+ * five answers, and must not thereby be able to name a table.
  */
-enum RequiredAuthority {
+public enum RequiredAuthority {
 
   /** No authority is required of the caller. */
   NONE,

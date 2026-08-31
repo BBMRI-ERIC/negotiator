@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import eu.bbmri_eric.negotiator.lifecycle.DefinitionScope;
+
 /**
  * The Definition Version, State and Event rows that more than one repository test in this package
  * needs before it can get to the table it is actually testing. Five of the six test classes were

@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import eu.bbmri_eric.negotiator.lifecycle.DefinitionScope;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

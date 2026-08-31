@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import eu.bbmri_eric.negotiator.lifecycle.DefinitionScope;
+
 /**
  * Definition Resolution: how new work finds the Lifecycle Definition it will run under, before that
  * definition is pinned to it.

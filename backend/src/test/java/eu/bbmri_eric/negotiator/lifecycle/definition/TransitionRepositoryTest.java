@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.bbmri_eric.negotiator.lifecycle.RequiredAuthority;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.persistence.EntityManager;
 import java.util.List;

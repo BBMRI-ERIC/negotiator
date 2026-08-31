@@ -72,6 +72,28 @@ class DefinitionInertnessGuardTest {
    * outside the package is a reference by definition. Repositories are listed alongside their
    * entities because a word-boundary match on {@code LifecycleDefinition} does not cover {@code
    * LifecycleDefinitionRepository}.
+   *
+   * <p>{@code DefinitionScope} and {@code RequiredAuthority} were on this list and are not exempted
+   * from it - they are gone from it, because they are gone from the package. Both now live in
+   * {@code eu.bbmri_eric.negotiator.lifecycle}, public, beside the Well-known name holders. That
+   * package is still scanned by all three rules, as every package outside this one is; what changed
+   * is that these two names are no longer among the ones a scan forbids. They are
+   * <em>vocabulary</em>, not schema: closed sets of names a caller has to be able to say before it
+   * can ask the Lifecycle anything, carrying no persistence behaviour beyond an
+   * {@code @Enumerated(STRING)} column on entities that did not move. Naming one reveals no table
+   * and reaches no repository, which is the whole thing the three rules here exist to prevent.
+   *
+   * <p>{@link #NAMES_TOO_COMMON_TO_FORBID_BARE} below is a different remedy - those three types are
+   * still here, so they stay forbidden by narrower rules rather than coming off anything - but it
+   * answers the same question this does, and answers it the same way: a name is worth forbidding
+   * only where a match on it is a reference. Deleting entries is safe rather than quiet because
+   * {@link #guard_forbidsOnlyNamesThatStillExist} fails on a forbidden name whose file has gone, so
+   * a list that stopped protecting something says so.
+   *
+   * <p>Nothing else in the definition package is widened by that move, and no further widening is
+   * sanctioned by it. Every remaining type here is package-private and stays so. This guard is
+   * still meant to be deleted whole by the cutover slab that first reads the definition tables -
+   * not shortened one name at a time by whoever finds a name inconvenient.
    */
   private static final List<String> DISTINCTIVE_TYPE_NAMES =
       List.of(
@@ -84,8 +106,6 @@ class DefinitionInertnessGuardTest {
           "GuardWiringRepository",
           "ActionWiring",
           "ActionWiringRepository",
-          "DefinitionScope",
-          "RequiredAuthority",
           "DefinitionResolver",
           "DefinitionResolverImpl",
           "DefinitionResolutionException");
