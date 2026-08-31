@@ -1,7 +1,7 @@
 # Transition Evaluator core
 
 Type: task
-Status: open
+Status: claimed
 Blocked by: 08
 
 ## Question
@@ -39,3 +39,57 @@ Take them from ticket 01's graph dump, not from memory. At minimum:
 ### Note
 
 Read ADRs [0001](../../../backend/docs/adr/0001-hand-written-lifecycle-subsystem.md), [0002](../../../backend/docs/adr/0002-lifecycle-definitions-are-relational-configuration.md) and [0005](../../../backend/docs/adr/0005-information-requirements-gate-transitions-as-a-built-in-stage.md) in full first. `/codebase-design` is appropriate — this is the deep module of the whole effort, and its no-I/O boundary is the argument that makes everything else testable.
+
+## Progress
+
+**Claimed and charted 2026-08-31.** The slab's inner tracker is
+[`.scratch/transition-evaluator-core/`](../../transition-evaluator-core/PRD.md) — a PRD, a read-only
+recon brief, and ten commit-sized slices. Work resumes there; do not re-plan this slab. Branch:
+`feat/state-machine-implementation`.
+
+The slices sequence as tracer bullets: slice 02 lands a working evaluator answering over a minimal
+graph with Required Authority as its only stage, and slices 03–06 each widen that one path. Slice 07,
+the compiled graph cache, is the only orthogonal one. Slice 10 is the slab gate.
+
+One recon brief was produced before the PRD and is the slab's reference — do not re-derive what it
+contains:
+
+- [recon-strategies.md](../../transition-evaluator-core/recon-strategies.md) — the Guard and Action
+  inventory read out of the two lifecycle services with `file:line` citations, five places this
+  ticket describes the code wrongly, and the six divergences from today's behaviour with their
+  owners.
+
+### Five corrections this ticket owes, recorded during recon
+
+- **"Take them from ticket 01's graph dump" cannot be followed as written.** All 21 Transitions across
+  both graphs record `"guard": null`. The dump is authoritative for Actions, States, Events and
+  authorities, and silent on Guards. The Guard inventory comes out of the two lifecycle services.
+- **`NEGOTIATION_APPROVED`'s live behaviour is not in the Guard bean.** `NegotiationIsApprovedGuard`
+  is attached to nothing (`ResourceStateMachineConfig:119` names no source, event or target, and
+  Spring Statemachine discards it), and `ResourceGraphV1BindingTest` says outright that a Guard which
+  has never fired must not be reimplemented. The rule is live, imperatively, at
+  `ResourceLifecycleServiceImpl:142`. **The slab ports the gate, not the class** — which is the only
+  reading under which ADR 0005 and the characterization finding are both satisfied.
+- **`SET_POST_VISIBILITY` needs a three-valued scope.** `DisablePostsAction` sets *both* post flags,
+  so `PUBLIC | PRIVATE` alone turns three dump Actions into four wiring rows.
+- **Today's Information Requirement check is not requirement-scoped.**
+  `ResourceLifecycleServiceImpl:109-113` passes if *any* submission exists for the
+  resource-and-negotiation pair, whatever form it was. ADR 0005/0006 are a strengthening, not a
+  reproduction.
+- **A blocked Resource Event is a silent no-op today.** `ResourceLifecycleServiceImpl:115-117` returns
+  the current State rather than refusing. The pipeline's categories are a change against that.
+
+### Four decisions settled with the developer before the PRD
+
+1. The evaluator lives in a new `lifecycle.evaluation`; `DefinitionScope` and `RequiredAuthority` move
+   up to `lifecycle` as public vocabulary and come off `DefinitionInertnessGuardTest`'s type list,
+   which also gains a purity rule. Entities and repositories stay package-private and unreachable.
+2. The entity-to-graph loader is **deferred** behind a `CompiledDefinitionSource` port with a test
+   double. **This slab reads no definition table, so `DefinitionInertnessGuardTest` survives with one
+   amendment rather than the deletion the map anticipated** — that deletion is still the cutover
+   slab's, and still owed as a visible line in its diff.
+3. The ported strategies get real bodies behind narrow ports. `SPAWN_RESOURCE_LIFECYCLES` is
+   registration and params only, as this ticket says.
+4. Five test seams, each forced by an ADR boundary rather than chosen; both Guards are tested through
+   the evaluator and nowhere else, and the params bridge gets no seam of its own because the fixture
+   builder feeds raw JSON through the real binder.
