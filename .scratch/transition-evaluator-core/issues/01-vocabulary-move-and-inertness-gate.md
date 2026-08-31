@@ -1,6 +1,6 @@
 # The vocabulary move and the amended inertness gate
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -29,17 +29,17 @@ Nothing else in the definition package is widened, and the amended javadoc says 
 
 ## Acceptance criteria
 
-- [ ] Both enums live in the Lifecycle package, are `public`, and are unchanged in values, order and
+- [x] Both enums live in the Lifecycle package, are `public`, and are unchanged in values, order and
       persistence mapping.
-- [ ] Every remaining type in the Lifecycle Definition package is still package-private.
-- [ ] `DefinitionInertnessGuardTest`'s forbidden type list loses exactly two entries, with the reason
+- [x] Every remaining type in the Lifecycle Definition package is still package-private.
+- [x] `DefinitionInertnessGuardTest`'s forbidden type list loses exactly two entries, with the reason
       stated in the source, and gains no exemption.
-- [ ] The guard's package rule, table rule and both meta-tests are untouched and green at 6 tests.
-- [ ] The javadoc records that no further widening of the definition package is sanctioned by this
+- [x] The guard's package rule, table rule and both meta-tests are untouched and green at 6 tests.
+- [x] The javadoc records that no further widening of the definition package is sanctioned by this
       slab, and that the guard's deletion is still the cutover slab's.
-- [ ] No production code outside the definition package names any other definition type.
-- [ ] No Flyway migration is added.
-- [ ] Full backend suite green; parity **255 tests in 24 classes, 0 failures, 1 skipped**; deltas
+- [x] No production code outside the definition package names any other definition type.
+- [x] No Flyway migration is added.
+- [x] Full backend suite green; parity **255 tests in 24 classes, 0 failures, 1 skipped**; deltas
       **8 tests, 0 failures**.
 
 ## Notes
@@ -60,3 +60,41 @@ silently stop protecting something.
 ## Blocked by
 
 None - can start immediately.
+
+## Comments
+
+**Landed as `f879867e`.** The move went in as a `git mv` plus a visibility change and eleven added
+imports — five production files in the definition package, six test files beside them. No entity
+field moved, so `@Enumerated(STRING)` and both `@Column` declarations are untouched, and the values
+and their order are byte-identical to the versions at `73e76d4b`.
+
+**The red step is worth recording, because it is the argument for editing the list rather than
+exempting.** With the enums moved and the guard unamended, `DefinitionInertnessGuardTest` failed 2
+of 6: the type rule on the two new files, and `guard_forbidsOnlyNamesThatStillExist` reporting
+exactly `[DefinitionScope, RequiredAuthority]` as names it forbids whose files have gone. The second
+failure is the safety net the ticket promised. `DISTINCTIVE_TYPE_NAMES` then went 14 → 12;
+`NAMES_TOO_COMMON_TO_FORBID_BARE` is byte-identical, and no new list, pattern or predicate branch
+was added.
+
+**Three javadoc claims were corrected after code review, before the commit was finalised.** The
+first draft justified the move by saying a caller must name a Definition Scope before it can ask
+anything — which `DefinitionResolver`, in the same package, deliberately contradicts by taking no
+scope parameter at all. The second claimed the guard "does not police" the Lifecycle package; it
+does scan it, and only stopped forbidding those two names in it. The third overstated the parallel
+with `NAMES_TOO_COMMON_TO_FORBID_BARE`, which is a different remedy answering the same question. All
+three now say what is true. A fourth change dropped the name `LifecycleDefinition` from
+`DefinitionScope`'s javadoc, so that file's compliance no longer rests on the guard's
+comment-blanker.
+
+**Verification.** Full backend suite 1492 tests in 160 classes, 0 failures, 0 errors, 16 skipped,
+measured before the javadoc corrections. The corrections change comments only, so everything they
+could reach was re-run at the final tip: parity 255 tests in 24 classes, 0 failures, 0 errors, 1
+skipped; intended deltas 8 tests, 0 failures, 0 errors, 0 skipped; and all four source-scanning
+guards green — `DefinitionInertnessGuardTest` 6, `CharacterizationImportGuardTest` 3,
+`RawStateNamesInSqlGuardTest` 7, `LifecycleEnumDecouplingGuardTest` 8. `fmt-maven-plugin:check`
+green across 631 files.
+
+**One environment note for whoever picks up slice 02.** The Nix store on this machine is empty and
+`nix-daemon` is disabled, so `nix develop .#opencode` fails with `creating directory '/nix/store':
+Permission denied` and provides no `mvn`. These runs used a JDK 21 and Maven 3.9.9 placed outside
+the repository, offline against the existing `~/.m2`. The flake is not at fault and was not changed.
