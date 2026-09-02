@@ -72,6 +72,32 @@ class DefinitionInertnessGuardTest {
    * outside the package is a reference by definition. Repositories are listed alongside their
    * entities because a word-boundary match on {@code LifecycleDefinition} does not cover {@code
    * LifecycleDefinitionRepository}.
+   *
+   * <p>{@code RequiredAuthority} was on this list and has been removed, because the type left the
+   * package: it is now {@code eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority}. It is
+   * vocabulary rather than schema. A compiled graph carries a Required Authority on every edge and
+   * cannot name one without the type, so forbidding the name would forbid the evaluator from
+   * existing — while what this guard exists to prove, that no production code reads the definition
+   * <em>tables</em>, is untouched by the move. The persistence of it stays behind: the
+   * {@code @Enumerated(STRING)} mapping and the mirroring CHECK constraint are still the entity's
+   * alone.
+   *
+   * <p>{@code DefinitionScope} deliberately did <em>not</em> move and its entry stands. It answers
+   * which kind of Lifecycle a family governs, which is a question about the configuration and not
+   * about a graph — the compiled graph turns out not to need it at all, because ADR 0001's
+   * scope-parameterization is <em>which graph the evaluator is handed</em> rather than a field on
+   * one.
+   *
+   * <p>Removing a name is safe rather than quiet only because {@link
+   * #guard_forbidsOnlyNamesThatStillExist} reds on a forbidden name whose file has gone: the
+   * removal has to happen in the same commit as the move, and cannot be forgotten or faked. Note
+   * that this is a different remedy from {@link #NAMES_TOO_COMMON_TO_FORBID_BARE}, which keeps a
+   * name in the package and only stops matching it bare.
+   *
+   * <p>This is not a precedent for shortening the list. The guard is meant to be deleted whole by
+   * the slab that starts reading these tables, as a visible line in its diff — not trimmed one name
+   * at a time by whoever finds a name inconvenient. A name comes off this list only when its type
+   * has genuinely left the package.
    */
   private static final List<String> DISTINCTIVE_TYPE_NAMES =
       List.of(
@@ -85,7 +111,6 @@ class DefinitionInertnessGuardTest {
           "ActionWiring",
           "ActionWiringRepository",
           "DefinitionScope",
-          "RequiredAuthority",
           "DefinitionResolver",
           "DefinitionResolverImpl",
           "DefinitionResolutionException");
