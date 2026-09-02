@@ -18,13 +18,13 @@
       </div>
 
       <!-- Status Dropdown -->
-      <div class="status-dropdown-container ms-auto" :data-org-id="orgId">
+      <div class="status-dropdown-container ms-auto" :data-org-id="orgId" v-if="org.status">
         <button
           type="button"
           class="status-box p-1 d-flex align-items-center btn"
           :aria-disabled="!canUpdateStatus"
           :tabindex="canUpdateStatus ? 0 : -1"
-          title="Select current status. The term Resource is abstract and can for example refer to biological samples, datasets or a service such as sequencing."
+          title="Select current status"
           @click.stop="onToggleDropdown"
         >
           <UiBadge :class="getStatusColor(org.status)" :icon="getStatusIcon(org.status)">
