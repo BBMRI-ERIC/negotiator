@@ -22,6 +22,8 @@
         <button
           type="button"
           class="status-box p-1 d-flex align-items-center btn"
+          :aria-disabled="!canUpdateStatus"
+          :tabindex="canUpdateStatus ? 0 : -1"
           title="Select current status. The term Resource is abstract and can for example refer to biological samples, datasets or a service such as sequencing."
           @click.stop="onToggleDropdown"
         >
@@ -29,15 +31,12 @@
             {{ org.status?.replace(/_/g, ' ') || '' }}
           </UiBadge>
           <i
-            v-if="org.updatable && orgResourceStateOverride"
+            v-if="canUpdateStatus"
             class="bi icon-smaller mx-1"
             :class="dropdownVisible[orgId] ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"
           />
         </button>
-        <ul
-          v-if="org.updatable && orgResourceStateOverride && dropdownVisible[orgId]"
-          class="dropdown-menu show"
-        >
+        <ul v-if="canUpdateStatus && dropdownVisible[orgId]" class="dropdown-menu show">
           <li
             v-for="state in sortedStates"
             :key="state.value"
@@ -57,7 +56,7 @@
 
 <script setup>
 import UiBadge from '@/components/ui/UiBadge.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getStatusColor, getStatusIcon } from '../composables/utils.js'
 import { useFeatureFlags } from '../composables/useFeatureFlags.js'
 
@@ -75,7 +74,10 @@ const emit = defineEmits(['toggle-dropdown', 'toggle-collapse', 'update-org-stat
 const isCollapsed = ref(false)
 const sanitizeId = (id) => id.replaceAll(':', '_')
 
+const canUpdateStatus = computed(() => props.org.updatable && orgResourceStateOverride)
+
 const onToggleDropdown = () => {
+  if (!canUpdateStatus.value) return
   emit('toggle-dropdown', props.orgId)
 }
 
@@ -130,5 +132,10 @@ const onUpdateOrgStatus = (state) => {
 /* Icon size */
 .icon-smaller {
   font-size: 0.8rem;
+}
+
+.status-box:focus {
+  background-color: #fafafa !important;
+  border-color: #fafafa !important;
 }
 </style>
