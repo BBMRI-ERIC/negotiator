@@ -22,8 +22,7 @@
         <button
           type="button"
           class="status-box p-1 d-flex align-items-center btn"
-          :aria-disabled="!canUpdateStatus"
-          :tabindex="canUpdateStatus ? 0 : -1"
+          :disabled="!canUpdateStatus"
           title="Select current status"
           @click.stop="onToggleDropdown"
         >
@@ -134,8 +133,12 @@ const onUpdateOrgStatus = (state) => {
   font-size: 0.8rem;
 }
 
-.status-box:focus {
+.status-box {
   background-color: #fafafa !important;
   border-color: #fafafa !important;
+}
+
+.status-box:disabled {
+  opacity: 1 !important;
 }
 </style>
