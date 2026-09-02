@@ -19,12 +19,25 @@ record DefinitionVersionRows(
     List<State> states,
     List<Event> events,
     List<Transition> transitions,
-    List<GuardWiring> guardWirings) {
+    List<GuardWiring> guardWirings,
+    List<ActionWiring> actionWirings) {
 
   DefinitionVersionRows {
     states = List.copyOf(states);
     events = List.copyOf(events);
     transitions = List.copyOf(transitions);
     guardWirings = List.copyOf(guardWirings);
+    actionWirings = List.copyOf(actionWirings);
+  }
+
+  /** A version whose Transitions carry no Actions, which is 5 of the 8 Negotiation edges today. */
+  static DefinitionVersionRows withoutActions(
+      LifecycleDefinition definition,
+      List<State> states,
+      List<Event> events,
+      List<Transition> transitions,
+      List<GuardWiring> guardWirings) {
+    return new DefinitionVersionRows(
+        definition, states, events, transitions, guardWirings, List.of());
   }
 }

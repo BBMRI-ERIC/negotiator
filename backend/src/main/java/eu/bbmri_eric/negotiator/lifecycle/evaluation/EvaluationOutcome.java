@@ -1,7 +1,9 @@
 package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.FailureCategory;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -17,11 +19,23 @@ public sealed interface EvaluationOutcome {
 
   boolean permitted();
 
-  /** The move is legal now. {@code transition} names where it goes. */
+  /**
+   * The move is legal now. {@code transition} names where it goes, and carries the ordered Action
+   * chain the committing service is to run afterwards.
+   *
+   * <p>Reported, not run. The evaluator hands back what <em>would</em> happen and stops there,
+   * which is what makes the Possible Events listing a safe dry run of the same function: evaluating
+   * twenty candidate Events must not set twenty posts' visibility.
+   */
   record Permitted(CompiledTransition transition) implements EvaluationOutcome {
 
     public Permitted {
       Objects.requireNonNull(transition, "transition");
+    }
+
+    /** The Actions to run once the move has committed, in order. */
+    public List<ActionStep> actions() {
+      return transition.actions();
     }
 
     @Override
