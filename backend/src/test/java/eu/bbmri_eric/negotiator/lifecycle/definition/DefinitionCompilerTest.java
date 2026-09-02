@@ -3,6 +3,9 @@ package eu.bbmri_eric.negotiator.lifecycle.definition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
@@ -35,7 +38,8 @@ class DefinitionCompilerTest {
   private static final long VERSION_ID = 42L;
 
   private final RecordingCatalogue catalogue = new RecordingCatalogue();
-  private final DefinitionCompiler compiler = new DefinitionCompiler(catalogue);
+  private final RecordingActionCatalogue actionCatalogue = new RecordingActionCatalogue();
+  private final DefinitionCompiler compiler = new DefinitionCompiler(catalogue, actionCatalogue);
 
   private final LifecycleDefinition version =
       LifecycleDefinition.builder()
@@ -110,13 +114,29 @@ class DefinitionCompilerTest {
         .build();
   }
 
+  private ActionWiring actionOn(
+      Transition transition, String typeKey, int sortOrder, String params) {
+    return ActionWiring.builder()
+        .transition(transition)
+        .typeKey(typeKey)
+        .params(params)
+        .sortOrder(sortOrder)
+        .build();
+  }
+
   private DefinitionVersionRows rows(List<Transition> transitions, List<GuardWiring> wirings) {
+    return rows(transitions, wirings, List.of());
+  }
+
+  private DefinitionVersionRows rows(
+      List<Transition> transitions, List<GuardWiring> wirings, List<ActionWiring> actions) {
     return new DefinitionVersionRows(
         version,
         List.of(submitted, available, legacy),
         List.of(deliver, override),
         transitions,
-        wirings);
+        wirings,
+        actions);
   }
 
   @Test
@@ -318,12 +338,83 @@ class DefinitionCompilerTest {
             List.of(submitted, foreign),
             List.of(deliver),
             List.of(deliverTransition),
+            List.of(),
             List.of());
 
     assertThatThrownBy(() -> compiler.compile(mixed))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("different Definition Version")
         .hasMessageContaining("ELSEWHERE");
+  }
+
+  // --- the Action chain -------------------------------------------------------------------------
+
+  @Test
+  void compile_putsTheTransitionsActionsOnItsEdgeInSortOrder() {
+    CompiledGraph graph =
+        compiler.compile(
+            rows(
+                List.of(deliverTransition),
+                List.of(),
+                List.of(
+                    actionOn(deliverTransition, "SECOND", 20, null),
+                    actionOn(deliverTransition, "FIRST", 10, null))));
+
+    assertThat(actionsOf(graph, "SUBMITTED", "DELIVER")).containsExactly("FIRST", "SECOND");
+  }
+
+  /** Action wiring is transition-scoped only; there is no definition-wide chain to fold in. */
+  @Test
+  void compile_keepsATransitionsActionsOffEveryOtherTransition() {
+    Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
+    CompiledGraph graph =
+        compiler.compile(
+            rows(
+                List.of(deliverTransition, second),
+                List.of(),
+                List.of(actionOn(deliverTransition, "SET_POST_VISIBILITY", 1, null))));
+
+    assertThat(actionsOf(graph, "SUBMITTED", "DELIVER")).containsExactly("SET_POST_VISIBILITY");
+    assertThat(actionsOf(graph, "SUBMITTED", "OVERRIDE")).isEmpty();
+  }
+
+  @Test
+  void compile_handsAnActionsRawParamsToItsOwnCatalogue() {
+    compiler.compile(
+        rows(
+            List.of(deliverTransition),
+            List.of(),
+            List.of(
+                actionOn(
+                    deliverTransition,
+                    "SET_POST_VISIBILITY",
+                    1,
+                    "{\"scope\":\"BOTH\",\"enabled\":false}"))));
+
+    assertThat(actionCatalogue.bound)
+        .containsExactly(
+            new Bound("SET_POST_VISIBILITY", "{\"scope\":\"BOTH\",\"enabled\":false}"));
+    assertThat(catalogue.bound).isEmpty();
+  }
+
+  /**
+   * The two catalogues are separate key spaces. An Action key wired where a Guard belongs is
+   * refused at compile time rather than dispatched to the wrong strategy.
+   */
+  @Test
+  void compile_whenAnActionKeyIsWiredAsAGuard_isRefused() {
+    assertThatThrownBy(
+            () ->
+                compiler.compile(
+                    rows(List.of(deliverTransition), List.of(definitionWide("NO_SUCH", 1, null)))))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("NO_SUCH");
+  }
+
+  private static List<String> actionsOf(CompiledGraph graph, String fromState, String event) {
+    return graph.transition(fromState, event).orElseThrow().actions().stream()
+        .map(ActionStep::typeKey)
+        .toList();
   }
 
   private static List<String> chainOf(CompiledGraph graph, String fromState, String event) {
@@ -357,6 +448,31 @@ class DefinitionCompilerTest {
         @Override
         public GuardVerdict check(EvaluationContext context) {
           return GuardVerdict.pass();
+        }
+      };
+    }
+  }
+
+  /** The Action-side twin of {@link RecordingCatalogue}, over its own key space. */
+  private static final class RecordingActionCatalogue implements ActionCatalogue {
+
+    private final List<Bound> bound = new ArrayList<>();
+
+    @Override
+    public ActionStep bind(String typeKey, String paramsJson) {
+      if ("NO_SUCH".equals(typeKey)) {
+        throw new IllegalArgumentException("No Action strategy declares the type key 'NO_SUCH'.");
+      }
+      bound.add(new Bound(typeKey, paramsJson));
+      return new ActionStep() {
+        @Override
+        public String typeKey() {
+          return typeKey;
+        }
+
+        @Override
+        public void run(ActionContext context) {
+          throw new UnsupportedOperationException("the fake does not run");
         }
       };
     }

@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
@@ -33,9 +35,11 @@ import java.util.Map;
 class DefinitionCompiler {
 
   private final GuardCatalogue guardCatalogue;
+  private final ActionCatalogue actionCatalogue;
 
-  DefinitionCompiler(GuardCatalogue guardCatalogue) {
+  DefinitionCompiler(GuardCatalogue guardCatalogue, ActionCatalogue actionCatalogue) {
     this.guardCatalogue = guardCatalogue;
+    this.actionCatalogue = actionCatalogue;
   }
 
   CompiledGraph compile(DefinitionVersionRows rows) {
@@ -43,6 +47,7 @@ class DefinitionCompiler {
 
     List<GuardStep> definitionWideChain = bindChain(definitionWideWirings(rows));
     Map<Transition, List<GuardStep>> perTransition = bindPerTransitionChains(rows);
+    Map<Transition, List<ActionStep>> actionChains = bindActionChains(rows);
 
     CompiledGraph.Builder graph = CompiledGraph.builder(rows.definition().getId());
     for (State state : rows.states()) {
@@ -64,9 +69,33 @@ class DefinitionCompiler {
               transition.getEvent().getName(),
               transition.getToState().getName(),
               transition.getRequiredAuthority(),
-              effectiveChain(definitionWideChain, perTransition.get(transition))));
+              effectiveChain(definitionWideChain, perTransition.get(transition)),
+              actionChains.getOrDefault(transition, List.of())));
     }
     return graph.build();
+  }
+
+  /**
+   * Actions have one scope, so there is no fold — only an ordering. {@code action_wiring} carries
+   * no definition column at all, which is ADR 0002's point that Guards and Actions never interleave
+   * made into schema: a shared ordering between them would be meaningless, because one runs before
+   * a commit and the other only after.
+   */
+  private Map<Transition, List<ActionStep>> bindActionChains(DefinitionVersionRows rows) {
+    Map<Transition, List<ActionWiring>> grouped = new HashMap<>();
+    for (ActionWiring wiring : rows.actionWirings()) {
+      grouped.computeIfAbsent(wiring.getTransition(), t -> new ArrayList<>()).add(wiring);
+    }
+    Map<Transition, List<ActionStep>> bound = new HashMap<>();
+    grouped.forEach(
+        (transition, wirings) ->
+            bound.put(
+                transition,
+                wirings.stream()
+                    .sorted(Comparator.comparing(ActionWiring::getSortOrder))
+                    .map(wiring -> actionCatalogue.bind(wiring.getTypeKey(), wiring.getParams()))
+                    .toList()));
+    return bound;
   }
 
   /**
@@ -152,6 +181,12 @@ class DefinitionCompiler {
     for (GuardWiring wiring : rows.guardWirings()) {
       if (wiring.getLifecycleDefinition() != version) {
         foreign.add("GuardWiring " + wiring.getTypeKey());
+      }
+    }
+    // ActionWiring has no definition reference of its own, so it is checked through its Transition.
+    for (ActionWiring wiring : rows.actionWirings()) {
+      if (wiring.getTransition().getLifecycleDefinition() != version) {
+        foreign.add("ActionWiring " + wiring.getTypeKey());
       }
     }
     if (!foreign.isEmpty()) {

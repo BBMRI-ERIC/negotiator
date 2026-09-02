@@ -18,13 +18,17 @@ import java.util.Objects;
  *     configured {@code sort_order}. ADR 0002 calls the effective chain "one query" for admin
  *     tooling; here it is one list, so the evaluator runs a single loop and never learns that
  *     Guards have two scopes. A chain assembled at fire time would have to know.
+ * @param actions the Action chain, in {@code sort_order}. Transition-scoped only — there is no
+ *     definition-wide Action wiring, and {@code action_wiring} has no definition column to express
+ *     one with. Reported by a permitted outcome and run by the service that commits the move.
  */
 public record CompiledTransition(
     String fromState,
     String event,
     String toState,
     RequiredAuthority requiredAuthority,
-    List<GuardStep> guards) {
+    List<GuardStep> guards,
+    List<ActionStep> actions) {
 
   public CompiledTransition {
     Objects.requireNonNull(fromState, "fromState");
@@ -33,11 +37,22 @@ public record CompiledTransition(
     Objects.requireNonNull(
         requiredAuthority, "requiredAuthority: RequiredAuthority.NONE is how 'anyone' is spelled");
     guards = List.copyOf(guards);
+    actions = List.copyOf(actions);
   }
 
   /** An edge nothing guards, which is what all 21 Transitions of both v1 graphs are today. */
   public CompiledTransition(
       String fromState, String event, String toState, RequiredAuthority requiredAuthority) {
-    this(fromState, event, toState, requiredAuthority, List.of());
+    this(fromState, event, toState, requiredAuthority, List.of(), List.of());
+  }
+
+  /** An edge with Guards and no Actions, which is 18 of the 21 today. */
+  public CompiledTransition(
+      String fromState,
+      String event,
+      String toState,
+      RequiredAuthority requiredAuthority,
+      List<GuardStep> guards) {
+    this(fromState, event, toState, requiredAuthority, guards, List.of());
   }
 }

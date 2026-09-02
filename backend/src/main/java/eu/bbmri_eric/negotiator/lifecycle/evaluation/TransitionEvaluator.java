@@ -143,8 +143,7 @@ public final class TransitionEvaluator {
             case NONE -> true;
             case IS_ADMIN -> person.authorities().contains(ROLE_ADMIN);
             case IS_CREATOR ->
-                Long.valueOf(person.personId())
-                    .equals(context.subject().negotiationCreatorId());
+                Long.valueOf(person.personId()).equals(context.subject().negotiationCreatorId());
             case IS_REPRESENTATIVE ->
                 context.subject().representativeIds().contains(person.personId());
             case SYSTEM -> false;

@@ -62,8 +62,8 @@ public record EvaluationContext(
    *
    * <p>Sealed rather than a boolean because that mutual exclusion is then structural. An authority
    * rule switching over this cannot compile while it has forgotten one of the two, whereas a rule
-   * reading a {@code system} flag can silently fall through to the human branch — which is precisely
-   * the overload of {@code NONE} that ADR 0007 introduced {@code SYSTEM} to avoid.
+   * reading a {@code system} flag can silently fall through to the human branch — which is
+   * precisely the overload of {@code NONE} that ADR 0007 introduced {@code SYSTEM} to avoid.
    */
   public sealed interface Caller {
 
