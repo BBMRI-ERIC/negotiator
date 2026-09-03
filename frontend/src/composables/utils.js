@@ -5,10 +5,16 @@ export function capitalizeFirstLetter(val) {
 export function capitalizeAllWords(val) {
   const str = String(val ?? '').trim()
   if (!str) return ''
+
+  const capitalizeToken = (word) =>
+    /[A-Z]/.test(word) && word === word.toUpperCase()
+      ? word // preserve acronyms as-is (e.g. "ERIC", "ID")
+      : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+
   return str
-    .split(/[\s_-]+/)
+    .split(/[\s_]+/) // only space/underscore are hard word separators
     .filter(Boolean) // remove empty strings from edge cases
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.split('-').map(capitalizeToken).join('-')) // keep hyphens literal
     .join(' ')
 }
 
