@@ -5,7 +5,10 @@ Yarn is recommended because some legacy packages specify peer
 dependencies that can conflict with newer package versions when using npm.
 
 Yarn is pinned via `.yarnrc.yml` / `.yarn/releases` to version 4.18.0 (Berry).
-This resolves automatically on `yarn install`; Corepack is not required.
+If you already have any Yarn on your PATH, this resolves automatically on
+`yarn install` — no Corepack needed. If you don't have Yarn installed at all,
+bootstrap it once with `corepack enable`, or run the pin directly via
+`node .yarn/releases/yarn-4.18.0.cjs install`.
 
 ## Project Setup
 
