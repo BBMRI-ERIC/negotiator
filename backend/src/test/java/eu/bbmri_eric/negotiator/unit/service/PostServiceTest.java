@@ -397,6 +397,7 @@ public class PostServiceTest {
       authorities = {"ROLE_ADMIN"})
   public void test_findByNegotiationId_AsAdmin_All() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(allPosts);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
     assertEquals(allPosts.size(), postService.findByNegotiationId(NEG_1).size());
   }
 
@@ -410,7 +411,21 @@ public class PostServiceTest {
       authorities = {"ROLE_RESEARCHER"})
   public void test_findByNegotiationId_AsResearcher_All() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(allPosts);
-    when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
+    assertEquals(allPosts.size(), postService.findByNegotiationId(NEG_1).size());
+  }
+
+  /** Tests that a negotiation editor gets all the posts of a negotiation */
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findByNegotiationId_AsNegotiationEditor_All() {
+    when(postRepository.findByNegotiationId(NEG_1)).thenReturn(allPosts);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
     assertEquals(allPosts.size(), postService.findByNegotiationId(NEG_1).size());
   }
 
@@ -458,6 +473,7 @@ public class PostServiceTest {
       authorities = {"ROLE_ADMIN"})
   public void test_findByNegotiationId_AsAdmin_Public() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(publicPosts);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
     assertEquals(publicPosts.size(), postService.findByNegotiationId(NEG_1).size());
   }
 
@@ -471,7 +487,7 @@ public class PostServiceTest {
       authorities = {"ROLE_RESEARCHER"})
   public void test_findByNegotiationId_AsResearcher_Public() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(publicPosts);
-    when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
     assertEquals(publicPosts.size(), postService.findByNegotiationId(NEG_1).size());
   }
 
@@ -518,6 +534,7 @@ public class PostServiceTest {
       authorities = {"ROLE_ADMIN"})
   public void test_findByNegotiationId_AsAdmin_Private() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(privatePosts);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
     assertEquals(privatePosts.size(), postService.findByNegotiationId(NEG_1).size());
   }
 
@@ -531,7 +548,7 @@ public class PostServiceTest {
       authorities = {"ROLE_RESEARCHER"})
   public void test_findByNegotiationId_AsResearcher_Private() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(privatePosts);
-    when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
     assertEquals(privatePosts.size(), postService.findByNegotiationId(NEG_1).size());
   }
 
@@ -580,6 +597,7 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsAdmin_Private_withOrganizationId() {
     List<Post> posts = List.of(privateResToOrg1, privateBio1ToOrg1);
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(posts);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
     assertEquals(posts.size(), postService.findByNegotiationId(NEG_1).size());
   }
 
@@ -594,7 +612,7 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsResearcher_Private_withOrganizationId() {
     List<Post> posts = List.of(privateResToOrg1, privateBio1ToOrg1);
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(posts);
-    when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
     when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
     assertEquals(posts.size(), postService.findByNegotiationId(NEG_1).size());
   }

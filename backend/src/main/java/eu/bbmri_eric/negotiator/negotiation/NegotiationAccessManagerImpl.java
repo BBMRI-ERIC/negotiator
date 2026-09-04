@@ -22,6 +22,7 @@ public class NegotiationAccessManagerImpl implements NegotiationAccessManager {
   public void verifyReadAccessForNegotiation(String negotiationId, Long userID) {
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userID)
+        && !negotiationRepository.existsByIdAndCollaborators_Id(negotiationId, userID)
         && !personRepository.isRepresentativeOfAnyResourceOfNegotiation(userID, negotiationId)
         && !personRepository.isManagerOfAnyResourceOfNegotiation(userID, negotiationId)) {
       throw new ForbiddenRequestException("You are not allowed to perform this action");
@@ -32,7 +33,8 @@ public class NegotiationAccessManagerImpl implements NegotiationAccessManager {
   public void verifyUpdateAccessForNegotiation(String negotiationId, Long userID)
       throws ForbiddenRequestException {
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
-        && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userID)) {
+        && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userID)
+        && !negotiationRepository.existsByIdAndCollaborators_Id(negotiationId, userID)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
   }
