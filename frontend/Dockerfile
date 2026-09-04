@@ -1,7 +1,10 @@
 FROM node:lts-krypton AS  build-stage
 WORKDIR /app
-COPY . .
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn ./.yarn
+ENV CYPRESS_INSTALL_BINARY=0
 RUN yarn install
+COPY . .
 RUN yarn build
 
 FROM nginxinc/nginx-unprivileged:1.31.4-perl@sha256:cfccfa3ded2d1839340aa2da1a8f70f65cfefba9685fd1168494c81db04921aa AS production-stage
