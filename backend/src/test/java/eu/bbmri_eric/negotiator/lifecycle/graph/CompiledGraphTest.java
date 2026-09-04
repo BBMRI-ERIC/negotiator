@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.lifecycle.graph;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -35,22 +36,26 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("a compiled graph is identified by its Definition Version's row id and nothing else")
   void definitionVersionId_isTheWholeIdentity() {
     assertThat(graph().definitionVersionId()).isEqualTo(VERSION_ID);
   }
 
   @Test
+  @DisplayName("the initial State is the one State whose row carries the flag")
   void initialState_isTheOneStateCarryingTheFlag() {
     assertThat(graph().initialState()).isEqualTo("SUBMITTED");
   }
 
   @Test
+  @DisplayName("the graph lists every declared State, not only the reachable ones")
   void states_includesEveryDeclaredStateAndNotOnlyTheReachableOnes() {
     assertThat(graph().states())
         .containsExactlyInAnyOrder("DRAFT", "SUBMITTED", "IN_PROGRESS", "ABANDONED", "APPROVED");
   }
 
   @Test
+  @DisplayName("an Event that leaves the current State returns the edge it leads along")
   void transition_whenAnEdgeLeavesTheStateForTheEvent_returnsIt() {
     assertThat(graph().transition("SUBMITTED", "APPROVE"))
         .contains(
@@ -59,11 +64,13 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("an Event that leads nowhere from that State returns no edge")
   void transition_whenTheEventLeadsNowhereFromThatState_returnsEmpty() {
     assertThat(graph().transition("IN_PROGRESS", "APPROVE")).isEmpty();
   }
 
   @Test
+  @DisplayName("an Event carrying no Transition anywhere returns no edge")
   void transition_whenTheEventCarriesNoTransitionAnywhere_returnsEmpty() {
     assertThat(graph().transition("SUBMITTED", "START")).isEmpty();
   }
@@ -74,12 +81,14 @@ class CompiledGraphTest {
    * them.
    */
   @Test
+  @DisplayName("the Event universe is wider than the Transitions, as both v1 graphs are")
   void events_includesEventsThatCarryNoTransition() {
     assertThat(graph().events())
         .containsExactlyInAnyOrder("SUBMIT", "APPROVE", "DECLINE", "ABANDON", "START");
   }
 
   @Test
+  @DisplayName("an Event that leads nowhere is told apart from one the version never declared")
   void declaresEvent_separatesAnEventThatLeadsNowhereFromOneThatDoesNotExist() {
     CompiledGraph graph = graph();
 
@@ -88,11 +97,13 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("a Transition declares its own Event, so only a Transitionless one needs naming")
   void transition_declaresItsOwnEvent_soOnlyTransitionlessOnesNeedNaming() {
     assertThat(graph().declaresEvent("APPROVE")).isTrue();
   }
 
   @Test
+  @DisplayName("every Transition leaving a State is offered from it")
   void transitionsFrom_returnsEveryEdgeLeavingTheState() {
     assertThat(graph().transitionsFrom("SUBMITTED"))
         .extracting(CompiledTransition::event)
@@ -100,17 +111,20 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("a terminal State offers no Transitions")
   void transitionsFrom_whenTheStateIsTerminal_returnsEmpty() {
     assertThat(graph().transitionsFrom("ABANDONED")).isEmpty();
   }
 
   /** A Legacy State is not an error and not a special case — it simply offers nothing. */
   @Test
+  @DisplayName("a Legacy State offers no Transitions, and is not an error")
   void transitionsFrom_whenTheStateIsALegacyState_returnsEmpty() {
     assertThat(graph().transitionsFrom("APPROVED")).isEmpty();
   }
 
   @Test
+  @DisplayName("terminality is the flag this version declares, State by State")
   void isTerminal_answersTheFlagTheVersionDeclares() {
     CompiledGraph graph = graph();
 
@@ -125,6 +139,8 @@ class CompiledGraphTest {
    * — and reading that as "still running" is how a Negotiation stays in progress for ever.
    */
   @Test
+  @DisplayName(
+      "asking whether an undeclared State is terminal is refused rather than answered false")
   void isTerminal_whenTheVersionDoesNotDeclareTheState_throws() {
     assertThatThrownBy(() -> graph().isTerminal("RESOURCE_MADE_AVAILABLE"))
         .isInstanceOf(IllegalArgumentException.class)
@@ -133,6 +149,7 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("a State this version declares is told apart from one it has never heard of")
   void declaresState_separatesAStateThisVersionHasFromOneItDoesNot() {
     CompiledGraph graph = graph();
 
@@ -141,6 +158,7 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("a graph with no initial State cannot be built")
   void build_whenNoStateIsInitial_isRefused() {
     CompiledGraph.Builder builder = CompiledGraph.builder(VERSION_ID).state("SUBMITTED");
 
@@ -151,6 +169,7 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("a graph with two initial States cannot be built")
   void build_whenTwoStatesAreInitial_isRefused() {
     CompiledGraph.Builder builder =
         CompiledGraph.builder(VERSION_ID).initialState("DRAFT").initialState("SUBMITTED");
@@ -163,6 +182,7 @@ class CompiledGraphTest {
 
   /** Independent columns, so a one-State Lifecycle is a graph the schema permits. */
   @Test
+  @DisplayName("one State may be both initial and terminal, so a one-State Lifecycle is legal")
   void build_whenOneStateIsBothInitialAndTerminal_isAccepted() {
     CompiledGraph graph =
         CompiledGraph.builder(VERSION_ID).initialState("DONE").terminalState("DONE").build();
@@ -173,6 +193,7 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("a Transition out of a State the version never declared is refused")
   void build_whenATransitionNamesAnUndeclaredSourceState_isRefused() {
     CompiledGraph.Builder builder =
         CompiledGraph.builder(VERSION_ID)
@@ -186,6 +207,7 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName("a Transition into a State the version never declared is refused")
   void build_whenATransitionNamesAnUndeclaredTargetState_isRefused() {
     CompiledGraph.Builder builder =
         CompiledGraph.builder(VERSION_ID)
@@ -205,6 +227,7 @@ class CompiledGraphTest {
    * Events instead.
    */
   @Test
+  @DisplayName("two Transitions leaving one State on one Event are refused")
   void build_whenTwoTransitionsShareASourceAndEvent_isRefused() {
     CompiledGraph.Builder builder =
         CompiledGraph.builder(VERSION_ID)
@@ -223,6 +246,7 @@ class CompiledGraphTest {
 
   /** The same Event from two different States is the ordinary case, and must stay legal. */
   @Test
+  @DisplayName("one Event may leave two different States, which is the ordinary case")
   void build_whenOneEventLeavesTwoDifferentStates_isAccepted() {
     CompiledGraph graph =
         CompiledGraph.builder(VERSION_ID)
@@ -238,6 +262,8 @@ class CompiledGraphTest {
   }
 
   @Test
+  @DisplayName(
+      "an edge with no Required Authority is refused, because NONE is how anyone is spelled")
   void transition_whenGivenNullRequiredAuthority_isRefusedAtConstruction() {
     assertThatThrownBy(() -> new CompiledTransition("A", "E", "B", null))
         .isInstanceOf(NullPointerException.class)

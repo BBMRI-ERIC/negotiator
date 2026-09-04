@@ -15,6 +15,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -140,6 +141,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("the compiled graph takes the Definition Version's row id as its identity")
   void compile_takesTheDefinitionVersionsRowIdAsTheGraphsIdentity() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -147,6 +149,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("the initial and terminal flags cross into the graph as the rows declare them")
   void compile_carriesTheStateFlagsAcrossAsTheyAreDeclared() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -159,6 +162,7 @@ class DefinitionCompilerTest {
    * A Legacy State is a row like any other, and must survive compilation to keep old data valid.
    */
   @Test
+  @DisplayName("a Legacy State no Transition touches survives compilation")
   void compile_keepsAStateNoTransitionTouches() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -167,6 +171,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("an Event no Transition uses survives compilation")
   void compile_keepsAnEventNoTransitionUses() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -175,6 +180,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("the Transition row's Required Authority lands on the compiled edge")
   void compile_carriesTheRequiredAuthorityOntoTheEdge() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -189,6 +195,7 @@ class DefinitionCompilerTest {
    * learns that Guards have two scopes.
    */
   @Test
+  @DisplayName("definition-wide Guards are folded in ahead of the Transition's own")
   void compile_putsDefinitionWideGuardsAheadOfTheTransitionsOwn() {
     CompiledGraph graph =
         compiler.compile(
@@ -206,6 +213,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("each Guard scope is ordered by its own sort order rather than by row order")
   void compile_ordersEachScopeByItsOwnSortOrderRatherThanByRowOrder() {
     CompiledGraph graph =
         compiler.compile(
@@ -225,6 +233,7 @@ class DefinitionCompilerTest {
    * not interleave them.
    */
   @Test
+  @DisplayName("the same sort order on both scopes still puts the definition-wide Guard first")
   void compile_whenBothScopesUseTheSameSortOrder_stillPutsTheDefinitionWideOneFirst() {
     CompiledGraph graph =
         compiler.compile(
@@ -240,6 +249,7 @@ class DefinitionCompilerTest {
 
   /** There is no uniqueness on {@code type_key}: one definition may wire a key twice. */
   @Test
+  @DisplayName("one type key wired twice at different sort orders yields two steps")
   void compile_whenOneTypeKeyIsWiredTwiceAtDifferentSortOrders_keepsBoth() {
     CompiledGraph graph =
         compiler.compile(
@@ -256,6 +266,7 @@ class DefinitionCompilerTest {
    * gets it without anybody wiring it.
    */
   @Test
+  @DisplayName("a definition-wide Guard reaches every Transition of the version")
   void compile_appliesADefinitionWideGuardToEveryTransition() {
     Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
     CompiledGraph graph =
@@ -269,6 +280,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("a Transition-scoped Guard stays off every other Transition")
   void compile_keepsATransitionScopedGuardOffEveryOtherTransition() {
     Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
     CompiledGraph graph =
@@ -282,6 +294,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("each Wiring row's raw configuration reaches the catalogue once")
   void compile_handsEachWiringsRawParamsToTheCatalogueOnce() {
     compiler.compile(
         rows(
@@ -298,6 +311,7 @@ class DefinitionCompilerTest {
    * reader.
    */
   @Test
+  @DisplayName("a definition-wide Wiring row is bound once however many Transitions carry it")
   void compile_bindsADefinitionWideWiringOnceHoweverManyTransitionsCarryIt() {
     Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
 
@@ -310,6 +324,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("a type key the catalogue refuses fails the compile rather than the firing")
   void compile_whenTheCatalogueRefusesAKey_failsTheCompileRatherThanTheFiring() {
     assertThatThrownBy(
             () ->
@@ -320,6 +335,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("a row belonging to another Definition Version is refused")
   void compile_whenARowBelongsToAnotherDefinitionVersion_isRefused() {
     LifecycleDefinition other =
         LifecycleDefinition.builder()
@@ -350,6 +366,7 @@ class DefinitionCompilerTest {
   // --- the Action chain -------------------------------------------------------------------------
 
   @Test
+  @DisplayName("a Transition's Actions land on its edge in sort order")
   void compile_putsTheTransitionsActionsOnItsEdgeInSortOrder() {
     CompiledGraph graph =
         compiler.compile(
@@ -365,6 +382,7 @@ class DefinitionCompilerTest {
 
   /** Action wiring is transition-scoped only; there is no definition-wide chain to fold in. */
   @Test
+  @DisplayName("a Transition's Actions stay off every other Transition")
   void compile_keepsATransitionsActionsOffEveryOtherTransition() {
     Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
     CompiledGraph graph =
@@ -379,6 +397,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("an Action's configuration goes to the Action catalogue and not the Guard one")
   void compile_handsAnActionsRawParamsToItsOwnCatalogue() {
     compiler.compile(
         rows(
@@ -402,6 +421,7 @@ class DefinitionCompilerTest {
    * refused at compile time rather than dispatched to the wrong strategy.
    */
   @Test
+  @DisplayName("an Action key wired where a Guard belongs is refused at compile time")
   void compile_whenAnActionKeyIsWiredAsAGuard_isRefused() {
     assertThatThrownBy(
             () ->

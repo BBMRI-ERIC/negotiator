@@ -16,6 +16,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -46,6 +47,7 @@ class LifecycleStrategiesTest {
   }
 
   @Test
+  @DisplayName("parent-approval passes while the parent Negotiation is in progress")
   void negotiationApproved_whenTheParentIsInProgress_passes() {
     assertThat(negotiationApproved.check(resourceUnder("IN_PROGRESS"), NoParams.INSTANCE).passed())
         .isTrue();
@@ -67,6 +69,7 @@ class LifecycleStrategiesTest {
     "ABANDONED,false",
     "CONCLUDED,false"
   })
+  @DisplayName("parent-approval permits Resource work only while the parent is in progress")
   void negotiationApproved_permitsResourceWorkOnlyWhileTheParentIsInProgress(
       String parentState, boolean expected) {
     assertThat(negotiationApproved.check(resourceUnder(parentState), NoParams.INSTANCE).passed())
@@ -74,6 +77,7 @@ class LifecycleStrategiesTest {
   }
 
   @Test
+  @DisplayName("parent-approval's refusal says what the parent State was and what it needed")
   void negotiationApproved_whenRefusing_saysWhatTheParentStateWasAndWhatItNeeded() {
     assertThat(negotiationApproved.check(resourceUnder("PAUSED"), NoParams.INSTANCE))
         .satisfies(
@@ -114,6 +118,7 @@ class LifecycleStrategiesTest {
   }
 
   @Test
+  @DisplayName("terminal aggregation passes when every Resource is in a terminal State")
   void terminalAggregation_whenEveryResourceIsInATerminalState_passes() {
     EvaluationContext context =
         negotiationOver(
@@ -124,6 +129,7 @@ class LifecycleStrategiesTest {
   }
 
   @Test
+  @DisplayName("terminal aggregation refuses while one Resource is still running, and names it")
   void terminalAggregation_whenOneResourceIsStillRunning_refusesAndNamesIt() {
     EvaluationContext context =
         negotiationOver(
@@ -148,6 +154,8 @@ class LifecycleStrategiesTest {
    * version is pinned to which Resource and on nothing else.
    */
   @Test
+  @DisplayName(
+      "terminal aggregation asks each Resource's own pinned version whether it is finished")
   void terminalAggregation_asksEachResourcesOwnPinnedVersion() {
     SiblingResource underStrict =
         new SiblingResource(1L, "RESOURCE_NOT_MADE_AVAILABLE", strictFlow());
@@ -165,6 +173,7 @@ class LifecycleStrategiesTest {
 
   /** The vacuous reading of "every", left vacuous deliberately. */
   @Test
+  @DisplayName("terminal aggregation passes vacuously over a Negotiation with no Resources")
   void terminalAggregation_whenTheNegotiationHasNoResources_passes() {
     assertThat(terminalAggregation.check(negotiationOver(), NoParams.INSTANCE).passed()).isTrue();
   }
@@ -193,6 +202,7 @@ class LifecycleStrategiesTest {
     "PRIVATE,true,'private=true'",
     "BOTH,false,'public=false,private=false'"
   })
+  @DisplayName("post-visibility reproduces each of the three dump Actions from one Wiring row")
   void setPostVisibility_reproducesEachDumpActionFromOneWiringRow(
       String scope, boolean enabled, String expected) {
     SetPostVisibilityAction action = new SetPostVisibilityAction(posts);
@@ -205,6 +215,7 @@ class LifecycleStrategiesTest {
   }
 
   @Test
+  @DisplayName("post-visibility reads its scope and flag out of the Wiring row's configuration")
   void setPostVisibility_readsItsScopeAndFlagOutOfTheWiringRowsJson() throws Exception {
     ActionRegistry registry =
         new ActionRegistry(new ObjectMapper(), List.of(new SetPostVisibilityAction(posts)));
@@ -223,6 +234,7 @@ class LifecycleStrategiesTest {
    * transfer here: there, each configured bean declares a different key.
    */
   @Test
+  @DisplayName("post-visibility declared as three beans collides on one key and fails the boot")
   void setPostVisibility_configuredAsThreeBeans_wouldFailTheBoot() {
     ObjectMapper mapper = new ObjectMapper();
     List<Action<?>> threeBeans =
@@ -239,6 +251,7 @@ class LifecycleStrategiesTest {
   // --- SPAWN_RESOURCE_LIFECYCLES ---------------------------------------------------------------
 
   @Test
+  @DisplayName("spawn is registered, so a Wiring row can name it")
   void spawnResourceLifecycles_isRegisteredSoAWiringRowCanNameIt() {
     ActionRegistry registry =
         new ActionRegistry(new ObjectMapper(), List.of(new SpawnResourceLifecyclesAction()));
@@ -250,6 +263,7 @@ class LifecycleStrategiesTest {
 
   /** It writes, and this slab excludes everything that writes. Refusing beats doing nothing. */
   @Test
+  @DisplayName("spawn refuses to run, because this slab excludes everything that writes")
   void spawnResourceLifecycles_refusesToRun() {
     assertThatThrownBy(
             () -> new SpawnResourceLifecyclesAction().run(committing("APPROVE"), NoParams.INSTANCE))

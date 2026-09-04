@@ -14,6 +14,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -83,6 +84,7 @@ class TransitionEvaluatorTest {
   }
 
   @Test
+  @DisplayName("an Event requiring no authority is permitted to any human caller")
   void evaluate_whenTheAuthorityIsNone_permitsAnyHuman() {
     assertThat(evaluator.evaluate(graph(), "ANYONE", contextFor(stranger())))
         .isEqualTo(
@@ -91,6 +93,7 @@ class TransitionEvaluatorTest {
   }
 
   @Test
+  @DisplayName("IS_ADMIN reads the granted ROLE_ADMIN authority rather than who the caller is")
   void evaluate_whenTheAuthorityIsAdmin_readsTheGrantedAuthorityAndNotTheCallersIdentity() {
     assertThat(evaluator.evaluate(graph(), "ADMIN_ONLY", contextFor(admin())).permitted()).isTrue();
     assertThat(evaluator.evaluate(graph(), "ADMIN_ONLY", contextFor(creator())).permitted())
@@ -98,6 +101,7 @@ class TransitionEvaluatorTest {
   }
 
   @Test
+  @DisplayName("IS_CREATOR permits the Negotiation's creator and nobody else")
   void evaluate_whenTheAuthorityIsCreator_permitsOnlyTheNegotiationsCreator() {
     assertThat(evaluator.evaluate(graph(), "CREATOR_ONLY", contextFor(creator())).permitted())
         .isTrue();
@@ -107,6 +111,7 @@ class TransitionEvaluatorTest {
   }
 
   @Test
+  @DisplayName("IS_REPRESENTATIVE permits a representative of that Resource and nobody else")
   void evaluate_whenTheAuthorityIsRepresentative_permitsOnlyARepresentativeOfThatResource() {
     assertThat(evaluator.evaluate(graph(), "REP_ONLY", contextFor(representative())).permitted())
         .isTrue();
@@ -116,11 +121,13 @@ class TransitionEvaluatorTest {
 
   /** An admin holds no representative rule; nothing partitions callers, and nothing merges them. */
   @Test
+  @DisplayName("being an administrator does not make a caller a representative")
   void evaluate_whenTheAuthorityIsRepresentative_isNotSatisfiedByBeingAnAdmin() {
     assertThat(evaluator.evaluate(graph(), "REP_ONLY", contextFor(admin())).permitted()).isFalse();
   }
 
   @Test
+  @DisplayName("a refusal on authority names the authority that was wanted")
   void evaluate_whenRefusedOnAuthority_saysWhichAuthorityWasWanted() {
     EvaluationOutcome outcome = evaluator.evaluate(graph(), "ADMIN_ONLY", contextFor(stranger()));
 
@@ -142,6 +149,7 @@ class TransitionEvaluatorTest {
    * than about one caller.
    */
   @Test
+  @DisplayName("no human caller of any shape satisfies SYSTEM")
   void evaluate_whenTheAuthorityIsSystem_isRefusedForEveryHumanCaller() {
     for (Caller human : List.of(admin(), creator(), representative(), stranger())) {
       assertThat(evaluator.evaluate(graph(), "CONCLUDE", contextFor(human)).permitted()).isFalse();
@@ -149,6 +157,7 @@ class TransitionEvaluatorTest {
   }
 
   @Test
+  @DisplayName("the system caller satisfies SYSTEM")
   void evaluate_whenTheAuthorityIsSystem_permitsTheSystemCaller() {
     assertThat(evaluator.evaluate(graph(), "CONCLUDE", contextFor(Caller.system())).permitted())
         .isTrue();
@@ -163,6 +172,8 @@ class TransitionEvaluatorTest {
   @EnumSource(
       value = RequiredAuthority.class,
       names = {"NONE", "IS_ADMIN", "IS_CREATOR", "IS_REPRESENTATIVE"})
+  @DisplayName(
+      "the system caller satisfies no human authority, so an open Event is not machine-fireable")
   void evaluate_whenTheCallerIsTheSystem_satisfiesNoHumanAuthority(RequiredAuthority authority) {
     CompiledGraph graph =
         CompiledGraph.builder(1L)
@@ -179,6 +190,7 @@ class TransitionEvaluatorTest {
    * before any gating, and told apart from a name the version has never heard of.
    */
   @Test
+  @DisplayName("a declared Event that leads nowhere is refused structurally, before any gating")
   void evaluate_whenTheEventIsDeclaredButCarriesNoTransition_refusesBeforeAnyGating() {
     EvaluationOutcome outcome = evaluator.evaluate(graph(), "OVERRIDE", contextFor(admin()));
 
@@ -196,6 +208,7 @@ class TransitionEvaluatorTest {
   }
 
   @Test
+  @DisplayName("an Event the version never declared is refused under its own reason code")
   void evaluate_whenTheVersionDeclaresNoSuchEventAtAll_saysSoDistinctly() {
     EvaluationOutcome outcome = evaluator.evaluate(graph(), "TYPO", contextFor(admin()));
 
@@ -211,12 +224,14 @@ class TransitionEvaluatorTest {
   }
 
   @Test
+  @DisplayName("the listing omits a blocked Event rather than offering it as unavailable")
   void possibleEvents_omitsBlockedEventsRatherThanListingThemAsUnavailable() {
     assertThat(evaluator.possibleEvents(graph(), contextFor(creator())))
         .containsExactlyInAnyOrder("ANYONE", "CREATOR_ONLY");
   }
 
   @Test
+  @DisplayName("a Lifecycle in a terminal State is offered nothing")
   void possibleEvents_whenTheStateIsTerminal_isEmpty() {
     CompiledGraph graph =
         CompiledGraph.builder(1L).initialState("OPEN").terminalState("DONE").build();
@@ -233,6 +248,8 @@ class TransitionEvaluatorTest {
    * permitted. There is one path, so this cannot be made to fail without breaking it.
    */
   @Test
+  @DisplayName(
+      "the listing offers exactly the Events the gate would permit, for every caller shape")
   void possibleEvents_offersExactlyWhatEvaluateWouldPermit() {
     CompiledGraph graph = graph();
     List<String> everyEvent =
@@ -254,6 +271,8 @@ class TransitionEvaluatorTest {
   // --- the Information Requirement stage, and the pipeline's order ---------------------------
 
   @Test
+  @DisplayName(
+      "an unmet Information Requirement refuses with the stage's category and the step's reason")
   void evaluate_whenARequirementIsUnmet_refusesWithTheStagesOwnCategoryAndTheStepsReason() {
     requirements.blocked.put(
         "ANYONE", GuardVerdict.fail("REQUIREMENT_NOT_MET", Map.of("missingForms", List.of("7"))));
@@ -277,6 +296,8 @@ class TransitionEvaluatorTest {
    * heard of it.
    */
   @Test
+  @DisplayName(
+      "the Information Requirement stage runs on every Transition, with no Wiring row to omit it")
   void evaluate_runsTheRequirementStageOnEveryTransitionWithoutAnyWiring() {
     requirements.blockEverything();
 
@@ -295,6 +316,7 @@ class TransitionEvaluatorTest {
    * was pinned as a leak.
    */
   @Test
+  @DisplayName("a caller failing both authority and requirement is told about the authority")
   void evaluate_whenBothAuthorityAndRequirementFail_reportsTheAuthorityOne() {
     requirements.blockEverything();
 
@@ -309,6 +331,7 @@ class TransitionEvaluatorTest {
 
   /** And the second half of the order: a Requirement outranks a Guard. */
   @Test
+  @DisplayName("a caller failing both requirement and Guard is told about the requirement")
   void evaluate_whenBothRequirementAndGuardFail_reportsTheRequirementOne() {
     requirements.blockEverything();
     CompiledGraph guarded =
@@ -336,6 +359,7 @@ class TransitionEvaluatorTest {
   // --- the Guard stage ------------------------------------------------------------------------
 
   @Test
+  @DisplayName("a Guard's refusal is a domain-state conflict that names the refusing Guard")
   void evaluate_whenAGuardRefuses_reportsADomainStateConflictNamingTheGuard() {
     CompiledGraph guarded =
         CompiledGraph.builder(1L)
@@ -365,6 +389,7 @@ class TransitionEvaluatorTest {
 
   /** Short-circuiting is observable: a chain stops at the first refusal and the rest never run. */
   @Test
+  @DisplayName("a Guard chain stops at the first refusal and the rest never run")
   void evaluate_whenAGuardRefuses_doesNotRunTheRestOfTheChain() {
     List<String> ran = new java.util.ArrayList<>();
     CompiledGraph guarded =
