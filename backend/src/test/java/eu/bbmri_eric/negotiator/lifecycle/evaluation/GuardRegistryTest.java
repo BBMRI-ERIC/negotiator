@@ -11,6 +11,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -34,6 +35,7 @@ class GuardRegistryTest {
   }
 
   @Test
+  @DisplayName("the catalogue reports every type key it knows")
   void typeKeys_reportsEveryKeyTheCatalogueKnows() {
     assertThat(registryOf(new ParamsFreeGuard(), new ThresholdGuard()).typeKeys())
         .containsExactly("PARAMS_FREE", "THRESHOLD");
@@ -45,6 +47,7 @@ class GuardRegistryTest {
    * handlers per event are legal there. Two Guards claiming one key are not.
    */
   @Test
+  @DisplayName("two strategies claiming one type key fail the boot, naming both classes")
   void constructor_whenTwoStrategiesDeclareOneTypeKey_throwsNamingBothClasses() {
     Guard<NoParams> duplicate =
         new Guard<>() {
@@ -72,6 +75,7 @@ class GuardRegistryTest {
   }
 
   @Test
+  @DisplayName("an unknown type key is refused, and the refusal offers the keys it does know")
   void bind_whenNoStrategyDeclaresTheKey_throwsAndOffersTheKeysItKnows() {
     assertThatThrownBy(() -> registryOf(new ParamsFreeGuard()).bind("MISSPELLED", null))
         .isInstanceOf(IllegalArgumentException.class)
@@ -80,6 +84,7 @@ class GuardRegistryTest {
   }
 
   @Test
+  @DisplayName("a Wiring row's raw configuration is read into the strategy's declared type")
   void bind_readsTheRawJsonIntoTheStrategysDeclaredType() {
     GuardStep step = registryOf(new ThresholdGuard()).bind("THRESHOLD", "{\"minimum\":3}");
 
@@ -89,6 +94,7 @@ class GuardRegistryTest {
 
   /** Null params is legal and ordinary — a strategy that takes none needs none. */
   @Test
+  @DisplayName("a strategy that takes no configuration binds against a null params column")
   void bind_whenTheParamsColumnIsNullAndTheStrategyTakesNone_binds() {
     GuardStep step = registryOf(new ParamsFreeGuard()).bind("PARAMS_FREE", null);
 
@@ -96,6 +102,7 @@ class GuardRegistryTest {
   }
 
   @Test
+  @DisplayName("a strategy needing configuration refuses a null params column at compile time")
   void bind_whenTheParamsColumnIsNullAndTheStrategyNeedsSome_saysSoAtCompileTime() {
     assertThatThrownBy(() -> registryOf(new ThresholdGuard()).bind("THRESHOLD", null))
         .isInstanceOf(IllegalArgumentException.class)
@@ -104,6 +111,8 @@ class GuardRegistryTest {
   }
 
   @Test
+  @DisplayName(
+      "configuration not fitting the declared type is refused at compile time, not at fire time")
   void bind_whenTheParamsDoNotFitTheDeclaredType_saysSoAtCompileTimeRatherThanAtFireTime() {
     assertThatThrownBy(
             () -> registryOf(new ThresholdGuard()).bind("THRESHOLD", "{\"minimum\":\"three\"}"))
@@ -117,6 +126,7 @@ class GuardRegistryTest {
    * params or JSON survives binding, which is what makes the evaluator's Guard stage a loop.
    */
   @Test
+  @DisplayName("a bound step names its key and carries its configuration invisibly")
   void bind_producesAStepThatNamesItsKeyAndCarriesItsParamsInvisibly() {
     GuardStep step = registryOf(new ThresholdGuard()).bind("THRESHOLD", "{\"minimum\":7}");
 

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -63,6 +64,7 @@ class EvaluatorPurityGuardTest {
   private static final Pattern REPOSITORY_TYPE = Pattern.compile("\\b\\w*Repository\\b");
 
   @Test
+  @DisplayName("neither package names anything that could reach a database")
   void neitherPackage_namesAnythingThatCouldReachADatabase() {
     List<Violation> violations =
         scan(
@@ -91,6 +93,7 @@ class EvaluatorPurityGuardTest {
    * the definition package is holding would be gone and the compiler's package-privacy pointless.
    */
   @Test
+  @DisplayName("neither package reaches into the definition package")
   void neitherPackage_reachesIntoTheDefinitionPackage() {
     List<Violation> violations =
         scan(anySource(), line -> line.contains("eu.bbmri_eric.negotiator.lifecycle.definition"));
@@ -114,6 +117,7 @@ class EvaluatorPurityGuardTest {
    * not be built by a test, or by a seed, without dragging the evaluator in.
    */
   @Test
+  @DisplayName("the graph package does not know the evaluation package exists")
   void theGraphPackage_doesNotKnowTheEvaluationPackageExists() {
     List<Violation> violations =
         scan(
@@ -138,6 +142,7 @@ class EvaluatorPurityGuardTest {
    * passes for ever and proves nothing.
    */
   @Test
+  @DisplayName("each rule scans the code it claims to and matches what it forbids")
   void theRules_scanTheCodeTheyClaimToAndMatchWhatTheyForbid() {
     List<Path> scanned = sources(anySource());
     assertTrue(
