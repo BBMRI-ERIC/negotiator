@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -64,5 +67,6 @@
     "last 2 versions",
     "not dead",
     "not ie 11"
-  ]
+  ],
+  "packageManager": "yarn@4.18.0"
 }
