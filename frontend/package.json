@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -44,8 +47,7 @@
     "vue-router": "^5.0.2",
     "vue3-form-wizard": "1.1.1",
     "vue3-tour": "^1.0.3",
-    "vuedraggable": "4.1.0",
-    "yarn": "^1.22.19"
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -65,5 +67,6 @@
     "last 2 versions",
     "not dead",
     "not ie 11"
-  ]
+  ],
+  "packageManager": "yarn@4.18.0"
 }

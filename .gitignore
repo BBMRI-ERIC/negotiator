@@ -49,7 +49,12 @@ application.properties
 compose.dev.yml
 
 ### Yarn ###
-frontend/.yarn
-frontend/.yarnrc.yml
-# Currently not checked in
-frontend/yarn.lock
+frontend/.yarn/*
+!frontend/.yarn/releases
+!frontend/.yarn/plugins
+!frontend/.yarn/patches
+!frontend/.yarn/sdks
+frontend/.yarn/cache
+frontend/.yarn/unplugged
+frontend/.yarn/install-state.gz
+frontend/.pnp.*
