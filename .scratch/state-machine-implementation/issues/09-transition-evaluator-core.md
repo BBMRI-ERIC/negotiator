@@ -1,7 +1,7 @@
 # Transition Evaluator core
 
 Type: task
-Status: open
+Status: claimed
 Blocked by: 08, 13
 
 ## Question
@@ -39,3 +39,32 @@ Take them from ticket 01's graph dump, not from memory. At minimum:
 ### Note
 
 Read ADRs [0001](../../../backend/docs/adr/0001-hand-written-lifecycle-subsystem.md), [0002](../../../backend/docs/adr/0002-lifecycle-definitions-are-relational-configuration.md) and [0005](../../../backend/docs/adr/0005-information-requirements-gate-transitions-as-a-built-in-stage.md) in full first. `/codebase-design` is appropriate — this is the deep module of the whole effort, and its no-I/O boundary is the argument that makes everything else testable.
+
+## Progress
+
+**Claimed and charted 2026-09-04**, after [ticket 13](13-prototype-the-compiled-graph-package.md)
+resolved with two independent prototypes compared. The slab's inner tracker is
+[`.scratch/transition-evaluator-core/`](../../transition-evaluator-core/PRD.md). Work resumes there;
+do not re-plan this slab.
+
+**Prototype B's tree is adopted as slice 01 rather than rewritten** — 28 production files, 98 tests,
+already green on the formatter, `ApplicationTest` and the parity gate. The remaining slices are one
+graft or one decision each, in the PRD's D20.
+
+Three things this ticket's own text gets wrong about the code, and one about the precedent it names,
+are corrected in the PRD's **D14** and **D15**: the graph dump is silent on Guards, so the Guard
+inventory comes out of the two Lifecycle services; `NEGOTIATION_APPROVED`'s live behaviour is
+imperative in the Resource Lifecycle service and not in the discarded Guard bean, so the slab ports
+the gate and not the class; `SET_POST_VISIBILITY` needs a three-valued scope; and
+`WebhookEventMapper` is keyed on a `Class`, so "exactly as `WebhookEventMapper` does" names the
+mechanism rather than a copyable example — the string type key is new to this backend. Two further
+corrections say where this slab's pipeline **changes** current behaviour rather than reproducing it,
+and both belong in the intended-deltas half of the gate when the cutover slab wires it in: today's
+Information Requirement check is not requirement-scoped, and a blocked Resource Event is a silent
+no-op.
+
+**Two decisions taken with the developer that this ticket did not settle:** the compiled-graph cache
+**is** built, since this ticket requires it (minus a load port and minus `computeIfAbsent`); and
+Wiring `params` are read **strictly**, so a misspelled field fails the compile instead of binding a
+default. Required Authority stays single-valued, following slab 08's precedent, with
+[ticket 11](11-transition-authority-admin-or-creator.md) still open over it.

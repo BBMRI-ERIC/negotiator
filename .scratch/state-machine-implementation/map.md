@@ -198,6 +198,62 @@ These were agreed with the user during charting. They are not ticket resolutions
   col::text` does not prove jsonb, the composite-FK technique, and the trap that two concurrent Maven
   invocations against `backend/` look like 150 real failures).
 
+- **[13 Prototype the compiled-graph package](issues/13-prototype-the-compiled-graph-package.md)** —
+  **resolved.** Prototyped **twice, in parallel, by sessions that did not know of each other**:
+  branch `proto/evaluator-a` (1 commit, 833 new production lines, 26 comment lines) and
+  `proto/evaluator-b` (6 commits, **28 production files**, 1,959 lines, 747 comment lines, **98 pure
+  tests in six classes**). **Neither branch is merged and the ticket's own Answer consolidates three
+  divergent versions of its file** — A resolved it before it knew B existed (that Answer stands only
+  as a record of A's work), B recorded both and said "Not resolved by either session alone".
+  **Use the measured numbers, not the artifacts':** B's own Progress and `findings.md:29` claim "21
+  production files, 100 tests"; the trees hold 28 and the surefire reports 98
+  (23+19+8+21+23+4) — [the comparison](notes/evaluator-prototype-comparison.md) §1 re-ran every figure
+  against both branches, and it plus [a-into-b](notes/evaluator-a-into-b.md) are the two analysis
+  documents, in [`notes/`](notes/) because they outlive the ticket that produced them.
+  **The convergent layout is settled twice over** — three packages with `graph` at the bottom,
+  `RequiredAuthority` in `graph` and `DefinitionScope` package-private in `definition`, topology
+  validated in the graph, definition-level Guards folded first, separate registries failing the boot
+  on duplicate keys, a compiler over already-materialized rows so **`DefinitionInertnessGuardTest`
+  survives with one amendment rather than the deletion the map anticipated**, and all four
+  strategies. **Basing on B closes five of the comparison's eight open decisions by construction**
+  (closures over data, the `definition`↔`evaluation` seam on catalogues declared in `graph` and
+  asserted absent in both directions at `EvaluatorPurityGuardTest:93-133`, raw authority facts with
+  ADR 0007's "if and only if" enforced inside the one evaluator — the half A's `case NONE -> true` at
+  `evaluation/TransitionEvaluator.java:64-68` leaves open to the Orchestration Trigger — placeholders
+  that refuse, and the sealed outcome pair) and a sixth in direction only (unknown current State
+  fails distinctly: both plans say so, only A's code does, B does it in 1 of 3 lookups). **Four
+  things slab 09 must decide itself:** the **compiled-graph cache**, which its own "What to build"
+  requires and B deferred, so **B's deferral cannot be carried silently** — and if it lands, without
+  `CompiledGraphSource` (one adapter) and without `computeIfAbsent`, which holds a future repository
+  loader inside the map's per-bin lock; **one vocabulary**, where the two naming sets differ on seven
+  types *and* **`backend/CONTEXT.md` has no term for the compiled graph or for compiling it at all**,
+  a gap the ticket flagged in its own instructions and both prototypes shipped past — `/domain-modeling`
+  per the binding constraints; **Required Authority stays single-valued** following slab 08's
+  precedent with ticket [11](issues/11-transition-authority-admin-or-creator.md) still open, keeping
+  the 18 lines of javadoc on the moved enum that A's move discarded; and **a-into-b §3's second half**
+  — reading Wiring `params` with `FAIL_ON_UNKNOWN_PROPERTIES` regardless of the ambient
+  `ObjectMapper` — which goes past both prototypes and needs a developer. **Three rows of B's
+  `findings.md` Part 7 divergence table are wrong** because it was written from A's two documents and
+  not A's Java (it says so at `:443-451`): A has the same fourth failure category
+  (`evaluation/RefusalCategory.java:4`), neither prototype tests a cycle, and the table's silence hid
+  A's pre-computed `Set<RequiredAuthority>` — **the PRD must not lift that table.** **`slice-01-vocabulary-move`
+  is answered: the code is abandoned** (it moved *both* enums up to `lifecycle`, contradicting this
+  ticket and both trees), **its `recon-strategies.md` stays prior art read through Git** with one
+  correction from B — recon §8's `DefaultWebhookMappingStrategy` model for `SET_POST_VISIBILITY`
+  fails the boot, since three beans would claim one key — **its 474-line PRD is re-charted, not
+  resumed**, keeping only its evaluator-package argument, its testing decisions and its correction
+  that `WebhookEventMapper` is keyed on a `Class` and no string-keyed registry exists in this backend,
+  and **its 56-line amendment to issue 09 is left where it is: five corrections about the live code**
+  (the graph dump is silent on Guards, `NEGOTIATION_APPROVED` is imperative at
+  `ResourceLifecycleServiceImpl:142` and not in the dead bean, `SET_POST_VISIBILITY` needs a
+  three-valued scope, today's Information Requirement check is unscoped, a blocked Resource Event is
+  a silent no-op) that **slab 09's PRD picks up from `git show slice-01-vocabulary-move:...`** —
+  issue 09 was deliberately not edited by this ticket. Additive and needing no decision, so they can
+  land before the PRD: the no-params-given-params rule in code above the mapper, the graph package's
+  purity as a **whitelist** (A's rule passes on B unchanged), the inertness list extended to
+  `DefinitionCompiler`/`DefinitionVersionRows`, the three untested topology fixtures, and the
+  `.formatted` defect at `EvaluatorPurityGuardTest:145-147`.
+
 ## Not yet specified
 
 - **Stage 1 after the evaluator: the cutover and everything downstream.** Swapping the two lifecycle services onto the Transition Evaluator and deleting Spring Statemachine; the audit `state_id` FK conversion (ADR 0008); Information Requirements as a Built-in Stage (0005) with Audience and Quantifier (0006); the coupling layer — Spawn, Feedback, conclusion (0007); the atomic data-cutover migration (0009). The *content* is fixed by the ADRs; the **slab boundaries and gates are not sliceable yet**, because tickets [03](issues/03-state-event-identity-downstream.md), [04](issues/04-global-state-event-metadata-contract.md) and [06](issues/06-migration-rehearsal-data.md) move work between them. Graduates as those resolve. Deliberately not pre-sliced. **Two constraints ticket 02 hands the coupling slab specifically:** `SPAWN_RESOURCE_LIFECYCLES` must **not** begin publishing `ResourceStateChangeEvent` — ticket 01 pinned spawn as announcing nothing, so emitting per-Resource events would add N notifications and N webhook deliveries per approval — and it must publish a `ResourceLifecyclesSpawnedEvent` carrying the contacted representatives, because notification now rides on that rather than on arriving at `IN_PROGRESS`. **And one obligation ticket 03 hands slab 07:** eight State names live as raw string literals in `NetworkStatsRepositoryImpl`'s native SQL and JPQL, so deleting the enums raises **no compile error** for them — the slab needs a deliberate grep, not a green build, and line 216 hits the audit table ADR 0008 converts to an FK, so it breaks again there. **And three obligations slab [08](issues/08-definition-schema-and-entities.md) hands these slabs, each filed with its trigger:** the **coupling** slab must decide how a Resource's pin is written at all — the column is `updatable = false` and the link row already exists at Spawn, so the mapping cannot write it ([the three options](../definition-schema-and-entities/issues/09-pinning-an-existing-resource-link.md); no migration needed for any of them) — and what an unresolvable definition does to a Negotiation approval, since `DefinitionResolver` throws a package-private, unmapped exception and a rolled-back 500 is today's default ([the resolver's three shape decisions](../definition-schema-and-entities/issues/10-definition-resolver-shape-is-a-guess.md)); the **cutover** slab must build the index on both pin columns in the same migration that sets them NOT NULL, which is deliberately absent today because the column is 100% NULL and both tables are among the most-written ([why, and the other triggers](../definition-schema-and-entities/issues/08-pin-column-fk-indexes-deferred.md)). **The first slab to read the definition tables also deletes `DefinitionInertnessGuardTest`**, and that deletion belongs in its diff rather than in a quiet edit to the lists inside it.
