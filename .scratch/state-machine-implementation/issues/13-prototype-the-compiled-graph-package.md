@@ -31,12 +31,13 @@ Plan first, then implement.
 
 ## Prior art — read before starting, do not re-derive
 
-- **`recon-strategies.md`** — not on this branch, and deliberately not a link: read it with
-  `git show slice-01-vocabulary-move:.scratch/transition-evaluator-core/recon-strategies.md`. (The
-  slab directory of that name *does* now exist here, holding
-  [the PRD](../../transition-evaluator-core/PRD.md), but not this file.) The Guard and Action
-  inventory with `file:line` citations, five places issue 09 describes the code wrongly, and six
-  divergences with owners. See the Answer below for the one correction it needs.
+- **[recon-strategies.md](../../transition-evaluator-core/recon-strategies.md)** — the Guard and
+  Action inventory with `file:line` citations, five places issue 09 describes the code wrongly, and
+  six divergences with owners. Written on the superseded `slice-01-vocabulary-move` branch and
+  **carried onto this branch verbatim when that branch was deleted**; it sits beside the PRD, with a
+  provenance header and the one correction it needs. Genuinely "do not re-derive" — §7's live
+  predicate locations, §8's three registry precedents, §9's column facts and §10's divergence table
+  are not restated anywhere else.
 - **[before-picture-findings.md](../before-picture-findings.md)** parts 3 and 7.
 - ADRs [0001](../../../backend/docs/adr/0001-hand-written-lifecycle-subsystem.md),
   [0002](../../../backend/docs/adr/0002-lifecycle-definitions-are-relational-configuration.md),
@@ -45,16 +46,19 @@ Plan first, then implement.
 
 ## This supersedes a package layout already chosen elsewhere
 
-Branch `slice-01-vocabulary-move` is three commits ahead of `feat/state-machine-implementation` and
-has already begun slab 09 on a different layout — a 474-line PRD, ten commit-sized slices, and one
+*(Written while it existed; kept because it is why this ticket says what it says.)* Branch
+`slice-01-vocabulary-move` was three commits ahead of `feat/state-machine-implementation` and had
+already begun slab 09 on a different layout — a 474-line PRD, ten commit-sized slices, and one
 landed commit moving **both** `DefinitionScope` **and** `RequiredAuthority` up to
 `eu.bbmri_eric.negotiator.lifecycle`, with the evaluator in a new `lifecycle.evaluation` and no graph
-package. **None of it is merged.** The instructions above contradict it on two of the five points and
+package. None of it was merged. The instructions above contradict it on two of the five points and
 add a package it does not have; they are the later word.
 
 Left open for whoever claims this: whether that branch's slice 01 is rebased, redone or abandoned.
+**Answered below: abandoned, and the branch has since been deleted.**
 Note also that it amended issue 09's own text with a `## Progress` section and five corrections —
-those are about the code, not the packaging, and are not on this branch.
+those are about the code, not the packaging. **They are now carried in slab 09's PRD, D14**, and
+quoted in this Answer.
 
 `DefinitionInertnessGuardTest.java:87-88` lists both `DefinitionScope` and `RequiredAuthority` among
 the 14 names no `src/main` file outside `definition` may mention. Moving `RequiredAuthority` out
@@ -147,17 +151,28 @@ This ticket left that open. **The code is abandoned — not rebased, not redone.
 abandoned it independently, and both contradict its layout: its landed commit `f879867e` moves
 `RequiredAuthority` *and* `DefinitionScope` up to `eu.bbmri_eric.negotiator.lifecycle`, while the
 instructions above send `RequiredAuthority` to `graph` and keep `DefinitionScope` in `definition`,
-which is what both trees built. The branch is 3 commits and 28 files ahead of
-`feat/state-machine-implementation`; nothing has been cherry-picked from it and nothing should be.
+which is what both trees built. The branch was 3 commits and 28 files ahead of
+`feat/state-machine-implementation`; nothing was cherry-picked from it.
+
+**The branch and its worktree have since been deleted**, so that nobody implementing slab 09 finds a
+second PRD at the very path the live one occupies. Its commit tip was
+`6b654468a676bdfdba255dc1af8e26199a468d8f`, recoverable from the reflog. Only
+`recon-strategies.md` was carried across, and it now sits beside the PRD at
+[`../../transition-evaluator-core/recon-strategies.md`](../../transition-evaluator-core/recon-strategies.md).
 The one layout choice of its that both prototypes reached anyway is the evaluator living in
 `lifecycle.evaluation`.
 
 Its documents are not disposable, and each has a different fate:
 
-- **`recon-strategies.md` (333 lines)** — **kept as prior art, read through Git only**, exactly as
-  the Prior art section above already says. It is the only Guard and Action inventory read out of
-  the two live lifecycle services with `file:line` citations, and its §10 lists the divergences with
-  owners. **One correction to it, from B:** §8 offers `DefaultWebhookMappingStrategy` as "the direct
+- **`recon-strategies.md` (333 lines)** — **kept as prior art, and since carried onto this branch
+  verbatim** beside the PRD, because reading it through Git stopped being possible when the branch
+  was deleted. It is the only Guard and Action inventory read out of the two live Lifecycle services
+  with `file:line` citations, and its §10 lists the divergences with owners. Four things in it are
+  restated nowhere else and the PRD now cites each: §7's live locations for today's terminal
+  predicate and for spawn, which is a notification handler rather than a state-machine Action; §8's
+  second fold over one injected bean list with a different collision rule; §9's row facts, of which
+  **`type_key` carrying no uniqueness constraint** is the one that constrains the compiled chain; and
+  §10's divergence D6. **One correction to it, from B:** §8 offers `DefaultWebhookMappingStrategy` as "the direct
   model for `SET_POST_VISIBILITY`: one class, three configured instances". It does not transfer and
   following it fails the boot — the webhook beans each declare a *different* key, while all three
   post-visibility configurations declare *one*, so three beans collide in the fold. It is one
@@ -175,11 +190,10 @@ Its documents are not disposable, and each has a different fate:
   `Class<? extends ApplicationEvent>`, and a grep finds no string-keyed strategy registry anywhere in
   this backend, so "exactly as the existing `WebhookEventMapper` does" names the mechanism and not a
   copyable example — the string type key is new.
-- **The 56-line amendment to issue 09** — **not carried across here, and issue 09 is deliberately
-  left untouched by this ticket.** It lives at
-  `git show slice-01-vocabulary-move:.scratch/state-machine-implementation/issues/09-transition-evaluator-core.md`.
-  Slab 09's PRD should pick up its **five corrections about the code**, which are about behaviour and
-  not about packaging: (1) "take them from ticket 01's graph dump" cannot be followed for Guards —
+- **The 56-line amendment to issue 09** — **its five corrections are now carried in the PRD's D14
+  and quoted below; the amendment itself went with the branch.** Issue 09 was deliberately left
+  untouched by this ticket, and was amended separately when slab 09 claimed it. The five
+  corrections, which are about behaviour and not about packaging: (1) "take them from ticket 01's graph dump" cannot be followed for Guards —
   all 21 Transitions across both dumps record `"guard": null`, so the dump is authoritative for
   Actions, States, Events and authorities and silent on Guards; (2) `NEGOTIATION_APPROVED`'s live
   behaviour is not in `NegotiationIsApprovedGuard`, which is attached to nothing
