@@ -4,6 +4,9 @@ This project uses Yarn as the package manager.
 Yarn is recommended because some legacy packages specify peer
 dependencies that can conflict with newer package versions when using npm.
 
+Yarn is pinned via `.yarnrc.yml` / `.yarn/releases` to version 4.18.0 (Berry).
+This resolves automatically on `yarn install`; Corepack is not required.
+
 ## Project Setup
 
 To set up the project:
