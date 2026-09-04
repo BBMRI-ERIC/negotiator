@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 ENV CYPRESS_INSTALL_BINARY=0
-RUN yarn install
+RUN yarn install --immutable
 COPY . .
 RUN yarn build
 
