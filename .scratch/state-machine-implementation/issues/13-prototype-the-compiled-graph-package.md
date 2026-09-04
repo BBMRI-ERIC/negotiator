@@ -31,13 +31,14 @@ Plan first, then implement.
 
 ## Prior art — read before starting, do not re-derive
 
-- **[recon-strategies.md](../../transition-evaluator-core/recon-strategies.md)** — the Guard and
-  Action inventory with `file:line` citations, five places issue 09 describes the code wrongly, and
-  six divergences with owners. Written on the superseded `slice-01-vocabulary-move` branch and
-  **carried onto this branch verbatim when that branch was deleted**; it sits beside the PRD, with a
-  provenance header and the one correction it needs. Genuinely "do not re-derive" — §7's live
-  predicate locations, §8's three registry precedents, §9's column facts and §10's divergence table
-  are not restated anywhere else.
+- ~~`recon-strategies.md`~~ — **gone with its branch, deliberately.** It was a read-only inventory
+  of the Guard and Action strategies with `file:line` citations. Prototype B audited all ten of its
+  sections against the code while porting the strategies, found one thing that does not transfer
+  (§8's bean pattern), and carried everything else it needed into its own javadoc. What this slab
+  needs from it now lives in prototype B's tree, in `before-picture-findings.md`, and in
+  [the PRD](../../transition-evaluator-core/PRD.md). One claim in its §9 was the seed of the layout
+  this ticket superseded — that the evaluator cannot express itself without `DefinitionScope` — and
+  both prototypes disproved it.
 - **[before-picture-findings.md](../before-picture-findings.md)** parts 3 and 7.
 - ADRs [0001](../../../backend/docs/adr/0001-hand-written-lifecycle-subsystem.md),
   [0002](../../../backend/docs/adr/0002-lifecycle-definitions-are-relational-configuration.md),
@@ -157,22 +158,21 @@ which is what both trees built. The branch was 3 commits and 28 files ahead of
 **The branch and its worktree have since been deleted**, so that nobody implementing slab 09 finds a
 second PRD at the very path the live one occupies. Its commit tip was
 `6b654468a676bdfdba255dc1af8e26199a468d8f`, recoverable from the reflog. Only
-`recon-strategies.md` was carried across, and it now sits beside the PRD at
-[`../../transition-evaluator-core/recon-strategies.md`](../../transition-evaluator-core/recon-strategies.md).
+nothing was carried across: `recon-strategies.md` went with it, once prototype B's tree
+and `before-picture-findings.md` were confirmed to hold what slab 09 needs.
 The one layout choice of its that both prototypes reached anyway is the evaluator living in
 `lifecycle.evaluation`.
 
 Its documents are not disposable, and each has a different fate:
 
-- **`recon-strategies.md` (333 lines)** — **kept as prior art, and since carried onto this branch
-  verbatim** beside the PRD, because reading it through Git stopped being possible when the branch
-  was deleted. It is the only Guard and Action inventory read out of the two live Lifecycle services
-  with `file:line` citations, and its §10 lists the divergences with owners. Four things in it are
-  restated nowhere else and the PRD now cites each: §7's live locations for today's terminal
-  predicate and for spawn, which is a notification handler rather than a state-machine Action; §8's
-  second fold over one injected bean list with a different collision rule; §9's row facts, of which
-  **`type_key` carrying no uniqueness constraint** is the one that constrains the compiled chain; and
-  §10's divergence D6. **One correction to it, from B:** §8 offers `DefaultWebhookMappingStrategy` as "the direct
+- **`recon-strategies.md` (333 lines)** — **deleted with the branch.** It was kept as prior art at
+  first and then dropped, once prototype B's tree and `before-picture-findings.md` were confirmed to
+  hold what slab 09 needs. Prototype B's audit is the evidence: it checked all ten sections against
+  the code while porting the strategies and found only §8's bean pattern wanting. Its findings that
+  matter are now stated from primary sources instead — today's two-hardcoded-name terminal predicate
+  from B's own Guard javadoc, spawn's real location from ticket 02's decision, and `type_key`
+  carrying no uniqueness constraint from `V36.3` itself, which the PRD's D4 records because it makes
+  a compiled Guard chain a list and never a map. **One correction to it, from B:** §8 offers `DefaultWebhookMappingStrategy` as "the direct
   model for `SET_POST_VISIBILITY`: one class, three configured instances". It does not transfer and
   following it fails the boot — the webhook beans each declare a *different* key, while all three
   post-visibility configurations declare *one*, so three beans collide in the fold. It is one
