@@ -427,10 +427,10 @@ substring.
 Deliberately **not** folded in: the verdict type's own refusal of a malformed verdict, which is a
 programming error in a strategy and genuinely an `IllegalArgumentException`.
 
-This also answers half of the recon's divergence **D6**, "what replaces `StateMachineException` is
-unnamed" — half, because that divergence is the cutover slab's: this decision names what a *graph*
-raises, and what a *refused move* becomes at the REST boundary is still D6's open question, now with
-a sealed outcome type to answer it from rather than an exception.
+This names what a *graph* raises, and only that. What a *refused move* becomes at the REST boundary
+is still open and is the cutover slab's: today the Resource Lifecycle service throws Spring
+Statemachine's own `StateMachineException`, a type this effort deletes, so that slab needs a
+replacement — and D6's sealed outcome type is what it answers from, rather than an exception.
 
 ### D9 — Wiring configuration is read strictly, and the no-configuration rule lives above the mapper
 
@@ -540,7 +540,8 @@ glossary rather than the reverse.
 
 `NEGOTIATION_APPROVED`, `TERMINAL_AGGREGATION`, `SET_POST_VISIBILITY` and
 `SPAWN_RESOURCE_LIFECYCLES`, as issue 09 lists them. Five corrections, recorded during ticket 13's
-recon and carried here because issue 09's own text is wrong on each:
+claim of ticket 09 that does not hold, and carried here because issue 09's own text is wrong on
+each:
 
 1. **"Take them from ticket 01's graph dump" cannot be followed for Guards.** All 21 Transitions
    across both dumps record a null guard. The dump is authoritative for Actions, States, Events and
@@ -555,7 +556,7 @@ recon and carried here because issue 09's own text is wrong on each:
 3. **`SET_POST_VISIBILITY` needs a three-valued scope** — `PUBLIC | PRIVATE | BOTH`. Today's disable
    Action writes both flags, so two values would turn three dump Actions into four Wiring rows. It is
    **one** `@Component` with three Wiring rows varying in configuration, *not* three bean instances:
-   the webhook mapping strategy that recon offered as the model does not transfer, because those beans
+   the webhook mapping strategy that looks like the model does not transfer, because those beans
    each declare a different key while all three post-visibility configurations declare one, and three
    beans claiming one key fail the boot by design.
 4. **Today's Information Requirement check is not requirement-scoped** — it passes if *any*
@@ -577,15 +578,15 @@ three it is **not in the state machine at all today** — it is a notification h
 at the Well-known `IN_PROGRESS` State, and the spawn itself lives in the resource notification
 service, which re-checks that State, skips any Resource that already has one, and assigns
 `REPRESENTATIVE_CONTACTED` or `REPRESENTATIVE_UNREACHABLE` by whether the Resource has
-representatives. The recon has the locations. That is the code the coupling slab relocates, and it is
-why the map already forbids that relocation from publishing a Resource state change while requiring
-it to publish a spawned event.
+representatives. That is the code the coupling slab relocates, and it is why the map already forbids
+that relocation from publishing a Resource state change while requiring it to publish a spawned
+event — both constraints ticket 02 already recorded.
 
 Today's terminal predicate, for the same reason, is not in a Guard either: it is a listener comparing
 against two hardcoded Resource State names out of twelve. Two of the ten that do not count are States
 in which a Resource is finished in every practical sense, so a Negotiation of only those stays in
-progress for ever. That is pinned as behaviour, not endorsed — see D14's opening note and the
-recon's §7.
+progress for ever. That is pinned as behaviour, not endorsed; prototype B's own Guard javadoc names
+both States and says which slab owns the flag.
 
 ### D15 — The string-keyed registry is new to this backend
 
@@ -755,12 +756,6 @@ definition package.
   convention both prototypes missed and slice 01 restores.
 - **`WebhookEventMapper`** — the fold shape, with D15's correction about the key type.
 - **Prototype B's six test classes** — adopted in slice 01 and the starting point for seams A–E.
-- **[recon-strategies.md](recon-strategies.md)**, beside this file — the strategy inventory read out
-  of the two live Lifecycle services with `file:line` citations, the five corrections D14 carries,
-  three registry precedents beyond the one D15 names (including a second fold over the same injected
-  bean list with a deliberately different collision rule, which is why folding one strategy list
-  twice is normal here), the column facts D4 cites, and its §10 divergence table with owners.
-  **Read it before implementing; do not re-derive it.**
 
 ---
 
@@ -805,11 +800,12 @@ favour.
 
 **Prototype A's branch is not merged and should not be cherry-picked.** The first, superseded
 attempt at this slab — `slice-01-vocabulary-move`, whose landed commit moved both vocabulary enums up
-to `lifecycle`, a layout ticket 13 superseded and both prototypes contradict — has been **deleted**,
-along with its 474-line PRD and ten inner issues, so that nobody implementing this slab finds a
-second PRD at this very path. Its one document worth keeping came across first and sits beside this
-file: [recon-strategies.md](recon-strategies.md), with a provenance header and the one correction it
-needs (its post-visibility model does not transfer — D14.3).
+to `lifecycle`, a layout ticket 13 superseded and both prototypes contradict — has been **deleted** in
+full — its 474-line PRD, its ten inner issues and its read-only recon brief — so that nobody
+implementing this slab finds a second PRD at this very path. Nothing was carried across. Prototype B
+had audited that recon section by section while porting the strategies and found one thing in it that
+does not transfer (D14.3); everything else in it that this slab needs is either in B's tree, in
+`before-picture-findings.md`, or restated in this document.
 
 **What this slab hands the cutover slab**, each already stated above but collected here: the corrupt-pin
 rule from D7; the deletion of the definition inertness guard as a visible line in its diff (D19); the

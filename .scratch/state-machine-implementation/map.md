@@ -238,8 +238,9 @@ These were agreed with the user during charting. They are not ticket resolutions
   (`evaluation/RefusalCategory.java:4`), neither prototype tests a cycle, and the table's silence hid
   A's pre-computed `Set<RequiredAuthority>` — **the PRD must not lift that table.** **`slice-01-vocabulary-move`
   is answered: the code is abandoned** (it moved *both* enums up to `lifecycle`, contradicting this
-  ticket and both trees), **its `recon-strategies.md` was carried onto this branch beside the
-  PRD and the branch then deleted** — with one correction from B — recon §8's `DefaultWebhookMappingStrategy` model for `SET_POST_VISIBILITY`
+  ticket and both trees), **the branch was deleted whole, `recon-strategies.md` included**,
+  once B's tree was confirmed to hold what slab 09 needs — B had audited that recon in full and found
+  one thing in it that does not transfer — recon §8's `DefaultWebhookMappingStrategy` model for `SET_POST_VISIBILITY`
   fails the boot, since three beans would claim one key — **its 474-line PRD is re-charted, not
   resumed**, keeping only its evaluator-package argument, its testing decisions and its correction
   that `WebhookEventMapper` is keyed on a `Class` and no string-keyed registry exists in this backend,
@@ -249,7 +250,7 @@ These were agreed with the user during charting. They are not ticket resolutions
   three-valued scope, today's Information Requirement check is unscoped, a blocked Resource Event is
   a silent no-op) that **are now carried in slab 09's PRD, D14** — issue 09 was deliberately not
   edited by this ticket, and was amended separately when slab 09 claimed it. That branch has since
-  been **deleted**; its `recon-strategies.md` was carried onto this branch beside the PRD first. Additive and needing no decision, so they can
+  been **deleted whole.** Additive and needing no decision, so they can
   land before the PRD: the no-params-given-params rule in code above the mapper, the graph package's
   purity as a **whitelist** (A's rule passes on B unchanged), the inertness list extended to
   `DefinitionCompiler`/`DefinitionVersionRows`, the three untested topology fixtures, and the
