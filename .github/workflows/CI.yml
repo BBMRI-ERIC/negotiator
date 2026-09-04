@@ -50,8 +50,16 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'frontend/yarn.lock'
 
+      - name: Guard against the Yarn pin regressing
+        run: |
+          git ls-files --error-unmatch frontend/.yarnrc.yml frontend/.yarn/releases/*.cjs
+          expected="$(node -e "console.log(require('./frontend/package.json').packageManager.split('@')[1])")"
+          actual="$(yarn --cwd frontend --version)"
+          echo "expected=$expected actual=$actual"
+          test "$actual" = "$expected"
+
       - name: Install dependencies
-        run: yarn --cwd frontend install
+        run: yarn --cwd frontend install --immutable
 
   build:
     runs-on: ubuntu-latest
@@ -70,7 +78,7 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Install dependencies
-        run: yarn --cwd frontend install
+        run: yarn --cwd frontend install --immutable
 
       - name: Build app
         run: yarn --cwd frontend build
@@ -107,7 +115,7 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Install dependencies
-        run: yarn install --cwd frontend
+        run: yarn --cwd frontend install --immutable
 
       - name: Lint
         run: yarn --cwd frontend eslint src
@@ -200,7 +208,7 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Install dependencies
-        run: yarn --cwd frontend install
+        run: yarn --cwd frontend install --immutable
 
       - name: Download artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v4
