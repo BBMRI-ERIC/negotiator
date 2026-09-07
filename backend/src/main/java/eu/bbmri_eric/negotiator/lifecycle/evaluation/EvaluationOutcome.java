@@ -5,7 +5,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.FailureCategory;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * What the Transition Evaluator answers about one Event. Either the move is permitted and this is
@@ -27,11 +27,7 @@ public sealed interface EvaluationOutcome {
    * which is what makes the Possible Events listing a safe dry run of the same function: evaluating
    * twenty candidate Events must not set twenty posts' visibility.
    */
-  record Permitted(CompiledTransition transition) implements EvaluationOutcome {
-
-    public Permitted {
-      Objects.requireNonNull(transition, "transition");
-    }
+  record Permitted(@NonNull CompiledTransition transition) implements EvaluationOutcome {
 
     /** The Actions to run once the move has committed, in order. */
     public List<ActionStep> actions() {
@@ -51,12 +47,11 @@ public sealed interface EvaluationOutcome {
    * @param reasonCode a stable key naming the specific refusal within that category
    * @param details whatever a caller needs to act on it, contributed by the refusing step
    */
-  record Refused(FailureCategory category, String reasonCode, Map<String, Object> details)
+  record Refused(
+      @NonNull FailureCategory category, @NonNull String reasonCode, Map<String, Object> details)
       implements EvaluationOutcome {
 
     public Refused {
-      Objects.requireNonNull(category, "category");
-      Objects.requireNonNull(reasonCode, "reasonCode");
       details = Map.copyOf(details);
     }
 

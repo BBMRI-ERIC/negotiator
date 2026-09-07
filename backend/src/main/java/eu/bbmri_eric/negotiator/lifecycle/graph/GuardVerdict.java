@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import java.util.Map;
-import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * What one step of the Evaluation Pipeline answers: it passed, or it did not and here is why.
@@ -17,12 +17,12 @@ import java.util.Objects;
  * @param details whatever the caller needs to act on the refusal — ADR 0005 asks the requirement
  *     stage for "the missing forms" here. Keys are the step's own business.
  */
-public record GuardVerdict(boolean passed, String reasonCode, Map<String, Object> details) {
+public record GuardVerdict(
+    boolean passed, @NonNull String reasonCode, Map<String, Object> details) {
 
   private static final GuardVerdict PASSED = new GuardVerdict(true, "", Map.of());
 
   public GuardVerdict {
-    Objects.requireNonNull(reasonCode, "reasonCode");
     details = Map.copyOf(details);
   }
 
