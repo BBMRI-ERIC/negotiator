@@ -98,7 +98,7 @@ public final class CompiledGraph {
   /**
    * Whether the named State is one this version calls finished.
    *
-   * @throws IllegalArgumentException if this version does not declare the State. Answering {@code
+   * @throws InvalidGraphException if this version does not declare the State. Answering {@code
    *     false} for a State the graph has never heard of would be the more forgiving choice and the
    *     wrong one: a terminal-aggregation Guard that quietly reads an unknown State as "still
    *     running" leaves a Negotiation in progress for ever, which is the shape of a bug the
@@ -106,7 +106,7 @@ public final class CompiledGraph {
    */
   public boolean isTerminal(String state) {
     if (!states.contains(state)) {
-      throw new IllegalArgumentException(
+      throw new InvalidGraphException(
           "Definition Version %d declares no State named '%s'. Its States are %s."
               .formatted(definitionVersionId, state, states));
     }
@@ -148,6 +148,9 @@ public final class CompiledGraph {
    *
    * <p>Declaring a State as initial or terminal also declares it, and declaring a Transition also
    * declares its Event, so a fixture is one line per Transition and everything else is derived.
+   *
+   * <p>Every refusal is an {@link InvalidGraphException}, one type for all of them, so that a
+   * caller turning a corrupt definition into a response catches graph corruption and nothing else.
    */
   @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Builder {
@@ -226,7 +229,7 @@ public final class CompiledGraph {
      */
     private void requireExactlyOneInitialState() {
       if (initialStates.size() != 1) {
-        throw new IllegalStateException(
+        throw new InvalidGraphException(
             "Definition Version %d must declare exactly one initial State, found %d: %s"
                 .formatted(definitionVersionId, initialStates.size(), initialStates));
       }
@@ -253,7 +256,7 @@ public final class CompiledGraph {
         }
       }
       if (!undeclared.isEmpty()) {
-        throw new IllegalStateException(
+        throw new InvalidGraphException(
             "Definition Version %d has Transitions naming undeclared States %s. Its States are %s."
                 .formatted(definitionVersionId, undeclared, states));
       }
@@ -265,7 +268,7 @@ public final class CompiledGraph {
         SourceAndEvent key = new SourceAndEvent(transition.fromState(), transition.event());
         CompiledTransition existing = index.putIfAbsent(key, transition);
         if (existing != null) {
-          throw new IllegalStateException(
+          throw new InvalidGraphException(
               ("Definition Version %d has two Transitions for State '%s' and Event '%s', to '%s' "
                       + "and to '%s'. Which one fires would depend on load order, so a graph that "
                       + "could ask a Guard to pick is refused rather than resolved.")

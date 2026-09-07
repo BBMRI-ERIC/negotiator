@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,8 @@ import java.util.TreeSet;
 import org.springframework.stereotype.Component;
 
 /**
- * The Action catalogue. Same fold, same collision rule and same single narrowing as {@link
- * GuardRegistry}, over a separate key space.
+ * The Action catalogue. Same fold, same collision rule, same {@link InvalidGraphException} on every
+ * refusal and same single narrowing as {@link GuardRegistry}, over a separate key space.
  *
  * <p>Two registries rather than one is the shape ADR 0002 already chose for the two wiring tables,
  * and the duplication is small and deliberate: sharing one keyed map would let an Action be wired
@@ -42,7 +43,7 @@ public class ActionRegistry implements ActionCatalogue {
   public ActionStep bind(String typeKey, String paramsJson) {
     Action<?> strategy = strategies.get(typeKey);
     if (strategy == null) {
-      throw new IllegalArgumentException(
+      throw new InvalidGraphException(
           "No Action strategy declares the type key '%s'. Known keys: %s."
               .formatted(typeKey, typeKeys()));
     }
@@ -77,7 +78,7 @@ public class ActionRegistry implements ActionCatalogue {
     try {
       return objectMapper.readValue(paramsJson, strategy.paramsType());
     } catch (JsonProcessingException e) {
-      throw new IllegalArgumentException(
+      throw new InvalidGraphException(
           "Action '%s' could not read its params as %s: %s"
               .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName(), paramsJson),
           e);
@@ -88,7 +89,7 @@ public class ActionRegistry implements ActionCatalogue {
     if (strategy.paramsType() == NoParams.class) {
       return NoParams.INSTANCE;
     }
-    throw new IllegalArgumentException(
+    throw new InvalidGraphException(
         "Action '%s' declares params of type %s but its Wiring row carries none."
             .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName()));
   }
@@ -98,7 +99,7 @@ public class ActionRegistry implements ActionCatalogue {
     for (Action<?> action : actions) {
       Action<?> existing = registry.putIfAbsent(action.typeKey(), action);
       if (existing != null) {
-        throw new IllegalStateException(
+        throw new InvalidGraphException(
             "Multiple Action strategies configured for type key: "
                 + action.typeKey()
                 + ". Found: "

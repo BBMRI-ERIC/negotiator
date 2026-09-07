@@ -12,6 +12,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.ArrayList;
 import java.util.List;
@@ -338,7 +339,7 @@ class DefinitionCompilerTest {
             () ->
                 compiler.compile(
                     rows(List.of(deliverTransition), List.of(definitionWide("NO_SUCH", 1, null)))))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("NO_SUCH");
   }
 
@@ -366,8 +367,7 @@ class DefinitionCompilerTest {
             List.of());
 
     assertThatThrownBy(() -> compiler.compile(mixed))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("different Definition Version")
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("ELSEWHERE");
   }
 
@@ -442,7 +442,7 @@ class DefinitionCompilerTest {
                     rows(
                         List.of(deliverTransition),
                         List.of(definitionWide(ACTION_ONLY_KEY, 1, null)))))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining(ACTION_ONLY_KEY)
         .hasMessageContaining("Guard");
   }
@@ -478,7 +478,7 @@ class DefinitionCompilerTest {
     @Override
     public GuardStep bind(String typeKey, String paramsJson) {
       if (UNDECLARED.contains(typeKey)) {
-        throw new IllegalArgumentException(
+        throw new InvalidGraphException(
             "No Guard strategy declares the type key '%s'.".formatted(typeKey));
       }
       bound.add(new Bound(typeKey, paramsJson));
@@ -504,7 +504,7 @@ class DefinitionCompilerTest {
     @Override
     public ActionStep bind(String typeKey, String paramsJson) {
       if ("NO_SUCH".equals(typeKey)) {
-        throw new IllegalArgumentException("No Action strategy declares the type key 'NO_SUCH'.");
+        throw new InvalidGraphException("No Action strategy declares the type key 'NO_SUCH'.");
       }
       bound.add(new Bound(typeKey, paramsJson));
       return new ActionStep() {

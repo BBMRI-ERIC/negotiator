@@ -16,7 +16,7 @@ public interface ActionCatalogue {
    *
    * @param typeKey the row's {@code type_key}
    * @param paramsJson the row's {@code params}, or null when the strategy takes none
-   * @throws IllegalArgumentException if no strategy declares that key, or if the params do not read
+   * @throws InvalidGraphException if no strategy declares that key, or if the params do not read
    *     into the strategy's declared type
    */
   ActionStep bind(String typeKey, String paramsJson);
