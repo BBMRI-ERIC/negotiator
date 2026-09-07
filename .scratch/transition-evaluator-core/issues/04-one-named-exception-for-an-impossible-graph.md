@@ -1,6 +1,6 @@
 # One named exception for a graph that cannot exist
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -40,23 +40,24 @@ sweep will collect it.
 
 ## Acceptance criteria
 
-- [ ] One named exception type exists, extending `IllegalStateException`, with javadoc saying what
+- [x] One named exception type exists, extending `IllegalStateException`, with javadoc saying what
       it means and why it is not two types.
-- [ ] Every graph-builder validation failure, the unknown-State refusal, the compiler's
+- [x] Every graph-builder validation failure, the unknown-State refusal, the compiler's
       version-mixing refusal, and every registry refusal raise it.
-- [ ] The duplicate-key collision still propagates out of the registry's **constructor**, so a
+- [x] The duplicate-key collision still propagates out of the registry's **constructor**, so a
       duplicate type key remains a bean creation failure and therefore a failed boot. Wrapping it in
       the new type must not change that.
-- [ ] `GuardCatalogue`'s and `ActionCatalogue`'s `@throws` javadoc names the new type, matching what
+- [x] `GuardCatalogue`'s and `ActionCatalogue`'s `@throws` javadoc names the new type, matching what
       the implementations now raise.
-- [ ] Every test that asserted one of these failures asserts the class, not a message substring.
+- [x] Every test that asserted one of these failures asserts the class, not a message substring.
       Messages are still asserted where the *content* is the requirement — the colliding class
       names, the known keys in an unknown-key message.
-- [ ] The verdict type's malformed-verdict `IllegalArgumentException` is unchanged and carries a
+- [x] The verdict type's malformed-verdict `IllegalArgumentException` is unchanged and carries a
       comment recording that the exclusion is deliberate.
-- [ ] `ApplicationTest` is green and the parity half of
-      [parity-gate.md](../../state-machine-implementation/parity-gate.md) is unchanged at
-      **255 tests in 24 classes**.
+- [~] `ApplicationTest` is green. The parity half of
+      [parity-gate.md](../../state-machine-implementation/parity-gate.md) was not run — focused
+      tests only, at the requester's instruction — and is unchanged by inspection rather than by
+      execution. See Outcome.
 
 ## Notes
 
@@ -74,3 +75,98 @@ Three later slices assert refusals that must be written against this type once r
 ## Blocked by
 
 - [01 — Adopt prototype B's tree](01-adopt-prototype-b-tree.md)
+
+---
+
+## Outcome
+
+`eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException`, public, extending
+`IllegalStateException`. The name is the one D4's javadoc snippet already wrote, so the interface
+contract and the implementation ended the slice naming the same type without anyone having to
+choose.
+
+All thirteen rejections converted, and a grep of `lifecycle/` main now finds exactly one
+`IllegalArgumentException` left — `GuardVerdict.fail`, the deliberate exclusion. Nothing was
+over-converted: `DefinitionResolutionException` is resolution rather than compilation and was not
+in scope.
+
+### Two things the issue did not anticipate
+
+**Five of the thirteen sites silently changed their HTTP status, in the direction D8 wants.**
+`NegotiatorExceptionHandler` already maps `IllegalArgumentException` to 400 and
+`IllegalStateException` to 500. The five sites that were `IllegalArgumentException` — the compiler's
+version-mixing refusal, `isTerminal`'s unknown State, and each registry's unknown key, unreadable
+params and missing params — would have answered 400 and now answer 500. That is exactly the "a
+corrupt pin is a 500 and a log line, never a 403, 422 or 409" that D8 argues for, and it arrives for
+free rather than waiting for the cutover slab to write the rule. Nothing observable changes today,
+because nothing in production calls this slab. The commit is labelled `refactor:` even so, which is
+honest about the diff and slightly generous about the effect; worth a release-note line at cutover.
+
+The cutover slab still needs its own catch clause, for the log line and to stop a corrupt graph
+being reported as an anonymous Internal Server Error. But the fallback under it is already right.
+
+**"Assert the class, not a message substring" has a floor, and the first pass went through it.**
+With thirteen rejections wearing one type name, the message is the *only* thing that tells two of
+them apart — so stripping it stops being a fix for pinned prose and starts being a weakened test.
+Three assertions went too far and came back:
+
+- `GuardRegistry`'s missing-params and unreadable-params tests were left asserting only the type and
+  the key. Swapping the two throw sites left both green — confirmed by actually swapping them, and
+  confirmed red again once `carries none` and `could not read its params` were restored.
+- `build_whenNoStateIsInitial_isRefused` was left asserting nothing but the class, so any other
+  broken invariant in the builder would have satisfied it. `found 0` is the count under test.
+- The `ActionRegistry` collision test asserted only the key, never the colliding class name its
+  `GuardRegistry` twin has always asserted. Pre-existing, but the acceptance criterion names
+  "the colliding class names" as content, so it was fixed while the line was open.
+
+The rule that survives: **strip explanatory prose, keep every value the message carries** — State and
+Event names, type keys, colliding class names, counts, the known-key set. That is what the criterion
+means and it is a sharper line than "class, not substring".
+
+### Two properties of the type that had no test at all
+
+Both are load bearing and neither is visible from any test that asserts
+`isInstanceOf(InvalidGraphException.class)`, which is every other test of a rejection. They now live
+in `InvalidGraphExceptionTest`:
+
+- **That it extends `IllegalStateException`.** This is the decision, not an implementation detail —
+  it is what buys the 500. Re-parenting it to `RuntimeException` would have compiled and passed
+  every other test in the subsystem.
+- **That the wrapping constructor keeps its cause.** The registries wrap Jackson's
+  `JsonProcessingException`; the message names the key, the type and the blob, but which field and
+  which character are only in the cause.
+
+### Review feedback, applied
+
+- **The class javadoc's opening sentence was untrue of two of its own sites.** "A Definition Version
+  describes a graph that cannot exist" does not describe a duplicate type key, which is thrown from
+  a catalogue constructor at boot with no Definition Version in play. The opening now leads with the
+  compiled graph rather than the Definition Version, and a paragraph names the two odd sites and
+  says why they are not split off.
+- **`GuardVerdict` stated its exclusion rationale twice**, once in a new `@throws` and once in the
+  inline comment. The comment is the record the issue asked for and sits where a sweeper's grep
+  lands; the javadoc is now a bare `@throws`.
+- **Suppressed:** the four repeated throw shapes across the two registries read as Duplicated Code,
+  but ADR 0002 and `ActionRegistry`'s own javadoc endorse the two-registry duplication as
+  deliberate. Repo overrides the baseline.
+- **Not done:** the class is neither `final` nor carries a `serialVersionUID`. `DefinitionResolutionException`
+  is neither, and no exception in this backend declares one; left consistent rather than singular.
+
+### Verification
+
+`InvalidGraphExceptionTest` is new (2 tests). No test was deleted, and no assertion was removed
+without a stronger one taking its place.
+
+Focused runs only, at the requester's instruction. 131 tests green across `lifecycle/**` — the two
+registries, the compiler, the compiled graph, the evaluator, the strategies, the new exception — plus
+the four architecture guard tests, which are the ones that would notice a new class in these
+packages. `ApplicationTest` green in 52s against a real context boot, which is the live exercise of
+the acceptance criterion that a duplicate type key still fails the boot: both registries are
+constructed from the real strategy beans on that path.
+
+The parity half of [parity-gate.md](../../state-machine-implementation/parity-gate.md) was **not**
+run — 8.5 minutes, and the requester asked for focused tests only. Verified structurally instead: no
+file under `characterization/` references `lifecycle.graph`, `lifecycle.evaluation`,
+`InvalidGraphException`, `CompiledGraph`, `GuardRegistry` or `ActionRegistry`, so that half cannot
+see this diff. The claim is "unchanged at 255 in 24", and it is a no-change claim about a suite this
+diff is invisible to — but it is unrun, and that is worth knowing.
