@@ -262,11 +262,10 @@ class CompiledGraphTest {
   }
 
   @Test
-  @DisplayName(
-      "an edge with no Required Authority is refused, because NONE is how anyone is spelled")
+  @DisplayName("an edge with no Required Authority is refused at construction")
   void transition_whenGivenNullRequiredAuthority_isRefusedAtConstruction() {
     assertThatThrownBy(() -> new CompiledTransition("A", "E", "B", null))
         .isInstanceOf(NullPointerException.class)
-        .hasMessageContaining("RequiredAuthority.NONE");
+        .hasMessageContaining("requiredAuthority");
   }
 }

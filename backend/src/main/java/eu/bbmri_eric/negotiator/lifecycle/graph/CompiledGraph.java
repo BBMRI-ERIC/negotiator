@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 /**
  * One Definition Version, in the form the Transition Evaluator reads: an indexed, immutable graph
@@ -34,6 +37,7 @@ import lombok.NonNull;
  * that exists is a graph that is well formed however it was assembled — by compiling rows, by a
  * test, or one day by whatever reads a definition file.
  */
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CompiledGraph {
 
   private final long definitionVersionId;
@@ -43,23 +47,6 @@ public final class CompiledGraph {
   private final Set<String> terminalStates;
   private final Map<SourceAndEvent, CompiledTransition> bySourceAndEvent;
   private final Map<String, List<CompiledTransition>> bySource;
-
-  private CompiledGraph(
-      long definitionVersionId,
-      String initialState,
-      Set<String> states,
-      Set<String> events,
-      Set<String> terminalStates,
-      Map<SourceAndEvent, CompiledTransition> bySourceAndEvent,
-      Map<String, List<CompiledTransition>> bySource) {
-    this.definitionVersionId = definitionVersionId;
-    this.initialState = initialState;
-    this.states = states;
-    this.events = events;
-    this.terminalStates = terminalStates;
-    this.bySourceAndEvent = bySourceAndEvent;
-    this.bySource = bySource;
-  }
 
   public static Builder builder(long definitionVersionId) {
     return new Builder(definitionVersionId);
@@ -159,13 +146,10 @@ public final class CompiledGraph {
    * seed is held to the same rules as one built from the database — the alternative puts the rules
    * where only one of three construction paths passes through them.
    *
-   * <p><b>Deliberately not a Lombok {@code @Builder}.</b> That annotation generates one setter per
-   * field and then calls a constructor, and this class is not that: declaring a State as initial or
-   * terminal also declares it, declaring a Transition also declares its Event, and {@link #build()}
-   * runs three validations and constructs two indexes. A generated builder would take the derived
-   * sets and both indexes <em>from the caller</em>, which is precisely the work this builder exists
-   * to remove — a fixture is one line per Transition and everything else is derived.
+   * <p>Declaring a State as initial or terminal also declares it, and declaring a Transition also
+   * declares its Event, so a fixture is one line per Transition and everything else is derived.
    */
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Builder {
 
     private final long definitionVersionId;
@@ -174,10 +158,6 @@ public final class CompiledGraph {
     private final Set<String> initialStates = new LinkedHashSet<>();
     private final Set<String> terminalStates = new LinkedHashSet<>();
     private final List<CompiledTransition> transitions = new ArrayList<>();
-
-    private Builder(long definitionVersionId) {
-      this.definitionVersionId = definitionVersionId;
-    }
 
     /** Declares an ordinary State. Declaring one twice is harmless. */
     public Builder state(@NonNull String name) {

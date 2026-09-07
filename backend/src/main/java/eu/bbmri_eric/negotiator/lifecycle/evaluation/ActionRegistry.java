@@ -21,9 +21,6 @@ import org.springframework.stereotype.Component;
  * where a Guard belongs and have that discovered at fire time, which is exactly what compiling a
  * definition is supposed to rule out. The webhook subsystem folds one strategy list twice for two
  * purposes; this folds two lists once each, for two.
- *
- * <p><b>Deliberately not a Lombok {@code @RequiredArgsConstructor}</b>, for the reason given on
- * {@link GuardRegistry}: this constructor folds a list into a map rather than assigning it.
  */
 @Component
 public class ActionRegistry implements ActionCatalogue {
