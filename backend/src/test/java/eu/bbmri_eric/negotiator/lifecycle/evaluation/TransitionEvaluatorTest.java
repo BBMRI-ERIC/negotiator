@@ -2,6 +2,8 @@ package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
@@ -411,6 +413,101 @@ class TransitionEvaluatorTest {
     evaluator.evaluate(guarded, "GO", contextFor(stranger()));
 
     assertThat(ran).containsExactly("FIRST", "SECOND");
+  }
+
+  // --- the Action chain, reported and not run --------------------------------------------------
+
+  /**
+   * A permitted outcome is a judgement, not a commit. ADR 0001 puts committing a move and running
+   * its Actions in the services around the evaluator, so the outcome carries the chain in the order
+   * it must run and the evaluator touches none of it.
+   *
+   * <p>Both halves matter, and the second is the one with teeth: without it, evaluating twenty
+   * candidate Events to build a Possible Events listing would set twenty Negotiations' post
+   * visibility.
+   */
+  @Test
+  @DisplayName("a permitted outcome reports its ordered Action chain and runs none of it")
+  void evaluate_whenPermitted_reportsTheOrderedActionChainAndRunsNoneOfIt() {
+    List<String> ran = new java.util.ArrayList<>();
+    CompiledGraph withActions =
+        CompiledGraph.builder(1L)
+            .initialState("OPEN")
+            .state("MOVED")
+            .transition(
+                new CompiledTransition(
+                    "OPEN",
+                    "GO",
+                    "MOVED",
+                    RequiredAuthority.NONE,
+                    List.of(),
+                    List.of(
+                        recordingAction("FIRST", ran),
+                        recordingAction("SECOND", ran),
+                        recordingAction("THIRD", ran))))
+            .build();
+
+    EvaluationOutcome outcome = evaluator.evaluate(withActions, "GO", contextFor(stranger()));
+
+    assertThat(outcome)
+        .asInstanceOf(
+            org.assertj.core.api.InstanceOfAssertFactories.type(EvaluationOutcome.Permitted.class))
+        .satisfies(
+            permitted ->
+                assertThat(permitted.actions())
+                    .extracting(ActionStep::typeKey)
+                    .containsExactly("FIRST", "SECOND", "THIRD"));
+    assertThat(ran).isEmpty();
+  }
+
+  /**
+   * The same, over the listing rather than one Event. This is the path that would multiply an
+   * effect by the size of the fan the caller is offered.
+   */
+  @Test
+  @DisplayName("listing the Possible Events runs no Action either")
+  void possibleEvents_runsNoAction() {
+    List<String> ran = new java.util.ArrayList<>();
+    CompiledGraph withActions =
+        CompiledGraph.builder(1L)
+            .initialState("OPEN")
+            .state("MOVED")
+            .state("ALSO_MOVED")
+            .transition(
+                new CompiledTransition(
+                    "OPEN",
+                    "GO",
+                    "MOVED",
+                    RequiredAuthority.NONE,
+                    List.of(),
+                    List.of(recordingAction("ON_GO", ran))))
+            .transition(
+                new CompiledTransition(
+                    "OPEN",
+                    "ALSO_GO",
+                    "ALSO_MOVED",
+                    RequiredAuthority.NONE,
+                    List.of(),
+                    List.of(recordingAction("ON_ALSO_GO", ran))))
+            .build();
+
+    assertThat(evaluator.possibleEvents(withActions, contextFor(stranger())))
+        .containsExactlyInAnyOrder("GO", "ALSO_GO");
+    assertThat(ran).isEmpty();
+  }
+
+  private static ActionStep recordingAction(String typeKey, List<String> ran) {
+    return new ActionStep() {
+      @Override
+      public String typeKey() {
+        return typeKey;
+      }
+
+      @Override
+      public void run(ActionContext context) {
+        ran.add(typeKey);
+      }
+    };
   }
 
   private static GuardStep alwaysFailing(String typeKey) {
