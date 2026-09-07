@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+import lombok.NonNull;
 
 /**
  * Everything about the running domain that gating a move is allowed to depend on, handed in whole
@@ -22,14 +22,12 @@ import java.util.Set;
  * downstream branches on it.
  */
 public record EvaluationContext(
-    Caller caller,
-    Subject subject,
+    @NonNull Caller caller,
+    @NonNull Subject subject,
     String parentNegotiationState,
     List<SiblingResource> siblingResources) {
 
   public EvaluationContext {
-    Objects.requireNonNull(caller, "caller");
-    Objects.requireNonNull(subject, "subject");
     siblingResources = List.copyOf(siblingResources);
   }
 
@@ -48,9 +46,8 @@ public record EvaluationContext(
    * lookup is what lets that Guard need no port and do no I/O at all.
    */
   public static EvaluationContext forResource(
-      Caller caller, Subject subject, String parentNegotiationState) {
-    return new EvaluationContext(
-        caller, subject, Objects.requireNonNull(parentNegotiationState), List.of());
+      Caller caller, Subject subject, @NonNull String parentNegotiationState) {
+    return new EvaluationContext(caller, subject, parentNegotiationState, List.of());
   }
 
   /**
@@ -113,15 +110,13 @@ public record EvaluationContext(
    *     Negotiation and not the representative's other Resources. Empty for a Negotiation.
    */
   public record Subject(
-      String negotiationId,
+      @NonNull String negotiationId,
       String resourceId,
-      String currentState,
+      @NonNull String currentState,
       Long negotiationCreatorId,
       Set<Long> representativeIds) {
 
     public Subject {
-      Objects.requireNonNull(negotiationId, "negotiationId");
-      Objects.requireNonNull(currentState, "currentState");
       representativeIds = Set.copyOf(representativeIds);
     }
 
@@ -131,16 +126,12 @@ public record EvaluationContext(
 
     public static Subject resource(
         String negotiationId,
-        String resourceId,
+        @NonNull String resourceId,
         String currentState,
         Long parentCreatorId,
         Set<Long> representativeIds) {
       return new Subject(
-          negotiationId,
-          Objects.requireNonNull(resourceId, "resourceId"),
-          currentState,
-          parentCreatorId,
-          representativeIds);
+          negotiationId, resourceId, currentState, parentCreatorId, representativeIds);
     }
   }
 
@@ -155,12 +146,8 @@ public record EvaluationContext(
    * which is exactly the "explicit, testable step" ADR 0001 wanted, and exactly the N-way load it
    * warned would otherwise be discovered under load.
    */
-  public record SiblingResource(long resourceId, String currentState, CompiledGraph graph) {
-
-    public SiblingResource {
-      Objects.requireNonNull(currentState, "currentState");
-      Objects.requireNonNull(graph, "graph");
-    }
+  public record SiblingResource(
+      long resourceId, @NonNull String currentState, @NonNull CompiledGraph graph) {
 
     /** Whether this Resource's own Definition Version calls its current State finished. */
     public boolean isFinished() {

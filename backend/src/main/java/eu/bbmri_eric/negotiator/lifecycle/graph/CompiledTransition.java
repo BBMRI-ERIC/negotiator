@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import java.util.List;
 import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * One edge of a compiled graph: firing {@code event} while in {@code fromState} moves to {@code
@@ -23,17 +24,18 @@ import java.util.Objects;
  *     one with. Reported by a permitted outcome and run by the service that commits the move.
  */
 public record CompiledTransition(
-    String fromState,
-    String event,
-    String toState,
+    @NonNull String fromState,
+    @NonNull String event,
+    @NonNull String toState,
     RequiredAuthority requiredAuthority,
     List<GuardStep> guards,
     List<ActionStep> actions) {
 
   public CompiledTransition {
-    Objects.requireNonNull(fromState, "fromState");
-    Objects.requireNonNull(event, "event");
-    Objects.requireNonNull(toState, "toState");
+    // Deliberately not a Lombok @NonNull, unlike the three above it. This message does not report
+    // the mistake, it names the fix: an edge that anyone may fire is spelled RequiredAuthority.NONE
+    // rather than left null. Lombok's generated text is "requiredAuthority is marked non-null but
+    // is null", which loses that, and CompiledGraphTest pins the fix's name.
     Objects.requireNonNull(
         requiredAuthority, "requiredAuthority: RequiredAuthority.NONE is how 'anyone' is spelled");
     guards = List.copyOf(guards);

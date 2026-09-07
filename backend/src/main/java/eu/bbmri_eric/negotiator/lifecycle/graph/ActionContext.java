@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
-import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * What an Action is told when it runs: the same domain facts that gated the move, plus the edge
@@ -17,10 +17,5 @@ import java.util.Objects;
  * proving that a params-carrying Action can be configured, bound and handed a negotiation to act on
  * without the evaluator learning anything about it.
  */
-public record ActionContext(EvaluationContext evaluation, CompiledTransition committed) {
-
-  public ActionContext {
-    Objects.requireNonNull(evaluation, "evaluation");
-    Objects.requireNonNull(committed, "committed");
-  }
-}
+public record ActionContext(
+    @NonNull EvaluationContext evaluation, @NonNull CompiledTransition committed) {}
