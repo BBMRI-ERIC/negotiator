@@ -164,9 +164,22 @@ packages. `ApplicationTest` green in 52s against a real context boot, which is t
 the acceptance criterion that a duplicate type key still fails the boot: both registries are
 constructed from the real strategy beans on that path.
 
-The parity half of [parity-gate.md](../../state-machine-implementation/parity-gate.md) was **not**
-run — 8.5 minutes, and the requester asked for focused tests only. Verified structurally instead: no
-file under `characterization/` references `lifecycle.graph`, `lifecycle.evaluation`,
-`InvalidGraphException`, `CompiledGraph`, `GuardRegistry` or `ActionRegistry`, so that half cannot
-see this diff. The claim is "unchanged at 255 in 24", and it is a no-change claim about a suite this
-diff is invisible to — but it is unrun, and that is worth knowing.
+The parity half of [parity-gate.md](../../state-machine-implementation/parity-gate.md) **was** run,
+and is unchanged at **24 classes, 255 tests, 0 failures, 0 errors, 1 skipped** — exact. The one skip
+is `dump.LifecycleGraphDumpGeneratorTest`, and no surefire report exists for
+`IntendedDeltasAdr0005WillInvertTest`, which is how the gate says to verify the split rather than by
+a pass count.
+
+It took three attempts, and the first two are worth recording because neither was a parity movement:
+
+| Attempt | What happened |
+|---|---|
+| 1 | Died in JUnit **discovery** — `NoClassDefFoundError` on `ResourceGraphV1$Edge`. Zero tests ran. |
+| 2 | Discovered correctly (24 classes, 255 tests, 1 skipped) but **133 errors**, every one a `PersonRepository` bean-resolution failure at context load. 0 failures. |
+| 3 | After `mvn clean`: green and exact. |
+
+Both were torn `backend/target` state from incremental builds across differently-filtered runs — the
+same family as the stale-`.class` trap [01](01-adopt-prototype-b-tree.md) documented, and the same
+remedy. Neither produced a single failed *assertion*. Worth knowing for later slices: on this machine
+the parity gate wants a clean target, and a red gate here should be read for its failure *shape*
+before it is believed.
