@@ -22,7 +22,7 @@ public interface GuardCatalogue {
    * @param typeKey the row's {@code type_key}
    * @param paramsJson the row's {@code params}, or null — which is legal and ordinary, since a
    *     strategy that takes no parameters needs none
-   * @throws IllegalArgumentException if no strategy declares that key, or if the params do not read
+   * @throws InvalidGraphException if no strategy declares that key, or if the params do not read
    *     into the strategy's declared type
    */
   GuardStep bind(String typeKey, String paramsJson);

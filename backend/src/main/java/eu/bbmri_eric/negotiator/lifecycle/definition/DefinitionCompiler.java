@@ -6,6 +6,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -188,7 +189,7 @@ class DefinitionCompiler {
       }
     }
     if (!foreign.isEmpty()) {
-      throw new IllegalArgumentException(
+      throw new InvalidGraphException(
           "These rows belong to a different Definition Version and cannot be compiled together: "
               + foreign);
     }

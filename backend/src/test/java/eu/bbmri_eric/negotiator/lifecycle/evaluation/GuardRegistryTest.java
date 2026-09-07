@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.Caller;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.Subject;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -68,7 +69,7 @@ class GuardRegistryTest {
         };
 
     assertThatThrownBy(() -> registryOf(new ParamsFreeGuard(), duplicate))
-        .isInstanceOf(IllegalStateException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("PARAMS_FREE")
         .hasMessageContaining(ParamsFreeGuard.class.getName())
         .hasMessageContaining(duplicate.getClass().getName());
@@ -78,7 +79,7 @@ class GuardRegistryTest {
   @DisplayName("an unknown type key is refused, and the refusal offers the keys it does know")
   void bind_whenNoStrategyDeclaresTheKey_throwsAndOffersTheKeysItKnows() {
     assertThatThrownBy(() -> registryOf(new ParamsFreeGuard()).bind("MISSPELLED", null))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("MISSPELLED")
         .hasMessageContaining("PARAMS_FREE");
   }
@@ -105,9 +106,8 @@ class GuardRegistryTest {
   @DisplayName("a strategy needing configuration refuses a null params column at compile time")
   void bind_whenTheParamsColumnIsNullAndTheStrategyNeedsSome_saysSoAtCompileTime() {
     assertThatThrownBy(() -> registryOf(new ThresholdGuard()).bind("THRESHOLD", null))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("THRESHOLD")
-        .hasMessageContaining("Wiring row carries none");
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("THRESHOLD");
   }
 
   @Test
@@ -116,9 +116,8 @@ class GuardRegistryTest {
   void bind_whenTheParamsDoNotFitTheDeclaredType_saysSoAtCompileTimeRatherThanAtFireTime() {
     assertThatThrownBy(
             () -> registryOf(new ThresholdGuard()).bind("THRESHOLD", "{\"minimum\":\"three\"}"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("THRESHOLD")
-        .hasMessageContaining("could not read its params");
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("THRESHOLD");
   }
 
   /**

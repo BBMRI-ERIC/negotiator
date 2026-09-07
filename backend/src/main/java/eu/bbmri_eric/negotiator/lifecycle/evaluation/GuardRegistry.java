@@ -6,6 +6,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,14 +18,20 @@ import org.springframework.stereotype.Component;
  * it declares for itself.
  *
  * <p>The fold is the one the webhook subsystem already uses — a {@code private static} pure method
- * called from the constructor, {@code putIfAbsent}, an {@link IllegalStateException} thrown
- * <em>from the constructor</em> so a duplicate key is a bean creation failure and therefore a
- * failed boot, a message naming the key and both colliding classes, and {@code Map.copyOf} to
- * freeze. Two things differ from that precedent and are worth naming: the key is a {@code String}
- * rather than a {@code Class}, which is new to this backend, and the strict "any duplicate is
- * fatal" rule is a choice rather than a default — the notification subsystem folds the same shape
- * into a multimap with no collision rule at all, because several handlers per event are legal
- * there. Two Guards claiming one key are not.
+ * called from the constructor, {@code putIfAbsent}, a throw from <em>inside the constructor</em> so
+ * a duplicate key is a bean creation failure and therefore a failed boot, a message naming the key
+ * and both colliding classes, and {@code Map.copyOf} to freeze. Two things differ from that
+ * precedent and are worth naming: the key is a {@code String} rather than a {@code Class}, which is
+ * new to this backend, and the strict "any duplicate is fatal" rule is a choice rather than a
+ * default — the notification subsystem folds the same shape into a multimap with no collision rule
+ * at all, because several handlers per event are legal there. Two Guards claiming one key are not.
+ *
+ * <p>Every refusal here is an {@link InvalidGraphException} — the unknown key, the params that do
+ * not fit, and the duplicate-key collision alike. The collision is the odd one of the three, since
+ * it is a mis-wired application rather than a mis-authored definition, but it is the same statement
+ * about the same thing: a catalogue that cannot answer for a key is a graph nothing can compile
+ * against. Naming it does not move it — it is still thrown from the constructor, so a duplicate key
+ * still fails the boot rather than surfacing at a user's first click.
  *
  * <p>It also owns the subsystem's <b>one unchecked narrowing, in one place</b>: {@link #bindTyped}
  * is a private generic bridge that reads a Wiring row's jsonb into whatever type the strategy
@@ -51,7 +58,7 @@ public class GuardRegistry implements GuardCatalogue {
   public GuardStep bind(String typeKey, String paramsJson) {
     Guard<?> strategy = strategies.get(typeKey);
     if (strategy == null) {
-      throw new IllegalArgumentException(
+      throw new InvalidGraphException(
           "No Guard strategy declares the type key '%s'. Known keys: %s."
               .formatted(typeKey, typeKeys()));
     }
@@ -90,7 +97,7 @@ public class GuardRegistry implements GuardCatalogue {
     try {
       return objectMapper.readValue(paramsJson, strategy.paramsType());
     } catch (JsonProcessingException e) {
-      throw new IllegalArgumentException(
+      throw new InvalidGraphException(
           "Guard '%s' could not read its params as %s: %s"
               .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName(), paramsJson),
           e);
@@ -107,7 +114,7 @@ public class GuardRegistry implements GuardCatalogue {
     if (strategy.paramsType() == NoParams.class) {
       return NoParams.INSTANCE;
     }
-    throw new IllegalArgumentException(
+    throw new InvalidGraphException(
         "Guard '%s' declares params of type %s but its Wiring row carries none."
             .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName()));
   }
@@ -117,7 +124,7 @@ public class GuardRegistry implements GuardCatalogue {
     for (Guard<?> guard : guards) {
       Guard<?> existing = registry.putIfAbsent(guard.typeKey(), guard);
       if (existing != null) {
-        throw new IllegalStateException(
+        throw new InvalidGraphException(
             "Multiple Guard strategies configured for type key: "
                 + guard.typeKey()
                 + ". Found: "

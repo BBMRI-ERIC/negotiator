@@ -12,6 +12,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.Caller;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.SiblingResource;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.Subject;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.ArrayList;
 import java.util.List;
@@ -244,7 +245,7 @@ class LifecycleStrategiesTest {
             new SetPostVisibilityAction(posts));
 
     assertThatThrownBy(() -> new ActionRegistry(mapper, threeBeans))
-        .isInstanceOf(IllegalStateException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("SET_POST_VISIBILITY");
   }
 

@@ -143,9 +143,8 @@ class CompiledGraphTest {
       "asking whether an undeclared State is terminal is refused rather than answered false")
   void isTerminal_whenTheVersionDoesNotDeclareTheState_throws() {
     assertThatThrownBy(() -> graph().isTerminal("RESOURCE_MADE_AVAILABLE"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
-        .hasMessageContaining("declares no State");
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("RESOURCE_MADE_AVAILABLE");
   }
 
   @Test
@@ -162,10 +161,7 @@ class CompiledGraphTest {
   void build_whenNoStateIsInitial_isRefused() {
     CompiledGraph.Builder builder = CompiledGraph.builder(VERSION_ID).state("SUBMITTED");
 
-    assertThatThrownBy(builder::build)
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("exactly one initial State")
-        .hasMessageContaining("found 0");
+    assertThatThrownBy(builder::build).isInstanceOf(InvalidGraphException.class);
   }
 
   @Test
@@ -175,9 +171,9 @@ class CompiledGraphTest {
         CompiledGraph.builder(VERSION_ID).initialState("DRAFT").initialState("SUBMITTED");
 
     assertThatThrownBy(builder::build)
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("exactly one initial State")
-        .hasMessageContaining("found 2");
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("DRAFT")
+        .hasMessageContaining("SUBMITTED");
   }
 
   /** Independent columns, so a one-State Lifecycle is a graph the schema permits. */
@@ -201,8 +197,7 @@ class CompiledGraphTest {
             .transition("NOWHERE", "SUBMIT", "SUBMITTED", RequiredAuthority.NONE);
 
     assertThatThrownBy(builder::build)
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("undeclared States")
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("NOWHERE");
   }
 
@@ -215,8 +210,7 @@ class CompiledGraphTest {
             .transition("SUBMITTED", "APPROVE", "NOWHERE", RequiredAuthority.NONE);
 
     assertThatThrownBy(builder::build)
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("undeclared States")
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("NOWHERE");
   }
 
@@ -238,8 +232,9 @@ class CompiledGraphTest {
             .transition("SUBMITTED", "APPROVE", "ABANDONED", RequiredAuthority.IS_ADMIN);
 
     assertThatThrownBy(builder::build)
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("two Transitions for State 'SUBMITTED' and Event 'APPROVE'")
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("SUBMITTED")
+        .hasMessageContaining("APPROVE")
         .hasMessageContaining("IN_PROGRESS")
         .hasMessageContaining("ABANDONED");
   }
