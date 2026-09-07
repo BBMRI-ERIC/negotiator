@@ -15,6 +15,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,13 @@ import org.junit.jupiter.api.Test;
 class DefinitionCompilerTest {
 
   private static final long VERSION_ID = 42L;
+
+  /**
+   * The type key of a real Action, used where a Guard is expected. No Guard strategy declares it,
+   * so {@link RecordingCatalogue} refuses it — which is what makes the two key spaces separate
+   * rather than one space read twice.
+   */
+  private static final String ACTION_ONLY_KEY = "SPAWN_RESOURCE_LIFECYCLES";
 
   private final RecordingCatalogue catalogue = new RecordingCatalogue();
   private final RecordingActionCatalogue actionCatalogue = new RecordingActionCatalogue();
@@ -299,10 +307,10 @@ class DefinitionCompilerTest {
     compiler.compile(
         rows(
             List.of(deliverTransition),
-            List.of(definitionWide("SET_POST_VISIBILITY", 1, "{\"scope\":\"BOTH\"}"))));
+            List.of(definitionWide("REQUIREMENT_MET", 1, "{\"quantifier\":\"ALL\"}"))));
 
     assertThat(catalogue.bound)
-        .containsExactly(new Bound("SET_POST_VISIBILITY", "{\"scope\":\"BOTH\"}"));
+        .containsExactly(new Bound("REQUIREMENT_MET", "{\"quantifier\":\"ALL\"}"));
   }
 
   /**
@@ -419,6 +427,11 @@ class DefinitionCompilerTest {
   /**
    * The two catalogues are separate key spaces. An Action key wired where a Guard belongs is
    * refused at compile time rather than dispatched to the wrong strategy.
+   *
+   * <p>{@code SPAWN_RESOURCE_LIFECYCLES} is the key of a real Action, and no Guard strategy
+   * declares it — so the Guard catalogue refuses it exactly as it refuses a misspelling. That is
+   * the whole content of "separate namespaces": the compiler asks the Guard catalogue about a Guard
+   * Wiring row and never falls back to the other one.
    */
   @Test
   @DisplayName("an Action key wired where a Guard belongs is refused at compile time")
@@ -426,9 +439,12 @@ class DefinitionCompilerTest {
     assertThatThrownBy(
             () ->
                 compiler.compile(
-                    rows(List.of(deliverTransition), List.of(definitionWide("NO_SUCH", 1, null)))))
+                    rows(
+                        List.of(deliverTransition),
+                        List.of(definitionWide(ACTION_ONLY_KEY, 1, null)))))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("NO_SUCH");
+        .hasMessageContaining(ACTION_ONLY_KEY)
+        .hasMessageContaining("Guard");
   }
 
   private static List<String> actionsOf(CompiledGraph graph, String fromState, String event) {
@@ -446,17 +462,24 @@ class DefinitionCompilerTest {
   private record Bound(String typeKey, String paramsJson) {}
 
   /**
-   * A catalogue that binds anything whose key is not {@code NO_SUCH}, and remembers what it was
-   * asked. Standing in for the registry keeps this test about the fold rather than about Jackson.
+   * A catalogue that binds any key it declares, and remembers what it was asked. Standing in for
+   * the registry keeps this test about the fold rather than about Jackson.
+   *
+   * <p>Two keys it does not declare: {@code NO_SUCH}, which nothing declares, and {@link
+   * #ACTION_ONLY_KEY}, which the <em>Action</em> catalogue declares. The real registry refuses both
+   * identically and for one reason — no Guard strategy claims either — so the fake does too.
    */
   private static final class RecordingCatalogue implements GuardCatalogue {
+
+    private static final Set<String> UNDECLARED = Set.of("NO_SUCH", ACTION_ONLY_KEY);
 
     private final List<Bound> bound = new ArrayList<>();
 
     @Override
     public GuardStep bind(String typeKey, String paramsJson) {
-      if ("NO_SUCH".equals(typeKey)) {
-        throw new IllegalArgumentException("No Guard strategy declares the type key 'NO_SUCH'.");
+      if (UNDECLARED.contains(typeKey)) {
+        throw new IllegalArgumentException(
+            "No Guard strategy declares the type key '%s'.".formatted(typeKey));
       }
       bound.add(new Bound(typeKey, paramsJson));
       return new GuardStep() {
