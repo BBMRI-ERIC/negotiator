@@ -11,6 +11,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Turns the rows of one Definition Version into the compiled graph an evaluator reads. This is the
@@ -32,15 +34,11 @@ import java.util.Map;
  * <p>It is package-private on purpose. Nothing outside this package may compile a graph yet, which
  * is what keeps the package inert while there is no loader to call it.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class DefinitionCompiler {
 
   private final GuardCatalogue guardCatalogue;
   private final ActionCatalogue actionCatalogue;
-
-  DefinitionCompiler(GuardCatalogue guardCatalogue, ActionCatalogue actionCatalogue) {
-    this.guardCatalogue = guardCatalogue;
-    this.actionCatalogue = actionCatalogue;
-  }
 
   CompiledGraph compile(DefinitionVersionRows rows) {
     requireRowsBelongToTheVersion(rows);
