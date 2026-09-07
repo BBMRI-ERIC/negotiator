@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Component;
  * point of ADR 0002 giving Actions params in the first place.
  */
 @Component
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class SetPostVisibilityAction implements Action<SetPostVisibilityAction.Params> {
 
   static final String TYPE_KEY = "SET_POST_VISIBILITY";
@@ -37,10 +40,6 @@ class SetPostVisibilityAction implements Action<SetPostVisibilityAction.Params> 
   }
 
   private final PostVisibility postVisibility;
-
-  SetPostVisibilityAction(PostVisibility postVisibility) {
-    this.postVisibility = postVisibility;
-  }
 
   @Override
   public String typeKey() {

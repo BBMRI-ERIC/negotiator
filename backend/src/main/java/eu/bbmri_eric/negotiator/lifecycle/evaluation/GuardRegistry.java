@@ -30,15 +30,6 @@ import org.springframework.stereotype.Component;
  * is a private generic bridge that reads a Wiring row's jsonb into whatever type the strategy
  * declared. Everything either side of it is type-safe, and no other class needs a
  * {@code @SuppressWarnings}.
- *
- * <p><b>Deliberately not a Lombok {@code @RequiredArgsConstructor}.</b> That annotation assigns
- * every final field from a parameter of its own type, and the second field here is not assigned but
- * <em>derived</em>: the constructor takes {@code List<Guard<?>>} and folds it into {@code
- * Map<String, Guard<?>>}. A generated constructor would take the map from the caller, which is the
- * fold and its collision rule gone — and worse than merely absent, because Spring satisfies a
- * {@code Map<String, Guard<?>>} parameter by injecting bean <em>names</em> as keys, so the
- * catalogue would silently key on {@code negotiationApprovedGuard} instead of on the type key the
- * strategy declares. The annotation fits a constructor that assigns; this one computes.
  */
 @Component
 public class GuardRegistry implements GuardCatalogue {

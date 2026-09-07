@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import java.util.List;
-import java.util.Objects;
 import lombok.NonNull;
 
 /**
@@ -27,17 +26,11 @@ public record CompiledTransition(
     @NonNull String fromState,
     @NonNull String event,
     @NonNull String toState,
-    RequiredAuthority requiredAuthority,
+    @NonNull RequiredAuthority requiredAuthority,
     List<GuardStep> guards,
     List<ActionStep> actions) {
 
   public CompiledTransition {
-    // Deliberately not a Lombok @NonNull, unlike the three above it. This message does not report
-    // the mistake, it names the fix: an edge that anyone may fire is spelled RequiredAuthority.NONE
-    // rather than left null. Lombok's generated text says only that the field is null, so the
-    // name of the fix — which is the whole value here, and is asserted on — would be lost.
-    Objects.requireNonNull(
-        requiredAuthority, "requiredAuthority: RequiredAuthority.NONE is how 'anyone' is spelled");
     guards = List.copyOf(guards);
     actions = List.copyOf(actions);
   }
