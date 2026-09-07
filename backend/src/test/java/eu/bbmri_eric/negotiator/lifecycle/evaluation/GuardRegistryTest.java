@@ -107,7 +107,8 @@ class GuardRegistryTest {
   void bind_whenTheParamsColumnIsNullAndTheStrategyNeedsSome_saysSoAtCompileTime() {
     assertThatThrownBy(() -> registryOf(new ThresholdGuard()).bind("THRESHOLD", null))
         .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("THRESHOLD");
+        .hasMessageContaining("THRESHOLD")
+        .hasMessageContaining("carries none");
   }
 
   @Test
@@ -117,7 +118,8 @@ class GuardRegistryTest {
     assertThatThrownBy(
             () -> registryOf(new ThresholdGuard()).bind("THRESHOLD", "{\"minimum\":\"three\"}"))
         .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("THRESHOLD");
+        .hasMessageContaining("THRESHOLD")
+        .hasMessageContaining("could not read its params");
   }
 
   /**
