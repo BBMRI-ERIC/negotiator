@@ -246,7 +246,8 @@ class LifecycleStrategiesTest {
 
     assertThatThrownBy(() -> new ActionRegistry(mapper, threeBeans))
         .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("SET_POST_VISIBILITY");
+        .hasMessageContaining("SET_POST_VISIBILITY")
+        .hasMessageContaining(SetPostVisibilityAction.class.getName());
   }
 
   // --- SPAWN_RESOURCE_LIFECYCLES ---------------------------------------------------------------

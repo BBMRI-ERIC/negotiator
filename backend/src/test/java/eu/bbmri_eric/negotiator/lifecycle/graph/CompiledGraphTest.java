@@ -161,7 +161,9 @@ class CompiledGraphTest {
   void build_whenNoStateIsInitial_isRefused() {
     CompiledGraph.Builder builder = CompiledGraph.builder(VERSION_ID).state("SUBMITTED");
 
-    assertThatThrownBy(builder::build).isInstanceOf(InvalidGraphException.class);
+    assertThatThrownBy(builder::build)
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("found 0");
   }
 
   @Test

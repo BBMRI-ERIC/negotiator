@@ -36,8 +36,7 @@ public record GuardVerdict(
   }
 
   /**
-   * @throws IllegalArgumentException if the reason code is missing, which is a bug in the strategy
-   *     rather than anything about the graph it was asked about
+   * @throws IllegalArgumentException if the reason code is missing
    */
   public static GuardVerdict fail(String reasonCode, Map<String, Object> details) {
     // Deliberately NOT an InvalidGraphException, and kept as an IllegalArgumentException on

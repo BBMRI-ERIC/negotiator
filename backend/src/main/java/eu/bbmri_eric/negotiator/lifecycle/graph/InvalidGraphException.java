@@ -1,13 +1,20 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 /**
- * A Definition Version describes a graph that cannot exist, so no compiled graph was produced.
+ * No compiled graph could be produced, because the graph asked for cannot exist.
  *
  * <p>Two initial States, a Transition leaving a State the version never declared, two Transitions
  * competing for one {@code (State, Event)} pair, rows from two versions handed to one compile, a
  * Wiring row naming a type key nothing declares, configuration that will not read into the type its
  * strategy declared — every one of these is this exception, and there is deliberately no second
  * type for any subset of them.
+ *
+ * <p>Nearly all of those are a Definition Version that was authored or seeded wrong. Two are not:
+ * the catalogues throw this from their own constructors when two strategies claim one type key,
+ * which is a mis-wired application rather than a mis-authored definition, and which happens before
+ * any Definition Version has been read. It is the same statement even so — a catalogue that cannot
+ * answer for a key is a catalogue nothing can compile a graph against — and it is deliberately not
+ * split off into a type of its own.
  *
  * <p><b>One type, not two.</b> These rejections were once split between {@code
  * IllegalArgumentException} and {@code IllegalStateException}, and the split carried no
