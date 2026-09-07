@@ -34,8 +34,8 @@ public record CompiledTransition(
   public CompiledTransition {
     // Deliberately not a Lombok @NonNull, unlike the three above it. This message does not report
     // the mistake, it names the fix: an edge that anyone may fire is spelled RequiredAuthority.NONE
-    // rather than left null. Lombok's generated text is "requiredAuthority is marked non-null but
-    // is null", which loses that, and CompiledGraphTest pins the fix's name.
+    // rather than left null. Lombok's generated text says only that the field is null, so the
+    // name of the fix — which is the whole value here, and is asserted on — would be lost.
     Objects.requireNonNull(
         requiredAuthority, "requiredAuthority: RequiredAuthority.NONE is how 'anyone' is spelled");
     guards = List.copyOf(guards);

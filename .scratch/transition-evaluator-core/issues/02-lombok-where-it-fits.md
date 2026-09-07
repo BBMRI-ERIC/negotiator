@@ -40,10 +40,13 @@ one looks like an oversight to the next reader:
 
 ## Acceptance criteria
 
-- [x] Every hand-written null check on the graph's records is a Lombok `@NonNull`, and the
-      behaviour a caller sees on a null argument is unchanged. **20 of 21**; the twenty-first is a
-      fourth carve-out, below.
-- [~] The two registries and the compiler use `@RequiredArgsConstructor`. **The compiler does. The
+- [ ] Every hand-written null check on the graph's records is a Lombok `@NonNull`, and the
+      behaviour a caller sees on a null argument is unchanged. **20 of 21 converted, and the second
+      half of this line is not literally true of any of them.** `NullPointerException` is preserved
+      everywhere, but Lombok replaces each message with "X is marked non-null but is null". That is
+      why it cannot be checked: the twenty-first check is a carve-out precisely *because* its
+      message is observable, so the message cannot be behaviour there and noise here. See below.
+- [ ] The two registries and the compiler use `@RequiredArgsConstructor`. **The compiler does; the
       two registries cannot** — a fifth carve-out, below.
 - [x] The graph builder and the evaluator constructor are untouched, and each carries a short
       comment saying why Lombok is deliberately absent there. Read as *no `@Builder` and no
@@ -96,12 +99,13 @@ three converted. Neither refused half turned out to be load-bearing.
 | `EvaluationOutcome` | 3 | 3 | — |
 | **Total** | **21** | **20** | **1** |
 
-**Six of the twenty are `@NonNull` on a record component; two are `@NonNull` on a factory-method
-parameter**, and that distinction is not cosmetic. `EvaluationContext.parentNegotiationState` and
+**Fifteen of the twenty are `@NonNull` on a record component, three on the builder's method
+parameters, and two on a factory-method parameter**, and that last distinction is not cosmetic.
+`EvaluationContext.parentNegotiationState` and
 `Subject.resourceId` are legitimately null on the record — `forNegotiation` and `Subject.negotiation`
 both pass null deliberately — while `forResource` and `Subject.resource` require them. Annotating
 those components would have broken the other factory; the check belongs on the parameter, where it
-already was. The remaining three are `@NonNull` on the builder's method parameters.
+already was.
 
 ### Two carve-outs beyond the issue's three
 
@@ -188,3 +192,33 @@ ahead of the record's own compact-constructor body.
 
 Not mutation-tested beyond that: the existing 100 tests are the regression net for behaviour, and
 they were green before and after.
+
+### From the two-axis review, recorded rather than acted on
+
+- **Two of this issue's acceptance criteria cannot be met as written**, and both are now unchecked
+  above rather than quietly ticked. One asks for a `@RequiredArgsConstructor` that would break the
+  container; the other asks for null-argument behaviour to be "unchanged" by a substitution that
+  changes every message. **Both were resolved here by fiat.** The carve-out list in *What to build*
+  still says three, and amending an issue's own spec is not a slice's call — so if the next reader
+  wants those two bullets to say something different, that edit is theirs.
+- **Five sites now say why Lombok is absent, where the issue mandated two.** Each of the five is a
+  real carve-out, but no other of this backend's 227 Lombok files documents an annotation's
+  *absence*, so this subsystem is alone in the habit. Two overreaches from the first draft are
+  fixed: a production comment no longer names the test class that pins its message, and the
+  evaluator's no longer calls `@RequiredArgsConstructor` "house style" — only **7 of 437**
+  production files use it, so the honest claim is narrower than the one first written.
+- **`access = AccessLevel.PACKAGE` on the compiler is strictly redundant**: the class is already
+  package-private, so a generated `public` constructor would be unreachable anyway, and the
+  `webhook` precedent leaves it off a package-private class. Kept because it holds the *declared*
+  visibility identical across the substitution, which is what makes this a faithful refactor rather
+  than one that happens not to matter yet.
+- **Primitive Obsession on State and Event names, pre-existing and deliberately not touched.**
+  `CompiledTransition` and `Subject` now carry `@NonNull String fromState`, `event`, `toState`,
+  `currentState` where the glossary has State and Event as concepts with entities in `definition`.
+  `CompiledTransition`'s own javadoc already argues the case for names over ids, so this is a
+  standing design decision, not a slip — but D20 has no slice for typing them and this one was not
+  it. A candidate for the vocabulary slice (10) or a later simplification, alongside slice 01's
+  three unactioned findings.
+- The issue tracker documents resolution as an `## Answer` heading plus a pointer in a `map.md`.
+  This effort's slices use `## Outcome` and have no `map.md`, following slice 01. Left consistent
+  with its sibling rather than half-migrated.
