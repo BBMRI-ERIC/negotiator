@@ -32,9 +32,10 @@ import org.junit.jupiter.params.provider.ValueSource;
  * <p>The mapper this class hands the registries has {@code FAIL_ON_UNKNOWN_PROPERTIES} disabled,
  * which is the shape Spring Boot's auto-configured mapper has and therefore what production
  * injects. That is the whole point of the class: a suite that constructs a bare {@code new
- * ObjectMapper()} gets strictness for free — the feature is enabled by Jackson's own default — and
- * so cannot tell a strict reader from a lenient one. Every assertion here would pass against a bare
- * mapper whether or not the production reader was strict at all.
+ * ObjectMapper()} gets strictness for free, because the feature is enabled by Jackson's own
+ * default, and so cannot tell a strict reader from a lenient one — it would pass whether or not the
+ * production reader set the feature itself. The two unknown-field tests below go red the moment the
+ * reader stops setting it, which is the difference this class exists to be able to see.
  */
 class StrictWiringConfigurationTest {
 
@@ -67,7 +68,7 @@ class StrictWiringConfigurationTest {
       "a field matching no property of the declared type is refused under a lenient mapper")
   void bind_whenAFieldMatchesNoPropertyOfTheDeclaredType_isRefusedUnderALenientMapper() {
     ActionRegistry registry =
-        actionsUnderALenientMapper(new SetPostVisibilityAction(new NoOpPostVisibility()));
+        actionsUnderALenientMapper(new SetPostVisibilityAction(new RecordingPostVisibility()));
 
     assertThatThrownBy(
             () ->
@@ -229,14 +230,5 @@ class StrictWiringConfigurationTest {
     public void setPrivatePostsEnabled(String negotiationId, boolean enabled) {
       calls.add("private=" + enabled);
     }
-  }
-
-  private static final class NoOpPostVisibility implements PostVisibility {
-
-    @Override
-    public void setPublicPostsEnabled(String negotiationId, boolean enabled) {}
-
-    @Override
-    public void setPrivatePostsEnabled(String negotiationId, boolean enabled) {}
   }
 }

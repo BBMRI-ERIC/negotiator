@@ -14,12 +14,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * The Action catalogue. Same fold, same collision rule, same {@link InvalidGraphException} on every
- * refusal and same single narrowing as {@link GuardRegistry}, over a separate key space.
- *
- * <p>The one thing genuinely shared rather than duplicated is {@link WiringConfigurationReader},
- * because how a {@code params} blob is read is a property of Wiring configuration and not of either
- * key space. This registry hands it its own noun, so a refusal names the Action table an
- * administrator should be looking at.
+ * refusal, same single narrowing and the same {@link WiringConfigurationReader} as {@link
+ * GuardRegistry}, over a separate key space.
  *
  * <p>Two registries rather than one is the shape ADR 0002 already chose for the two wiring tables,
  * and the duplication is small and deliberate: sharing one keyed map would let an Action be wired
@@ -30,11 +26,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActionRegistry implements ActionCatalogue {
 
-  private final WiringConfigurationReader configuration;
+  private final WiringConfigurationReader configurationReader;
   private final Map<String, Action<?>> strategies;
 
   public ActionRegistry(ObjectMapper objectMapper, List<Action<?>> actions) {
-    this.configuration = new WiringConfigurationReader("Action", objectMapper);
+    this.configurationReader = WiringConfigurationReader.forActions(objectMapper);
     this.strategies = buildRegistry(actions);
   }
 
@@ -56,7 +52,7 @@ public class ActionRegistry implements ActionCatalogue {
 
   /** The bridge, as {@code GuardRegistry.bindTyped} — {@code Class.cast}, not an unchecked cast. */
   private <P> ActionStep bindTyped(Action<P> strategy, String paramsJson) {
-    P params = configuration.read(strategy.typeKey(), strategy.paramsType(), paramsJson);
+    P params = configurationReader.read(strategy.typeKey(), strategy.paramsType(), paramsJson);
     return new ActionStep() {
       @Override
       public String typeKey() {
