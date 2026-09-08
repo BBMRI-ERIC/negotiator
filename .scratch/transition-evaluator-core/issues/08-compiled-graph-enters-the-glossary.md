@@ -29,19 +29,19 @@ slab is a decision, not a tidy-up.
 
 ## Acceptance criteria
 
-- [ ] `backend/CONTEXT.md` defines the compiled graph — what it is, what it is handed to, and that
+- [x] `backend/CONTEXT.md` defines the compiled graph — what it is, what it is handed to, and that
       it is derived from a single Definition Version's rows.
-- [ ] It defines the act of compiling one.
-- [ ] Each new term carries an `_Avoid_` line, in the style of the surrounding entries.
-- [ ] The entry for the compiled graph records that it is **not** a source for admin tooling: it has
+- [x] It defines the act of compiling one.
+- [x] Each new term carries an `_Avoid_` line, in the style of the surrounding entries.
+- [~] The entry for the compiled graph records that it is **not** a source for admin tooling: it has
       forgotten sort orders, scopes and configuration on purpose, and ADR 0002 already says the
       effective chain admin tooling needs is one query against the Wiring tables (D3).
-- [ ] The terms are placed with the sections they belong to rather than appended, and the existing
+- [x] The terms are placed with the sections they belong to rather than appended, and the existing
       "The definition graph" and "Evaluation" entries still read coherently alongside them.
-- [ ] The Java class names in the slab and the glossary terms agree. Any disagreement is reported on
+- [x] The Java class names in the slab and the glossary terms agree. Any disagreement is reported on
       this ticket rather than resolved by renaming.
-- [ ] No production code changes.
-- [ ] The parity half of [parity-gate.md](../../state-machine-implementation/parity-gate.md) is
+- [x] No production code changes.
+- [x] The parity half of [parity-gate.md](../../state-machine-implementation/parity-gate.md) is
       unchanged at **255 tests in 24 classes**.
 
 ## Notes
@@ -144,3 +144,79 @@ Guards and Actions "as the chain that will actually run", which is the whole of 
 `CompiledGraphCache` has none either: a cache is a general programming concept, and the glossary
 format rules exclude those however much the project leans on them. Three more entries would have
 made the section longer without making the model sharper.
+
+### What the two review axes changed
+
+Both axes landed on the same paragraph from opposite directions, which is the useful part. The Spec
+axis called the admin-tooling sentence **required**; the Standards axis called it a **hard
+violation** of the format rule that `CONTEXT.md` be "totally devoid of implementation details … a
+glossary and nothing else", since it re-records in the glossary a decision ADR 0002 already holds.
+Both are right, and the criterion wins: the ticket is the contract, and it is the ticket — not a
+preference — that asked for the sentence. What the Standards axis did win is everything in the entry
+that the criterion did **not** ask for.
+
+Three fixes landed.
+
+- **"indexed so that every question it answers is a lookup" is gone.** A data-structure and
+  performance property, not what the term *is*. `CompiledGraph`'s javadoc is the right home for it
+  and already says it. Cutting it also took the entry from 106 words to 98.
+- **"it has forgotten … each Guard's configuration" was factually wrong.** Sort orders and the two
+  Guard scopes really are gone, but `guardCatalogue.bind(typeKey, params)` closes the params *into*
+  the step — the configuration is applied and un-inspectable, not absent. Now: "each Guard's
+  configuration is bound into it rather than readable off it", which is both accurate and the
+  stronger reason it is no good to admin tooling.
+- **`materialized graph` joined the `_Avoid_` line**, and this one is a genuine conflict worth
+  naming rather than a tidy-up. **ADR 0001 uses both words for the same value, one paragraph
+  apart**: "handed an already-materialized definition graph", then "The compiled graph is cached in
+  memory per Definition Version". The drift is already in the settled record and an ADR cannot be
+  edited to remove it. `CONTEXT-MAP.md` makes `backend/CONTEXT.md` "the authority on those terms",
+  with binding `_Avoid_` lines, so the glossary is the thing that gets to settle it — on "compiled",
+  which is the word the code, ADR 0003 and now the glossary all use. Recorded here because
+  `docs/agents/domain.md` asks that an ADR conflict be surfaced rather than silently overridden: a
+  reader of ADR 0001 will meet a word the glossary rejects, and that is deliberate.
+
+**Declined, with the reason.** The Standards axis also flagged "compiling happens once per version
+rather than once per evaluation" as ADR 0001 territory. It stays: it is the whole content of the
+term. An act that happened once per evaluation would be a step of the **Evaluation Pipeline**, and
+distinguishing those two is what the entry is *for*. Its rationale tail was trimmed to one clause.
+
+The Spec axis added one fact that hardens the citation decision rather than softening it: **"D3" is
+not a label ADR 0002 carries.** That ADR's decisions are unnumbered bold paragraphs; D3 is a label
+from the decision map. Printing "(D3)" would have cited something the ADR does not have, in a file
+that cites nothing.
+
+### Bookkeeping, and one stale doc
+
+The acceptance criteria are ticked, which the first pass forgot — every resolved sibling ticks
+theirs. The admin-tooling criterion carries `- [~]` and an inline note, following
+[05](05-unknown-current-state-refused-everywhere.md)'s convention for a criterion met in substance
+but not to the letter.
+
+`docs/agents/triage-labels.md` lists five role strings and `resolved` is not among them, though six
+resolved siblings in this directory use it and `issue-tracker.md`'s wayfinding section defines it.
+The doc is stale, not this commit. Left alone — amending the repo's triage vocabulary is not this
+ticket's business.
+
+### Gates
+
+**The parity half is unchanged at 24 classes, 255 tests, 0 failures, 0 errors, 1 skipped — exact.**
+The one skip is `dump.LifecycleGraphDumpGeneratorTest`, as the gate specifies. Numbers summed from
+the 24 `TEST-*.xml` reports rather than off a summary line or the `.txt` writer, per the gate's own
+warning; no report exists for `IntendedDeltasAdr0005WillInvertTest`, which is how the
+`-DexcludedGroups` split is verified. A `clean` ran first, so no stale report could have been
+counted.
+
+Running it at all is belt-and-braces: the diff is two Markdown files and touches nothing under
+`backend/src`, so the test tree is byte-identical to the tip slice 07 measured. It was run anyway,
+because "no Java changed" is a claim about a diff and the gate is a measurement.
+
+**The Nix shell works again, and is required again.** Slice 07 recorded `nix develop` failing with
+"setting up a private mount namespace: Operation not permitted" and `mvn` being on `PATH` without
+it. Both have flipped back: `nix develop .#opencode --command` succeeds, and a bare `mvn` or `java`
+is command-not-found here (nothing Maven-shaped on `PATH` at all). So the prefix that
+[parity-gate.md](../../state-machine-implementation/parity-gate.md) specifies is once more the only
+way to run the gate. Its advice — try the prefix first, drop it if it fails — held up in both
+directions, which is the reason to leave the note as it is rather than rewrite it for whichever
+state is current.
+
+No formatter run: the fmt plugin formats Java, and no Java changed.
