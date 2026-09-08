@@ -2,9 +2,15 @@ package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.stream.Stream;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * The Compiled Graph contract, tested without Spring, a database or the definition package. A graph
@@ -17,6 +23,9 @@ import org.junit.jupiter.api.Test;
 class CompiledGraphTest {
 
   private static final long VERSION_ID = 7L;
+
+  /** A State of the <em>other</em> v1 graph, so nothing here can declare it by accident. */
+  private static final String UNDECLARED_STATE = "RESOURCE_MADE_AVAILABLE";
 
   private static CompiledGraph graph() {
     return CompiledGraph.builder(VERSION_ID)
@@ -130,18 +139,33 @@ class CompiledGraphTest {
   }
 
   /**
-   * The unforgiving answer, on purpose. A terminal-aggregation Guard asks each Resource's own
-   * pinned version this question, so a State the version has never heard of means the pin is wrong
-   * — and reading that as "still running" is how a Negotiation stays in progress for ever.
+   * For terminality, a Guard that read an unknown State as "still running" would leave a
+   * Negotiation in progress for ever. For the other two lookups, an empty answer looks like a
+   * terminal State, so a broken Definition Version Pin would reach a requester as "nothing is
+   * available", which an empty listing must never mean.
+   *
+   * <p>Each refusal names the State asked about, the Definition Version, and a State the version
+   * does declare, so a log line is enough to act on.
    */
-  @Test
-  @DisplayName(
-      "asking whether an undeclared State is terminal is refused rather than answered false")
-  void isTerminal_whenTheVersionDoesNotDeclareTheState_throws() {
-    assertThatThrownBy(() -> graph().isTerminal("RESOURCE_MADE_AVAILABLE"))
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("everyLookupTakingAState")
+  @DisplayName("every lookup taking a State refuses one this version does not declare")
+  void everyLookupTakingAState_whenTheVersionDoesNotDeclareIt_throws(
+      String lookup, ThrowingCallable askIt) {
+    assertThatThrownBy(askIt)
         .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining(UNDECLARED_STATE)
         .hasMessageContaining("SUBMITTED");
+  }
+
+  private static Stream<Arguments> everyLookupTakingAState() {
+    return Stream.of(
+        arguments("isTerminal", (ThrowingCallable) () -> graph().isTerminal(UNDECLARED_STATE)),
+        arguments(
+            "transition", (ThrowingCallable) () -> graph().transition(UNDECLARED_STATE, "APPROVE")),
+        arguments(
+            "transitionsFrom", (ThrowingCallable) () -> graph().transitionsFrom(UNDECLARED_STATE)));
   }
 
   @Test
@@ -150,7 +174,7 @@ class CompiledGraphTest {
     CompiledGraph graph = graph();
 
     assertThat(graph.declaresState("APPROVED")).isTrue();
-    assertThat(graph.declaresState("RESOURCE_MADE_AVAILABLE")).isFalse();
+    assertThat(graph.declaresState(UNDECLARED_STATE)).isFalse();
   }
 
   @Test

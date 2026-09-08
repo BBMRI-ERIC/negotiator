@@ -25,9 +25,8 @@ import lombok.RequiredArgsConstructor;
  * <p>Every lookup that takes a State throws for a State this version does not declare. See {@link
  * #requireDeclaredState}.
  *
- * <p>Construct one through {@link #builder(long)}. The builder holds every invariant, so a graph
- * that exists is a graph that is well formed however it was assembled — by compiling rows, by a
- * test, or one day by whatever reads a definition file.
+ * <p>Build one through {@link #builder(long)}. The builder enforces every invariant, so a graph
+ * built from rows and one built in a test meet the same rules.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CompiledGraph {
@@ -55,9 +54,8 @@ public final class CompiledGraph {
   }
 
   /**
-   * Whether this version declares the named State at all. A Lifecycle whose current State is not
-   * declared here is running against the wrong graph, which the Definition Version Pin is what
-   * prevents.
+   * Whether this version declares the named State. A Lifecycle in an undeclared State is running
+   * against the wrong graph.
    */
   public boolean declaresState(String state) {
     return states.contains(state);
@@ -69,14 +67,28 @@ public final class CompiledGraph {
   }
 
   /**
-   * Whether this version declares the named Event at all.
+   * Throws for a State this version does not declare. Every lookup that takes a State calls this
+   * first.
    *
-   * <p>This is the difference between an Override Event and a typo, and both v1 graphs have the
-   * former: their Event universes are wider than their Transitions, and the three Events carrying
-   * no Transition — {@code START}, {@code RETURN_FOR_RESUBMISSION}, {@code OVERRIDE} — are
-   * deliberate names rather than leftovers. Without this the evaluator could only ever say "nothing
-   * happens here", and a caller could not tell a real Event that leads nowhere from this State from
-   * a name the deployment has never heard of.
+   * <p>An undeclared current State means a broken Definition Version Pin. Answering "no Transition"
+   * instead would make the broken pin look like a terminal State.
+   *
+   * <p>It is public because the Transition Evaluator must check the State before the Event.
+   *
+   * @throws InvalidGraphException naming the State, this Definition Version and the States it
+   *     declares
+   */
+  public void requireDeclaredState(String state) {
+    if (!declaresState(state)) {
+      throw new InvalidGraphException(
+          "Definition Version %d declares no State named '%s'. Its States are %s."
+              .formatted(definitionVersionId, state, states));
+    }
+  }
+
+  /**
+   * Whether this version declares the named Event. This tells an Override Event, which has no
+   * Transition, apart from a misspelled Event name.
    */
   public boolean declaresEvent(String event) {
     return events.contains(event);
@@ -94,30 +106,32 @@ public final class CompiledGraph {
    *     false} would let an unknown State keep a Negotiation in progress for ever.
    */
   public boolean isTerminal(String state) {
-    if (!states.contains(state)) {
-      throw new InvalidGraphException(
-          "Definition Version %d declares no State named '%s'. Its States are %s."
-              .formatted(definitionVersionId, state, states));
-    }
+    requireDeclaredState(state);
     return terminalStates.contains(state);
   }
 
   /**
-   * The one Transition leaving {@code fromState} for {@code event}, if there is one. At most one
-   * can exist: {@code uq_transition_definition_source_event} says so in the schema, and ADR 0007
-   * models a branch as two distinct Events rather than as two edges for one, so a graph is
-   * deterministic before any Guard is consulted.
+   * The one Transition leaving {@code fromState} for {@code event}, if there is one. The schema
+   * allows at most one, and a branch uses two distinct Events, so the graph picks a Transition
+   * before any Guard runs.
+   *
+   * <p>Empty means no such Transition leaves that State. It never means the State was unknown.
+   *
+   * @throws InvalidGraphException if this version does not declare {@code fromState}
    */
   public Optional<CompiledTransition> transition(String fromState, String event) {
+    requireDeclaredState(fromState);
     return Optional.ofNullable(bySourceAndEvent.get(new SourceAndEvent(fromState, event)));
   }
 
   /**
-   * Every Transition leaving {@code fromState}, in no promised order. This is the candidate set a
-   * Possible Events listing evaluates one by one; an empty list is the ordinary answer for a
-   * terminal State, and for a Legacy State no work can be in.
+   * Every Transition leaving {@code fromState}, in no promised order. The list is empty for a
+   * terminal State and for a Legacy State.
+   *
+   * @throws InvalidGraphException if this version does not declare {@code fromState}
    */
   public List<CompiledTransition> transitionsFrom(String fromState) {
+    requireDeclaredState(fromState);
     return bySource.getOrDefault(fromState, List.of());
   }
 
