@@ -349,10 +349,10 @@ class CompiledGraphTest {
 
   /**
    * The third: a version nobody has yet given an end. Which States carry the terminal flag is seed
-   * content and ticket 12's, so a version legitimately has none while it is being authored - and
-   * the asymmetry with the initial flag is deliberate. An initial State is what <em>starts</em> a
-   * Lifecycle, so {@code build()} requires exactly one; a terminal State is not needed to run one,
-   * so it requires none.
+   * content and the migration slab's via ticket 12, so a version legitimately has none while it is
+   * being authored - and the asymmetry with the initial flag is deliberate. An initial State is
+   * what <em>starts</em> a Lifecycle, so {@code build()} requires exactly one; a terminal State is
+   * not needed to run one, so it requires none.
    */
   @Test
   @DisplayName("a graph that declares no terminal State builds, and calls no State finished")

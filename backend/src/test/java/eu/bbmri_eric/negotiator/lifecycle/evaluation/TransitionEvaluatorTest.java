@@ -563,14 +563,17 @@ class TransitionEvaluatorTest {
 
   /**
    * The cycle fixture's other half. {@code CompiledGraphTest} proves a graph that can return to an
-   * earlier State builds; this proves the evaluator then runs it, in both directions, and offers
-   * the outbound Event again from the State the return edge leads back to. Returning is an ordinary
-   * move rather than a shape only the builder tolerates - which is the whole claim user story 50
-   * makes about the definitions this subsystem exists to run.
+   * earlier State builds; this proves the evaluator then <em>permits</em> it in both directions,
+   * and offers the outbound Event again from the State the return edge leads back to. Returning is
+   * an ordinary move rather than a shape only the builder tolerates - which is the whole claim user
+   * story 50 makes about the definitions this subsystem exists to run.
+   *
+   * <p>Permits, not runs. Committing a move and running its Actions belong to the services around
+   * the evaluator, per ADR 0001, and nothing on this path changes anything.
    */
   @Test
   @DisplayName("a Lifecycle that returns to an earlier State is offered its way out again")
-  void evaluate_whenTheGraphHasACycle_runsItInBothDirections() {
+  void evaluate_whenTheGraphHasACycle_permitsBothDirections() {
     CompiledGraph cyclic =
         CompiledGraph.builder(VERSION_ID)
             .initialState("SUBMITTED")

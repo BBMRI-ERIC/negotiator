@@ -249,12 +249,6 @@ class DefinitionInertnessGuardTest {
         readsADefinitionTable("jdbc.query(\"select active from lifecycle_definition\", mapper);"),
         "The table rule must catch a native query against a distinctively named table.");
 
-    assertFalse(
-        namesTheDefinitionPackage(
-            "import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;"),
-        "The package rule forbids one package under lifecycle, not the prefix: the graph package"
-            + " is what the definition package compiles into, and is nameable anywhere.");
-
     assertTrue(
         namesADefinitionType("compiler = new DefinitionCompiler(guards, actions);"),
         "The type rule must catch the compiler, whose javadoc claims nobody outside can call it.");
@@ -265,6 +259,10 @@ class DefinitionInertnessGuardTest {
         namesADefinitionType("private final CompiledGraphCache graphs;"),
         "The type rule must catch the cache, whose package-privacy is D19's claim in one word.");
 
+    assertFalse(
+        namesTheDefinitionPackage("import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;"),
+        "The package rule forbids one package under lifecycle, not the prefix: the graph package"
+            + " is what the definition package compiles into, and is nameable anywhere.");
     assertFalse(
         namesADefinitionType("private final CompiledGraph graph;"),
         "The compiled graph is the graph package's, nameable anywhere, and must keep passing.");
