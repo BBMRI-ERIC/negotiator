@@ -1,6 +1,6 @@
 # The compiled graph enters the glossary
 
-Status: ready-for-agent
+Status: resolved
 
 ## Parent
 
@@ -54,3 +54,93 @@ small and named — a term that comes back different, on a ticket whose only job
 ## Blocked by
 
 - [01 — Adopt prototype B's tree](01-adopt-prototype-b-tree.md)
+
+## Outcome
+
+Two terms, eight added lines, one file. `backend/CONTEXT.md` gains **Compiled Graph** and
+**Definition Compilation** at the end of the "The definition graph" section, and nothing else in
+the repository changed.
+
+The expected outcome is the one that happened: `/domain-modeling` ratified the names the code
+already uses. No rename is proposed and none is needed.
+
+### Why "Definition Compilation" rather than "Compilation"
+
+The act needed a name that `DefinitionCompiler` is recognisably the agent of, and the glossary
+already had the pattern: `DefinitionResolver` sits under **Definition Resolution** two sections
+down. So the same shape one section up, and the reader who knows one knows the other. Bare
+"Compilation" would have agreed with the class name just as well and carried less; the qualifier is
+what says *which* thing is compiled, in a file where "Definition" is a loaded word.
+
+Nothing in the slab is renamed by either term. `CompiledGraph`, `CompiledTransition` and
+`CompiledGraphCache` all sit under **Compiled Graph**; `DefinitionCompiler` under **Definition
+Compilation**; `DefinitionVersionRows` is the "rows of one Definition Version" the second entry
+names. `RequiredAuthority` moved into the graph package back in `df270bdc` and the glossary already
+had **Required Authority** in this same section, so that one was already agreed.
+
+**The ADRs had got there first**, which is the strongest evidence the names are right and was not
+noticed until the entries were written. ADR 0001 already says "The compiled graph is cached in
+memory per Definition Version"; ADR 0003 already says "the evaluator's compiled-graph cache key".
+The glossary was the only place the word was missing.
+
+### Placement, and why both went in one section
+
+Both terms are in "The definition graph", not "Evaluation". A Compiled Graph is a *form* of the
+definition graph: every part of it — States, Events, Transitions, Guards, Actions, Wiring, Required
+Authority — is defined in that section and nothing in it comes from Evaluation. Definition
+Compilation belongs beside it for the same reason and one more: it is not a step of the **Evaluation
+Pipeline**, which is Required Authority, then the information-requirement check, then Guards.
+Filing compilation under "Evaluation" would have implied it runs per evaluation, which is the exact
+opposite of the property that entry exists to record.
+
+Within the section they go last, after every part they are made of — an entry that says Wiring has
+been folded into per-Transition chains cannot precede **Wiring**. That also puts them immediately
+before **Transition Evaluator**, whose "reads no data of its own" is the sentence a reader wants
+**Compiled Graph** in hand for. The existing entries are untouched: no incoherence needed fixing,
+because **Transition Evaluator** says the evaluator answers what a Definition Version permits and
+**Compiled Graph** says it is handed that version's compiled form.
+
+### One criterion met in substance, not to the letter
+
+The admin-tooling criterion names "ADR 0002 ... (D3)". **The entry records the substance and not
+the citation.** `backend/CONTEXT.md` contains no ADR reference anywhere — no numbers, no links, in
+148 lines — and `CONTEXT-MAP.md` is explicit that the glossary and the decisions are separate
+places, one `CONTEXT.md` and one `docs/adr/` per context. A first citation in the glossary is a new
+convention in that file, and this ticket is not the place to start one.
+
+What the entry does say is that the Compiled Graph is never a source for admin tooling, that it has
+forgotten sort orders, the two Guard scopes and each Guard's configuration on purpose, and that the
+effective chain an admin has to be shown is one query against the Wiring rows instead — D3's claim,
+in D3's words, pointed at a term the glossary already defines. Flagged here rather than resolved
+silently, because reading the criterion strictly would want the number printed.
+
+### The `_Avoid_` lines, and two words that needed thought
+
+**Compiled Graph** avoids *state machine, machine instance, in-memory definition*. "machine
+instance" is the one doing real work: a Compiled Graph is per Definition Version and shared by every
+Lifecycle pinned to it, so "instance" is precisely the wrong instinct, and it is the instinct a
+cache invites.
+
+**Definition Compilation** avoids *loading, hydration, parsing*.
+
+- *loading* is on the line even though ADR 0001 uses "loading the definition graph" for a real and
+  adjacent step — loading the rows, which `DefinitionVersionRows` exists to keep separate. The line
+  means "not this word for *this* concept", which is the established reading here: **Required
+  Authority** avoids "guard" while **Guard** is a term of its own two entries up. The entry's own
+  second sentence says loading is a separate step, so the distinction is stated and not merely
+  banned.
+- *parsing* replaced a first draft's *graph build*, which was wrong. `CompiledGraph.builder(...)` is
+  the general way any graph is assembled — by compiling rows, by a test, or one day by a definition
+  file — so building is not a synonym for compiling, it is the mechanism compiling goes through, and
+  rejecting the word would have read as rejecting the class. "parsing" carries the intended
+  distinction (reading jsonb params is *part* of compiling, not what compiling is) with nothing to
+  collide with.
+
+### Terms considered and not added
+
+`CompiledTransition`, `GuardStep` and `ActionStep` have no entries of their own. Each is the
+compiled form of a term the section already defines, and **Compiled Graph** says the graph carries
+Guards and Actions "as the chain that will actually run", which is the whole of what a reader needs.
+`CompiledGraphCache` has none either: a cache is a general programming concept, and the glossary
+format rules exclude those however much the project leans on them. Three more entries would have
+made the section longer without making the model sharper.
