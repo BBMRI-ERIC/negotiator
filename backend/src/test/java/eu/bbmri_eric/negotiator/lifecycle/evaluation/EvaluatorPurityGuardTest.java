@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * ADR 0001's "the evaluator is stateless and does no I/O of its own" as four executable rules
- * rather than as a sentence in a javadoc.
+ * rather than as a sentence in a javadoc, plus two more that prove those four are not vacuous.
  *
  * <p>The ADR is explicit that this is "a deliberate constraint rather than a performance claim: an
  * evaluator that structurally cannot query the database makes loading the definition graph an
@@ -26,10 +27,15 @@ import org.junit.jupiter.api.Test;
  * enforcement is that nobody has broken it yet is a convention. These rules are what make it
  * structural.
  *
+ * <p>Three of the four are blocklists and the fourth is an allowlist, deliberately: see {@link
+ * #IMPORTS_PERMITTED_IN_GRAPH}. A blocklist stops only what someone thought of, so the package that
+ * can afford a closed list of dependencies is given one.
+ *
  * <p>Built in the register of {@code DefinitionInertnessGuardTest}: the Java source is scanned as
  * <em>text</em>, comments are blanked so prose naming a forbidden term is not a violation, every
- * violation is reported with a {@code file:line} a reader can check, and a meta-test stops the
- * whole thing passing by scanning nothing.
+ * violation is reported with a {@code file:line} a reader can check, each rule is proven to fire on
+ * the thing it forbids and to spare something innocent, and a meta-test stops the whole thing
+ * passing by scanning nothing.
  *
  * <p>Unlike that guard, this one is <b>not</b> meant to be deleted. The inertness guard exists to
  * prove a temporary state and dies when a slab starts reading the definition tables; this one
@@ -39,11 +45,23 @@ import org.junit.jupiter.api.Test;
  */
 class EvaluatorPurityGuardTest {
 
-  private static final String GRAPH_PACKAGE = "eu/bbmri_eric/negotiator/lifecycle/graph";
-  private static final String EVALUATION_PACKAGE = "eu/bbmri_eric/negotiator/lifecycle/evaluation";
+  private static final String GRAPH_PACKAGE = "eu.bbmri_eric.negotiator.lifecycle.graph";
+  private static final String EVALUATION_PACKAGE = "eu.bbmri_eric.negotiator.lifecycle.evaluation";
+  private static final String DEFINITION_PACKAGE = "eu.bbmri_eric.negotiator.lifecycle.definition";
+
+  private static final String GRAPH_PACKAGE_PATH = GRAPH_PACKAGE.replace('.', '/');
+  private static final String EVALUATION_PACKAGE_PATH = EVALUATION_PACKAGE.replace('.', '/');
 
   /** Below this, the scan has lost its way and would pass by finding nothing. */
   private static final int MINIMUM_SCANNED_SOURCES = 15;
+
+  /**
+   * The graph package's own floor, because two of the four rules scan it alone. Without a separate
+   * minimum, a graph half of the walk that returned nothing would still clear {@link
+   * #MINIMUM_SCANNED_SOURCES} on the evaluation package's files, and the allowlist — the one rule
+   * that only makes sense over {@code graph} — would go quietly vacuous.
+   */
+  private static final int MINIMUM_SCANNED_GRAPH_SOURCES = 8;
 
   /**
    * Packages that only exist to reach a database. {@code org.springframework.stereotype} is
@@ -63,16 +81,43 @@ class EvaluatorPurityGuardTest {
    */
   private static final Pattern REPOSITORY_TYPE = Pattern.compile("\\b\\w*Repository\\b");
 
+  /** An import, single or static, with the imported name captured. */
+  private static final Pattern IMPORT_STATEMENT =
+      Pattern.compile("^\\s*import\\s+(?:static\\s+)?([\\w.$]+)\\s*;");
+
+  /**
+   * The whole of what the graph package may depend on, as an allowlist rather than as one more
+   * blocklist. The other three rules stop what someone thought of; nothing stops {@code graph}
+   * growing an import of Jackson, of a Spring annotation, or of anything under {@code common/}. It
+   * can afford a closed list where the evaluation package cannot, because it is the vocabulary the
+   * other two packages agree on and holds no machinery at all.
+   *
+   * <p>Exactly two entries, and each has its own argument:
+   *
+   * <ul>
+   *   <li>{@code java.} — the JDK. A compiled graph is names, flags and collections, and it must
+   *       stay constructible by a compile, by a test, or one day by whatever reads a definition
+   *       file. None of those three may be made to drag in a container.
+   *   <li>{@code lombok.} — house style per D11, and admissible <em>because</em> it is barely a
+   *       dependency. Lombok's annotations are {@code SOURCE} retention at {@code provided} scope,
+   *       so nothing Lombok survives into the runtime classpath and the property this gate protects
+   *       stays literally true of the compiled output.
+   * </ul>
+   *
+   * <p>A two-entry allowlist invites a third, which is why the reasons are written here rather than
+   * assumed: a third entry is admissible only on an argument of the same shape — that the import
+   * cannot reach a database, a container or a serializer, and does not make a compiled graph
+   * unbuildable by a test. Nothing else on this backend's classpath has one. {@code
+   * org.springframework.lang.Nullable} is the near miss, and D11 turned it down for exactly this
+   * reason: it is a real runtime dependency, so the optional components it would annotate stay
+   * documented in javadoc instead.
+   */
+  private static final List<String> IMPORTS_PERMITTED_IN_GRAPH = List.of("java.", "lombok.");
+
   @Test
   @DisplayName("neither package names anything that could reach a database")
   void neitherPackage_namesAnythingThatCouldReachADatabase() {
-    List<Violation> violations =
-        scan(
-            anySource(),
-            line ->
-                PERSISTENCE_PACKAGES.stream().anyMatch(line::contains)
-                    || PERSISTENCE_TYPE.matcher(line).find()
-                    || REPOSITORY_TYPE.matcher(line).find());
+    List<Violation> violations = scan(anySource(), EvaluatorPurityGuardTest::couldReachADatabase);
 
     assertTrue(
         violations.isEmpty(),
@@ -96,7 +141,7 @@ class EvaluatorPurityGuardTest {
   @DisplayName("neither package reaches into the definition package")
   void neitherPackage_reachesIntoTheDefinitionPackage() {
     List<Violation> violations =
-        scan(anySource(), line -> line.contains("eu.bbmri_eric.negotiator.lifecycle.definition"));
+        scan(anySource(), EvaluatorPurityGuardTest::namesTheDefinitionPackage);
 
     assertTrue(
         violations.isEmpty(),
@@ -120,9 +165,7 @@ class EvaluatorPurityGuardTest {
   @DisplayName("the graph package does not know the evaluation package exists")
   void theGraphPackage_doesNotKnowTheEvaluationPackageExists() {
     List<Violation> violations =
-        scan(
-            path -> path.toString().contains(GRAPH_PACKAGE),
-            line -> line.contains("eu.bbmri_eric.negotiator.lifecycle.evaluation"));
+        scan(graphSource(), EvaluatorPurityGuardTest::namesTheEvaluationPackage);
 
     assertTrue(
         violations.isEmpty(),
@@ -137,37 +180,148 @@ class EvaluatorPurityGuardTest {
   }
 
   /**
-   * Anti-vacuity, in both halves. The scan must actually be reading files, and each rule must
-   * actually fire on the thing it forbids — a guard built out of a regex that matches nothing
-   * passes for ever and proves nothing.
+   * The one rule that says what is permitted rather than what is forbidden, so that it also stops
+   * what nobody thought of. It overlaps the three rules above deliberately — an import of the
+   * definition package from {@code graph} breaks this rule as well — and the overlap is the cheap
+   * half: what this rule adds is every dependency no other rule has a line for.
+   *
+   * @see #IMPORTS_PERMITTED_IN_GRAPH for why the list has exactly two entries
    */
   @Test
-  @DisplayName("each rule scans the code it claims to and matches what it forbids")
-  void theRules_scanTheCodeTheyClaimToAndMatchWhatTheyForbid() {
+  @DisplayName("the graph package imports nothing but the JDK and Lombok")
+  void theGraphPackage_importsNothingButTheJdkAndLombok() {
+    List<Violation> violations =
+        scan(graphSource(), EvaluatorPurityGuardTest::isAnImportTheGraphMayNotHave);
+
+    assertTrue(
+        violations.isEmpty(),
+        report(
+            violations,
+            """
+            The graph package's dependencies are an allowlist: java. and lombok., and nothing else.
+
+            This is not a list of things that happen to be unwelcome - it is the whole of what the
+            vocabulary may depend on, so that a dependency nobody thought to forbid is forbidden
+            anyway. Jackson, a Spring annotation and anything under common/ are caught here and by
+            no other rule.
+
+            Widening it takes an argument of the same shape as the two entries already have, written
+            where they are written. It does not take an import."""));
+  }
+
+  /**
+   * Anti-vacuity, half one: every rule fires on the thing it forbids <em>and</em> spares something
+   * innocent. A guard built out of a regex that matches nothing passes for ever and proves nothing;
+   * one that matches everything gets silenced by whoever it obstructs first.
+   */
+  @Test
+  @DisplayName("each rule matches what it forbids, and spares what it must allow")
+  void theRules_matchWhatTheyForbidAndSpareWhatTheyMustAllow() {
+    assertTrue(couldReachADatabase("private final StateRepository states;"));
+    assertTrue(couldReachADatabase("SomeFutureRepository r;"));
+    assertTrue(couldReachADatabase("@PersistenceContext EntityManager em;"));
+    assertTrue(couldReachADatabase("import org.springframework.data.jpa.repository.Query;"));
+    assertTrue(couldReachADatabase("import jakarta.persistence.Entity;"));
+    assertTrue(couldReachADatabase("import org.hibernate.annotations.Immutable;"));
+    assertTrue(couldReachADatabase("import java.sql.Connection;"));
+
+    assertFalse(couldReachADatabase("GuardCatalogue catalogue;"));
+    assertFalse(couldReachADatabase("EvaluationContext context;"));
+    assertFalse(
+        couldReachADatabase("import org.springframework.stereotype.Component;"),
+        "being a Spring bean is not what this guard forbids");
+
+    assertTrue(
+        namesTheDefinitionPackage("import %s.LifecycleDefinition;".formatted(DEFINITION_PACKAGE)));
+    assertTrue(
+        namesTheDefinitionPackage("%s.DefinitionCompiler compiler;".formatted(DEFINITION_PACKAGE)),
+        "a fully-qualified name is the other way this edge can be written");
+    assertFalse(
+        namesTheDefinitionPackage("import %s.CompiledGraph;".formatted(GRAPH_PACKAGE)),
+        "the lifecycle prefix is not what this rule forbids, one package under it is");
+
+    assertTrue(namesTheEvaluationPackage("import %s.GuardRegistry;".formatted(EVALUATION_PACKAGE)));
+    assertFalse(
+        namesTheEvaluationPackage("import %s.GuardCatalogue;".formatted(GRAPH_PACKAGE)),
+        "the catalogue is where these two packages are supposed to meet");
+
+    assertTrue(
+        isAnImportTheGraphMayNotHave("import com.fasterxml.jackson.databind.JsonNode;"),
+        "a serializer is what the allowlist exists for, and no blocklist mentions it");
+    assertTrue(isAnImportTheGraphMayNotHave("import org.springframework.stereotype.Component;"));
+    assertTrue(
+        isAnImportTheGraphMayNotHave(
+            "import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;"));
+    assertTrue(
+        isAnImportTheGraphMayNotHave("import static org.assertj.core.api.Assertions.assertThat;"),
+        "a static import names a type just as surely as a single one");
+
+    assertFalse(isAnImportTheGraphMayNotHave("import java.util.List;"));
+    assertFalse(isAnImportTheGraphMayNotHave("import lombok.NonNull;"));
+    assertFalse(isAnImportTheGraphMayNotHave("import static java.util.Map.entry;"));
+    assertFalse(
+        isAnImportTheGraphMayNotHave("    return importantThing.get();"),
+        "the rule reads import statements, not every line with the word inside a name");
+  }
+
+  /**
+   * Anti-vacuity, half two: the scan is reading files, and enough of them. Two floors rather than
+   * one, because two of the four rules read the graph package alone and would go vacuous while the
+   * combined count still looked healthy.
+   */
+  @Test
+  @DisplayName("the scan reads both packages, and the graph package on its own")
+  void theScan_readsBothPackagesAndTheGraphPackageOnItsOwn() {
     List<Path> scanned = sources(anySource());
     assertTrue(
         scanned.size() >= MINIMUM_SCANNED_SOURCES,
-        "the purity scan found only %d sources under the graph and evaluation packages, expected at"
-            + " least %d - it is not scanning what it claims to"
-                .formatted(scanned.size(), MINIMUM_SCANNED_SOURCES));
+        ("the purity scan found only %d sources under the graph and evaluation packages, expected"
+                + " at least %d - it is not scanning what it claims to")
+            .formatted(scanned.size(), MINIMUM_SCANNED_SOURCES));
 
-    assertTrue(REPOSITORY_TYPE.matcher("private final StateRepository states;").find());
-    assertTrue(REPOSITORY_TYPE.matcher("SomeFutureRepository r;").find());
-    assertTrue(PERSISTENCE_TYPE.matcher("@PersistenceContext EntityManager em;").find());
+    List<Path> graphSources = sources(graphSource());
     assertTrue(
-        "import org.springframework.data.jpa.repository.Query;"
-            .contains("org.springframework.data"));
+        graphSources.size() >= MINIMUM_SCANNED_GRAPH_SOURCES,
+        ("the purity scan found only %d sources under the graph package, expected at least %d - the"
+                + " allowlist and the evaluation-edge rule read this package alone, and would pass"
+                + " by reading none of it")
+            .formatted(graphSources.size(), MINIMUM_SCANNED_GRAPH_SOURCES));
 
-    assertFalse(REPOSITORY_TYPE.matcher("GuardCatalogue catalogue;").find());
-    assertFalse(PERSISTENCE_TYPE.matcher("EvaluationContext context;").find());
     assertFalse(
-        "import org.springframework.stereotype.Component;".contains("org.springframework.data"),
-        "being a Spring bean is not what this guard forbids");
+        scan(graphSource(), line -> IMPORT_STATEMENT.matcher(line).find()).isEmpty(),
+        "the allowlist rule found no import at all under "
+            + GRAPH_PACKAGE
+            + ", so its green result outside the allowlist means nothing either");
+  }
+
+  private static boolean couldReachADatabase(String line) {
+    return PERSISTENCE_PACKAGES.stream().anyMatch(line::contains)
+        || PERSISTENCE_TYPE.matcher(line).find()
+        || REPOSITORY_TYPE.matcher(line).find();
+  }
+
+  private static boolean namesTheDefinitionPackage(String line) {
+    return line.contains(DEFINITION_PACKAGE);
+  }
+
+  private static boolean namesTheEvaluationPackage(String line) {
+    return line.contains(EVALUATION_PACKAGE);
+  }
+
+  private static boolean isAnImportTheGraphMayNotHave(String line) {
+    Matcher imported = IMPORT_STATEMENT.matcher(line);
+    return imported.find()
+        && IMPORTS_PERMITTED_IN_GRAPH.stream().noneMatch(imported.group(1)::startsWith);
   }
 
   private static Predicate<Path> anySource() {
     return path ->
-        path.toString().contains(GRAPH_PACKAGE) || path.toString().contains(EVALUATION_PACKAGE);
+        path.toString().contains(GRAPH_PACKAGE_PATH)
+            || path.toString().contains(EVALUATION_PACKAGE_PATH);
+  }
+
+  private static Predicate<Path> graphSource() {
+    return path -> path.toString().contains(GRAPH_PACKAGE_PATH);
   }
 
   private static List<Violation> scan(Predicate<Path> files, Predicate<String> offending) {
@@ -240,8 +394,9 @@ class EvaluatorPurityGuardTest {
     while (candidate != null) {
       for (String prefix : List.of("", "backend")) {
         Path module = prefix.isEmpty() ? candidate : candidate.resolve(prefix);
-        if (Files.isDirectory(module.resolve("src/main/java").resolve(GRAPH_PACKAGE))
-            && Files.isDirectory(module.resolve("src/main/java").resolve(EVALUATION_PACKAGE))) {
+        if (Files.isDirectory(module.resolve("src/main/java").resolve(GRAPH_PACKAGE_PATH))
+            && Files.isDirectory(
+                module.resolve("src/main/java").resolve(EVALUATION_PACKAGE_PATH))) {
           return module;
         }
       }

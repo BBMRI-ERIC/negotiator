@@ -561,6 +561,36 @@ class TransitionEvaluatorTest {
     assertThat(ran).isEmpty();
   }
 
+  /**
+   * The cycle fixture's other half. {@code CompiledGraphTest} proves a graph that can return to an
+   * earlier State builds; this proves the evaluator then runs it, in both directions, and offers
+   * the outbound Event again from the State the return edge leads back to. Returning is an ordinary
+   * move rather than a shape only the builder tolerates - which is the whole claim user story 50
+   * makes about the definitions this subsystem exists to run.
+   */
+  @Test
+  @DisplayName("a Lifecycle that returns to an earlier State is offered its way out again")
+  void evaluate_whenTheGraphHasACycle_runsItInBothDirections() {
+    CompiledGraph cyclic =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("SUBMITTED")
+            .state("IN_PROGRESS")
+            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN)
+            .transition(
+                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN)
+            .build();
+
+    assertThat(evaluator.evaluate(cyclic, "APPROVE", contextIn("SUBMITTED", admin())).permitted())
+        .isTrue();
+    assertThat(
+            evaluator
+                .evaluate(cyclic, "RETURN_FOR_RESUBMISSION", contextIn("IN_PROGRESS", admin()))
+                .permitted())
+        .isTrue();
+    assertThat(evaluator.possibleEvents(cyclic, contextIn("SUBMITTED", admin())))
+        .containsExactly("APPROVE");
+  }
+
   private static ActionStep recordingAction(String typeKey, List<String> ran) {
     return new ActionStep() {
       @Override

@@ -289,6 +289,86 @@ class CompiledGraphTest {
     assertThat(graph.transition("PAUSED", "ABANDON")).isPresent();
   }
 
+  /**
+   * The first of the three topologies this subsystem exists to run, and the reason {@code build()}
+   * walks no graph looking for one. A Lifecycle that can return to an earlier State is ordinary:
+   * {@code RETURN_FOR_RESUBMISSION} is exactly that edge in the v1 Negotiation graph, and any
+   * acyclicity check - however it were spelled - would refuse production data.
+   *
+   * <p>Asserted as <em>acceptance</em>, so this fixture depends on no exception type and says
+   * nothing about how a refusal would have been worded.
+   */
+  @Test
+  @DisplayName("a graph whose Transitions form a cycle builds, and resolves both ways round")
+  void build_whenTheTransitionsFormACycle_isAccepted() {
+    CompiledGraph graph =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("SUBMITTED")
+            .state("IN_PROGRESS")
+            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN)
+            .transition(
+                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN)
+            .build();
+
+    assertThat(graph.transition("SUBMITTED", "APPROVE"))
+        .contains(
+            new CompiledTransition(
+                "SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN));
+    assertThat(graph.transition("IN_PROGRESS", "RETURN_FOR_RESUBMISSION"))
+        .contains(
+            new CompiledTransition(
+                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN));
+  }
+
+  /**
+   * The second: a Legacy State, kept in the version only so that historical rows still resolve.
+   * Both v1 graphs have one. What makes it useful is precisely that it is <em>declared</em> - a
+   * Negotiation still sitting in it must have its State answered rather than refused, which is why
+   * the assertions below are that {@code isTerminal} and {@code transitionsFrom} answer at all.
+   *
+   * <p>A reachability check would refuse this graph, and {@code
+   * requireEveryTransitionToNameDeclaredStates} says in its own javadoc that it deliberately does
+   * not make one. This is that sentence as a test.
+   */
+  @Test
+  @DisplayName("a graph with a State no Transition reaches builds, and still declares the State")
+  void build_whenNoTransitionReachesAState_isAcceptedAndTheStateStaysDeclared() {
+    CompiledGraph graph =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("SUBMITTED")
+            .terminalState("ABANDONED")
+            .state("APPROVED")
+            .transition("SUBMITTED", "DECLINE", "ABANDONED", RequiredAuthority.IS_ADMIN)
+            .build();
+
+    assertThat(graph.states()).contains("APPROVED");
+    assertThat(graph.declaresState("APPROVED")).isTrue();
+    assertThat(graph.isTerminal("APPROVED")).isFalse();
+    assertThat(graph.transitionsFrom("APPROVED")).isEmpty();
+  }
+
+  /**
+   * The third: a version nobody has yet given an end. Which States carry the terminal flag is seed
+   * content and ticket 12's, so a version legitimately has none while it is being authored - and
+   * the asymmetry with the initial flag is deliberate. An initial State is what <em>starts</em> a
+   * Lifecycle, so {@code build()} requires exactly one; a terminal State is not needed to run one,
+   * so it requires none.
+   */
+  @Test
+  @DisplayName("a graph that declares no terminal State builds, and calls no State finished")
+  void build_whenNoStateIsTerminal_isAccepted() {
+    CompiledGraph graph =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("DRAFT")
+            .state("SUBMITTED")
+            .transition("DRAFT", "SUBMIT", "SUBMITTED", RequiredAuthority.IS_CREATOR)
+            .build();
+
+    assertThat(graph.states()).containsExactlyInAnyOrder("DRAFT", "SUBMITTED");
+    assertThat(graph.isTerminal("DRAFT")).isFalse();
+    assertThat(graph.isTerminal("SUBMITTED")).isFalse();
+  }
+
   @Test
   @DisplayName("an edge with no Required Authority is refused at construction")
   void transition_whenGivenNullRequiredAuthority_isRefusedAtConstruction() {
