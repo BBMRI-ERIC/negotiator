@@ -1,9 +1,11 @@
 package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.FailureCategory;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * What the Transition Evaluator answers about one Event. Either the move is permitted and this is
@@ -16,11 +18,18 @@ public sealed interface EvaluationOutcome {
 
   boolean permitted();
 
-  /** The move is legal now. {@code transition} names where it goes. */
-  record Permitted(CompiledTransition transition) implements EvaluationOutcome {
+  /**
+   * The move is legal now. {@code transition} names the target State and carries the ordered
+   * Actions the committing service runs afterwards.
+   *
+   * <p>The evaluator reports the Actions and does not run them, so listing Possible Events can call
+   * the same function without running anything.
+   */
+  record Permitted(@NonNull CompiledTransition transition) implements EvaluationOutcome {
 
-    public Permitted {
-      Objects.requireNonNull(transition, "transition");
+    /** The Actions to run once the move has committed, in order. */
+    public List<ActionStep> actions() {
+      return transition.actions();
     }
 
     @Override
@@ -36,12 +45,11 @@ public sealed interface EvaluationOutcome {
    * @param reasonCode a stable key naming the specific refusal within that category
    * @param details what a caller needs to act on the refusal, supplied by the refusing step
    */
-  record Refused(FailureCategory category, String reasonCode, Map<String, Object> details)
+  record Refused(
+      @NonNull FailureCategory category, @NonNull String reasonCode, Map<String, Object> details)
       implements EvaluationOutcome {
 
     public Refused {
-      Objects.requireNonNull(category, "category");
-      Objects.requireNonNull(reasonCode, "reasonCode");
       details = Map.copyOf(details);
     }
 

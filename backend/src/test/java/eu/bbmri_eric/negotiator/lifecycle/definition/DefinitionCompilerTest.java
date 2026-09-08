@@ -3,15 +3,21 @@ package eu.bbmri_eric.negotiator.lifecycle.definition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,8 +37,15 @@ class DefinitionCompilerTest {
 
   private static final long VERSION_ID = 42L;
 
+  /**
+   * The type key of a real Action, used where a Guard is expected. No Guard strategy declares it,
+   * so {@link RecordingCatalogue} refuses it. That refusal keeps the two key spaces separate.
+   */
+  private static final String ACTION_ONLY_KEY = "SPAWN_RESOURCE_LIFECYCLES";
+
   private final RecordingCatalogue catalogue = new RecordingCatalogue();
-  private final DefinitionCompiler compiler = new DefinitionCompiler(catalogue);
+  private final RecordingActionCatalogue actionCatalogue = new RecordingActionCatalogue();
+  private final DefinitionCompiler compiler = new DefinitionCompiler(catalogue, actionCatalogue);
 
   private final LifecycleDefinition version =
       LifecycleDefinition.builder()
@@ -107,16 +120,33 @@ class DefinitionCompilerTest {
         .build();
   }
 
+  private ActionWiring actionOn(
+      Transition transition, String typeKey, int sortOrder, String params) {
+    return ActionWiring.builder()
+        .transition(transition)
+        .typeKey(typeKey)
+        .params(params)
+        .sortOrder(sortOrder)
+        .build();
+  }
+
   private DefinitionVersionRows rows(List<Transition> transitions, List<GuardWiring> wirings) {
+    return rows(transitions, wirings, List.of());
+  }
+
+  private DefinitionVersionRows rows(
+      List<Transition> transitions, List<GuardWiring> wirings, List<ActionWiring> actions) {
     return new DefinitionVersionRows(
         version,
         List.of(submitted, available, legacy),
         List.of(deliver, override),
         transitions,
-        wirings);
+        wirings,
+        actions);
   }
 
   @Test
+  @DisplayName("the compiled graph takes the Definition Version's row id as its identity")
   void compile_takesTheDefinitionVersionsRowIdAsTheGraphsIdentity() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -124,6 +154,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("the initial and terminal flags cross into the graph as the rows declare them")
   void compile_carriesTheStateFlagsAcrossAsTheyAreDeclared() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -134,6 +165,7 @@ class DefinitionCompilerTest {
 
   /** A Legacy State must survive compilation to keep old data valid. */
   @Test
+  @DisplayName("a Legacy State no Transition touches survives compilation")
   void compile_keepsAStateNoTransitionTouches() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -142,6 +174,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("an Event no Transition uses survives compilation")
   void compile_keepsAnEventNoTransitionUses() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -150,6 +183,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("the Transition row's Required Authority lands on the compiled edge")
   void compile_carriesTheRequiredAuthorityOntoTheEdge() {
     CompiledGraph graph = compiler.compile(rows(List.of(deliverTransition), List.of()));
 
@@ -164,6 +198,7 @@ class DefinitionCompilerTest {
    * that Guards have two scopes.
    */
   @Test
+  @DisplayName("definition-wide Guards are folded in ahead of the Transition's own")
   void compile_putsDefinitionWideGuardsAheadOfTheTransitionsOwn() {
     CompiledGraph graph =
         compiler.compile(
@@ -181,6 +216,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("each Guard scope is ordered by its own sort order rather than by row order")
   void compile_ordersEachScopeByItsOwnSortOrderRatherThanByRowOrder() {
     CompiledGraph graph =
         compiler.compile(
@@ -199,6 +235,7 @@ class DefinitionCompilerTest {
    * schema accepts the same number on both sides, and the fold must not interleave them.
    */
   @Test
+  @DisplayName("the same sort order on both scopes still puts the definition-wide Guard first")
   void compile_whenBothScopesUseTheSameSortOrder_stillPutsTheDefinitionWideOneFirst() {
     CompiledGraph graph =
         compiler.compile(
@@ -214,6 +251,7 @@ class DefinitionCompilerTest {
 
   /** There is no uniqueness on {@code type_key}: one definition may wire a key twice. */
   @Test
+  @DisplayName("one type key wired twice at different sort orders yields two steps")
   void compile_whenOneTypeKeyIsWiredTwiceAtDifferentSortOrders_keepsBoth() {
     CompiledGraph graph =
         compiler.compile(
@@ -229,6 +267,7 @@ class DefinitionCompilerTest {
    * version adds gets it without anyone wiring it again.
    */
   @Test
+  @DisplayName("a definition-wide Guard reaches every Transition of the version")
   void compile_appliesADefinitionWideGuardToEveryTransition() {
     Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
     CompiledGraph graph =
@@ -242,6 +281,7 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("a Transition-scoped Guard stays off every other Transition")
   void compile_keepsATransitionScopedGuardOffEveryOtherTransition() {
     Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
     CompiledGraph graph =
@@ -255,14 +295,15 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("each Wiring row's raw configuration reaches the catalogue once")
   void compile_handsEachWiringsRawParamsToTheCatalogueOnce() {
     compiler.compile(
         rows(
             List.of(deliverTransition),
-            List.of(definitionWide("SET_POST_VISIBILITY", 1, "{\"scope\":\"BOTH\"}"))));
+            List.of(definitionWide("REQUIREMENT_MET", 1, "{\"quantifier\":\"ALL\"}"))));
 
     assertThat(catalogue.bound)
-        .containsExactly(new Bound("SET_POST_VISIBILITY", "{\"scope\":\"BOTH\"}"));
+        .containsExactly(new Bound("REQUIREMENT_MET", "{\"quantifier\":\"ALL\"}"));
   }
 
   /**
@@ -270,6 +311,7 @@ class DefinitionCompilerTest {
    * configuration, so the same instance is safe on every edge.
    */
   @Test
+  @DisplayName("a definition-wide Wiring row is bound once however many Transitions carry it")
   void compile_bindsADefinitionWideWiringOnceHoweverManyTransitionsCarryIt() {
     Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
 
@@ -282,16 +324,18 @@ class DefinitionCompilerTest {
   }
 
   @Test
+  @DisplayName("a type key the catalogue refuses fails the compile rather than the firing")
   void compile_whenTheCatalogueRefusesAKey_failsTheCompileRatherThanTheFiring() {
     assertThatThrownBy(
             () ->
                 compiler.compile(
                     rows(List.of(deliverTransition), List.of(definitionWide("NO_SUCH", 1, null)))))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("NO_SUCH");
   }
 
   @Test
+  @DisplayName("a row belonging to another Definition Version is refused")
   void compile_whenARowBelongsToAnotherDefinitionVersion_isRefused() {
     LifecycleDefinition other =
         LifecycleDefinition.builder()
@@ -310,12 +354,93 @@ class DefinitionCompilerTest {
             List.of(submitted, foreign),
             List.of(deliver),
             List.of(deliverTransition),
+            List.of(),
             List.of());
 
     assertThatThrownBy(() -> compiler.compile(mixed))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("different Definition Version")
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("ELSEWHERE");
+  }
+
+  // --- the Action chain -------------------------------------------------------------------------
+
+  @Test
+  @DisplayName("a Transition's Actions land on its edge in sort order")
+  void compile_putsTheTransitionsActionsOnItsEdgeInSortOrder() {
+    CompiledGraph graph =
+        compiler.compile(
+            rows(
+                List.of(deliverTransition),
+                List.of(),
+                List.of(
+                    actionOn(deliverTransition, "SECOND", 20, null),
+                    actionOn(deliverTransition, "FIRST", 10, null))));
+
+    assertThat(actionsOf(graph, "SUBMITTED", "DELIVER")).containsExactly("FIRST", "SECOND");
+  }
+
+  /** Action Wiring is transition-scoped only, so there is no definition-wide chain to fold in. */
+  @Test
+  @DisplayName("a Transition's Actions stay off every other Transition")
+  void compile_keepsATransitionsActionsOffEveryOtherTransition() {
+    Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
+    CompiledGraph graph =
+        compiler.compile(
+            rows(
+                List.of(deliverTransition, second),
+                List.of(),
+                List.of(actionOn(deliverTransition, "SET_POST_VISIBILITY", 1, null))));
+
+    assertThat(actionsOf(graph, "SUBMITTED", "DELIVER")).containsExactly("SET_POST_VISIBILITY");
+    assertThat(actionsOf(graph, "SUBMITTED", "OVERRIDE")).isEmpty();
+  }
+
+  @Test
+  @DisplayName("an Action's configuration goes to the Action catalogue and not the Guard one")
+  void compile_handsAnActionsRawParamsToItsOwnCatalogue() {
+    compiler.compile(
+        rows(
+            List.of(deliverTransition),
+            List.of(),
+            List.of(
+                actionOn(
+                    deliverTransition,
+                    "SET_POST_VISIBILITY",
+                    1,
+                    "{\"scope\":\"BOTH\",\"enabled\":false}"))));
+
+    assertThat(actionCatalogue.bound)
+        .containsExactly(
+            new Bound("SET_POST_VISIBILITY", "{\"scope\":\"BOTH\",\"enabled\":false}"));
+    assertThat(catalogue.bound).isEmpty();
+  }
+
+  /**
+   * The two catalogues are separate key spaces. An Action key wired where a Guard belongs is
+   * refused at compile time rather than dispatched to the wrong strategy.
+   *
+   * <p>{@code SPAWN_RESOURCE_LIFECYCLES} is the key of a real Action, and no Guard strategy
+   * declares it, so the Guard catalogue refuses it as it refuses a misspelling. The compiler asks
+   * the Guard catalogue about a Guard Wiring row and never falls back to the Action catalogue.
+   */
+  @Test
+  @DisplayName("an Action key wired where a Guard belongs is refused at compile time")
+  void compile_whenAnActionKeyIsWiredAsAGuard_isRefused() {
+    assertThatThrownBy(
+            () ->
+                compiler.compile(
+                    rows(
+                        List.of(deliverTransition),
+                        List.of(definitionWide(ACTION_ONLY_KEY, 1, null)))))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining(ACTION_ONLY_KEY)
+        .hasMessageContaining("Guard");
+  }
+
+  private static List<String> actionsOf(CompiledGraph graph, String fromState, String event) {
+    return graph.transition(fromState, event).orElseThrow().actions().stream()
+        .map(ActionStep::typeKey)
+        .toList();
   }
 
   private static List<String> chainOf(CompiledGraph graph, String fromState, String event) {
@@ -327,17 +452,24 @@ class DefinitionCompilerTest {
   private record Bound(String typeKey, String paramsJson) {}
 
   /**
-   * A catalogue that binds anything whose key is not {@code NO_SUCH}, and remembers what it was
-   * asked. Standing in for the registry keeps this test about the fold rather than about Jackson.
+   * A catalogue that binds any key it declares and records what it was asked. It replaces the
+   * registry so this test covers the fold, not Jackson.
+   *
+   * <p>It does not declare {@code NO_SUCH}, which nothing declares, or {@link #ACTION_ONLY_KEY},
+   * which the Action catalogue declares. The real registry refuses both the same way, because no
+   * Guard strategy claims either, so the fake does too.
    */
   private static final class RecordingCatalogue implements GuardCatalogue {
+
+    private static final Set<String> UNDECLARED = Set.of("NO_SUCH", ACTION_ONLY_KEY);
 
     private final List<Bound> bound = new ArrayList<>();
 
     @Override
     public GuardStep bind(String typeKey, String paramsJson) {
-      if ("NO_SUCH".equals(typeKey)) {
-        throw new IllegalArgumentException("No Guard strategy declares the type key 'NO_SUCH'.");
+      if (UNDECLARED.contains(typeKey)) {
+        throw new InvalidGraphException(
+            "No Guard strategy declares the type key '%s'.".formatted(typeKey));
       }
       bound.add(new Bound(typeKey, paramsJson));
       return new GuardStep() {
@@ -349,6 +481,31 @@ class DefinitionCompilerTest {
         @Override
         public GuardVerdict check(EvaluationContext context) {
           return GuardVerdict.pass();
+        }
+      };
+    }
+  }
+
+  /** The Action-side twin of {@link RecordingCatalogue}, over its own key space. */
+  private static final class RecordingActionCatalogue implements ActionCatalogue {
+
+    private final List<Bound> bound = new ArrayList<>();
+
+    @Override
+    public ActionStep bind(String typeKey, String paramsJson) {
+      if ("NO_SUCH".equals(typeKey)) {
+        throw new InvalidGraphException("No Action strategy declares the type key 'NO_SUCH'.");
+      }
+      bound.add(new Bound(typeKey, paramsJson));
+      return new ActionStep() {
+        @Override
+        public String typeKey() {
+          return typeKey;
+        }
+
+        @Override
+        public void run(ActionContext context) {
+          throw new UnsupportedOperationException("the fake does not run");
         }
       };
     }

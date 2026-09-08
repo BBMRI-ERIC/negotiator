@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,13 +11,10 @@ import org.springframework.stereotype.Service;
  * #resolveForResource()}.
  */
 @Service
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class DefinitionResolverImpl implements DefinitionResolver {
 
   private final LifecycleDefinitionRepository definitions;
-
-  DefinitionResolverImpl(LifecycleDefinitionRepository definitions) {
-    this.definitions = definitions;
-  }
 
   @Override
   public LifecycleDefinition resolveForNegotiation() {

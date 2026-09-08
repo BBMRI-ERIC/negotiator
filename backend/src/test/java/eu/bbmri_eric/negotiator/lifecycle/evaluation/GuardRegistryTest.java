@@ -9,8 +9,10 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.Caller;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.Subject;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -33,6 +35,7 @@ class GuardRegistryTest {
   }
 
   @Test
+  @DisplayName("the catalogue reports every type key it knows")
   void typeKeys_reportsEveryKeyTheCatalogueKnows() {
     assertThat(registryOf(new ParamsFreeGuard(), new ThresholdGuard()).typeKeys())
         .containsExactly("PARAMS_FREE", "THRESHOLD");
@@ -43,6 +46,7 @@ class GuardRegistryTest {
    * claiming one key are an error.
    */
   @Test
+  @DisplayName("two strategies claiming one type key fail the boot, naming both classes")
   void constructor_whenTwoStrategiesDeclareOneTypeKey_throwsNamingBothClasses() {
     Guard<NoParams> duplicate =
         new Guard<>() {
@@ -63,21 +67,23 @@ class GuardRegistryTest {
         };
 
     assertThatThrownBy(() -> registryOf(new ParamsFreeGuard(), duplicate))
-        .isInstanceOf(IllegalStateException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("PARAMS_FREE")
         .hasMessageContaining(ParamsFreeGuard.class.getName())
         .hasMessageContaining(duplicate.getClass().getName());
   }
 
   @Test
+  @DisplayName("an unknown type key is refused, and the refusal offers the keys it does know")
   void bind_whenNoStrategyDeclaresTheKey_throwsAndOffersTheKeysItKnows() {
     assertThatThrownBy(() -> registryOf(new ParamsFreeGuard()).bind("MISSPELLED", null))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("MISSPELLED")
         .hasMessageContaining("PARAMS_FREE");
   }
 
   @Test
+  @DisplayName("a Wiring row's raw configuration is read into the strategy's declared type")
   void bind_readsTheRawJsonIntoTheStrategysDeclaredType() {
     GuardStep step = registryOf(new ThresholdGuard()).bind("THRESHOLD", "{\"minimum\":3}");
 
@@ -86,6 +92,7 @@ class GuardRegistryTest {
   }
 
   @Test
+  @DisplayName("a strategy that takes no configuration binds against a null params column")
   void bind_whenTheParamsColumnIsNullAndTheStrategyTakesNone_binds() {
     GuardStep step = registryOf(new ParamsFreeGuard()).bind("PARAMS_FREE", null);
 
@@ -93,18 +100,21 @@ class GuardRegistryTest {
   }
 
   @Test
+  @DisplayName("a strategy needing configuration refuses a null params column at compile time")
   void bind_whenTheParamsColumnIsNullAndTheStrategyNeedsSome_saysSoAtCompileTime() {
     assertThatThrownBy(() -> registryOf(new ThresholdGuard()).bind("THRESHOLD", null))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("THRESHOLD")
-        .hasMessageContaining("Wiring row carries none");
+        .hasMessageContaining("carries none");
   }
 
   @Test
+  @DisplayName(
+      "configuration not fitting the declared type is refused at compile time, not at fire time")
   void bind_whenTheParamsDoNotFitTheDeclaredType_saysSoAtCompileTimeRatherThanAtFireTime() {
     assertThatThrownBy(
             () -> registryOf(new ThresholdGuard()).bind("THRESHOLD", "{\"minimum\":\"three\"}"))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("THRESHOLD")
         .hasMessageContaining("could not read its params");
   }
@@ -114,6 +124,7 @@ class GuardRegistryTest {
    * binding, so the evaluator's Guard stage is a plain loop over steps.
    */
   @Test
+  @DisplayName("a bound step names its key and carries its configuration invisibly")
   void bind_producesAStepThatNamesItsKeyAndCarriesItsParamsInvisibly() {
     GuardStep step = registryOf(new ThresholdGuard()).bind("THRESHOLD", "{\"minimum\":7}");
 

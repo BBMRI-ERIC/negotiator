@@ -1,14 +1,19 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledTransition;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Definition Compilation: turns the rows of one Definition Version into a Compiled Graph.
@@ -26,19 +31,18 @@ import java.util.Map;
  * <p>It is package-private on purpose. Nothing outside this package may compile a graph yet, which
  * is what keeps the package inert while there is no loader to call it.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class DefinitionCompiler {
 
   private final GuardCatalogue guardCatalogue;
-
-  DefinitionCompiler(GuardCatalogue guardCatalogue) {
-    this.guardCatalogue = guardCatalogue;
-  }
+  private final ActionCatalogue actionCatalogue;
 
   CompiledGraph compile(DefinitionVersionRows rows) {
     requireRowsBelongToTheVersion(rows);
 
     List<GuardStep> definitionWideChain = bindChain(definitionWideWirings(rows));
     Map<Transition, List<GuardStep>> perTransition = bindPerTransitionChains(rows);
+    Map<Transition, List<ActionStep>> actionChains = bindActionChains(rows);
 
     CompiledGraph.Builder graph = CompiledGraph.builder(rows.definition().getId());
     for (State state : rows.states()) {
@@ -60,16 +64,32 @@ class DefinitionCompiler {
               transition.getEvent().getName(),
               transition.getToState().getName(),
               transition.getRequiredAuthority(),
-              effectiveChain(definitionWideChain, perTransition.get(transition))));
+              effectiveChain(definitionWideChain, perTransition.get(transition)),
+              actionChains.getOrDefault(transition, List.of())));
     }
     return graph.build();
   }
 
+  private Map<Transition, List<ActionStep>> bindActionChains(DefinitionVersionRows rows) {
+    Map<Transition, List<ActionWiring>> grouped = new HashMap<>();
+    for (ActionWiring wiring : rows.actionWirings()) {
+      grouped.computeIfAbsent(wiring.getTransition(), t -> new ArrayList<>()).add(wiring);
+    }
+    Map<Transition, List<ActionStep>> bound = new HashMap<>();
+    grouped.forEach(
+        (transition, wirings) ->
+            bound.put(
+                transition,
+                wirings.stream()
+                    .sorted(Comparator.comparing(ActionWiring::getSortOrder))
+                    .map(wiring -> actionCatalogue.bind(wiring.getTypeKey(), wiring.getParams()))
+                    .toList()));
+    return bound;
+  }
+
   /**
-   * ADR 0005: "definition-level entries before Transition entries, each in their configured order".
-   * Folding the two here rather than at fire time is what lets the evaluator run one loop and never
-   * learn that Guards have two scopes — and it is why definition-level wiring removes the
-   * copy-drift risk of re-attaching a Guard to every Transition a later version adds.
+   * Definition-wide Guards come first, then the Transition's own, each in configured order. Folding
+   * here means the Transition Evaluator runs one chain and never sees two scopes.
    *
    * <p>Every Transition shares the definition-wide steps. A {@link GuardStep} holds only its
    * configuration, so sharing is safe and saves parsing the same params once per Transition.
@@ -146,8 +166,14 @@ class DefinitionCompiler {
         foreign.add("GuardWiring " + wiring.getTypeKey());
       }
     }
+    // ActionWiring has no definition reference of its own, so it is checked through its Transition.
+    for (ActionWiring wiring : rows.actionWirings()) {
+      if (wiring.getTransition().getLifecycleDefinition() != version) {
+        foreign.add("ActionWiring " + wiring.getTypeKey());
+      }
+    }
     if (!foreign.isEmpty()) {
-      throw new IllegalArgumentException(
+      throw new InvalidGraphException(
           "These rows belong to a different Definition Version and cannot be compiled together: "
               + foreign);
     }
