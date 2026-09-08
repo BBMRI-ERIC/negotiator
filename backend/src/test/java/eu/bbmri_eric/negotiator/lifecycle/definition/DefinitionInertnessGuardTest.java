@@ -73,6 +73,20 @@ class DefinitionInertnessGuardTest {
    * entities because a word-boundary match on {@code LifecycleDefinition} does not cover {@code
    * LifecycleDefinitionRepository}.
    *
+   * <p>{@code DefinitionCompiler}, its input record {@code DefinitionVersionRows} and {@code
+   * CompiledGraphCache} are listed although no production caller could <em>compile</em> a reference
+   * to any of them: all three are package-private, so the package rule already catches the only
+   * spelling that would compile. What the names add is the three spellings it cannot catch — a type
+   * name in a string, a reflection lookup, and a later slice that makes one of them public and
+   * drops it into a signature. The compiler's own javadoc claims that "nothing outside this package
+   * may compile a graph yet"; listing it here is what turns that sentence into a rule that reds
+   * when it stops being true. The cache is listed for the same reason and one more: its
+   * package-privacy is the whole of D19's claim that nothing in production calls this slab.
+   *
+   * <p>{@code CompiledGraph} is deliberately <em>not</em> listed, and the near-collision is the
+   * point of saying so. It lives in the graph package, every one of the three packages may name it,
+   * and a word boundary keeps {@code CompiledGraphCache} from matching it in either direction.
+   *
    * <p>{@code RequiredAuthority} was on this list and has been removed, because the type left the
    * package: it is now {@code eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority}. It is
    * vocabulary rather than schema. A compiled graph carries a Required Authority on every edge and
@@ -113,7 +127,10 @@ class DefinitionInertnessGuardTest {
           "DefinitionScope",
           "DefinitionResolver",
           "DefinitionResolverImpl",
-          "DefinitionResolutionException");
+          "DefinitionResolutionException",
+          "DefinitionCompiler",
+          "DefinitionVersionRows",
+          "CompiledGraphCache");
 
   /**
    * Definition tables whose names exist nowhere else in this repository. A word boundary keeps
@@ -232,6 +249,25 @@ class DefinitionInertnessGuardTest {
         readsADefinitionTable("jdbc.query(\"select active from lifecycle_definition\", mapper);"),
         "The table rule must catch a native query against a distinctively named table.");
 
+    assertFalse(
+        namesTheDefinitionPackage(
+            "import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;"),
+        "The package rule forbids one package under lifecycle, not the prefix: the graph package"
+            + " is what the definition package compiles into, and is nameable anywhere.");
+
+    assertTrue(
+        namesADefinitionType("compiler = new DefinitionCompiler(guards, actions);"),
+        "The type rule must catch the compiler, whose javadoc claims nobody outside can call it.");
+    assertTrue(
+        namesADefinitionType("Class.forName(\"...definition.DefinitionVersionRows\");"),
+        "The type rule must catch the compiler's input record in a reflection lookup.");
+    assertTrue(
+        namesADefinitionType("private final CompiledGraphCache graphs;"),
+        "The type rule must catch the cache, whose package-privacy is D19's claim in one word.");
+
+    assertFalse(
+        namesADefinitionType("private final CompiledGraph graph;"),
+        "The compiled graph is the graph package's, nameable anywhere, and must keep passing.");
     assertFalse(
         namesADefinitionType("private Long lifecycleDefinitionId;"),
         "The pin column's field is an id, not a type reference, and must keep passing.");
