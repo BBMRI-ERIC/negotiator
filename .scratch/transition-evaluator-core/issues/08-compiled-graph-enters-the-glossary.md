@@ -108,18 +108,19 @@ the citation.** `backend/CONTEXT.md` contains no ADR reference anywhere — no n
 places, one `CONTEXT.md` and one `docs/adr/` per context. A first citation in the glossary is a new
 convention in that file, and this ticket is not the place to start one.
 
-What the entry does say is that the Compiled Graph is never a source for admin tooling, that it has
-forgotten sort orders, the two Guard scopes and each Guard's configuration on purpose, and that the
-effective chain an admin has to be shown is one query against the Wiring rows instead — D3's claim,
-in D3's words, pointed at a term the glossary already defines. Flagged here rather than resolved
+What the entry does say is that the Compiled Graph is never a source for admin tooling, that sort
+orders and the two Guard scopes are gone and each Guard's configuration is bound into it rather than
+readable off it, and that the effective chain an admin has to be shown is one query against the
+Wiring rows instead — D3's claim, pointed at a term the glossary already defines. Flagged here rather than resolved
 silently, because reading the criterion strictly would want the number printed.
 
 ### The `_Avoid_` lines, and two words that needed thought
 
-**Compiled Graph** avoids *state machine, machine instance, in-memory definition*. "machine
-instance" is the one doing real work: a Compiled Graph is per Definition Version and shared by every
-Lifecycle pinned to it, so "instance" is precisely the wrong instinct, and it is the instinct a
-cache invites.
+**Compiled Graph** avoids *state machine, machine instance, materialized graph, in-memory
+definition*. "machine instance" is the one doing real work: a Compiled Graph is per Definition
+Version and shared by every Lifecycle pinned to it, so "instance" is precisely the wrong instinct,
+and it is the instinct a cache invites. *materialized graph* was added by the review, and why is
+below.
 
 **Definition Compilation** avoids *loading, hydration, parsing*.
 
