@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
@@ -12,6 +13,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.Subject;
 import eu.bbmri_eric.negotiator.lifecycle.graph.FailureCategory;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +68,22 @@ class TransitionEvaluatorTest {
         caller,
         Subject.resource(
             "negotiation-1", "biobank:1:collection:1", "OPEN", CREATOR, Set.of(REPRESENTATIVE)),
+        "IN_PROGRESS");
+  }
+
+  /**
+   * A Lifecycle sitting in a State its own pinned Definition Version does not declare: a broken
+   * Definition Version Pin, and the fixture for every corruption test below.
+   */
+  private static EvaluationContext contextInAStateTheVersionDoesNotDeclare(Caller caller) {
+    return EvaluationContext.forResource(
+        caller,
+        Subject.resource(
+            "negotiation-1",
+            "biobank:1:collection:1",
+            "RESOURCE_MADE_AVAILABLE",
+            CREATOR,
+            Set.of(REPRESENTATIVE)),
         "IN_PROGRESS");
   }
 
@@ -225,6 +243,41 @@ class TransitionEvaluatorTest {
             });
   }
 
+  /**
+   * Not a refusal at all. A refusal is an answer about a move; this is a statement that the data
+   * underneath the question is broken, so it leaves as an exception the cutover slab can catch — a
+   * 500 and a log line, never a 403, 422 or 409.
+   */
+  @Test
+  @DisplayName("a Lifecycle in a State the version does not declare is refused as graph corruption")
+  void evaluate_whenTheVersionDoesNotDeclareTheCurrentState_throwsRatherThanRefusing() {
+    assertThatThrownBy(
+            () ->
+                evaluator.evaluate(
+                    graph(), "ANYONE", contextInAStateTheVersionDoesNotDeclare(admin())))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("Definition Version 1")
+        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("OPEN");
+  }
+
+  /**
+   * The pipeline's order, at the very front. Ask whether the Event is declared first and a corrupt
+   * pin comes back as {@code UNKNOWN_EVENT} — a message about the caller's input, for a fault in
+   * the data. The State question goes first, so this caller's typo never gets the blame.
+   */
+  @Test
+  @DisplayName("a corrupt pin is reported as corruption even when the Event is a typo too")
+  void evaluate_whenTheCurrentStateIsUndeclaredAndTheEventUnknown_blamesTheStateAndNotTheEvent() {
+    assertThatThrownBy(
+            () ->
+                evaluator.evaluate(
+                    graph(), "TYPO", contextInAStateTheVersionDoesNotDeclare(admin())))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageNotContaining("TYPO");
+  }
+
   @Test
   @DisplayName("the listing omits a blocked Event rather than offering it as unavailable")
   void possibleEvents_omitsBlockedEventsRatherThanListingThemAsUnavailable() {
@@ -242,6 +295,25 @@ class TransitionEvaluatorTest {
             admin(), Subject.negotiation("negotiation-1", "DONE", CREATOR), List.of());
 
     assertThat(evaluator.possibleEvents(graph, atDone)).isEmpty();
+  }
+
+  /**
+   * The two failure modes an empty listing would merge, kept apart. A terminal State's listing is
+   * empty and means "nothing is available"; a corrupt pin's listing throws. Returning empty for
+   * both is the dishonest option user story 64 rules out — a requester would be told there is
+   * nothing to do, on a Negotiation whose pinned version cannot describe where it is.
+   */
+  @Test
+  @DisplayName(
+      "listing the Possible Events over an undeclared State throws rather than saying none")
+  void possibleEvents_whenTheVersionDoesNotDeclareTheCurrentState_throwsRatherThanReturningEmpty() {
+    assertThatThrownBy(
+            () ->
+                evaluator.possibleEvents(graph(), contextInAStateTheVersionDoesNotDeclare(admin())))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("Definition Version 1")
+        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("OPEN");
   }
 
   /**
