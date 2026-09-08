@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
@@ -17,6 +16,11 @@ import org.springframework.stereotype.Component;
  * The Action catalogue. Same fold, same collision rule, same {@link InvalidGraphException} on every
  * refusal and same single narrowing as {@link GuardRegistry}, over a separate key space.
  *
+ * <p>The one thing genuinely shared rather than duplicated is {@link WiringConfigurationReader},
+ * because how a {@code params} blob is read is a property of Wiring configuration and not of either
+ * key space. This registry hands it its own noun, so a refusal names the Action table an
+ * administrator should be looking at.
+ *
  * <p>Two registries rather than one is the shape ADR 0002 already chose for the two wiring tables,
  * and the duplication is small and deliberate: sharing one keyed map would let an Action be wired
  * where a Guard belongs and have that discovered at fire time, which is exactly what compiling a
@@ -26,11 +30,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActionRegistry implements ActionCatalogue {
 
-  private final ObjectMapper objectMapper;
+  private final WiringConfigurationReader configuration;
   private final Map<String, Action<?>> strategies;
 
   public ActionRegistry(ObjectMapper objectMapper, List<Action<?>> actions) {
-    this.objectMapper = objectMapper;
+    this.configuration = new WiringConfigurationReader("Action", objectMapper);
     this.strategies = buildRegistry(actions);
   }
 
@@ -52,7 +56,7 @@ public class ActionRegistry implements ActionCatalogue {
 
   /** The bridge, as {@code GuardRegistry.bindTyped} — {@code Class.cast}, not an unchecked cast. */
   private <P> ActionStep bindTyped(Action<P> strategy, String paramsJson) {
-    P params = readParams(strategy, paramsJson);
+    P params = configuration.read(strategy.typeKey(), strategy.paramsType(), paramsJson);
     return new ActionStep() {
       @Override
       public String typeKey() {
@@ -69,29 +73,6 @@ public class ActionRegistry implements ActionCatalogue {
         return "ActionStep[%s]".formatted(strategy.typeKey());
       }
     };
-  }
-
-  private <P> P readParams(Action<P> strategy, String paramsJson) {
-    if (paramsJson == null || paramsJson.isBlank()) {
-      return strategy.paramsType().cast(defaultParams(strategy));
-    }
-    try {
-      return objectMapper.readValue(paramsJson, strategy.paramsType());
-    } catch (JsonProcessingException e) {
-      throw new InvalidGraphException(
-          "Action '%s' could not read its params as %s: %s"
-              .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName(), paramsJson),
-          e);
-    }
-  }
-
-  private static Object defaultParams(Action<?> strategy) {
-    if (strategy.paramsType() == NoParams.class) {
-      return NoParams.INSTANCE;
-    }
-    throw new InvalidGraphException(
-        "Action '%s' declares params of type %s but its Wiring row carries none."
-            .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName()));
   }
 
   private static Map<String, Action<?>> buildRegistry(List<Action<?>> actions) {
