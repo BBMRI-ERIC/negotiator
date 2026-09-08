@@ -54,10 +54,10 @@ sweep will collect it.
       names, the known keys in an unknown-key message.
 - [x] The verdict type's malformed-verdict `IllegalArgumentException` is unchanged and carries a
       comment recording that the exclusion is deliberate.
-- [~] `ApplicationTest` is green. The parity half of
-      [parity-gate.md](../../state-machine-implementation/parity-gate.md) was not run — focused
-      tests only, at the requester's instruction — and is unchanged by inspection rather than by
-      execution. See Outcome.
+- [x] `ApplicationTest` is green and the parity half of
+      [parity-gate.md](../../state-machine-implementation/parity-gate.md) is unchanged at
+      **255 tests in 24 classes**. Run, not inferred — it needed a clean target to run at all, and
+      the two attempts before that are recorded in the Outcome.
 
 ## Notes
 
@@ -146,6 +146,18 @@ in `InvalidGraphExceptionTest`:
 - **`GuardVerdict` stated its exclusion rationale twice**, once in a new `@throws` and once in the
   inline comment. The comment is the record the issue asked for and sits where a sweeper's grep
   lands; the javadoc is now a bare `@throws`.
+- **The count came back to the twin test too.** `build_whenNoStateIsInitial` asserted `found 0`
+  while `build_whenTwoStatesAreInitial` asserted only the two State names, so the pair applied the
+  slice's own rule unevenly. It now asserts `found 2` as well.
+- **Surfaced, not overridden: this slice's comment rule and [02](02-lombok-where-it-fits.md)'s point
+  in opposite directions.** Slice 02 deleted five "deliberately not a Lombok X" comments on the
+  grounds that "a comment cannot tell a reader anything about a constructor that the constructor
+  does not already show". This slice's acceptance criterion *requires* a comment on
+  `GuardVerdict.fail`. Both stand, because they are about different things: slice 02 forbids
+  documenting what the code already shows, and the code cannot show that a sweep looked at this
+  throw site and chose to leave it. The comment addresses the next sweeper, not a reader trying to
+  understand the method — which is why the issue asks for it "or the next sweep will collect it".
+  If a later slice disagrees, the criterion is the thing to argue with.
 - **Suppressed:** the four repeated throw shapes across the two registries read as Duplicated Code,
   but ADR 0002 and `ActionRegistry`'s own javadoc endorse the two-registry duplication as
   deliberate. Repo overrides the baseline.

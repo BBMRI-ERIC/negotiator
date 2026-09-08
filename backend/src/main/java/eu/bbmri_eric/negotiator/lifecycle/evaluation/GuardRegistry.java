@@ -26,12 +26,10 @@ import org.springframework.stereotype.Component;
  * default — the notification subsystem folds the same shape into a multimap with no collision rule
  * at all, because several handlers per event are legal there. Two Guards claiming one key are not.
  *
- * <p>Every refusal here is an {@link InvalidGraphException} — the unknown key, the params that do
- * not fit, and the duplicate-key collision alike. The collision is the odd one of the three, since
- * it is a mis-wired application rather than a mis-authored definition, but it is the same statement
- * about the same thing: a catalogue that cannot answer for a key is a graph nothing can compile
- * against. Naming it does not move it — it is still thrown from the constructor, so a duplicate key
- * still fails the boot rather than surfacing at a user's first click.
+ * <p>Every refusal here is an {@link InvalidGraphException} — unknown key, params that do not fit,
+ * and the duplicate-key collision alike; that type's javadoc says why the three are one. Naming the
+ * collision did not move it: it is still thrown from the constructor, so a duplicate key still
+ * fails the boot rather than surfacing at a user's first click.
  *
  * <p>It also owns the subsystem's <b>one unchecked narrowing, in one place</b>: {@link #bindTyped}
  * is a private generic bridge that reads a Wiring row's jsonb into whatever type the strategy
