@@ -36,14 +36,11 @@ public record GuardVerdict(
   }
 
   /**
+   * Builds a refusal, which must carry a reason code.
+   *
    * @throws IllegalArgumentException if the reason code is missing
    */
   public static GuardVerdict fail(String reasonCode, Map<String, Object> details) {
-    // Deliberately NOT an InvalidGraphException, and kept as an IllegalArgumentException on
-    // purpose. Every other rejection in these three packages was folded into that one type; this
-    // one was looked at and left. A Guard handing back a refusal with no reason code is a
-    // programming error in a strategy — the graph it was asked about may be perfectly well formed,
-    // and the argument really is the caller's. Do not collect it in the next sweep.
     if (reasonCode == null || reasonCode.isBlank()) {
       throw new IllegalArgumentException(
           "A failed verdict needs a reason code: it is the only thing a caller can branch on.");
