@@ -144,7 +144,8 @@ class CompiledGraphTest {
   void isTerminal_whenTheVersionDoesNotDeclareTheState_throws() {
     assertThatThrownBy(() -> graph().isTerminal("RESOURCE_MADE_AVAILABLE"))
         .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE");
+        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("SUBMITTED");
   }
 
   @Test
