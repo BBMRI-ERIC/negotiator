@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.lifecycle.definition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import eu.bbmri_eric.negotiator.lifecycle.graph.CompiledGraph;
 import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
@@ -38,9 +39,11 @@ class CompiledGraphCacheTest {
   private static final long A_RE_ENTRY_SECONDS = 5;
 
   /**
-   * Longer than {@link #A_RE_ENTRY_SECONDS}, so a blocked production times out before its caller.
+   * How long a caller's own wait runs before the test gives up on it. Longer than {@link
+   * #A_RE_ENTRY_SECONDS}, so a blocked production always times out before the caller waiting on it
+   * does, and a broken cache reports the rule it broke rather than a bare timeout.
    */
-  private static final long A_WHOLE_TEST_SECONDS = 30;
+  private static final long A_STUCK_CALL_SECONDS = 30;
 
   private final CountingProducer producer = new CountingProducer();
   private final CompiledGraphCache cache = new CompiledGraphCache(producer);
@@ -67,9 +70,8 @@ class CompiledGraphCacheTest {
    * in different bins of a {@code ConcurrentHashMap}, so a producer running under the map's own
    * per-bin lock would not serialize them and the test would prove nothing.
    *
-   * <p>Producing one version twice is the accepted cost of that, not a defect: compilation is pure
-   * and idempotent, so a race duplicates work rather than producing a wrong answer, which is the
-   * right trade against holding a lock across the six queries the real producer will issue.
+   * <p>That this compiles one version twice is the accepted cost rather than a defect, for the
+   * reason {@link CompiledGraphCache#graphFor} argues.
    */
   @Test
   @DisplayName("no lock is held across production: a producer can watch a second caller arrive")
@@ -78,7 +80,7 @@ class CompiledGraphCacheTest {
     AtomicInteger productions = new AtomicInteger();
     AtomicBoolean firstProductionSawTheSecondCaller = new AtomicBoolean();
 
-    CompiledGraphCache blockingProducer =
+    CompiledGraphCache cacheOverABlockingProducer =
         new CompiledGraphCache(
             id -> {
               if (productions.incrementAndGet() == 1) {
@@ -91,12 +93,14 @@ class CompiledGraphCacheTest {
 
     ExecutorService callers = Executors.newFixedThreadPool(2);
     try {
-      Future<CompiledGraph> first = callers.submit(() -> blockingProducer.graphFor(VERSION_ID));
-      Future<CompiledGraph> second = callers.submit(() -> blockingProducer.graphFor(VERSION_ID));
+      Future<CompiledGraph> first =
+          callers.submit(() -> cacheOverABlockingProducer.graphFor(VERSION_ID));
+      Future<CompiledGraph> second =
+          callers.submit(() -> cacheOverABlockingProducer.graphFor(VERSION_ID));
 
-      assertThat(first.get(A_WHOLE_TEST_SECONDS, TimeUnit.SECONDS).definitionVersionId())
+      assertThat(first.get(A_STUCK_CALL_SECONDS, TimeUnit.SECONDS).definitionVersionId())
           .isEqualTo(VERSION_ID);
-      assertThat(second.get(A_WHOLE_TEST_SECONDS, TimeUnit.SECONDS).definitionVersionId())
+      assertThat(second.get(A_STUCK_CALL_SECONDS, TimeUnit.SECONDS).definitionVersionId())
           .isEqualTo(VERSION_ID);
     } finally {
       callers.shutdownNow();
@@ -138,14 +142,14 @@ class CompiledGraphCacheTest {
   @Test
   @DisplayName("the named graph exception propagates out of the cache unwrapped")
   void graphFor_propagatesTheNamedGraphExceptionUnwrapped() {
-    CompiledGraphCache corrupt =
+    CompiledGraphCache cacheOverACorruptVersion =
         new CompiledGraphCache(
             id -> {
               throw new InvalidGraphException(
                   "Definition Version %d declares no initial State".formatted(id));
             });
 
-    assertThatThrownBy(() -> corrupt.graphFor(VERSION_ID))
+    assertThatThrownBy(() -> cacheOverACorruptVersion.graphFor(VERSION_ID))
         .isExactlyInstanceOf(InvalidGraphException.class)
         .hasMessage("Definition Version 42 declares no initial State");
   }
@@ -154,7 +158,7 @@ class CompiledGraphCacheTest {
   @DisplayName("a failed production is not cached: the next request retries and is served")
   void graphFor_retriesAfterAFailedProduction() {
     AtomicInteger attempts = new AtomicInteger();
-    CompiledGraphCache fixedAfterAFailedCompile =
+    CompiledGraphCache cacheOverAFixedDefinition =
         new CompiledGraphCache(
             id -> {
               if (attempts.incrementAndGet() == 1) {
@@ -164,34 +168,36 @@ class CompiledGraphCacheTest {
               return graphOf(id);
             });
 
-    assertThatThrownBy(() -> fixedAfterAFailedCompile.graphFor(VERSION_ID))
+    assertThatThrownBy(() -> cacheOverAFixedDefinition.graphFor(VERSION_ID))
         .isInstanceOf(InvalidGraphException.class);
 
-    assertThat(fixedAfterAFailedCompile.graphFor(VERSION_ID).definitionVersionId())
+    assertThat(cacheOverAFixedDefinition.graphFor(VERSION_ID).definitionVersionId())
         .isEqualTo(VERSION_ID);
     assertThat(attempts.get()).isEqualTo(2);
   }
 
   /**
-   * The one thing the key being a row id cannot itself guarantee. A producer asked for one version
-   * that reads another's rows compiles a graph that is internally consistent — the compiler's own
-   * version-mixing refusal sees nothing wrong with it — and only the cache knows which version was
-   * asked for. Filing it under the id asked for would serve one version's graph to work pinned to
-   * another, which is the failure the Definition Version Pin exists to prevent.
+   * The one corruption a row-id key cannot rule out by itself, for the reason {@link
+   * CompiledGraphCache} argues. The refusal has to name both ids, because which version was asked
+   * for and which was produced is the whole content of the report.
    */
   @Test
   @DisplayName("a graph that is not the version asked for is refused rather than filed under it")
   void graphFor_refusesAGraphThatIsNotTheVersionAskedFor() {
-    CompiledGraphCache misreadingProducer =
+    CompiledGraphCache cacheOverAMisreadingProducer =
         new CompiledGraphCache(id -> graphOf(PINNED_VERSION_ID));
 
-    assertThatThrownBy(() -> misreadingProducer.graphFor(VERSION_ID))
+    assertThatThrownBy(() -> cacheOverAMisreadingProducer.graphFor(VERSION_ID))
         .isExactlyInstanceOf(InvalidGraphException.class)
         .hasMessageContaining(String.valueOf(VERSION_ID))
         .hasMessageContaining(String.valueOf(PINNED_VERSION_ID));
 
-    assertThatThrownBy(() -> misreadingProducer.graphFor(VERSION_ID))
-        .withFailMessage("The refused graph was cached, so the next caller is served it silently.")
+    Throwable secondRequest =
+        catchThrowable(() -> cacheOverAMisreadingProducer.graphFor(VERSION_ID));
+
+    assertThat(secondRequest)
+        .withFailMessage(
+            "The refused graph was cached, so the next caller is served it silently instead.")
         .isInstanceOf(InvalidGraphException.class);
   }
 
@@ -204,6 +210,11 @@ class CompiledGraphCacheTest {
    * <p>The rule reads the cache's callable surface and not its private helpers, which take whatever
    * their one caller has already keyed. A composite key can only arrive as something a caller can
    * reach, and every one of those is covered however it is spelled.
+   *
+   * <p>Constructors are read too, under a weaker rule: one legitimately takes the producer, so what
+   * is asserted of them is only that no family key or Version sequence is among their parameters. A
+   * cache handed a family key at construction would be keyed on one just as surely as one taking it
+   * per call, and {@code getDeclaredMethods} would never see it.
    */
   @Test
   @DisplayName("every question the cache answers is keyed on the Definition Version's row id alone")
@@ -228,6 +239,19 @@ class CompiledGraphCacheTest {
                         composite lookup that identity decision removed.""",
                         method.getName(), Arrays.toString(method.getParameterTypes()))
                     .containsExactly(long.class));
+
+    assertThat(CompiledGraphCache.class.getDeclaredConstructors())
+        .isNotEmpty()
+        .allSatisfy(
+            constructor ->
+                assertThat(constructor.getParameterTypes())
+                    .withFailMessage(
+                        """
+                        The constructor takes %s. A family key or a Version sequence handed to the \
+                        cache at construction keys it on the composite identity ADR 0003 removed, \
+                        whichever method later reads it.""",
+                        Arrays.toString(constructor.getParameterTypes()))
+                    .doesNotContain(String.class, int.class, Integer.class));
   }
 
   @Test

@@ -39,8 +39,12 @@ reject production data.
 
 - [ ] The purity gate refuses any import in `graph` that does not start with `java.` or `lombok.`,
       and the rule's comment says why the allowlist has exactly those two entries.
-- [ ] The inertness guard's name list includes the compiler and its input record, so a reference to
-      either from outside the definition package fails the gate.
+- [ ] The inertness guard's name list includes the compiler, its input record and the
+      compiled-graph cache, so a reference to any of them from outside the definition package fails
+      the gate. The cache is the addition [07](07-compiled-graph-cache.md) made after this criterion
+      was written: it landed the type but deliberately left the name list to this slice, so that
+      the two slices did not edit one list in parallel. It is the only new definition type not
+      already covered here, and nothing else owns the omission.
 - [ ] The inertness guard carries javadoc recording why `RequiredAuthority` was removed from the
       list, why `DefinitionScope` remains, and that removing a name is not a precedent.
 - [ ] Every rule on both gates — the new ones and the pre-existing ones — is proven to fire on the
