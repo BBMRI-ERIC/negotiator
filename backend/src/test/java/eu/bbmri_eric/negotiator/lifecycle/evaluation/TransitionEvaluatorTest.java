@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
@@ -12,6 +13,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext.Subject;
 import eu.bbmri_eric.negotiator.lifecycle.graph.FailureCategory;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.List;
 import java.util.Map;
@@ -36,15 +38,19 @@ import org.junit.jupiter.params.provider.EnumSource;
  */
 class TransitionEvaluatorTest {
 
+  private static final long VERSION_ID = 1L;
   private static final long CREATOR = 101L;
   private static final long REPRESENTATIVE = 108L;
   private static final long STRANGER = 999L;
+
+  /** A State this graph does not declare, which stands in for a broken Definition Version Pin. */
+  private static final String UNDECLARED_STATE = "RESOURCE_MADE_AVAILABLE";
 
   private final StubRequirements requirements = new StubRequirements();
   private final TransitionEvaluator evaluator = new TransitionEvaluator(requirements);
 
   private static CompiledGraph graph() {
-    return CompiledGraph.builder(1L)
+    return CompiledGraph.builder(VERSION_ID)
         .initialState("OPEN")
         .state("BY_ANYONE")
         .state("BY_ADMIN")
@@ -61,10 +67,18 @@ class TransitionEvaluatorTest {
   }
 
   private static EvaluationContext contextFor(Caller caller) {
+    return contextIn("OPEN", caller);
+  }
+
+  private static EvaluationContext contextIn(String currentState, Caller caller) {
     return EvaluationContext.forResource(
         caller,
         Subject.resource(
-            "negotiation-1", "biobank:1:collection:1", "OPEN", CREATOR, Set.of(REPRESENTATIVE)),
+            "negotiation-1",
+            "biobank:1:collection:1",
+            currentState,
+            CREATOR,
+            Set.of(REPRESENTATIVE)),
         "IN_PROGRESS");
   }
 
@@ -223,6 +237,38 @@ class TransitionEvaluatorTest {
             });
   }
 
+  /**
+   * Not a refusal. A refusal answers a question about a move, and here the data behind the question
+   * is broken. It throws, so the caller can map it to a 500 and a log line, never a 403, 422 or
+   * 409.
+   */
+  @Test
+  @DisplayName("a Lifecycle in a State the version does not declare is refused as graph corruption")
+  void evaluate_whenTheVersionDoesNotDeclareTheCurrentState_throwsRatherThanRefusing() {
+    assertThatThrownBy(
+            () -> evaluator.evaluate(graph(), "ANYONE", contextIn(UNDECLARED_STATE, admin())))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining(UNDECLARED_STATE)
+        .hasMessageContaining("OPEN");
+  }
+
+  /**
+   * The State check runs before the Event check. In the other order a corrupt pin would come back
+   * as {@code UNKNOWN_EVENT}, blaming the caller's input for a fault in the data.
+   */
+  @Test
+  @DisplayName("a corrupt pin is reported as corruption even when the Event is a typo too")
+  void evaluate_whenTheCurrentStateIsUndeclaredAndTheEventUnknown_blamesTheStateAndNotTheEvent() {
+    assertThatThrownBy(
+            () -> evaluator.evaluate(graph(), "TYPO", contextIn(UNDECLARED_STATE, admin())))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining(UNDECLARED_STATE)
+        .hasMessageContaining("OPEN")
+        .hasMessageNotContaining("TYPO");
+  }
+
   @Test
   @DisplayName("the listing omits a blocked Event rather than offering it as unavailable")
   void possibleEvents_omitsBlockedEventsRatherThanListingThemAsUnavailable() {
@@ -243,9 +289,25 @@ class TransitionEvaluatorTest {
   }
 
   /**
-   * ADR 0005's central claim, as a test rather than a sentence. Over every caller shape and every
-   * Event the fixture declares: an Event is in the listing exactly when firing it would be
-   * permitted. There is one path, so this cannot be made to fail without breaking it.
+   * A terminal State's listing is empty, and a corrupt pin's listing throws. Returning empty for
+   * both would tell a requester there is nothing to do on a Negotiation whose pinned version cannot
+   * describe its State.
+   */
+  @Test
+  @DisplayName(
+      "listing the Possible Events over an undeclared State throws rather than saying none")
+  void possibleEvents_whenTheVersionDoesNotDeclareTheCurrentState_throwsRatherThanReturningEmpty() {
+    assertThatThrownBy(
+            () -> evaluator.possibleEvents(graph(), contextIn(UNDECLARED_STATE, admin())))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining(UNDECLARED_STATE)
+        .hasMessageContaining("OPEN");
+  }
+
+  /**
+   * For every caller and every Event in the fixture, an Event is listed exactly when firing it
+   * would be permitted. Both entry points share one path.
    */
   @Test
   @DisplayName(

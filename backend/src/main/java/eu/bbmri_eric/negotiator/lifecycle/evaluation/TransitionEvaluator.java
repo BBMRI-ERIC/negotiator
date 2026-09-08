@@ -36,9 +36,17 @@ public final class TransitionEvaluator {
   /**
    * Whether {@code event} may fire against a Lifecycle in {@code context}'s current State, and
    * where it would go.
+   *
+   * <p>It checks the current State before the Event. Otherwise a corrupt Definition Version Pin
+   * that coincides with an unknown Event would come back as {@code UNKNOWN_EVENT} and blame the
+   * caller for a fault in the data.
+   *
+   * @throws eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException if {@code graph} does
+   *     not declare the current State
    */
   public EvaluationOutcome evaluate(CompiledGraph graph, String event, EvaluationContext context) {
     String fromState = context.subject().currentState();
+    graph.requireDeclaredState(fromState);
     if (!graph.declaresEvent(event)) {
       return new EvaluationOutcome.Refused(
           FailureCategory.NO_TRANSITION,
@@ -58,6 +66,12 @@ public final class TransitionEvaluator {
   /**
    * The Events a caller could fire right now. Anything blocked is left out rather than listed as
    * unavailable, so the set is exactly what a caller may act on.
+   *
+   * <p>An empty set means only that nothing is available. It never means the graph could not
+   * answer, because an undeclared State throws instead.
+   *
+   * @throws eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException if {@code graph} does
+   *     not declare the current State
    */
   public Set<String> possibleEvents(CompiledGraph graph, EvaluationContext context) {
     Set<String> permitted = new LinkedHashSet<>();
