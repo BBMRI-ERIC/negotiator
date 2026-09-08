@@ -18,21 +18,11 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
  * configuration at compile time exists to prevent. Wiring configuration is configuration, not user
  * input, so an unrecognised field is a broken definition rather than something to tolerate.
  *
- * <p>Derived through {@link ObjectMapper#reader()} rather than {@link ObjectMapper#copy()}, which
- * is the shape {@code WebhookEventMapper} uses for its own purpose-configured mapper: what this
- * class needs is one immutable, thread-safe reader rather than a whole second mapper whose
- * serialization half would go unused.
+ * <p>Whether a row may carry configuration at all is decided from the declared params type and the
+ * raw blob before either reaches Jackson.
  *
- * <p><b>The no-configuration rule sits above the mapper, not inside it.</b> Whether a row is
- * allowed to carry configuration at all is decided from the declared params type and the raw blob
- * before either reaches Jackson, so the refusal can name both the type key and the offending blob —
- * and so that it holds for the same reason whatever mapper was injected. Left to the mapper, the
- * rule would be an accident of configuration twice over: read leniently, an empty record accepts
- * any object at all, and read strictly it refuses with Jackson's message about an unrecognised
- * property rather than one that tells an administrator the strategy reads no configuration.
- *
- * <p>Both refusals are {@link InvalidGraphException} and both happen when a definition is compiled,
- * never when an Event fires, so a Wiring row with a typo in it fails once where the administrator
+ * <p>Every refusal is an {@link InvalidGraphException} raised when a definition is compiled, never
+ * when an Event fires, so a Wiring row with a typo in it fails once where the administrator
  * publishing it can see it.
  */
 final class WiringConfigurationReader {
@@ -50,15 +40,17 @@ final class WiringConfigurationReader {
   private final String strategyNoun;
   private final ObjectReader reader;
 
-  /**
-   * @param strategyNoun how a refusal names the kind of strategy it is talking about — {@code
-   *     "Guard"} or {@code "Action"}. The two registries share this reader but not their
-   *     vocabulary, and a message reading "Action 'X'" for a Guard row would send an administrator
-   *     to the wrong Wiring table.
-   * @param objectMapper the container's mapper, read for its modules and its type handling. Its
-   *     leniency is deliberately not inherited.
-   */
-  WiringConfigurationReader(String strategyNoun, ObjectMapper objectMapper) {
+  /** Reads the Guard Wiring table's configuration, and says "Guard" when it refuses a row. */
+  static WiringConfigurationReader forGuards(ObjectMapper objectMapper) {
+    return new WiringConfigurationReader("Guard", objectMapper);
+  }
+
+  /** The same over the Action Wiring table, so a refusal names the rows to go and look at. */
+  static WiringConfigurationReader forActions(ObjectMapper objectMapper) {
+    return new WiringConfigurationReader("Action", objectMapper);
+  }
+
+  private WiringConfigurationReader(String strategyNoun, ObjectMapper objectMapper) {
     this.strategyNoun = strategyNoun;
     this.reader = objectMapper.reader().with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
@@ -76,9 +68,9 @@ final class WiringConfigurationReader {
         return paramsType.cast(NoParams.INSTANCE);
       }
       throw new InvalidGraphException(
-          "%s '%s' takes no params, but its Wiring row carries %s. A strategy that takes none"
-                  .formatted(strategyNoun, typeKey, paramsJson)
-              + " accepts only an absent params column, null or {}.");
+          ("%s '%s' takes no params, but its Wiring row carries %s."
+                  + " A strategy that takes none accepts only an absent params column, null or {}.")
+              .formatted(strategyNoun, typeKey, paramsJson));
     }
     if (carriesNothing(paramsJson)) {
       throw new InvalidGraphException(

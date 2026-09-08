@@ -34,19 +34,15 @@ import org.springframework.stereotype.Component;
  * is a private generic bridge that carries a Wiring row's jsonb through {@link
  * WiringConfigurationReader} and back as whatever type the strategy declared. Everything either
  * side of it is type-safe, and no other class needs a {@code @SuppressWarnings}.
- *
- * <p>Reading that jsonb is the reader's work rather than this class's, and strictly the reader's:
- * both registries share it so that a Wiring row is read the same way whichever table it came from,
- * and so that neither inherits the container mapper's leniency.
  */
 @Component
 public class GuardRegistry implements GuardCatalogue {
 
-  private final WiringConfigurationReader configuration;
+  private final WiringConfigurationReader configurationReader;
   private final Map<String, Guard<?>> strategies;
 
   public GuardRegistry(ObjectMapper objectMapper, List<Guard<?>> guards) {
-    this.configuration = new WiringConfigurationReader("Guard", objectMapper);
+    this.configurationReader = WiringConfigurationReader.forGuards(objectMapper);
     this.strategies = buildRegistry(guards);
   }
 
@@ -72,7 +68,7 @@ public class GuardRegistry implements GuardCatalogue {
    * {@code WebhookEventMapper.mapWithStrategy} already uses for the same reason.
    */
   private <P> GuardStep bindTyped(Guard<P> strategy, String paramsJson) {
-    P params = configuration.read(strategy.typeKey(), strategy.paramsType(), paramsJson);
+    P params = configurationReader.read(strategy.typeKey(), strategy.paramsType(), paramsJson);
     return new GuardStep() {
       @Override
       public String typeKey() {
