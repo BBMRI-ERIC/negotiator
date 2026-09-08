@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
@@ -14,8 +13,7 @@ import java.util.TreeSet;
 import org.springframework.stereotype.Component;
 
 /**
- * The Action catalogue. Same fold, same collision rule, same {@link InvalidGraphException} on every
- * refusal and same single narrowing as {@link GuardRegistry}, over a separate key space.
+ * The Action catalogue. It works like {@link GuardRegistry} over a separate key space.
  *
  * <p>The two registries stay separate on purpose. One shared map would let a Wiring name an Action
  * where a Guard belongs, and that mistake would surface at Event Firing instead of at Definition
@@ -24,11 +22,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActionRegistry implements ActionCatalogue {
 
-  private final ObjectMapper objectMapper;
+  private final WiringConfigurationReader configurationReader;
   private final Map<String, Action<?>> strategies;
 
   public ActionRegistry(ObjectMapper objectMapper, List<Action<?>> actions) {
-    this.objectMapper = objectMapper;
+    this.configurationReader = WiringConfigurationReader.forActions(objectMapper);
     this.strategies = buildRegistry(actions);
   }
 
@@ -49,7 +47,7 @@ public class ActionRegistry implements ActionCatalogue {
   }
 
   private <P> ActionStep bindTyped(Action<P> strategy, String paramsJson) {
-    P params = readParams(strategy, paramsJson);
+    P params = configurationReader.read(strategy.typeKey(), strategy.paramsType(), paramsJson);
     return new ActionStep() {
       @Override
       public String typeKey() {
@@ -66,29 +64,6 @@ public class ActionRegistry implements ActionCatalogue {
         return "ActionStep[%s]".formatted(strategy.typeKey());
       }
     };
-  }
-
-  private <P> P readParams(Action<P> strategy, String paramsJson) {
-    if (paramsJson == null || paramsJson.isBlank()) {
-      return strategy.paramsType().cast(defaultParams(strategy));
-    }
-    try {
-      return objectMapper.readValue(paramsJson, strategy.paramsType());
-    } catch (JsonProcessingException e) {
-      throw new InvalidGraphException(
-          "Action '%s' could not read its params as %s: %s"
-              .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName(), paramsJson),
-          e);
-    }
-  }
-
-  private static Object defaultParams(Action<?> strategy) {
-    if (strategy.paramsType() == NoParams.class) {
-      return NoParams.INSTANCE;
-    }
-    throw new InvalidGraphException(
-        "Action '%s' declares params of type %s but its Wiring row carries none."
-            .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName()));
   }
 
   private static Map<String, Action<?>> buildRegistry(List<Action<?>> actions) {
