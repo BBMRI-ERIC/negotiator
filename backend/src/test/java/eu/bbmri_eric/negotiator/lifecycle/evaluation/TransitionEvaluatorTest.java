@@ -543,6 +543,33 @@ class TransitionEvaluatorTest {
     assertThat(ran).isEmpty();
   }
 
+  /**
+   * {@code CompiledGraphTest} shows that a graph with a cycle builds. This test shows that the
+   * evaluator permits both directions and offers the outbound Event again after the return.
+   */
+  @Test
+  @DisplayName("a Lifecycle that returns to an earlier State is offered its way out again")
+  void evaluate_whenTheGraphHasACycle_permitsBothDirections() {
+    CompiledGraph cyclic =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("SUBMITTED")
+            .state("IN_PROGRESS")
+            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN)
+            .transition(
+                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN)
+            .build();
+
+    assertThat(evaluator.evaluate(cyclic, "APPROVE", contextIn("SUBMITTED", admin())).permitted())
+        .isTrue();
+    assertThat(
+            evaluator
+                .evaluate(cyclic, "RETURN_FOR_RESUBMISSION", contextIn("IN_PROGRESS", admin()))
+                .permitted())
+        .isTrue();
+    assertThat(evaluator.possibleEvents(cyclic, contextIn("SUBMITTED", admin())))
+        .containsExactly("APPROVE");
+  }
+
   private static ActionStep recordingAction(String typeKey, List<String> ran) {
     return new ActionStep() {
       @Override
