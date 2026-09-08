@@ -52,8 +52,9 @@ sweep will collect it.
 - [x] Every test that asserted one of these failures asserts the class, not a message substring.
       Messages are still asserted where the *content* is the requirement — the colliding class
       names, the known keys in an unknown-key message.
-- [x] The verdict type's malformed-verdict `IllegalArgumentException` is unchanged and carries a
-      comment recording that the exclusion is deliberate.
+- [~] The verdict type's malformed-verdict `IllegalArgumentException` is unchanged. It carries **no
+      comment** recording that the exclusion is deliberate: dropped on the requester's
+      instruction, so this file is the only record. See Outcome.
 - [x] `ApplicationTest` is green and the parity half of
       [parity-gate.md](../../state-machine-implementation/parity-gate.md) is unchanged at
       **255 tests in 24 classes**. Run, not inferred — it needed a clean target to run at all, and
@@ -143,9 +144,23 @@ in `InvalidGraphExceptionTest`:
   a catalogue constructor at boot with no Definition Version in play. The opening now leads with the
   compiled graph rather than the Definition Version, and a paragraph names the two odd sites and
   says why they are not split off.
-- **`GuardVerdict` stated its exclusion rationale twice**, once in a new `@throws` and once in the
-  inline comment. The comment is the record the issue asked for and sits where a sweeper's grep
-  lands; the javadoc is now a bare `@throws`.
+- **`GuardVerdict.fail` carries no record of the exclusion at all, on the requester's instruction.**
+  It first stated the rationale twice — a new `@throws` and a five-line inline comment. The comment
+  was dropped, the rationale briefly moved into the javadoc, and then that was dropped too. What
+  the method has now is one line saying what it does and a bare `@throws`.
+
+  **This is a deliberate deviation from the sixth acceptance criterion**, which asks that the
+  method "carries a comment recording that the exclusion is deliberate". It does not. **This file
+  is now the only record**, which is the same place [02](02-lombok-where-it-fits.md) put its five
+  deleted comments — "the reasoning lives in this file" — so the two slices agree after all, and
+  the conflict noted below is settled in 02's favour.
+
+  The risk the criterion was guarding against is real and now unmitigated in the code: a later
+  sweep that greps for `IllegalArgumentException` in `lifecycle/` finds exactly one hit, with
+  nothing next to it saying it was already considered. Whoever runs that sweep should read this
+  entry before converting it. The reason it must not convert: a Guard returning a refusal with no
+  reason code is a programming error in a strategy, and the graph it was asked about may be
+  perfectly well formed.
 - **The count came back to the twin test too.** `build_whenNoStateIsInitial` asserted `found 0`
   while `build_whenTwoStatesAreInitial` asserted only the two State names, so the pair applied the
   slice's own rule unevenly. It now asserts `found 2` as well.
@@ -154,15 +169,18 @@ in `InvalidGraphExceptionTest`:
   The second half is the same "known keys" content the criterion protects and that the registry's
   unknown-key twin asserts as `PARAMS_FREE` — the offer of what the graph *does* declare is what
   makes the refusal actionable. It now asserts a declared State as well.
-- **Surfaced, not overridden: this slice's comment rule and [02](02-lombok-where-it-fits.md)'s point
-  in opposite directions.** Slice 02 deleted five "deliberately not a Lombok X" comments on the
+- **This slice's comment rule and [02](02-lombok-where-it-fits.md)'s pointed in opposite
+  directions, and 02 won.** Slice 02 deleted five "deliberately not a Lombok X" comments on the
   grounds that "a comment cannot tell a reader anything about a constructor that the constructor
-  does not already show". This slice's acceptance criterion *requires* a comment on
-  `GuardVerdict.fail`. Both stand, because they are about different things: slice 02 forbids
-  documenting what the code already shows, and the code cannot show that a sweep looked at this
-  throw site and chose to leave it. The comment addresses the next sweeper, not a reader trying to
-  understand the method — which is why the issue asks for it "or the next sweep will collect it".
-  If a later slice disagrees, the criterion is the thing to argue with.
+  does not already show", and put the reasoning in its own issue file instead. This slice's sixth
+  acceptance criterion *required* such a comment on `GuardVerdict.fail`.
+
+  The case for keeping it was that the two rules address different things — 02 forbids documenting
+  what the code already shows, and no code can show that a sweep looked at a throw site and chose
+  to leave it. The requester overruled that, twice, and the comment is gone. So the standing
+  convention for this effort is now uniform: **a decision not to do something is recorded in the
+  slice's issue file, never in a comment beside the code.** A later slice that wants the opposite
+  should argue with this line rather than re-add a comment.
 - **Suppressed:** the four repeated throw shapes across the two registries read as Duplicated Code,
   but ADR 0002 and `ActionRegistry`'s own javadoc endorse the two-registry duplication as
   deliberate. Repo overrides the baseline.
