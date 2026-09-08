@@ -41,7 +41,7 @@
         <json.version>20241224</json.version>
         <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
         <jsoup.version>1.17.2</jsoup.version>
-        <loki-logback.version>1.6.0</loki-logback.version>
+        <loki-logback.version>2.1.0</loki-logback.version>
         <lombok.version>1.18.30</lombok.version>
         <micrometer.version>1.14.4</micrometer.version>
         <modelmapper.version>3.2.4</modelmapper.version>
