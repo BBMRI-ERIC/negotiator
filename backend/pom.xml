@@ -45,7 +45,6 @@
         <lombok.version>1.18.30</lombok.version>
         <micrometer.version>1.14.4</micrometer.version>
         <modelmapper.version>3.2.4</modelmapper.version>
-        <netty-macos.version>4.2.17.Final</netty-macos.version>
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <poi.version>5.4.1</poi.version>
@@ -187,10 +186,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
         <!-- Spring Modulith -->
@@ -458,13 +453,6 @@
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>${awaitility.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <version>${netty-macos.version}</version>
-            <classifier>osx-aarch_64</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
