@@ -31,6 +31,13 @@ import org.junit.jupiter.api.Test;
  * #IMPORTS_PERMITTED_IN_GRAPH}. A blocklist stops only what someone thought of, so the package that
  * can afford a closed list of dependencies is given one.
  *
+ * <p>The scaffolding, and one rule predicate's name, are shared with {@code
+ * DefinitionInertnessGuardTest} by copy rather than by extraction. That guard states the licence as
+ * "each is meant to be deleted whole", which does not cover this pair, because this guard is
+ * <em>not</em> meant to be deleted - so the reason here is a different one: the two rules answer
+ * differently-scoped questions about the same package name, and a shared helper would have to be
+ * parameterized by which tree it scans and would then survive the guard it was extracted from.
+ *
  * <p>Built in the register of {@code DefinitionInertnessGuardTest}: the Java source is scanned as
  * <em>text</em>, comments are blanked so prose naming a forbidden term is not a violation, every
  * violation is reported with a {@code file:line} a reader can check, each rule is proven to fire on
@@ -81,9 +88,17 @@ class EvaluatorPurityGuardTest {
    */
   private static final Pattern REPOSITORY_TYPE = Pattern.compile("\\b\\w*Repository\\b");
 
-  /** An import, single or static, with the imported name captured. */
+  /**
+   * An import - single, static or on-demand - with the imported name captured.
+   *
+   * <p>The {@code *} belongs in that character class, and leaving it out was a hole rather than a
+   * simplification: without it {@code import com.fasterxml.jackson.databind.*;} matched no import
+   * at all and passed the allowlist silently, which is the one failure mode an allowlist exists to
+   * not have. Google Java Style forbids the wildcard form and the formatter does not enforce it, so
+   * it is available: this backend has four in {@code src/main/java} today.
+   */
   private static final Pattern IMPORT_STATEMENT =
-      Pattern.compile("^\\s*import\\s+(?:static\\s+)?([\\w.$]+)\\s*;");
+      Pattern.compile("^\\s*import\\s+(?:static\\s+)?([\\w.$*]+)\\s*;");
 
   /**
    * The whole of what the graph package may depend on, as an allowlist rather than as one more
@@ -101,7 +116,11 @@ class EvaluatorPurityGuardTest {
    *   <li>{@code lombok.} — house style per D11, and admissible <em>because</em> it is barely a
    *       dependency. Lombok's annotations are {@code SOURCE} retention at {@code provided} scope,
    *       so nothing Lombok survives into the runtime classpath and the property this gate protects
-   *       stays literally true of the compiled output.
+   *       stays literally true of the compiled output. One sub-package is the exception and is
+   *       worth knowing about: {@code lombok.extern} generates code naming a real runtime logger,
+   *       so it would carry a dependency in where the others carry none. It has no business here
+   *       regardless - a vocabulary type does not log - but this entry is the reason no rule would
+   *       stop it.
    * </ul>
    *
    * <p>A two-entry allowlist invites a third, which is why the reasons are written here rather than
@@ -256,8 +275,13 @@ class EvaluatorPurityGuardTest {
         isAnImportTheGraphMayNotHave("import static org.assertj.core.api.Assertions.assertThat;"),
         "a static import names a type just as surely as a single one");
 
+    assertTrue(
+        isAnImportTheGraphMayNotHave("import com.fasterxml.jackson.databind.*;"),
+        "a wildcard import names a whole package, and was the cheapest way past this rule");
+
     assertFalse(isAnImportTheGraphMayNotHave("import java.util.List;"));
     assertFalse(isAnImportTheGraphMayNotHave("import lombok.NonNull;"));
+    assertFalse(isAnImportTheGraphMayNotHave("import java.util.*;"));
     assertFalse(isAnImportTheGraphMayNotHave("import static java.util.Map.entry;"));
     assertFalse(
         isAnImportTheGraphMayNotHave("    return importantThing.get();"),
