@@ -33,6 +33,12 @@ import lombok.RequiredArgsConstructor;
  * own pinned version, which is why terminality has to be a question put to a graph rather than a
  * list of names held anywhere else.
  *
+ * <p>Those three are also the questions that take a State, and every one of them refuses a State
+ * this version does not declare rather than answering it — see {@link #requireDeclaredState}. A
+ * graph that answered two of them and refused the third would let the same broken Definition
+ * Version Pin look like graph corruption down one path and like a Lifecycle with nothing left to do
+ * down the other two.
+ *
  * <p>Construct one through {@link #builder(long)}. The builder holds every invariant, so a graph
  * that exists is a graph that is well formed however it was assembled — by compiling rows, by a
  * test, or one day by whatever reads a definition file.
@@ -66,6 +72,10 @@ public final class CompiledGraph {
    * Whether this version declares the named State at all. A Lifecycle whose current State is not
    * declared here is running against the wrong graph, which the Definition Version Pin is what
    * prevents.
+   *
+   * <p>This is the predicate {@link #requireDeclaredState} enforces, and so the predicate behind
+   * every lookup below that takes a State. Asked directly it answers; asked through one of them, an
+   * undeclared State is refused rather than answered.
    */
   public boolean declaresState(String state) {
     return states.contains(state);
@@ -74,6 +84,31 @@ public final class CompiledGraph {
   /** Every State this version declares. Legacy States included. */
   public Set<String> states() {
     return states;
+  }
+
+  /**
+   * Refuses a State this version does not declare, and is what each lookup taking one asks first.
+   *
+   * <p>A Lifecycle sitting in a State its own pinned Definition Version does not declare is
+   * <em>graph corruption</em> — a broken Definition Version Pin — rather than an ordinary
+   * unavailable move. The two cannot be told apart from the answers alone: "no edge for that Event"
+   * and "no Transitions leave here" are exactly what a legitimately terminal State says, so a graph
+   * that answered them would hand a caller a broken pin dressed as a Lifecycle with nothing left to
+   * do.
+   *
+   * <p>Public because the Transition Evaluator asks this question <em>before</em> it asks whether
+   * the Event is declared at all. Ordering matters there and only there: with the Event question
+   * first, a corrupt pin is reported as the caller's typo.
+   *
+   * @throws InvalidGraphException naming the State, this Definition Version, and what it does
+   *     declare — enough for a log line to identify the broken pin without a debugger.
+   */
+  public void requireDeclaredState(String state) {
+    if (!declaresState(state)) {
+      throw new InvalidGraphException(
+          "Definition Version %d declares no State named '%s'. Its States are %s."
+              .formatted(definitionVersionId, state, states));
+    }
   }
 
   /**
@@ -105,11 +140,7 @@ public final class CompiledGraph {
    *     characterization suite already pinned once.
    */
   public boolean isTerminal(String state) {
-    if (!states.contains(state)) {
-      throw new InvalidGraphException(
-          "Definition Version %d declares no State named '%s'. Its States are %s."
-              .formatted(definitionVersionId, state, states));
-    }
+    requireDeclaredState(state);
     return terminalStates.contains(state);
   }
 
@@ -118,8 +149,16 @@ public final class CompiledGraph {
    * can exist: {@code uq_transition_definition_source_event} says so in the schema, and ADR 0007
    * models a branch as two distinct Events rather than as two edges for one, so a graph is
    * deterministic before any Guard is consulted.
+   *
+   * <p>Empty means this version declares no such edge from that State, which is the Override
+   * Event's answer and an ordinary one. It never means the State itself was unknown.
+   *
+   * @throws InvalidGraphException if this version does not declare {@code fromState}. See {@link
+   *     #requireDeclaredState}: an empty Optional would say "that Event leads nowhere from here",
+   *     which is a true statement about a State this graph has never heard of and a useless one.
    */
   public Optional<CompiledTransition> transition(String fromState, String event) {
+    requireDeclaredState(fromState);
     return Optional.ofNullable(bySourceAndEvent.get(new SourceAndEvent(fromState, event)));
   }
 
@@ -127,8 +166,16 @@ public final class CompiledGraph {
    * Every Transition leaving {@code fromState}, in no promised order. This is the candidate set a
    * Possible Events listing evaluates one by one; an empty list is the ordinary answer for a
    * terminal State, and for a Legacy State no work can be in.
+   *
+   * <p>Which is exactly why an undeclared State must not also answer empty. The listing built from
+   * it would tell a requester "nothing is available" — the one thing user story 64 says an empty
+   * Possible Events listing must never be able to mean.
+   *
+   * @throws InvalidGraphException if this version does not declare {@code fromState}. See {@link
+   *     #requireDeclaredState}.
    */
   public List<CompiledTransition> transitionsFrom(String fromState) {
+    requireDeclaredState(fromState);
     return bySource.getOrDefault(fromState, List.of());
   }
 

@@ -46,9 +46,20 @@ public final class TransitionEvaluator {
   /**
    * Whether {@code event} may fire against a Lifecycle in {@code context}'s current State, and
    * where it would go.
+   *
+   * <p>The current State is the first thing asked about, and the only question here whose answer is
+   * not an outcome. A State this version does not declare is a broken Definition Version Pin rather
+   * than anything the caller did, so it leaves as an {@link
+   * eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException} instead of a refusal. Asking
+   * about the Event first would report that corruption as {@code UNKNOWN_EVENT} — the caller's
+   * input blamed for a fault in the data — whenever the two coincide.
+   *
+   * @throws eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException if {@code graph} does
+   *     not declare the current State
    */
   public EvaluationOutcome evaluate(CompiledGraph graph, String event, EvaluationContext context) {
     String fromState = context.subject().currentState();
+    graph.requireDeclaredState(fromState);
     if (!graph.declaresEvent(event)) {
       return new EvaluationOutcome.Refused(
           FailureCategory.NO_TRANSITION,
@@ -68,6 +79,14 @@ public final class TransitionEvaluator {
   /**
    * The Events a caller could fire right now. Anything blocked is left out rather than listed as
    * unavailable, so the set is exactly what a caller may act on.
+   *
+   * <p>An empty set means "nothing is available" and only that — a terminal State, or a State every
+   * Event out of which is blocked. It never means the graph could not answer: the candidate lookup
+   * refuses an undeclared State rather than offering nothing, so the two failure modes for the same
+   * broken row stay distinguishable from outside.
+   *
+   * @throws eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException if {@code graph} does
+   *     not declare the current State
    */
   public Set<String> possibleEvents(CompiledGraph graph, EvaluationContext context) {
     Set<String> permitted = new LinkedHashSet<>();

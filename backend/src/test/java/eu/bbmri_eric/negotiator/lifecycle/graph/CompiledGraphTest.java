@@ -144,6 +144,38 @@ class CompiledGraphTest {
   void isTerminal_whenTheVersionDoesNotDeclareTheState_throws() {
     assertThatThrownBy(() -> graph().isTerminal("RESOURCE_MADE_AVAILABLE"))
         .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("SUBMITTED");
+  }
+
+  /**
+   * The same refusal, from the lookup a caller firing an Event actually reaches. Answering "no such
+   * edge" here would be indistinguishable from a legitimately terminal State, which is how a broken
+   * Definition Version Pin comes to be reported as an ordinary unavailable move.
+   */
+  @Test
+  @DisplayName(
+      "asking for the Transition out of an undeclared State is refused, not answered empty")
+  void transition_whenTheVersionDoesNotDeclareTheState_throws() {
+    assertThatThrownBy(() -> graph().transition("RESOURCE_MADE_AVAILABLE", "APPROVE"))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("SUBMITTED");
+  }
+
+  /**
+   * And from the lookup a Possible Events listing walks, where an empty answer is the ordinary one
+   * for a terminal State — so an empty answer for a corrupt pin is the same two failures wearing
+   * one face, which user story 64 says they must never do.
+   */
+  @Test
+  @DisplayName("asking what leaves an undeclared State is refused, not answered with an empty list")
+  void transitionsFrom_whenTheVersionDoesNotDeclareTheState_throws() {
+    assertThatThrownBy(() -> graph().transitionsFrom("RESOURCE_MADE_AVAILABLE"))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("Definition Version " + VERSION_ID)
         .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
         .hasMessageContaining("SUBMITTED");
   }
