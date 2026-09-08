@@ -149,6 +149,11 @@ in `InvalidGraphExceptionTest`:
 - **The count came back to the twin test too.** `build_whenNoStateIsInitial` asserted `found 0`
   while `build_whenTwoStatesAreInitial` asserted only the two State names, so the pair applied the
   slice's own rule unevenly. It now asserts `found 2` as well.
+- **And the declared-State list came back to `isTerminal`'s refusal.** That message is
+  `declares no State named '%s'. Its States are %s`, and the test asserted only the unknown name.
+  The second half is the same "known keys" content the criterion protects and that the registry's
+  unknown-key twin asserts as `PARAMS_FREE` — the offer of what the graph *does* declare is what
+  makes the refusal actionable. It now asserts a declared State as well.
 - **Surfaced, not overridden: this slice's comment rule and [02](02-lombok-where-it-fits.md)'s point
   in opposite directions.** Slice 02 deleted five "deliberately not a Lombok X" comments on the
   grounds that "a comment cannot tell a reader anything about a constructor that the constructor
