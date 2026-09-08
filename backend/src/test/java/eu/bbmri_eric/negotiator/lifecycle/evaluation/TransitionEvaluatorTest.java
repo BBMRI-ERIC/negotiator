@@ -39,15 +39,19 @@ import org.junit.jupiter.params.provider.EnumSource;
  */
 class TransitionEvaluatorTest {
 
+  private static final long VERSION_ID = 1L;
   private static final long CREATOR = 101L;
   private static final long REPRESENTATIVE = 108L;
   private static final long STRANGER = 999L;
+
+  /** A State of the <em>other</em> v1 graph: a broken Definition Version Pin, in one string. */
+  private static final String UNDECLARED_STATE = "RESOURCE_MADE_AVAILABLE";
 
   private final StubRequirements requirements = new StubRequirements();
   private final TransitionEvaluator evaluator = new TransitionEvaluator(requirements);
 
   private static CompiledGraph graph() {
-    return CompiledGraph.builder(1L)
+    return CompiledGraph.builder(VERSION_ID)
         .initialState("OPEN")
         .state("BY_ANYONE")
         .state("BY_ADMIN")
@@ -64,24 +68,16 @@ class TransitionEvaluatorTest {
   }
 
   private static EvaluationContext contextFor(Caller caller) {
-    return EvaluationContext.forResource(
-        caller,
-        Subject.resource(
-            "negotiation-1", "biobank:1:collection:1", "OPEN", CREATOR, Set.of(REPRESENTATIVE)),
-        "IN_PROGRESS");
+    return contextIn("OPEN", caller);
   }
 
-  /**
-   * A Lifecycle sitting in a State its own pinned Definition Version does not declare: a broken
-   * Definition Version Pin, and the fixture for every corruption test below.
-   */
-  private static EvaluationContext contextInAStateTheVersionDoesNotDeclare(Caller caller) {
+  private static EvaluationContext contextIn(String currentState, Caller caller) {
     return EvaluationContext.forResource(
         caller,
         Subject.resource(
             "negotiation-1",
             "biobank:1:collection:1",
-            "RESOURCE_MADE_AVAILABLE",
+            currentState,
             CREATOR,
             Set.of(REPRESENTATIVE)),
         "IN_PROGRESS");
@@ -252,12 +248,10 @@ class TransitionEvaluatorTest {
   @DisplayName("a Lifecycle in a State the version does not declare is refused as graph corruption")
   void evaluate_whenTheVersionDoesNotDeclareTheCurrentState_throwsRatherThanRefusing() {
     assertThatThrownBy(
-            () ->
-                evaluator.evaluate(
-                    graph(), "ANYONE", contextInAStateTheVersionDoesNotDeclare(admin())))
+            () -> evaluator.evaluate(graph(), "ANYONE", contextIn(UNDECLARED_STATE, admin())))
         .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("Definition Version 1")
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining(UNDECLARED_STATE)
         .hasMessageContaining("OPEN");
   }
 
@@ -270,11 +264,11 @@ class TransitionEvaluatorTest {
   @DisplayName("a corrupt pin is reported as corruption even when the Event is a typo too")
   void evaluate_whenTheCurrentStateIsUndeclaredAndTheEventUnknown_blamesTheStateAndNotTheEvent() {
     assertThatThrownBy(
-            () ->
-                evaluator.evaluate(
-                    graph(), "TYPO", contextInAStateTheVersionDoesNotDeclare(admin())))
+            () -> evaluator.evaluate(graph(), "TYPO", contextIn(UNDECLARED_STATE, admin())))
         .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining(UNDECLARED_STATE)
+        .hasMessageContaining("OPEN")
         .hasMessageNotContaining("TYPO");
   }
 
@@ -308,11 +302,10 @@ class TransitionEvaluatorTest {
       "listing the Possible Events over an undeclared State throws rather than saying none")
   void possibleEvents_whenTheVersionDoesNotDeclareTheCurrentState_throwsRatherThanReturningEmpty() {
     assertThatThrownBy(
-            () ->
-                evaluator.possibleEvents(graph(), contextInAStateTheVersionDoesNotDeclare(admin())))
+            () -> evaluator.possibleEvents(graph(), contextIn(UNDECLARED_STATE, admin())))
         .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("Definition Version 1")
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining("Definition Version " + VERSION_ID)
+        .hasMessageContaining(UNDECLARED_STATE)
         .hasMessageContaining("OPEN");
   }
 
