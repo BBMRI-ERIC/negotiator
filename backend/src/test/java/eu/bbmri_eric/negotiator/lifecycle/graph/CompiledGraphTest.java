@@ -278,6 +278,73 @@ class CompiledGraphTest {
     assertThat(graph.transition("PAUSED", "ABANDON")).isPresent();
   }
 
+  /**
+   * {@code RETURN_FOR_RESUBMISSION} in the v1 Negotiation graph returns to an earlier State, so any
+   * acyclicity check in {@code build()} would refuse production data.
+   */
+  @Test
+  @DisplayName("a graph whose Transitions form a cycle builds, and resolves both ways round")
+  void build_whenTheTransitionsFormACycle_isAccepted() {
+    CompiledGraph graph =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("SUBMITTED")
+            .state("IN_PROGRESS")
+            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN)
+            .transition(
+                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN)
+            .build();
+
+    assertThat(graph.transition("SUBMITTED", "APPROVE"))
+        .contains(
+            new CompiledTransition(
+                "SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN));
+    assertThat(graph.transition("IN_PROGRESS", "RETURN_FOR_RESUBMISSION"))
+        .contains(
+            new CompiledTransition(
+                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN));
+  }
+
+  /**
+   * A Legacy State stays declared so that historical rows still resolve, and both v1 graphs have
+   * one. A Negotiation still in it must get answers from {@code isTerminal} and {@code
+   * transitionsFrom}, so {@code build()} must not check reachability.
+   */
+  @Test
+  @DisplayName("a graph with a State no Transition reaches builds, and still declares the State")
+  void build_whenNoTransitionReachesAState_isAcceptedAndTheStateStaysDeclared() {
+    CompiledGraph graph =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("SUBMITTED")
+            .terminalState("ABANDONED")
+            .state("APPROVED")
+            .transition("SUBMITTED", "DECLINE", "ABANDONED", RequiredAuthority.IS_ADMIN)
+            .build();
+
+    assertThat(graph.states()).contains("APPROVED");
+    assertThat(graph.declaresState("APPROVED")).isTrue();
+    assertThat(graph.isTerminal("APPROVED")).isFalse();
+    assertThat(graph.transitionsFrom("APPROVED")).isEmpty();
+  }
+
+  /**
+   * A version being authored may have no terminal State yet. A Lifecycle needs an initial State to
+   * start, so {@code build()} requires exactly one, but it needs no terminal State to run.
+   */
+  @Test
+  @DisplayName("a graph that declares no terminal State builds, and calls no State finished")
+  void build_whenNoStateIsTerminal_isAccepted() {
+    CompiledGraph graph =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("DRAFT")
+            .state("SUBMITTED")
+            .transition("DRAFT", "SUBMIT", "SUBMITTED", RequiredAuthority.IS_CREATOR)
+            .build();
+
+    assertThat(graph.states()).containsExactlyInAnyOrder("DRAFT", "SUBMITTED");
+    assertThat(graph.isTerminal("DRAFT")).isFalse();
+    assertThat(graph.isTerminal("SUBMITTED")).isFalse();
+  }
+
   @Test
   @DisplayName("an edge with no Required Authority is refused at construction")
   void transition_whenGivenNullRequiredAuthority_isRefusedAtConstruction() {
