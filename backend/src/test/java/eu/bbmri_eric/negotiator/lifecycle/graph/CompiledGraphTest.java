@@ -174,6 +174,7 @@ class CompiledGraphTest {
 
     assertThatThrownBy(builder::build)
         .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("found 2")
         .hasMessageContaining("DRAFT")
         .hasMessageContaining("SUBMITTED");
   }
