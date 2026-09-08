@@ -47,12 +47,9 @@ public final class TransitionEvaluator {
    * Whether {@code event} may fire against a Lifecycle in {@code context}'s current State, and
    * where it would go.
    *
-   * <p>The current State is the first thing asked about, and the only question here whose answer is
-   * not an outcome. A State this version does not declare is a broken Definition Version Pin rather
-   * than anything the caller did, so it leaves as an {@link
-   * eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException} instead of a refusal. Asking
-   * about the Event first would report that corruption as {@code UNKNOWN_EVENT} — the caller's
-   * input blamed for a fault in the data — whenever the two coincide.
+   * <p>The current State is asked about first, and it is the only question here whose answer is not
+   * an outcome. Asking about the Event first would report a corrupt pin as {@code UNKNOWN_EVENT} —
+   * the caller's input blamed for a fault in the data — whenever the two coincide.
    *
    * @throws eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException if {@code graph} does
    *     not declare the current State
@@ -81,9 +78,8 @@ public final class TransitionEvaluator {
    * unavailable, so the set is exactly what a caller may act on.
    *
    * <p>An empty set means "nothing is available" and only that — a terminal State, or a State every
-   * Event out of which is blocked. It never means the graph could not answer: the candidate lookup
-   * refuses an undeclared State rather than offering nothing, so the two failure modes for the same
-   * broken row stay distinguishable from outside.
+   * Event out of which is blocked. It never means the graph could not answer, because the candidate
+   * lookup refuses an undeclared State rather than offering nothing.
    *
    * @throws eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException if {@code graph} does
    *     not declare the current State

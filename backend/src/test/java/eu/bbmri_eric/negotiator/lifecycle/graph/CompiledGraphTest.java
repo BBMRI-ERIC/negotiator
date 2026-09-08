@@ -2,9 +2,15 @@ package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.stream.Stream;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * The compiled graph's whole contract, exercised without Spring, without a database and without the
@@ -19,6 +25,9 @@ import org.junit.jupiter.api.Test;
 class CompiledGraphTest {
 
   private static final long VERSION_ID = 7L;
+
+  /** A State of the <em>other</em> v1 graph, so nothing here can declare it by accident. */
+  private static final String UNDECLARED_STATE = "RESOURCE_MADE_AVAILABLE";
 
   private static CompiledGraph graph() {
     return CompiledGraph.builder(VERSION_ID)
@@ -134,50 +143,38 @@ class CompiledGraphTest {
   }
 
   /**
-   * The unforgiving answer, on purpose. A terminal-aggregation Guard asks each Resource's own
-   * pinned version this question, so a State the version has never heard of means the pin is wrong
-   * — and reading that as "still running" is how a Negotiation stays in progress for ever.
+   * All three questions that take a State, refusing one this version does not declare — one claim
+   * rather than three, because it is one rule.
+   *
+   * <p>The unforgiving answer is deliberate, and the reason differs by lookup. For terminality, a
+   * terminal-aggregation Guard that quietly read an unknown State as "still running" would leave a
+   * Negotiation in progress for ever. For the other two, an empty answer is indistinguishable from
+   * a legitimately terminal State, so a broken Definition Version Pin would reach a requester as
+   * "nothing is available" — which user story 64 says an empty listing must never be able to mean.
+   *
+   * <p>Each refusal offers what the version <em>does</em> declare, which is what makes it
+   * actionable from a log line, so each is asserted for the State asked about, the Definition
+   * Version, and a State the version has.
    */
-  @Test
-  @DisplayName(
-      "asking whether an undeclared State is terminal is refused rather than answered false")
-  void isTerminal_whenTheVersionDoesNotDeclareTheState_throws() {
-    assertThatThrownBy(() -> graph().isTerminal("RESOURCE_MADE_AVAILABLE"))
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("everyLookupTakingAState")
+  @DisplayName("every lookup taking a State refuses one this version does not declare")
+  void everyLookupTakingAState_whenTheVersionDoesNotDeclareIt_throws(
+      String lookup, ThrowingCallable askIt) {
+    assertThatThrownBy(askIt)
         .isInstanceOf(InvalidGraphException.class)
         .hasMessageContaining("Definition Version " + VERSION_ID)
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
+        .hasMessageContaining(UNDECLARED_STATE)
         .hasMessageContaining("SUBMITTED");
   }
 
-  /**
-   * The same refusal, from the lookup a caller firing an Event actually reaches. Answering "no such
-   * edge" here would be indistinguishable from a legitimately terminal State, which is how a broken
-   * Definition Version Pin comes to be reported as an ordinary unavailable move.
-   */
-  @Test
-  @DisplayName(
-      "asking for the Transition out of an undeclared State is refused, not answered empty")
-  void transition_whenTheVersionDoesNotDeclareTheState_throws() {
-    assertThatThrownBy(() -> graph().transition("RESOURCE_MADE_AVAILABLE", "APPROVE"))
-        .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("Definition Version " + VERSION_ID)
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
-        .hasMessageContaining("SUBMITTED");
-  }
-
-  /**
-   * And from the lookup a Possible Events listing walks, where an empty answer is the ordinary one
-   * for a terminal State — so an empty answer for a corrupt pin is the same two failures wearing
-   * one face, which user story 64 says they must never do.
-   */
-  @Test
-  @DisplayName("asking what leaves an undeclared State is refused, not answered with an empty list")
-  void transitionsFrom_whenTheVersionDoesNotDeclareTheState_throws() {
-    assertThatThrownBy(() -> graph().transitionsFrom("RESOURCE_MADE_AVAILABLE"))
-        .isInstanceOf(InvalidGraphException.class)
-        .hasMessageContaining("Definition Version " + VERSION_ID)
-        .hasMessageContaining("RESOURCE_MADE_AVAILABLE")
-        .hasMessageContaining("SUBMITTED");
+  private static Stream<Arguments> everyLookupTakingAState() {
+    return Stream.of(
+        arguments("isTerminal", (ThrowingCallable) () -> graph().isTerminal(UNDECLARED_STATE)),
+        arguments(
+            "transition", (ThrowingCallable) () -> graph().transition(UNDECLARED_STATE, "APPROVE")),
+        arguments(
+            "transitionsFrom", (ThrowingCallable) () -> graph().transitionsFrom(UNDECLARED_STATE)));
   }
 
   @Test
@@ -186,7 +183,7 @@ class CompiledGraphTest {
     CompiledGraph graph = graph();
 
     assertThat(graph.declaresState("APPROVED")).isTrue();
-    assertThat(graph.declaresState("RESOURCE_MADE_AVAILABLE")).isFalse();
+    assertThat(graph.declaresState(UNDECLARED_STATE)).isFalse();
   }
 
   @Test
