@@ -71,11 +71,11 @@ An Event whose Required Authority is the system alone, so only an Orchestration 
 _Avoid_: automatic event, signal event, auto-fire event
 
 **Compiled Graph**:
-One Definition Version's States, Events and Transitions in the form the Transition Evaluator is handed: immutable, indexed so that every question it answers is a lookup, and carrying each Transition's Guards and Actions as the chain that will actually run. Derived from that one version's rows and identified by that version alone, so a Lifecycle is judged against the graph of the version pinned to it. Never a source for admin tooling — it has forgotten sort orders, the two Guard scopes and each Guard's configuration on purpose, and the effective chain an admin has to be shown is one query against the Wiring rows instead.
-_Avoid_: state machine, machine instance, in-memory definition
+One Definition Version's States, Events and Transitions in the form the Transition Evaluator is handed: immutable, and carrying each Transition's Guards and Actions as the chain that will actually run. Derived from that one version's rows and identified by that version alone, so a Lifecycle is judged against the graph of the version pinned to it. Never a source for admin tooling: sort orders and the two Guard scopes are gone, each Guard's configuration is bound into it rather than readable off it, and the effective chain an admin has to be shown is one query against the Wiring rows instead.
+_Avoid_: state machine, machine instance, materialized graph, in-memory definition
 
 **Definition Compilation**:
-Producing a Compiled Graph from the rows of one Definition Version: resolving each Guard and Action against its catalogue, reading its configuration, and folding the two Guard scopes into one chain per Transition. Loading those rows is a separate step, and compiling happens once per version rather than once per evaluation — so a definition too broken to compile fails here, loudly and once, instead of at whichever click reached it first.
+Producing a Compiled Graph from the rows of one Definition Version: resolving each Guard and Action against its catalogue, reading its configuration, and folding the two Guard scopes into one chain per Transition. Loading those rows is a separate step, and compiling happens once per version rather than once per evaluation, so a definition too broken to compile fails here rather than at a caller's first attempt.
 _Avoid_: loading, hydration, parsing
 
 ### Evaluation
