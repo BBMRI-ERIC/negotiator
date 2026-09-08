@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+import lombok.NonNull;
 
 /**
  * Everything a Guard may depend on, handed in whole. The Transition Evaluator has no repository, so
@@ -15,14 +15,12 @@ import java.util.Set;
  * factory methods name the difference, so nothing downstream branches on it.
  */
 public record EvaluationContext(
-    Caller caller,
-    Subject subject,
+    @NonNull Caller caller,
+    @NonNull Subject subject,
     String parentNegotiationState,
     List<SiblingResource> siblingResources) {
 
   public EvaluationContext {
-    Objects.requireNonNull(caller, "caller");
-    Objects.requireNonNull(subject, "subject");
     siblingResources = List.copyOf(siblingResources);
   }
 
@@ -37,9 +35,8 @@ public record EvaluationContext(
    * parent-approval Guard does no I/O.
    */
   public static EvaluationContext forResource(
-      Caller caller, Subject subject, String parentNegotiationState) {
-    return new EvaluationContext(
-        caller, subject, Objects.requireNonNull(parentNegotiationState), List.of());
+      Caller caller, Subject subject, @NonNull String parentNegotiationState) {
+    return new EvaluationContext(caller, subject, parentNegotiationState, List.of());
   }
 
   /**
@@ -49,10 +46,8 @@ public record EvaluationContext(
    * — a human may never satisfy {@code SYSTEM}, and an Orchestration Trigger may never satisfy
    * {@code NONE}.
    *
-   * <p>Sealed rather than a boolean because that mutual exclusion is then structural. An authority
-   * rule switching over this cannot compile while it has forgotten one of the two, whereas a rule
-   * reading a {@code system} flag can silently fall through to the human branch — which is precisely
-   * the overload of {@code NONE} that ADR 0007 introduced {@code SYSTEM} to avoid.
+   * <p>The interface is sealed so that an authority rule switching over it fails to compile if it
+   * forgets a case. A boolean flag could fall through to the person branch unnoticed.
    */
   public sealed interface Caller {
 
@@ -95,15 +90,13 @@ public record EvaluationContext(
    * @param representativeIds who represents exactly this Resource. Empty for a Negotiation.
    */
   public record Subject(
-      String negotiationId,
+      @NonNull String negotiationId,
       String resourceId,
-      String currentState,
+      @NonNull String currentState,
       Long negotiationCreatorId,
       Set<Long> representativeIds) {
 
     public Subject {
-      Objects.requireNonNull(negotiationId, "negotiationId");
-      Objects.requireNonNull(currentState, "currentState");
       representativeIds = Set.copyOf(representativeIds);
     }
 
@@ -113,16 +106,12 @@ public record EvaluationContext(
 
     public static Subject resource(
         String negotiationId,
-        String resourceId,
+        @NonNull String resourceId,
         String currentState,
         Long parentCreatorId,
         Set<Long> representativeIds) {
       return new Subject(
-          negotiationId,
-          Objects.requireNonNull(resourceId, "resourceId"),
-          currentState,
-          parentCreatorId,
-          representativeIds);
+          negotiationId, resourceId, currentState, parentCreatorId, representativeIds);
     }
   }
 
@@ -133,12 +122,8 @@ public record EvaluationContext(
    * pinned to a Resource can say whether its State is terminal. The caller resolves these graphs
    * through the cache before evaluation, so the Transition Evaluator loads nothing.
    */
-  public record SiblingResource(long resourceId, String currentState, CompiledGraph graph) {
-
-    public SiblingResource {
-      Objects.requireNonNull(currentState, "currentState");
-      Objects.requireNonNull(graph, "graph");
-    }
+  public record SiblingResource(
+      long resourceId, @NonNull String currentState, @NonNull CompiledGraph graph) {
 
     /** Whether this Resource's own Definition Version calls its current State finished. */
     public boolean isFinished() {

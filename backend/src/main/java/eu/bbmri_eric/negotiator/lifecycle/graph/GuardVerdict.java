@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import java.util.Map;
-import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * What one step of the Evaluation Pipeline answers: it passed, or it failed and why.
@@ -14,12 +14,12 @@ import java.util.Objects;
  * @param details what the caller needs to act on the refusal, such as the missing forms of an
  *     Information Requirement. Each step chooses its own keys.
  */
-public record GuardVerdict(boolean passed, String reasonCode, Map<String, Object> details) {
+public record GuardVerdict(
+    boolean passed, @NonNull String reasonCode, Map<String, Object> details) {
 
   private static final GuardVerdict PASSED = new GuardVerdict(true, "", Map.of());
 
   public GuardVerdict {
-    Objects.requireNonNull(reasonCode, "reasonCode");
     details = Map.copyOf(details);
   }
 
@@ -32,6 +32,11 @@ public record GuardVerdict(boolean passed, String reasonCode, Map<String, Object
     return fail(reasonCode, Map.of());
   }
 
+  /**
+   * Builds a refusal, which must carry a reason code.
+   *
+   * @throws IllegalArgumentException if the reason code is missing
+   */
   public static GuardVerdict fail(String reasonCode, Map<String, Object> details) {
     if (reasonCode == null || reasonCode.isBlank()) {
       throw new IllegalArgumentException(

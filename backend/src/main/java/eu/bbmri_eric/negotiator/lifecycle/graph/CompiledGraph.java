@@ -7,9 +7,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 /**
  * One Definition Version as an indexed, immutable graph of States, Events and Transitions, with no
@@ -26,6 +29,7 @@ import java.util.Set;
  * that exists is a graph that is well formed however it was assembled — by compiling rows, by a
  * test, or one day by whatever reads a definition file.
  */
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CompiledGraph {
 
   private final long definitionVersionId;
@@ -35,23 +39,6 @@ public final class CompiledGraph {
   private final Set<String> terminalStates;
   private final Map<SourceAndEvent, CompiledTransition> bySourceAndEvent;
   private final Map<String, List<CompiledTransition>> bySource;
-
-  private CompiledGraph(
-      long definitionVersionId,
-      String initialState,
-      Set<String> states,
-      Set<String> events,
-      Set<String> terminalStates,
-      Map<SourceAndEvent, CompiledTransition> bySourceAndEvent,
-      Map<String, List<CompiledTransition>> bySource) {
-    this.definitionVersionId = definitionVersionId;
-    this.initialState = initialState;
-    this.states = states;
-    this.events = events;
-    this.terminalStates = terminalStates;
-    this.bySourceAndEvent = bySourceAndEvent;
-    this.bySource = bySource;
-  }
 
   public static Builder builder(long definitionVersionId) {
     return new Builder(definitionVersionId);
@@ -103,14 +90,12 @@ public final class CompiledGraph {
   /**
    * Whether the named State is one this version calls finished.
    *
-   * @throws IllegalArgumentException if this version does not declare the State. Answering {@code
-   *     false} for a State the graph has never heard of would be the more forgiving choice and the
-   *     wrong one: a terminal-aggregation Guard that quietly reads an unknown State as "still
-   *     running" leaves a Negotiation in progress for ever.
+   * @throws InvalidGraphException if this version does not declare the State. Answering {@code
+   *     false} would let an unknown State keep a Negotiation in progress for ever.
    */
   public boolean isTerminal(String state) {
     if (!states.contains(state)) {
-      throw new IllegalArgumentException(
+      throw new InvalidGraphException(
           "Definition Version %d declares no State named '%s'. Its States are %s."
               .formatted(definitionVersionId, state, states));
     }
@@ -145,11 +130,16 @@ public final class CompiledGraph {
   private record SourceAndEvent(String fromState, String event) {}
 
   /**
-   * Assembles a {@link CompiledGraph} and refuses to produce a malformed one. Every check lives
-   * here rather than in the compiler that reads the rows, so that a graph built by a test or by a
-   * seed is held to the same rules as one built from the database — the alternative puts the rules
-   * where only one of three construction paths passes through them.
+   * Assembles a {@link CompiledGraph} and refuses a malformed one. The checks live here rather than
+   * in the compiler that reads rows, so a graph built in a test meets the same rules.
+   *
+   * <p>Marking a State initial or terminal also declares it, and adding a Transition declares its
+   * Event.
+   *
+   * <p>Every refusal is an {@link InvalidGraphException}, so a caller can catch a corrupt definition
+   * and nothing else.
    */
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Builder {
 
     private final long definitionVersionId;
@@ -159,13 +149,9 @@ public final class CompiledGraph {
     private final Set<String> terminalStates = new LinkedHashSet<>();
     private final List<CompiledTransition> transitions = new ArrayList<>();
 
-    private Builder(long definitionVersionId) {
-      this.definitionVersionId = definitionVersionId;
-    }
-
     /** Declares an ordinary State. Declaring one twice is harmless. */
-    public Builder state(String name) {
-      states.add(Objects.requireNonNull(name, "name"));
+    public Builder state(@NonNull String name) {
+      states.add(name);
       return this;
     }
 
@@ -190,13 +176,12 @@ public final class CompiledGraph {
      * Declares an Event that carries no Transition, such as an Override Event. {@link #transition}
      * declares every other Event.
      */
-    public Builder eventWithoutTransition(String name) {
-      events.add(Objects.requireNonNull(name, "name"));
+    public Builder eventWithoutTransition(@NonNull String name) {
+      events.add(name);
       return this;
     }
 
-    public Builder transition(CompiledTransition transition) {
-      Objects.requireNonNull(transition, "transition");
+    public Builder transition(@NonNull CompiledTransition transition) {
       transitions.add(transition);
       events.add(transition.event());
       return this;
@@ -227,7 +212,7 @@ public final class CompiledGraph {
      */
     private void requireExactlyOneInitialState() {
       if (initialStates.size() != 1) {
-        throw new IllegalStateException(
+        throw new InvalidGraphException(
             "Definition Version %d must declare exactly one initial State, found %d: %s"
                 .formatted(definitionVersionId, initialStates.size(), initialStates));
       }
@@ -251,7 +236,7 @@ public final class CompiledGraph {
         }
       }
       if (!undeclared.isEmpty()) {
-        throw new IllegalStateException(
+        throw new InvalidGraphException(
             "Definition Version %d has Transitions naming undeclared States %s. Its States are %s."
                 .formatted(definitionVersionId, undeclared, states));
       }
@@ -263,7 +248,7 @@ public final class CompiledGraph {
         SourceAndEvent key = new SourceAndEvent(transition.fromState(), transition.event());
         CompiledTransition existing = index.putIfAbsent(key, transition);
         if (existing != null) {
-          throw new IllegalStateException(
+          throw new InvalidGraphException(
               ("Definition Version %d has two Transitions for State '%s' and Event '%s', to '%s' "
                       + "and to '%s'. Which one fires would depend on load order, so a graph that "
                       + "could ask a Guard to pick is refused rather than resolved.")

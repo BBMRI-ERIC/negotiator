@@ -12,38 +12,26 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
  * Answers what a Definition Version permits from a given State. It takes a Compiled Graph and the
  * runtime facts, holds no state, reads no data of its own and changes nothing.
  *
- * <p><b>Look at the constructor.</b> There is no repository on it, no {@code EntityManager} and no
- * Spring Data type, and that is the design rather than an accident of the current feature set. ADR
- * 0001 calls it "a deliberate constraint rather than a performance claim: an evaluator that
- * structurally cannot query the database makes loading the definition graph an explicit, testable
- * step". An evaluator that owned its persistence would invite an N+1 across a negotiation's
- * resources, discovered only under load.
+ * <p>It depends on no repository on purpose. Loading the graph then stays a separate, testable
+ * step, and the evaluator cannot cause an N+1 query across a negotiation's resources. Its one
+ * dependency, {@link InformationRequirementSatisfaction}, is a port for the one fact the context
+ * cannot carry.
  *
- * <p>The one thing on the constructor is {@link InformationRequirementSatisfaction}, and it is an
- * interface for exactly that reason: whether a form has been submitted is the single question about
- * a move that cannot be handed in on the context, so it goes behind a port instead of behind a
- * query.
- *
- * <p><b>{@link #evaluate} and {@link #possibleEvents} are one path, not two.</b> The listing is a
- * dry run of the same function over the Events reachable from the current State, with blocked ones
- * omitted. ADR 0005's central point is that the two can therefore never disagree — which is why
- * today's dead-click bug, where an Event is offered and then refused on submit, cannot be written
- * here even by mistake.
+ * <p>{@link #possibleEvents} runs the same check as {@link #evaluate} over every Event out of the
+ * current State. The two cannot disagree, so the UI never offers an Event that firing then refuses.
  */
 @Component
+@RequiredArgsConstructor
 public final class TransitionEvaluator {
 
   private final InformationRequirementSatisfaction requirements;
-
-  public TransitionEvaluator(InformationRequirementSatisfaction requirements) {
-    this.requirements = requirements;
-  }
 
   /**
    * Whether {@code event} may fire against a Lifecycle in {@code context}'s current State, and
@@ -140,8 +128,7 @@ public final class TransitionEvaluator {
             case NONE -> true;
             case IS_ADMIN -> person.authorities().contains(ROLE_ADMIN);
             case IS_CREATOR ->
-                Long.valueOf(person.personId())
-                    .equals(context.subject().negotiationCreatorId());
+                Long.valueOf(person.personId()).equals(context.subject().negotiationCreatorId());
             case IS_REPRESENTATIVE ->
                 context.subject().representativeIds().contains(person.personId());
             case SYSTEM -> false;

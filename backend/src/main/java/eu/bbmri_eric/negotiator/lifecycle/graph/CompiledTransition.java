@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import java.util.List;
-import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * One edge of a compiled graph: firing {@code event} while in {@code fromState} moves to {@code
@@ -15,26 +15,36 @@ import java.util.Objects;
  *     configured {@code sort_order}. ADR 0002 calls the effective chain "one query" for admin
  *     tooling; here it is one list, so the evaluator runs a single loop and never learns that
  *     Guards have two scopes. A chain assembled at fire time would have to know.
+ * @param actions the Action chain, in {@code sort_order}. Transition-scoped only — there is no
+ *     definition-wide Action wiring, and {@code action_wiring} has no definition column to express
+ *     one with. Reported by a permitted outcome and run by the service that commits the move.
  */
 public record CompiledTransition(
-    String fromState,
-    String event,
-    String toState,
-    RequiredAuthority requiredAuthority,
-    List<GuardStep> guards) {
+    @NonNull String fromState,
+    @NonNull String event,
+    @NonNull String toState,
+    @NonNull RequiredAuthority requiredAuthority,
+    List<GuardStep> guards,
+    List<ActionStep> actions) {
 
   public CompiledTransition {
-    Objects.requireNonNull(fromState, "fromState");
-    Objects.requireNonNull(event, "event");
-    Objects.requireNonNull(toState, "toState");
-    Objects.requireNonNull(
-        requiredAuthority, "requiredAuthority: RequiredAuthority.NONE is how 'anyone' is spelled");
     guards = List.copyOf(guards);
+    actions = List.copyOf(actions);
   }
 
-  /** A Transition with no Guards and no Actions. */
+  /** An edge nothing guards, which is what all 21 Transitions of both v1 graphs are today. */
   public CompiledTransition(
       String fromState, String event, String toState, RequiredAuthority requiredAuthority) {
-    this(fromState, event, toState, requiredAuthority, List.of());
+    this(fromState, event, toState, requiredAuthority, List.of(), List.of());
+  }
+
+  /** A Transition with Guards and no Actions. */
+  public CompiledTransition(
+      String fromState,
+      String event,
+      String toState,
+      RequiredAuthority requiredAuthority,
+      List<GuardStep> guards) {
+    this(fromState, event, toState, requiredAuthority, guards, List.of());
   }
 }
