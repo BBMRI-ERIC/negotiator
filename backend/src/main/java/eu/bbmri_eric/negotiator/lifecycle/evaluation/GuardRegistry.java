@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.lifecycle.evaluation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
 import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
@@ -21,24 +20,17 @@ import org.springframework.stereotype.Component;
  * at a user's first click. Every refusal here, whether an unknown key, params that do not fit or a
  * duplicate key, is an {@link InvalidGraphException}.
  *
- * <p>Every refusal here is an {@link InvalidGraphException} — unknown key, params that do not fit,
- * and the duplicate-key collision alike; that type's javadoc says why the three are one. Naming the
- * collision did not move it: it is still thrown from the constructor, so a duplicate key still
- * fails the boot rather than surfacing at a user's first click.
- *
- * <p>It also owns the subsystem's <b>one unchecked narrowing, in one place</b>: {@link #bindTyped}
- * is a private generic bridge that reads a Wiring row's jsonb into whatever type the strategy
- * declared. Everything either side of it is type-safe, and no other class needs a
- * {@code @SuppressWarnings}.
+ * <p>{@link #bindTyped} is the one place that narrows a Wiring row's jsonb to the params type the
+ * strategy declared. It uses {@code Class.cast}, so the JVM checks the narrowing at runtime.
  */
 @Component
 public class GuardRegistry implements GuardCatalogue {
 
-  private final ObjectMapper objectMapper;
+  private final WiringConfigurationReader configurationReader;
   private final Map<String, Guard<?>> strategies;
 
   public GuardRegistry(ObjectMapper objectMapper, List<Guard<?>> guards) {
-    this.objectMapper = objectMapper;
+    this.configurationReader = WiringConfigurationReader.forGuards(objectMapper);
     this.strategies = buildRegistry(guards);
   }
 
@@ -59,7 +51,7 @@ public class GuardRegistry implements GuardCatalogue {
   }
 
   private <P> GuardStep bindTyped(Guard<P> strategy, String paramsJson) {
-    P params = readParams(strategy, paramsJson);
+    P params = configurationReader.read(strategy.typeKey(), strategy.paramsType(), paramsJson);
     return new GuardStep() {
       @Override
       public String typeKey() {
@@ -76,35 +68,6 @@ public class GuardRegistry implements GuardCatalogue {
         return "GuardStep[%s]".formatted(strategy.typeKey());
       }
     };
-  }
-
-  private <P> P readParams(Guard<P> strategy, String paramsJson) {
-    if (paramsJson == null || paramsJson.isBlank()) {
-      return strategy.paramsType().cast(defaultParams(strategy));
-    }
-    try {
-      return objectMapper.readValue(paramsJson, strategy.paramsType());
-    } catch (JsonProcessingException e) {
-      throw new InvalidGraphException(
-          "Guard '%s' could not read its params as %s: %s"
-              .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName(), paramsJson),
-          e);
-    }
-  }
-
-  /**
-   * A null {@code params} column is legal and ordinary, so it must not be an error. For a strategy
-   * that takes none it means {@link NoParams#INSTANCE}; for one that does take params it is a
-   * definition that is missing configuration, and saying so here beats a {@code
-   * NullPointerException} inside the strategy at fire time.
-   */
-  private static Object defaultParams(Guard<?> strategy) {
-    if (strategy.paramsType() == NoParams.class) {
-      return NoParams.INSTANCE;
-    }
-    throw new InvalidGraphException(
-        "Guard '%s' declares params of type %s but its Wiring row carries none."
-            .formatted(strategy.typeKey(), strategy.paramsType().getSimpleName()));
   }
 
   private static Map<String, Guard<?>> buildRegistry(List<Guard<?>> guards) {
