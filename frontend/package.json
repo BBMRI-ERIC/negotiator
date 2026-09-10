@@ -67,6 +67,5 @@
     "last 2 versions",
     "not dead",
     "not ie 11"
-  ],
-  "packageManager": "yarn@4.18.0"
+  ]
 }
