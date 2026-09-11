@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.lifecycle.definition;
 
 import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.OTHER_FAMILY;
 import static eu.bbmri_eric.negotiator.lifecycle.definition.DefinitionFixtures.STANDARD_FAMILY;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -27,18 +27,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DefinitionResolverTest {
 
+  /** The row id both queries should answer with, set explicitly instead of left to a default. */
+  private static final long SOLE_VERSION_ID = 17L;
+
   @Mock private LifecycleDefinitionRepository definitions;
 
   @InjectMocks private DefinitionResolverImpl resolver;
 
+  /**
+   * The answer is the row id, not the row, because the caller writes that id to a Definition
+   * Version Pin. The test asserts against an id it set, so a resolver answering any version would
+   * fail.
+   */
   @Test
-  void resolveForNegotiation_withOneActiveDefinition_returnsIt() {
+  void resolveForNegotiation_withOneActiveDefinition_answersItsRowId() {
     LifecycleDefinition sole =
-        activeVersionIn(STANDARD_FAMILY, DefinitionScope.NEGOTIATION).build();
+        activeVersionIn(STANDARD_FAMILY, DefinitionScope.NEGOTIATION).id(SOLE_VERSION_ID).build();
     when(definitions.findByScopeAndActiveTrue(DefinitionScope.NEGOTIATION))
         .thenReturn(List.of(sole));
 
-    assertSame(sole, resolver.resolveForNegotiation());
+    assertEquals(SOLE_VERSION_ID, resolver.resolveForNegotiation());
   }
 
   @Test
@@ -68,13 +76,16 @@ class DefinitionResolverTest {
   }
 
   @Test
-  void resolveForResource_withAnActiveGlobalDefault_returnsIt() {
+  void resolveForResource_withAnActiveGlobalDefault_answersItsRowId() {
     LifecycleDefinition globalDefault =
-        activeVersionIn(STANDARD_FAMILY, DefinitionScope.RESOURCE).globalDefault(true).build();
+        activeVersionIn(STANDARD_FAMILY, DefinitionScope.RESOURCE)
+            .id(SOLE_VERSION_ID)
+            .globalDefault(true)
+            .build();
     when(definitions.findByScopeAndActiveTrueAndGlobalDefaultTrue(DefinitionScope.RESOURCE))
         .thenReturn(Optional.of(globalDefault));
 
-    assertSame(globalDefault, resolver.resolveForResource());
+    assertEquals(SOLE_VERSION_ID, resolver.resolveForResource());
   }
 
   @Test

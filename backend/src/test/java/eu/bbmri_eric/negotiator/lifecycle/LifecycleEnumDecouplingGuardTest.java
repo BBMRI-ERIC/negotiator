@@ -63,11 +63,8 @@ import org.junit.jupiter.api.Test;
  * Spring Statemachine, the {@code negotiation.state_machine} package goes and the imports above
  * stop compiling. Do not point the guard at something else.
  *
- * <p>The scanning technique is borrowed from {@code DefinitionInertnessGuardTest} - a
- * working-directory-resolved scan root, a reader that blanks comments so prose naming a forbidden
- * identifier is not itself a violation, and a violation report carrying file and line. As slab 08
- * recorded for that guard and slice 03 for {@code RawStateNamesInSqlGuardTest}, the copy is
- * deliberate: these guards have different lifetimes and each is meant to be deleted whole.
+ * <p>The scanning code is copied between the guard tests on purpose. The guards have different
+ * lifetimes and each is deleted whole.
  */
 class LifecycleEnumDecouplingGuardTest {
 
