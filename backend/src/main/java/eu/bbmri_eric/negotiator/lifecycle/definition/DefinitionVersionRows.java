@@ -8,9 +8,9 @@ import java.util.List;
  * <p>It keeps loading and compiling as separate steps, so compilation can be tested without a
  * database.
  *
- * <p>Nothing populates it yet. No repository in this package has a "load the whole graph by
- * definition id" query, deliberately — the slab that writes one is the slab that starts reading
- * these tables, and it is not this one.
+ * <p>All rows must come from one persistence context. The compiler compares owning versions by
+ * reference and groups Wiring by {@link Transition} instance, so it refuses rows gathered across
+ * several. {@link DefinitionVersionLoader} uses one transaction for this.
  */
 record DefinitionVersionRows(
     LifecycleDefinition definition,

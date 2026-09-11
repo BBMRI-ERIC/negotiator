@@ -1,5 +1,13 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
+import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
+import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
+import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
+import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+
 /**
  * The Definition Version, State and Event rows that several tests in this package need before they
  * reach the table under test, plus two catalogue fakes for tests that compile rows without caring
@@ -10,12 +18,8 @@ package eu.bbmri_eric.negotiator.lifecycle.definition;
  * else, so a test asserting on a column asserts on a value it set itself. A helper that set an
  * optional column would change what several refusal tests refuse.
  *
- * <p>Every helper builds the <em>minimum valid</em> row for its table: whatever the DDL demands and
- * nothing else, so a test asserting on a column is asserting on a value it set itself. One that
- * grew an optional column would quietly change what several refusal tests are refusing.
- *
- * <p>Package private, and beside the tests rather than under {@code integration/repository/}, for
- * the same reason the tests are: the entities it builds are package private.
+ * <p>The class is package-private and sits beside the tests because the entities it builds are
+ * package-private.
  */
 final class DefinitionFixtures {
 
@@ -53,5 +57,42 @@ final class DefinitionFixtures {
   /** An Event named {@code name}. */
   static Event eventIn(LifecycleDefinition definition, String name) {
     return Event.builder().lifecycleDefinition(definition).name(name).build();
+  }
+
+  /**
+   * A Guard catalogue that binds every key it is given, for tests about which rows reached a
+   * compile, not what a strategy does. Unlike {@code DefinitionCompilerTest}'s {@code
+   * RecordingCatalogue}, it refuses nothing and records nothing.
+   */
+  static GuardCatalogue bindingAnyGuard() {
+    return (typeKey, paramsJson) ->
+        new GuardStep() {
+          @Override
+          public String typeKey() {
+            return typeKey;
+          }
+
+          @Override
+          public GuardVerdict check(EvaluationContext context) {
+            return GuardVerdict.pass();
+          }
+        };
+  }
+
+  /** The Action-side twin of {@link #bindingAnyGuard()}. Its steps refuse to run. */
+  static ActionCatalogue bindingAnyAction() {
+    return (typeKey, paramsJson) ->
+        new ActionStep() {
+          @Override
+          public String typeKey() {
+            return typeKey;
+          }
+
+          @Override
+          public void run(ActionContext context) {
+            throw new UnsupportedOperationException(
+                "a binding-anything catalogue's steps are never meant to run");
+          }
+        };
   }
 }

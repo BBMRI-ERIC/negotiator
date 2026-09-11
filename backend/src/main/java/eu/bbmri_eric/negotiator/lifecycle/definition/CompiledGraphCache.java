@@ -21,21 +21,16 @@ import lombok.RequiredArgsConstructor;
  * <p>It is unbounded. A Definition Version is immutable and kept while work is pinned to it, so
  * nothing expires. Publishing a new version evicts only that version's entry.
  *
- * <p><b>No load port.</b> The producer is named directly, as a function of a row id, rather than
- * through an interface of this subsystem's own. A port with one adapter is indirection; the
- * interface arrives when a second adapter does. The producer the cutover slab will pass loads a
- * version's rows and compiles them; nothing in production passes one yet, because that load reads
- * the definition tables and is the cutover's to write.
+ * <p>It avoids {@code computeIfAbsent}, which would run the producer, and its queries, inside the
+ * map's per-bin lock. It reads, produces outside the map, then puts if absent. Two threads may
+ * compile one version twice. Compilation is pure, so the race only duplicates work, and both
+ * callers get the graph that won the put.
  *
  * <p>It does not cache a failed production, so a Definition Version fixed after a bad compile is
  * served without a restart. {@link InvalidGraphException} passes through unwrapped.
  *
- * <p>A failed production is not cached, which is what lets a Definition Version fixed after a bad
- * compile be served without a restart. {@link InvalidGraphException} passes through unwrapped, so a
- * caller catching graph corruption still catches it through the cache.
- *
- * <p>It is package-private on purpose. Nothing outside this package may resolve a graph yet, which
- * is what keeps the package inert while there is no loader to produce one.
+ * <p>Callers outside the package use {@link LifecycleDefinitions#graphFor}, which already holds the
+ * producer.
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class CompiledGraphCache {

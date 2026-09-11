@@ -17,7 +17,7 @@ class DefinitionResolverImpl implements DefinitionResolver {
   private final LifecycleDefinitionRepository definitions;
 
   @Override
-  public LifecycleDefinition resolveForNegotiation() {
+  public long resolveForNegotiation() {
     List<LifecycleDefinition> active =
         definitions.findByScopeAndActiveTrue(DefinitionScope.NEGOTIATION);
     if (active.isEmpty()) {
@@ -30,13 +30,14 @@ class DefinitionResolverImpl implements DefinitionResolver {
               + " found "
               + active.stream().map(LifecycleDefinition::getFamilyKey).sorted().toList());
     }
-    return active.getFirst();
+    return active.getFirst().getId();
   }
 
   @Override
-  public LifecycleDefinition resolveForResource() {
+  public long resolveForResource() {
     return definitions
         .findByScopeAndActiveTrueAndGlobalDefaultTrue(DefinitionScope.RESOURCE)
+        .map(LifecycleDefinition::getId)
         .orElseThrow(
             () ->
                 new DefinitionResolutionException(

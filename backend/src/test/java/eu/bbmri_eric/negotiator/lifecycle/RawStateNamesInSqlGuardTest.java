@@ -52,11 +52,8 @@ import org.junit.jupiter.api.Test;
  *
  * <p>This guard changes no query. It only records them.
  *
- * <p>The scanning technique is borrowed from {@code DefinitionInertnessGuardTest} - a
- * working-directory-resolved scan root, a reader that ignores comments so prose naming a literal is
- * not itself a violation, and a violation report carrying file and line. As slab 08 recorded for
- * that guard, the copy is deliberate: the two guards have different lifetimes and each is meant to
- * be deleted whole.
+ * <p>The scanning code is copied between the guard tests on purpose. The guards have different
+ * lifetimes and each is deleted whole.
  */
 class RawStateNamesInSqlGuardTest {
 

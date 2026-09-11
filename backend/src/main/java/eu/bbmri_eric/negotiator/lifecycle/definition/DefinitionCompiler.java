@@ -23,13 +23,8 @@ import lombok.RequiredArgsConstructor;
  * chain per Transition. An unknown type key or unreadable params fails the compile, not a user's
  * first attempt at that Transition.
  *
- * <p>Two things it deliberately does not do. It does not <em>load</em>: it is handed {@link
- * DefinitionVersionRows}, which is what keeps loading an explicit step and compilation
- * unit-testable. And it does not read {@link LifecycleDefinition#getScope()} at all — the compiled
- * graph carries no Definition Scope because the evaluator turns out never to need one.
- *
- * <p>It is package-private on purpose. Nothing outside this package may compile a graph yet, which
- * is what keeps the package inert while there is no loader to call it.
+ * <p>It does not load rows. It takes {@link DefinitionVersionRows}, so tests can compile without a
+ * database. It ignores the Definition Scope, because the Transition Evaluator never needs it.
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class DefinitionCompiler {

@@ -28,24 +28,14 @@ import org.junit.jupiter.api.Test;
  * #IMPORTS_PERMITTED_IN_GRAPH}. A blocklist stops only what someone thought of, and the graph
  * package is small enough to have a closed list of dependencies.
  *
- * <p>The scaffolding, and one rule predicate's name, are shared with {@code
- * DefinitionInertnessGuardTest} by copy rather than by extraction. That guard states the licence as
- * "each is meant to be deleted whole", which does not cover this pair, because this guard is
- * <em>not</em> meant to be deleted - so the reason here is a different one: the two rules answer
- * differently-scoped questions about the same package name, and a shared helper would have to be
- * parameterized by which tree it scans and would then survive the guard it was extracted from.
+ * <p>The scan reads Java source as text and blanks comments, so a comment naming a forbidden term
+ * is not a violation. Each violation carries a {@code file:line}. Each rule is shown to fire on
+ * what it forbids and to spare something harmless, and a meta-test stops the guard passing by
+ * scanning nothing.
  *
- * <p>Built in the register of {@code DefinitionInertnessGuardTest}: the Java source is scanned as
- * <em>text</em>, comments are blanked so prose naming a forbidden term is not a violation, every
- * violation is reported with a {@code file:line} a reader can check, each rule is proven to fire on
- * the thing it forbids and to spare something innocent, and a meta-test stops the whole thing
- * passing by scanning nothing.
- *
- * <p>Unlike that guard, this one is <b>not</b> meant to be deleted. The inertness guard exists to
- * prove a temporary state and dies when a slab starts reading the definition tables; this one
- * states a permanent property of the subsystem, and the slab that legitimately needs to load a
- * graph does so in the definition package, on the other side of {@link
- * eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue} — not by relaxing a rule here.
+ * <p>This guard is permanent. Code that needs to load a graph belongs in the definition package,
+ * behind {@link eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue}, not in a relaxed rule
+ * here.
  */
 class EvaluatorPurityGuardTest {
 
@@ -151,8 +141,11 @@ class EvaluatorPurityGuardTest {
 
             They meet at GuardCatalogue and ActionCatalogue, which the evaluation package implements
             and the definition package calls. An import in this direction is a cycle, and it would
-            also put the definition entities within the evaluator's reach - which is the whole thing
-            DefinitionInertnessGuardTest is currently proving has not happened."""));
+            also put the definition entities within the evaluator's reach.
+
+            The definition package reads its tables through LifecycleDefinitions, which returns a
+            CompiledGraph. Code here that needs a graph should receive one. Code that needs rows
+            belongs in another package."""));
   }
 
   /**
