@@ -78,6 +78,7 @@ export default defineConfig({
                     {text: 'Administrator', link: '/administrator'},
                     {text: 'Representative', link: '/representative'},
                     { text: 'Requester', link: '/requester' },
+                    { text: 'Collaborator', link: '/collaborator' },
                     { text: 'Network Manager', link: '/network_manager' }
                 ]
             },

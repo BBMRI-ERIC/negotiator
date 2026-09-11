@@ -25,9 +25,9 @@ public class NegotiationSpecification {
     Specification<Negotiation> specs = null;
     if (user != null) {
       if (filtersDTO.getRole() == null) {
-        specs = initOrAnd(specs, byAuthorOrRepresentative(user));
+        specs = initOrAnd(specs, byAuthorOrRepresentative(user).or(hasCollaborator(user)));
       } else if (filtersDTO.getRole() == NegotiationRole.AUTHOR) {
-        specs = initOrAnd(specs, hasAuthor(user));
+        specs = initOrAnd(specs, hasAuthor(user).or(hasCollaborator(user)));
       } else {
         specs = initOrAnd(specs, hasResourcesIn(user.getResources()));
         specs = initOrAnd(specs, hasState(List.of(NegotiationState.DRAFT), true));
@@ -176,6 +176,17 @@ public class NegotiationSpecification {
             root.joinSet("resourcesLink").join("id").join("resource").join("networks"), network);
       }
     };
+  }
+
+  /**
+   * Condition to filter Negotiation by collaborator
+   *
+   * @param person the Person that is a collaborator in the negotiation
+   * @return a Specification to add as part of a query to filter Negotiations
+   */
+  public static Specification<Negotiation> hasCollaborator(Person person) {
+    return (root, query, criteriaBuilder) ->
+        criteriaBuilder.isMember(person, root.get("collaborators"));
   }
 
   /**
