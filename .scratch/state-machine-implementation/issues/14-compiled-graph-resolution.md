@@ -1,7 +1,7 @@
 # Compiled Graph resolution: the definition package gets an interface
 
 Type: task
-Status: open
+Status: resolved
 Blocked by: 09
 
 ## Question
@@ -117,3 +117,145 @@ One argument to engage with rather than skip. The cache's javadoc rejects a load
 that "a port with one adapter is indirection; the interface arrives when a second adapter does." That
 argument holds, and this ticket does not contradict it — it adds no port *inside* the module. It gives
 the module itself an interface, which is a different thing from injecting the producer through one.
+
+## Answer
+
+**The definition package has a public interface, and it is `LifecycleDefinitions`.** Four methods —
+`resolveForNegotiation()`, `resolveForResource()`, `graphFor(long)`, `graphsFor(Collection<Long>)` —
+answering in `long` and `CompiledGraph`, so nothing package-private appears in a signature that
+leaves the package. It and `DefinitionResolutionException` are the package's only public types; the
+six entities, their repositories, `DefinitionCompiler`, `CompiledGraphCache` and `DefinitionResolver`
+all stay package private.
+
+### What was built
+
+- **`LifecycleDefinitionsImpl`** (`@Service`) **builds the compiler and the cache itself** rather
+  than injecting them, and its constructor *is* the producer the cache's javadoc has been describing
+  as the cutover's to write: `new CompiledGraphCache(id -> compiler.compile(loader.load(id)))`.
+  Neither internal became a bean — a cache that is a bean needs something for its producer to be,
+  which is the load port the cache argued against and this ticket agreed not to add.
+- **`DefinitionVersionLoader`** (`@Component`, package private), six queries in one transaction,
+  one per table. `findById` runs first so the version is the instance every row's
+  `lifecycle_definition_id` resolves to; the other five are ordered for the same reason. Three carry
+  fetch joins — Transition to its three vertices, both Wiring tables to their Transition — because
+  compilation happens *after* the transaction commits, so a lazy association there is not a slow
+  path but a failure on a detached row. `action_wiring` is the one query that cannot name
+  `lifecycle_definition_id` and reaches the version through its Transition, which is ADR 0002's
+  shape showing up as a join.
+- **Five repository finders**, two derived and three `@Query`. The Guard Wiring one is a `left join
+  fetch`: a definition-wide Guard is spelled as a null `transition_id`, and an inner join would drop
+  exactly the rows that apply to every edge — silently, leaving a graph that compiles and gates less
+  than it was configured to.
+- **Definition Resolution answers in row ids.** Only the answer's type changed. `DefinitionResolver`
+  stays a package-private interface with `DefinitionResolverImpl` behind it, deliberately: it is a
+  one-adapter seam and arguably redundant now that a real one sits above it, but
+  [the resolver's shape](../definition-schema-and-entities/issues/10-definition-resolver-shape-is-a-guess.md)
+  is an open stage-2 question and collapsing it here would answer it in passing.
+- **`DefinitionResolutionException` is public with a package-private constructor** — catchable from
+  outside, throwable only by resolution. It is the *expected* answer today, not a remote one, since
+  the six tables are empty in every environment.
+- **`DefinitionInertnessGuardTest` is deleted**, 499 lines, in this diff.
+
+### The transaction is load-bearing, and only one kind of test can see it
+
+`DefinitionCompiler` compares each row's owning version **by reference** and groups Wiring by
+`Transition` **identity**. Six repository calls without a transaction around them are six persistence
+contexts, and every one of those comparisons is then against a different instance of the same row —
+so the compile refuses a perfectly good version as straddling two.
+
+**`@DataJpaTest` cannot catch this**, because it wraps each test in a transaction and supplies the
+guarantee for free. Run rather than reasoned about: with `@Transactional` removed from
+`DefinitionVersionLoader.load`, `DefinitionVersionLoaderTest` stays **green in full** and five of
+`CompiledGraphResolutionIntegrationTest`'s eight fail with *"These rows belong to a different
+Definition Version"*. That is the whole argument for the integration test existing, and it is
+written into both classes' javadoc so the next person does not delete it as redundant.
+
+Related: `@Transactional` is on a **public method of a package-private class**. Spring's
+proxy-based transaction management applies to public methods only, so a package-private one is
+silently ignored — which would have produced exactly the failure above, at runtime, with no
+annotation visibly missing.
+
+### Where each criterion is proven, and why there
+
+Three test classes, **21 tests**, because the three questions need different instruments:
+
+- **`CompiledGraphResolutionIntegrationTest`** (8 tests) sits in `lifecycle`, **not**
+  `lifecycle.definition`, and that placement is most of what it proves — every other test of this
+  subsystem is inside the package it exercises, which is exactly why none of them noticed nothing
+  outside could reach any of it. It writes its rows **as SQL**, because the entity builders are not
+  reachable from out here; that is how the v1 seed arrives anyway (ADR 0009), and it means the
+  assertions rest on the schema rather than on a mapping that agrees with itself. It commits, which
+  is what makes it the transaction's only witness.
+- **`LifecycleDefinitionsImplTest`** (7 tests) owns the caching criteria, with the loader mocked.
+  A load is only observable by **counting**: two resolutions of one version return the same graph
+  whether it was compiled once or twice, because the cache hands both callers whichever production
+  won the put. "Three Resources across two versions is two loads, not three" is `verify(loader,
+  times(1))` twice — it is not expressible as an assertion on the returned graphs.
+- **`DefinitionVersionLoaderTest`** (6 tests) owns the queries, against real PostgreSQL. Two
+  Definition Versions are written before every test and only one is ever asked for, because against
+  a single-version fixture a loader with the wrong `WHERE` clause passes everything. **The six-query
+  count is pinned here** via Hibernate's own statement counter, across the load *and* the compile —
+  a lazy association would not show up until something dereferenced it, and compiling is what does.
+  The persistence context is cleared first, or `findById` answers from the first-level cache and the
+  count is short by one for an unrelated reason.
+
+### Gates
+
+| Criterion | Result |
+| --- | --- |
+| Production code outside the package resolves a graph, proven against rows a test wrote | green — `CompiledGraphResolutionIntegrationTest` |
+| One version twice loads once; a set compiles each distinct version once | green — counted, not inferred |
+| A version that cannot compile fails with `InvalidGraphException` and is not cached | green — refused twice, then served after one `UPDATE`, no restart |
+| Definition Resolution callable from outside for both Scopes | green |
+| `DefinitionInertnessGuardTest` deleted, `EvaluatorPurityGuardTest` green | green |
+| Parity half at 255 tests in 24 classes | **255 / 24 classes / 0 failures / 0 errors / 1 skipped** |
+
+### Two things done that the ticket did not list
+
+- **`EvaluatorPurityGuardTest`'s failure message named the deleted guard.** Not a stale comment — a
+  message a developer reads at the moment the rule fires, telling them to go look at a file that no
+  longer exists and asserting an inertness claim that this slab ended. Rewritten to state the rule on
+  its own terms. The provenance paragraphs in that class and in `RawStateNamesInSqlGuardTest` and
+  `LifecycleEnumDecouplingGuardTest` now record that the sibling has gone. Worth noting that slab
+  08's copy-don't-extract decision was **vindicated** here: its stated reason was that a shared
+  helper "would then survive the guard it was extracted from", and the sibling went whole with
+  nothing to move.
+- **The javadoc on `CompiledGraphCache`, `DefinitionCompiler` and `DefinitionVersionRows` was
+  updated**, because all three said in so many words that nothing populated them yet and that the
+  package was inert. Those sentences named this ticket's work as the thing that was missing; leaving
+  them would have made three long arguments read as current.
+
+### Not done, and why
+
+- **No v1 Compiled Graph fixture.** The ticket suggested one built from the committed artifacts. It
+  is not built, and the argument against is in the artifacts themselves: the graph dump records an
+  Action **by its Spring Statemachine bean class name**, and `NegotiationGraphV1`'s own javadoc says
+  naming one in an assertion "would be a guaranteed delta dressed as parity" — so a fixture over the
+  dump needs a bean-name-to-type-key mapping, which the characterization suite deliberately keeps
+  local to itself. Ticket 15 should decide whether it wants that mapping; this slab did not need a
+  full-sized graph to prove any of its criteria.
+- **`invalidate` stays package private.** No publisher exists to call it, and a public method with
+  no caller is the hypothetical seam this ticket removed.
+- **No new glossary term.** Compiled Graph, Definition Compilation, Definition Resolution and
+  Definition Version Pin already cover every noun here, and "loading" is already named in
+  `CONTEXT.md` as the step Definition Compilation is *not*.
+- **No production caller**, and this is the one place the gate had to be read rather than followed.
+  Criterion 1 says "*production code* outside `lifecycle.definition` resolves a Compiled Graph from
+  a Definition Version id, and a test proves it against rows the test wrote". Taken literally it
+  wants a caller, and Out of scope forbids the only kind of caller there is — "reading a graph to
+  answer anything about a live Lifecycle. That is ticket 15." The two cannot both be satisfied, so
+  it is read as the **capability** claim the rest of the ticket argues for: the interface is public,
+  the bean is real, the queries are real, and a test **outside the package** drives the whole path
+  against rows it wrote. What a literal reading would have added is a caller with no purpose, which
+  is the same hypothetical seam this ticket exists to remove. Say so if that reading is wrong — the
+  fix is a line in ticket 15, not a change here.
+
+### For ticket 15
+
+- `graphsFor` returns `Map<Long, CompiledGraph>` keyed by version id, which is what a per-Resource
+  pin is looked up in. It **refuses a null id before resolving anything**, naming the unpinned
+  Lifecycle — both pin columns are still nullable until the cutover backfills them, so an assembly
+  collecting pins off a Negotiation's Resources will meet this.
+- Nothing in `graphsFor`'s signature promises a query per version. It is a method rather than a
+  documented loop precisely so a later implementation can read several versions' rows together.
+- The test double the module goes behind is `LifecycleDefinitions` — four methods, no database.

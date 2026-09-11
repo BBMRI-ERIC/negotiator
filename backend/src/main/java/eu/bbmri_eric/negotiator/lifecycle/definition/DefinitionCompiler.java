@@ -32,8 +32,9 @@ import lombok.RequiredArgsConstructor;
  * unit-testable. And it does not read {@link LifecycleDefinition#getScope()} at all — the compiled
  * graph carries no Definition Scope because the evaluator turns out never to need one.
  *
- * <p>It is package-private on purpose. Nothing outside this package may compile a graph yet, which
- * is what keeps the package inert while there is no loader to call it.
+ * <p>It is package-private on purpose, and is constructed by {@link LifecycleDefinitionsImpl}
+ * rather than injected. Compiling is not a question anyone outside asks: what they ask for is a
+ * graph, and whether that one had to be compiled or was already held is the cache's business.
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class DefinitionCompiler {

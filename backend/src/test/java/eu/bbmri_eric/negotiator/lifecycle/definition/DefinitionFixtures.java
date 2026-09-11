@@ -1,5 +1,13 @@
 package eu.bbmri_eric.negotiator.lifecycle.definition;
 
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionCatalogue;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionContext;
+import eu.bbmri_eric.negotiator.lifecycle.graph.ActionStep;
+import eu.bbmri_eric.negotiator.lifecycle.graph.EvaluationContext;
+import eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue;
+import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
+import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
+
 /**
  * The Definition Version, State and Event rows that more than one repository test in this package
  * needs before it can get to the table it is actually testing. Five of the six test classes were
@@ -15,6 +23,10 @@ package eu.bbmri_eric.negotiator.lifecycle.definition;
  * #stateBuilder} is the one member here with a single calling class, and it is here because {@link
  * #stateIn} is defined in terms of it — leaving it behind would put the same builder chain in two
  * files, which is what this class exists to stop.
+ *
+ * <p>The two catalogue fakes at the bottom joined on the same criterion once a second test class
+ * needed to compile rows without caring what a strategy does — {@link DefinitionVersionLoaderTest}
+ * and {@link LifecycleDefinitionsImplTest}. They are the one thing here that is not a row.
  *
  * <p>Every helper builds the <em>minimum valid</em> row for its table: whatever the DDL demands and
  * nothing else, so a test asserting on a column is asserting on a value it set itself. One that
@@ -62,5 +74,46 @@ final class DefinitionFixtures {
   /** An Event named {@code name}. The name is the whole row besides its owner. */
   static Event eventIn(LifecycleDefinition definition, String name) {
     return Event.builder().lifecycleDefinition(definition).name(name).build();
+  }
+
+  /**
+   * A Guard catalogue that binds every key it is given, for the tests whose subject is which rows
+   * reached a compile rather than what a strategy does.
+   *
+   * <p>Deliberately not {@code DefinitionCompilerTest}'s {@code RecordingCatalogue}, which refuses
+   * two keys and records what it bound because refusal and ordering are that class's subject. This
+   * one has no opinions at all, which is what makes a chain assertion elsewhere read as being about
+   * the chain.
+   */
+  static GuardCatalogue bindingAnyGuard() {
+    return (typeKey, paramsJson) ->
+        new GuardStep() {
+          @Override
+          public String typeKey() {
+            return typeKey;
+          }
+
+          @Override
+          public GuardVerdict check(EvaluationContext context) {
+            return GuardVerdict.pass();
+          }
+        };
+  }
+
+  /** The Action-side twin of {@link #bindingAnyGuard()}. Its steps refuse to run. */
+  static ActionCatalogue bindingAnyAction() {
+    return (typeKey, paramsJson) ->
+        new ActionStep() {
+          @Override
+          public String typeKey() {
+            return typeKey;
+          }
+
+          @Override
+          public void run(ActionContext context) {
+            throw new UnsupportedOperationException(
+                "a binding-anything catalogue's steps are never meant to run");
+          }
+        };
   }
 }

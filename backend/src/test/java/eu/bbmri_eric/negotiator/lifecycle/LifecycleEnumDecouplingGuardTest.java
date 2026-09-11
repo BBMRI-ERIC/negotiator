@@ -83,7 +83,9 @@ import org.junit.jupiter.api.Test;
  * comments so prose naming a forbidden identifier is not itself a violation, and a violation report
  * carrying file and line. As slab 08 recorded for those two and slice 03 for {@code
  * RawStateNamesInSqlGuardTest}, the copy is deliberate: these guards have different lifetimes and
- * each is meant to be deleted whole.
+ * each is meant to be deleted whole. {@code DefinitionInertnessGuardTest} has since been the first
+ * to go — deleted by the Compiled Graph resolution slab, which is the one that made production code
+ * read the definition tables — and this guard did not have to move.
  */
 class LifecycleEnumDecouplingGuardTest {
 
