@@ -65,17 +65,17 @@ Lifecycle, and [ticket 15](15-firing-an-event-through-the-new-subsystem.md) cann
 
 ### Slab gate
 
-- [ ] Production code outside `lifecycle.definition` resolves a Compiled Graph from a Definition
+- [x] Production code outside `lifecycle.definition` resolves a Compiled Graph from a Definition
       Version id, and a test proves it against rows the test wrote.
-- [ ] Resolving one version twice loads and compiles once; resolving a set of version ids compiles
+- [x] Resolving one version twice loads and compiles once; resolving a set of version ids compiles
       each distinct version once.
-- [ ] A version whose rows cannot compile fails at resolution with `InvalidGraphException`, and the
+- [x] A version whose rows cannot compile fails at resolution with `InvalidGraphException`, and the
       failure is not cached — a definition fixed afterwards is served without a restart.
-- [ ] Definition Resolution is callable from outside the package for both Definition Scopes.
-- [ ] `DefinitionInertnessGuardTest` is deleted, and `EvaluatorPurityGuardTest` stays green — the
+- [x] Definition Resolution is callable from outside the package for both Definition Scopes.
+- [x] `DefinitionInertnessGuardTest` is deleted, and `EvaluatorPurityGuardTest` stays green — the
       `graph` and `evaluation` packages must still name no repository and must still not reach into
       `definition`.
-- [ ] The parity half of [parity-gate.md](../parity-gate.md) green at 255 tests in 24 classes.
+- [x] The parity half of [parity-gate.md](../parity-gate.md) green at 255 tests in 24 classes.
 
 ### Verification is by test, not by demo
 
@@ -249,6 +249,45 @@ Three test classes, **21 tests**, because the three questions need different ins
   against rows it wrote. What a literal reading would have added is a caller with no purpose, which
   is the same hypothetical seam this ticket exists to remove. Say so if that reading is wrong — the
   fix is a line in ticket 15, not a change here.
+
+### For the migration slab, when ADR 0009's seed lands
+
+Two things in `CompiledGraphResolutionIntegrationTest` are correct **only while the six tables are
+empty**, and both are written into its javadoc where the next reader will meet them:
+
+- **Its cleanup is scoped to the versions it wrote.** It first said `DELETE FROM
+  lifecycle_definition` and five siblings — correct today, and it would have stayed correct right
+  up until the seed landed, at which point this class would have wiped the seed for every test that
+  ran afterwards and the failure would have surfaced anywhere but here. Now it deletes by the ids it
+  recorded.
+- **`resolution_whenNothingIsSeeded_isRefused` is the one test the seed invalidates rather than
+  joins.** Once an active version of each Scope exists, both its assertions become false —
+  correctly. It is expected to be rewritten in the migration slab's diff, not repaired in passing.
+
+### Review findings acted on
+
+A two-axis review (standards, spec) ran over the diff. Neither axis found a hard violation or a
+missed requirement. What it did find, and what was done:
+
+- **The cleanup landmine above** — fixed, and it is the one finding that was a real defect rather
+  than a judgement call.
+- **`writeTransition`'s parameter order deliberately differed from the table's column order**
+  (`from, event, to` against `from, to, event`) — three interchangeable `bigint`s, where a
+  transposition inserts a different edge and still compiles. The column list is now written to match
+  the parameters.
+- **Byte-identical `@throws` javadoc** on `DefinitionResolver` and `LifecycleDefinitions` — the
+  inner interface now points at the outer one instead of restating it.
+- **The gate checkboxes above were still unticked** while the results table said green — ticked.
+- **`DefinitionResolver` was pressed as Speculative Generality**, on the argument that the shape
+  decision has already migrated up to `LifecycleDefinitions` (where `resolveForResource()` now
+  appears verbatim), so stage 2's parameter addition changes that signature whether or not the inner
+  interface survives — making it four edits instead of three. **Deliberately not acted on**, because
+  the ticket says only the answer's type changes and the map files this seam's shape as an open
+  stage-2 question. The argument is a good one and is recorded here so stage 2 does not have to
+  rediscover it.
+- **`LifecycleDefinitionsImpl` was labelled Middle Man** and dismissed by the reviewer on its own
+  terms: Fowler's remedy is to let the caller call the delegate, and the delegates are package
+  private, so there is no caller that could.
 
 ### For ticket 15
 
