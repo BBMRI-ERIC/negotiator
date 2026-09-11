@@ -848,4 +848,69 @@ public class ResourceControllerTests {
                 .content(requestBody))
         .andExpect(status().isForbidden());
   }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void getPaginatedResourcesForNegotiationByOrganization_validInput_ok() throws Exception {
+    String negotiationId = "negotiation-1";
+
+    String organizationExternalId =
+        repository.findByNegotiation(negotiationId).get(0).getOrganizationExternalId();
+
+    int expectedTotal =
+        repository
+            .findByNegotiationAndOrganizationPaginated(
+                negotiationId,
+                organizationExternalId,
+                org.springframework.data.domain.PageRequest.of(0, 20))
+            .getNumberOfElements();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/v3/negotiations/{id}/resources", negotiationId)
+                .param("page", "0")
+                .param("size", "20")
+                .param("organizationId", organizationExternalId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.totalElements", is(expectedTotal)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.resources[0].organization.externalId", is(organizationExternalId)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void getPaginatedResourcesForNegotiationByOrganization_unknownOrganization_404()
+      throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/v3/negotiations/{id}/resources", "negotiation-1")
+                .param("page", "0")
+                .param("size", "20")
+                .param("organizationId", "organization-does-not-exist"))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void getNumberOfResourcesInNegotiation_validNegotiation_ok() throws Exception {
+    String negotiationId = "negotiation-1";
+    int expectedCount = repository.countDistinctByNegotiation(negotiationId);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/{id}/resources/info", negotiationId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.count", is(expectedCount)))
+        .andExpect(jsonPath("$._links.add_resources.href").exists());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void getNumberOfResourcesInNegotiation_unknownNegotiation_404() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/{id}/resources/info", "unknown-negotiation"))
+        .andExpect(status().isNotFound());
+  }
 }

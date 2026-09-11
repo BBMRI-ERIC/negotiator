@@ -114,7 +114,7 @@
           id="pdf-button"
           class="mt-2 v-step-negotiation-8"
           :negotiation-pdf-data="negotiation"
-          data-cy="pdf-button"
+          data-test="pdf-button"
           text="Download PDF"
           :include-attachments="false"
         />
@@ -122,7 +122,7 @@
           id="merged-pdf-button"
           class="mt-2"
           :negotiation-pdf-data="negotiation"
-          data-cy="merged-pdf-button"
+          data-test="merged-pdf-button"
           text="Download PDF with attachments"
           badge-text="Beta"
           badge-type="warning"

@@ -11,6 +11,8 @@ import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationForNegotiationDTO;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
@@ -51,6 +53,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private RequestRepository requestRepository;
   private AttachmentRepository attachmentRepository;
   private NetworkRepository networkRepository;
+  private OrganizationRepository organizationRepository;
   private ModelMapper modelMapper;
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
@@ -63,6 +66,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       RequestRepository requestRepository,
       AttachmentRepository attachmentRepository,
       NetworkRepository networkRepository,
+      OrganizationRepository organizationRepository,
       ModelMapper modelMapper,
       PersonService personService,
       ApplicationEventPublisher eventPublisher,
@@ -73,6 +77,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.requestRepository = requestRepository;
     this.attachmentRepository = attachmentRepository;
     this.networkRepository = networkRepository;
+    this.organizationRepository = organizationRepository;
     this.modelMapper = modelMapper;
     this.personService = personService;
     this.eventPublisher = eventPublisher;
@@ -409,5 +414,31 @@ public class NegotiationServiceImpl implements NegotiationService {
                 new EntityNotFoundException(
                     "Resource with id %s not found in negotiation %s"
                         .formatted(resourceId, negotiationId)));
+  }
+
+  @Override
+  public List<OrganizationForNegotiationDTO> findDistinctOrganizationsInNegotiation(
+      String negotiationId) {
+    findEntityById(negotiationId, false);
+
+    Long userID = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userID);
+
+    return negotiationRepository.findAllOrganizationsLinkedToNegotiation(negotiationId).stream()
+        .map(
+            organization -> {
+              OrganizationForNegotiationDTO dto =
+                  modelMapper.map(organization, OrganizationForNegotiationDTO.class);
+
+              dto.setUpdatable(
+                  personRepository.isRepresentativeOfAnyResourceOfOrganization(
+                      userID, organization.getExternalId()));
+              dto.setStatus(
+                  organizationRepository.getCurrentOrganizationState(
+                      organization.getId(), negotiationId));
+
+              return dto;
+            })
+        .toList();
   }
 }

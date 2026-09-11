@@ -194,14 +194,17 @@ const emit = defineEmits(['confirm'])
 
 async function addResources() {
   let data = { resourceIds: selectedResources.value }
-  if (selectedState.value) {
+  if (selectedState.value?.value) {
     data = {
       resourceIds: selectedResources.value,
       state: selectedState.value.value,
     }
   }
   const negotiationId = props.negotiationId
-  await store.addResources(data, negotiationId)
+  const wasSuccessful = await store.addResources(data, negotiationId)
+  if (!wasSuccessful) {
+    return
+  }
   selectedResources.value = []
   emit('confirm')
 }

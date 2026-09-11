@@ -1,6 +1,11 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationForNegotiationDTO;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationForNegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -30,6 +35,10 @@ import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -71,6 +80,7 @@ public class NegotiationController {
 
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
+  private final OrganizationForNegotiationModelAssembler organizationForNegotiationModelAssembler;
 
   private final NegotiationPdfService negotiationPdfService;
 
@@ -83,6 +93,7 @@ public class NegotiationController {
       NegotiationTimeline timelineService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler,
+      OrganizationForNegotiationModelAssembler organizationForNegotiationModelAssembler,
       NegotiationPdfService negotiationPdfService) {
     this.negotiationService = negotiationService;
     this.negotiationLifecycleService = negotiationLifecycleService;
@@ -92,8 +103,11 @@ public class NegotiationController {
     this.timelineService = timelineService;
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
+    this.organizationForNegotiationModelAssembler = organizationForNegotiationModelAssembler;
     this.negotiationPdfService = negotiationPdfService;
   }
+
+  public record ResourceCountResponse(int count) {}
 
   /** Create a negotiation */
   @PostMapping(
@@ -282,7 +296,27 @@ public class NegotiationController {
         .collect(Collectors.toList());
   }
 
-  @GetMapping(value = "/negotiations/{id}/resources")
+  @GetMapping(value = "/negotiations/{id}/resources/info")
+  @Operation(summary = "Get the number of resources linked to a negotiation")
+  @SecurityRequirement(name = "security_auth")
+  public EntityModel<ResourceCountResponse> getNumberOfResourcesInNegotiation(
+      @PathVariable String id) {
+
+    int numberOfResources = resourceService.countResourcesByNegotiationId(id);
+
+    EntityModel<ResourceCountResponse> entityModel =
+        EntityModel.of(new ResourceCountResponse(numberOfResources));
+
+    if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      entityModel.add(
+          linkTo(methodOn(NegotiationController.class).updateResources(id, null))
+              .withRel("add_resources"));
+    }
+
+    return entityModel;
+  }
+
+  @GetMapping(value = "/negotiations/{id}/resources", params = "!page")
   @Operation(summary = "List all Resources in negotiation")
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiation(
@@ -294,13 +328,31 @@ public class NegotiationController {
     return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
   }
 
+  @GetMapping(
+      value = "/negotiations/{id}/resources",
+      params = {"page", "organizationId"})
+  @Operation(summary = "List a page of Resources in negotiation for a specific organization")
+  @SecurityRequirement(name = "security_auth")
+  public PagedModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiationAndOrgPaginated(
+      @PathVariable String id,
+      @RequestParam String organizationId,
+      @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.ASC)
+          Pageable pageable,
+      PagedResourcesAssembler<ResourceWithStatusDTO> pagedAssembler) {
+
+    Page<ResourceWithStatusDTO> page =
+        resourceService.findPaginatedInNegotiationByOrganization(id, organizationId, pageable);
+
+    return pagedAssembler.toModel(page, resourceWithStatusAssembler);
+  }
+
   @PatchMapping(value = "/negotiations/{id}/resources")
   @Operation(summary = "Edit Resources linked to a Negotiation")
   @SecurityRequirement(name = "security_auth")
-  public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
+  public ResponseEntity<Void> updateResources(
       @PathVariable String id, @RequestBody @Valid UpdateResourcesDTO updateResourcesDTO) {
-    return resourceWithStatusAssembler.toCollectionModel(
-        resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
+    resourceService.updateResourcesInANegotiation(id, updateResourcesDTO);
+    return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping(value = "/negotiations/{id}/resources/{resourceId}")
@@ -313,6 +365,15 @@ public class NegotiationController {
   @SecurityRequirement(name = "security_auth")
   public void removeResource(@Valid @PathVariable String id, @Valid @PathVariable Long resourceId) {
     negotiationService.removeResourceFromNegotiation(id, resourceId);
+  }
+
+  @GetMapping(value = "/negotiations/{id}/organizations")
+  @Operation(summary = "List all Organizations involved in a negotiation")
+  @SecurityRequirement(name = "security_auth")
+  public CollectionModel<EntityModel<OrganizationForNegotiationDTO>>
+      findOrganizationsForNegotiation(@PathVariable String id) {
+    return organizationForNegotiationModelAssembler.toCollectionModel(
+        negotiationService.findDistinctOrganizationsInNegotiation(id));
   }
 
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)

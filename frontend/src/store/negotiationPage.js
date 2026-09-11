@@ -56,7 +56,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       .put(url, {}, { headers: getBearerHeaders() })
       .then((response) => {
         notifications.setNotification(
-          `Than you. Your action for Negotiation ${response.data.id} was submitted successfully`,
+          `Thank you. Your action for Negotiation ${response.data.id} was submitted successfully`,
         )
         return response.data
       })
@@ -181,6 +181,19 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
+  async function retrieveResourcesByNegotiationInfo(negotiationId) {
+    return await axios
+      .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources/info`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error fetching Resources', 'danger')
+      })
+  }
+
   async function retrieveResourcesByNegotiationId(negotiationId) {
     return await axios
       .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources`, {
@@ -194,10 +207,15 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function retrieveResourcesByNegotiationIdLinks(negotiationId) {
+  async function retrieveResourcesByNegotiationIdAndOrganizationIdPaginated(
+    negotiationId,
+    organizationId,
+    { page = 0, size = 20, sort = 'id' } = {},
+  ) {
     return await axios
       .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources`, {
         headers: getBearerHeaders(),
+        params: { organizationId, page, size, sort },
       })
       .then((response) => {
         return response.data
@@ -296,16 +314,14 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
 
   async function addResources(data, negotiationId, silent = false) {
     try {
-      const response = await axios.patch(
-        `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources`,
-        data,
-        { headers: getBearerHeaders() },
-      )
+      await axios.patch(`${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/resources`, data, {
+        headers: getBearerHeaders(),
+      })
       if (!silent) notifications.setNotification('Resources were successfully updated')
-      return response.data
+      return true
     } catch {
       if (!silent) notifications.setNotification('There was an error saving the attachment')
-      return undefined
+      return false
     }
   }
 
@@ -390,6 +406,18 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     }
   }
 
+  async function retrieveOrganizationsByNegotiationId(negotiationId) {
+    return await axios
+      .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/organizations`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => response.data)
+      .catch(() => {
+        notifications.setNotification('Error fetching Organizations', 'danger')
+        return null
+      })
+  }
+
   return {
     updateNegotiationStatus,
     retrievePossibleEvents,
@@ -403,8 +431,9 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     addAttachmentToNegotiation,
     retrieveUserIdRepresentedResources,
     downloadAttachment,
+    retrieveResourcesByNegotiationInfo,
     retrieveResourcesByNegotiationId,
-    retrieveResourcesByNegotiationIdLinks,
+    retrieveResourcesByNegotiationIdAndOrganizationIdPaginated,
     downloadAttachmentFromLink,
     retrieveInformationSubmission,
     fetchURL,
@@ -415,5 +444,6 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     deleteNegotiation,
     retrieveNegotiationPDF,
     retrieveNegotiationTimeline,
+    retrieveOrganizationsByNegotiationId,
   }
 })
