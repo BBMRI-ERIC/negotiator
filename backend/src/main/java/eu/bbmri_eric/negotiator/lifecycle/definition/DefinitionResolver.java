@@ -25,20 +25,12 @@ package eu.bbmri_eric.negotiator.lifecycle.definition;
 interface DefinitionResolver {
 
   /**
-   * The row id of the active Definition Version of the sole Negotiation-scope Definition Family.
-   *
-   * @throws DefinitionResolutionException if no such version exists, or if more than one family has
-   *     an active Negotiation-scope version
+   * Answers {@link LifecycleDefinitions#resolveForNegotiation()}, whose javadoc states the contract
+   * — including which configurations are refused. Not restated here: the two would be
+   * byte-identical and would drift apart the first time either was edited alone.
    */
   long resolveForNegotiation();
 
-  /**
-   * The row id of the active Definition Version of the Global Default Family. Takes no Resource:
-   * the precedence walk over a Resource's own associations and its Networks' is not built, and
-   * until it is there is nothing a Resource could change about the answer.
-   *
-   * @throws DefinitionResolutionException if the Global Default Family has no active version, or if
-   *     no family carries the flag
-   */
+  /** Answers {@link LifecycleDefinitions#resolveForResource()}, on the same terms. */
   long resolveForResource();
 }

@@ -12,6 +12,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -49,7 +50,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * asserting on Spring; what makes it safe is that this class exists and commits.
  *
  * <p>The six definition tables are empty in every environment until the migration slab lands the v1
- * seed, so each test writes what it needs and {@link #dropEveryDefinitionRow()} takes it away
+ * seed, so each test writes what it needs and {@link #dropTheRowsThisTestWrote()} takes it away
  * again: the resolution questions are asked of the whole table, and a version left active would be
  * answered to the next test rather than to nobody.
  */
@@ -75,14 +76,43 @@ class CompiledGraphResolutionIntegrationTest {
   @Autowired LifecycleDefinitions definitions;
   @Autowired JdbcTemplate jdbc;
 
+  /**
+   * Every version this test wrote, so that {@link #dropTheRowsThisTestWrote()} takes back exactly
+   * what it added and nothing else.
+   */
+  private final List<Long> versionsWritten = new ArrayList<>();
+
+  /**
+   * Scoped to this test's own versions rather than {@code DELETE FROM lifecycle_definition}, which
+   * is what it said first and would have been a quiet trap: the tables are empty in every
+   * environment <em>today</em>, so an unqualified delete is correct and stays correct right up
+   * until the migration slab lands ADR 0009's v1 seed — at which point this class would wipe it for
+   * every test that ran afterwards, and the failure would surface anywhere but here.
+   *
+   * <p>Children first, and {@code action_wiring} through its Transition, because that table carries
+   * no definition column of its own.
+   *
+   * <p>What is deliberately <em>not</em> cleaned is the Compiled Graph cache, which is a singleton
+   * of the shared application context and goes on holding graphs for versions these deletes have
+   * removed. That is harmless only because the sequence never reissues an id, so no later test can
+   * ask for one of these versions and be answered from the cache.
+   */
   @AfterEach
-  void dropEveryDefinitionRow() {
-    jdbc.update("DELETE FROM action_wiring");
-    jdbc.update("DELETE FROM guard_wiring");
-    jdbc.update("DELETE FROM transition");
-    jdbc.update("DELETE FROM state");
-    jdbc.update("DELETE FROM event");
-    jdbc.update("DELETE FROM lifecycle_definition");
+  void dropTheRowsThisTestWrote() {
+    for (long versionId : versionsWritten) {
+      jdbc.update(
+          """
+          DELETE FROM action_wiring
+           WHERE transition_id IN (SELECT id FROM transition WHERE lifecycle_definition_id = ?)
+          """,
+          versionId);
+      jdbc.update("DELETE FROM guard_wiring WHERE lifecycle_definition_id = ?", versionId);
+      jdbc.update("DELETE FROM transition WHERE lifecycle_definition_id = ?", versionId);
+      jdbc.update("DELETE FROM state WHERE lifecycle_definition_id = ?", versionId);
+      jdbc.update("DELETE FROM event WHERE lifecycle_definition_id = ?", versionId);
+      jdbc.update("DELETE FROM lifecycle_definition WHERE id = ?", versionId);
+    }
+    versionsWritten.clear();
   }
 
   /**
@@ -226,6 +256,12 @@ class CompiledGraphResolutionIntegrationTest {
    * public: the six tables are empty in every environment until the seed lands, so this is the
    * ordinary path rather than a remote one, and a caller that cannot name what it caught cannot
    * tell it apart from any other runtime failure.
+   *
+   * <p><b>This test asserts an absence, and the migration slab ends it.</b> Once ADR 0009's v1 seed
+   * lands there will be an active version of each Scope in every environment, and both assertions
+   * below become false — correctly. It is the one test in this class that the seed invalidates
+   * rather than merely joins, so it is expected to be rewritten in that slab's diff, not repaired
+   * in passing.
    */
   @Test
   @DisplayName("with nothing seeded, resolution is refused by name")
@@ -270,19 +306,22 @@ class CompiledGraphResolutionIntegrationTest {
 
   private long writeVersion(
       String familyKey, String scope, int version, boolean active, boolean globalDefault) {
-    return jdbc.queryForObject(
-        """
-        INSERT INTO lifecycle_definition (scope, family_key, name, version, active,
-                                          is_global_default)
-        VALUES (?, ?, ?, ?, ?, ?) RETURNING id
-        """,
-        Long.class,
-        scope,
-        familyKey,
-        familyKey,
-        version,
-        active,
-        globalDefault);
+    long versionId =
+        jdbc.queryForObject(
+            """
+            INSERT INTO lifecycle_definition (scope, family_key, name, version, active,
+                                              is_global_default)
+            VALUES (?, ?, ?, ?, ?, ?) RETURNING id
+            """,
+            Long.class,
+            scope,
+            familyKey,
+            familyKey,
+            version,
+            active,
+            globalDefault);
+    versionsWritten.add(versionId);
+    return versionId;
   }
 
   private long writeState(long versionId, String name, boolean initial, boolean terminal) {
@@ -307,19 +346,25 @@ class CompiledGraphResolutionIntegrationTest {
         name);
   }
 
+  /**
+   * The column list is written {@code (from, event, to)} to match the parameters, rather than in
+   * the table's own {@code (from, to, event)} order. Both are three interchangeable {@code bigint}s
+   * — transposing two would insert a different edge, compile without complaint, and be caught only
+   * by whichever assertion happened to name that Transition.
+   */
   private long writeTransition(
       long versionId, long fromStateId, long eventId, long toStateId, String requiredAuthority) {
     return jdbc.queryForObject(
         """
-        INSERT INTO transition (lifecycle_definition_id, from_state_id, to_state_id, event_id,
+        INSERT INTO transition (lifecycle_definition_id, from_state_id, event_id, to_state_id,
                                 required_authority)
         VALUES (?, ?, ?, ?, ?) RETURNING id
         """,
         Long.class,
         versionId,
         fromStateId,
-        toStateId,
         eventId,
+        toStateId,
         requiredAuthority);
   }
 
