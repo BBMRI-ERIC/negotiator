@@ -386,9 +386,10 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   private void verifyRemoveResourcePreconditions(String negotiationId, Negotiation negotiation) {
-    if (!isNegotiationCreator(negotiationId)) {
+    if (!isNegotiationCreator(negotiationId)
+        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException(
-          "Only the negotiation author can remove resources from a draft negotiation");
+          "Only the negotiation author and admins can remove resources from a draft negotiation");
     }
     if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
       throw new IllegalStateException(
