@@ -32,9 +32,11 @@ import lombok.RequiredArgsConstructor;
  *
  * <p><b>No load port.</b> The producer is named directly, as a function of a row id, rather than
  * through an interface of this subsystem's own. A port with one adapter is indirection; the
- * interface arrives when a second adapter does. The producer the cutover slab will pass loads a
- * version's rows and compiles them; nothing in production passes one yet, because that load reads
- * the definition tables and is the cutover's to write.
+ * interface arrives when a second adapter does. The one production producer is composed in {@link
+ * LifecycleDefinitionsImpl}'s constructor out of {@link DefinitionVersionLoader} and {@link
+ * DefinitionCompiler}, and it is still the only one — the interface this module grew is {@link
+ * LifecycleDefinitions}, at its edge, which is a different thing from injecting the producer
+ * through one.
  *
  * <p><b>No {@code computeIfAbsent}.</b> That would run the producer inside the map's per-bin lock —
  * harmless against a test lambda, wrong against the real producer, which will issue six queries in
@@ -48,8 +50,10 @@ import lombok.RequiredArgsConstructor;
  * compile be served without a restart. {@link InvalidGraphException} passes through unwrapped, so a
  * caller catching graph corruption still catches it through the cache.
  *
- * <p>It is package-private on purpose. Nothing outside this package may resolve a graph yet, which
- * is what keeps the package inert while there is no loader to produce one.
+ * <p>It is package-private on purpose. A caller outside resolves a graph through {@link
+ * LifecycleDefinitions#graphFor}, which is this method with the loading and the compiling already
+ * behind it; reaching the cache itself would mean holding a producer, and choosing a producer is
+ * what this module exists to have already done.
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class CompiledGraphCache {

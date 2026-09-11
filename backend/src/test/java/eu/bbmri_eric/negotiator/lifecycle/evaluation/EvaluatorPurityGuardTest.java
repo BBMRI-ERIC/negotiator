@@ -31,24 +31,25 @@ import org.junit.jupiter.api.Test;
  * #IMPORTS_PERMITTED_IN_GRAPH}. A blocklist stops only what someone thought of, so the package that
  * can afford a closed list of dependencies is given one.
  *
- * <p>The scaffolding, and one rule predicate's name, are shared with {@code
- * DefinitionInertnessGuardTest} by copy rather than by extraction. That guard states the licence as
- * "each is meant to be deleted whole", which does not cover this pair, because this guard is
- * <em>not</em> meant to be deleted - so the reason here is a different one: the two rules answer
- * differently-scoped questions about the same package name, and a shared helper would have to be
- * parameterized by which tree it scans and would then survive the guard it was extracted from.
+ * <p>The scaffolding, and one rule predicate's name, were shared with {@code
+ * DefinitionInertnessGuardTest} by copy rather than by extraction, and <b>that guard has since been
+ * deleted</b> — by the Compiled Graph resolution slab, which is the slab that made production code
+ * read the definition tables and so ended the temporary state it existed to prove. The argument for
+ * copying was that a shared helper "would then survive the guard it was extracted from", and that
+ * is precisely what happened: the sibling went whole and nothing here had to move. The scaffolding
+ * below is now this class's own.
  *
- * <p>Built in the register of {@code DefinitionInertnessGuardTest}: the Java source is scanned as
- * <em>text</em>, comments are blanked so prose naming a forbidden term is not a violation, every
- * violation is reported with a {@code file:line} a reader can check, each rule is proven to fire on
- * the thing it forbids and to spare something innocent, and a meta-test stops the whole thing
- * passing by scanning nothing.
+ * <p>Built in that guard's register, which is worth restating now that it is not there to read: the
+ * Java source is scanned as <em>text</em>, comments are blanked so prose naming a forbidden term is
+ * not a violation, every violation is reported with a {@code file:line} a reader can check, each
+ * rule is proven to fire on the thing it forbids and to spare something innocent, and a meta-test
+ * stops the whole thing passing by scanning nothing.
  *
- * <p>Unlike that guard, this one is <b>not</b> meant to be deleted. The inertness guard exists to
- * prove a temporary state and dies when a slab starts reading the definition tables; this one
- * states a permanent property of the subsystem, and the slab that legitimately needs to load a
- * graph does so in the definition package, on the other side of {@link
- * eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue} — not by relaxing a rule here.
+ * <p>Unlike that guard, this one is <b>not</b> meant to be deleted. Inertness was a temporary state
+ * and its guard died on schedule; this one states a permanent property of the subsystem. The slab
+ * that legitimately needed to load a graph did so in the definition package, on the other side of
+ * {@link eu.bbmri_eric.negotiator.lifecycle.graph.GuardCatalogue}, and not by relaxing a rule here
+ * — which is what a later slab needing the same thing is expected to do too.
  */
 class EvaluatorPurityGuardTest {
 
@@ -171,8 +172,11 @@ class EvaluatorPurityGuardTest {
 
             They meet at GuardCatalogue and ActionCatalogue, which the evaluation package implements
             and the definition package calls. An import in this direction is a cycle, and it would
-            also put the definition entities within the evaluator's reach - which is the whole thing
-            DefinitionInertnessGuardTest is currently proving has not happened."""));
+            also put the definition entities within the evaluator's reach.
+
+            The definition package does read its tables now - that is what LifecycleDefinitions is
+            for, and it hands back a CompiledGraph. If something here wants a graph, it wants to be
+            handed one; if it wants rows, it is in the wrong package."""));
   }
 
   /**

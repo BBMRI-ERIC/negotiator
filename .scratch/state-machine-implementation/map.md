@@ -256,6 +256,40 @@ These were agreed with the user during charting. They are not ticket resolutions
   `DefinitionCompiler`/`DefinitionVersionRows`, the three untested topology fixtures, and the
   `.formatted` defect at `EvaluatorPurityGuardTest:145-147`.
 
+- **[14 Compiled Graph resolution](issues/14-compiled-graph-resolution.md)** — **resolved.** The
+  definition package has an edge: **`LifecycleDefinitions`**, four methods answering in `long` and
+  `CompiledGraph`, with it and `DefinitionResolutionException` the package's only public types.
+  `LifecycleDefinitionsImpl` **builds the compiler and the cache itself** — its constructor is the
+  producer `CompiledGraphCache`'s javadoc had been describing as the cutover's to write, so no load
+  port was added and the cache's own argument against one still stands. New `DefinitionVersionLoader`:
+  **six queries, one transaction**, three of them fetch-joined. **That transaction is load-bearing
+  and `@DataJpaTest` structurally cannot see it** — the compiler compares owning versions by
+  reference and groups Wiring by `Transition` identity, so six calls are six persistence contexts and
+  the compile refuses a good version as straddling two; removing the annotation leaves
+  `DefinitionVersionLoaderTest` **green in full** while five of the integration test's eight fail.
+  Run red on purpose, and written into both classes' javadoc. Related trap: `@Transactional` sits on
+  a **public method of a package-private class**, because Spring's proxy applies it to public methods
+  only and would have ignored a package-private one silently. **21 tests in three classes, each with
+  a different instrument** — the integration test lives *outside* `lifecycle.definition` and writes
+  its rows **as SQL** (the builders are unreachable from there, which is the point, and is how ADR
+  0009's seed arrives anyway); the caching criteria are `verify(loader, times(1))` in a unit test,
+  because a load is only observable by **counting** — same-instance passes whether a version was
+  compiled once or twice; the **six-query count** is pinned with Hibernate's statement counter,
+  across the compile as well as the load. **Definition Resolution answers in row ids and nothing
+  else moved**: the one-adapter `DefinitionResolver` seam is left standing on purpose, because
+  [its shape](../definition-schema-and-entities/issues/10-definition-resolver-shape-is-a-guess.md) is
+  an open stage-2 question and collapsing it here would answer it in passing. Parity **255/24/1
+  skipped**. **`DefinitionInertnessGuardTest` deleted whole, 499 lines, in this diff** — and slab
+  08's copy-don't-extract decision was vindicated: its reason was that a shared helper "would then
+  survive the guard it was extracted from", and the sibling went with nothing to move. Its name did
+  survive in **`EvaluatorPurityGuardTest`'s failure message**, which told a developer to consult a
+  deleted file for an inertness claim this slab ended; rewritten, along with the provenance lines in
+  two other guards. **The v1 Compiled Graph fixture the ticket floated was not built**: the graph
+  dump records Actions by Spring Statemachine **bean class name**, and `NegotiationGraphV1` warns
+  that naming one is "a guaranteed delta dressed as parity" — a fixture over it needs a
+  bean-name-to-type-key mapping the characterization suite keeps local, which is ticket 15's call.
+  No new glossary term, and **no production caller** — that is ticket 15, now unblocked.
+
 ## Not yet specified
 
 - **Stage 1 after the evaluator: the cutover and everything downstream.** Swapping the two lifecycle services onto the Transition Evaluator and deleting Spring Statemachine; the audit `state_id` FK conversion (ADR 0008); Information Requirements as a Built-in Stage (0005) with Audience and Quantifier (0006); the coupling layer — Spawn, Feedback, conclusion (0007); the atomic data-cutover migration (0009). The *content* is fixed by the ADRs; the **slab boundaries and gates are not sliceable yet**, because tickets [03](issues/03-state-event-identity-downstream.md), [04](issues/04-global-state-event-metadata-contract.md) and [06](issues/06-migration-rehearsal-data.md) move work between them. Graduates as those resolve. Deliberately not pre-sliced. **Two constraints ticket 02 hands the coupling slab specifically:** `SPAWN_RESOURCE_LIFECYCLES` must **not** begin publishing `ResourceStateChangeEvent` — ticket 01 pinned spawn as announcing nothing, so emitting per-Resource events would add N notifications and N webhook deliveries per approval — and it must publish a `ResourceLifecyclesSpawnedEvent` carrying the contacted representatives, because notification now rides on that rather than on arriving at `IN_PROGRESS`. **And one obligation ticket 03 hands slab 07:** eight State names live as raw string literals in `NetworkStatsRepositoryImpl`'s native SQL and JPQL, so deleting the enums raises **no compile error** for them — the slab needs a deliberate grep, not a green build, and line 216 hits the audit table ADR 0008 converts to an FK, so it breaks again there. **And three obligations slab [08](issues/08-definition-schema-and-entities.md) hands these slabs, each filed with its trigger:** the **coupling** slab must decide how a Resource's pin is written at all — the column is `updatable = false` and the link row already exists at Spawn, so the mapping cannot write it ([the three options](../definition-schema-and-entities/issues/09-pinning-an-existing-resource-link.md); no migration needed for any of them) — and what an unresolvable definition does to a Negotiation approval, since `DefinitionResolver` throws a package-private, unmapped exception and a rolled-back 500 is today's default ([the resolver's three shape decisions](../definition-schema-and-entities/issues/10-definition-resolver-shape-is-a-guess.md)); the **cutover** slab must build the index on both pin columns in the same migration that sets them NOT NULL, which is deliberately absent today because the column is 100% NULL and both tables are among the most-written ([why, and the other triggers](../definition-schema-and-entities/issues/08-pin-column-fk-indexes-deferred.md)). **The first slab to read the definition tables also deletes `DefinitionInertnessGuardTest`**, and that deletion belongs in its diff rather than in a quiet edit to the lists inside it.

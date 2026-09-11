@@ -10,9 +10,12 @@ import java.util.List;
  * instead of this record would make it neither: the load would be spread through the compile, and
  * the only way to test compilation would be against a database.
  *
- * <p>Nothing populates it yet. No repository in this package has a "load the whole graph by
- * definition id" query, deliberately — the slab that writes one is the slab that starts reading
- * these tables, and it is not this one.
+ * <p>{@link DefinitionVersionLoader} is what populates it, in one transaction, and that transaction
+ * is part of this record's contract rather than an implementation detail of the loader: a compile
+ * compares owning versions by reference and groups Wiring by {@link Transition} identity, so rows
+ * gathered from more than one persistence context are rows no compiler can accept. Anything else
+ * building one — a test, or one day a definition file — owes the same guarantee, which for a
+ * builder that never went near a database is free.
  */
 record DefinitionVersionRows(
     LifecycleDefinition definition,
