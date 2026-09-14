@@ -1,7 +1,7 @@
 # Transition Evaluator core
 
 Type: task
-Status: claimed
+Status: resolved
 Blocked by: 08, 13
 
 ## Question
@@ -68,3 +68,78 @@ no-op.
 Wiring `params` are read **strictly**, so a misspelled field fails the compile instead of binding a
 default. Required Authority stays single-valued, following slab 08's precedent, with
 [ticket 11](11-transition-authority-admin-or-creator.md) still open over it.
+
+## Answer
+
+**Resolved 2026-09-14, on verification rather than on new work.** All eight tickets of the inner
+tracker [`.scratch/transition-evaluator-core/`](../../transition-evaluator-core/PRD.md) were already
+`resolved`; what closing this ticket added was a run of the two gates that decide whether the slab is
+correct, and a check of this ticket's own "What to build" list against the tree.
+
+### The gates, run on 8750d71a
+
+- **Parity, half one — 255 tests in 24 classes, 0 failures, 0 errors, 1 skipped.** Exactly the
+  numbers [parity-gate.md](../parity-gate.md) fixes, with the one deliberate skip
+  (`LifecycleGraphDumpGeneratorTest`) present rather than lost. The evaluator changed no behaviour,
+  which is what a slab wiring nothing into production has to be able to say.
+- **`eu.bbmri_eric.negotiator.lifecycle.**` — 258 tests in 23 classes, 0 failures, 0 errors.** The
+  evaluator's own suite, counted from the XML reports rather than the `.txt` ones.
+
+The nix dev shell works again from this worktree (`nix develop .#opencode`, Maven 3.9.16 / JDK
+21.0.12), so the prefix parity-gate.md specifies is the one that ran. `mvn` is *not* on the bare
+PATH here — the reverse of what slab 07 hit, so try the prefix first as that document already says.
+
+### This ticket's list against the tree
+
+Every item is present. Checked by reading, not by assuming the inner tracker:
+
+- **One scope-parameterized core, not two** — `TransitionEvaluator` takes a `CompiledGraph` and an
+  `EvaluationContext` and has no scope parameter at all. What parameterizes it is the graph it is
+  handed; the two Scopes differ only in `EvaluationContext`'s two factory methods.
+- **Statelessness as a structural constraint** — `EvaluatorPurityGuardTest`, four rules over the
+  `graph` and `evaluation` package sources plus two anti-vacuity tests. Three blocklists and one
+  allowlist. The evaluator's single constructor dependency is the
+  `InformationRequirementSatisfaction` port.
+- **The compiled graph cache, keyed on the row id alone** — `CompiledGraphCache`, with targeted
+  `invalidate(long)`, no `computeIfAbsent`, no cached failure, and a corrupt-pin check that refuses a
+  graph produced for a different version than the one asked for.
+- **Guard and Action registries, duplicate keys fatal at boot** — `GuardRegistry` / `ActionRegistry`,
+  the collision thrown from the constructor so it is a bean creation failure.
+- **jsonb `params` into the strategy's declared type, in one place** — `WiringConfigurationReader`,
+  read **strictly** so a misspelled field fails the compile rather than binding a default.
+- **The Evaluation Pipeline in ADR 0005's order, short-circuiting** — `TransitionEvaluator.gate`:
+  Required Authority, then the Information Requirement check, then Guards; a Guard's refusal is
+  always `DOMAIN_STATE_CONFLICT` whatever the Guard says, which is what keeps the categories
+  monotonic.
+- **The IR check as a Built-in Stage, port only** — `InformationRequirementSatisfaction`, with no
+  Wiring row anywhere and, *as this slab left it*, `UnbuiltInformationRequirementSatisfaction`
+  **throwing** rather than passing. Deliberate: a permissive placeholder would silently drop the
+  gate at cutover. **That class no longer exists** — [ticket 15](15-firing-an-event-through-the-new-subsystem.md)
+  built the real lookup and deleted it in the same commit that resolved this ticket, which is what
+  its javadoc said the deletion would mean. The port and the Built-in Stage are unchanged.
+- **One path for the gate and the listing** — `possibleEvents` calls `gate` over the candidates
+  reachable from the current State and omits the blocked ones. There is no second code path for the
+  two to disagree across.
+- **All four strategies registered** — `NEGOTIATION_APPROVED`, `SET_POST_VISIBILITY`,
+  `TERMINAL_AGGREGATION` and `SPAWN_RESOURCE_LIFECYCLES`, the last registered and throwing as this
+  ticket asked.
+
+### Size, measured
+
+53 production files and 3,219 lines under `lifecycle/`; 23 test classes and 7,604 test lines. Larger
+than the 28/98 this ticket's Progress section recorded for prototype B's tree, because slices 02–08
+and slab 14's resolution work landed on top of it.
+
+### What this ticket's own text got wrong
+
+Already corrected in the inner PRD's **D14** and **D15**, and not re-argued here — the graph dump is
+silent on Guards, `NEGOTIATION_APPROVED`'s live behaviour was imperative in the Resource Lifecycle
+service rather than in the discarded Guard bean, `SET_POST_VISIBILITY` needs a three-valued scope,
+and `WebhookEventMapper` is keyed on a `Class` so "exactly as it does" names the mechanism and not a
+copyable example.
+
+### What is left standing for ticket 15
+
+Nothing in `lifecycle` writes, and nothing calls it from production. Both are correct for this slab
+and are exactly [ticket 15](15-firing-an-event-through-the-new-subsystem.md)'s subject, which this
+resolution unblocks.

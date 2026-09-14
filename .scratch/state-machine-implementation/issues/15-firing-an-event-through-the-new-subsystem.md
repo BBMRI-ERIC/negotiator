@@ -1,7 +1,7 @@
 # Firing an Event through the new subsystem: context assembly and commit
 
 Type: task
-Status: open
+Status: resolved
 Blocked by: 09, 14
 
 ## Question
@@ -143,3 +143,161 @@ but they call one shared evaluation path." The evaluator is that shared path for
 This ticket reads "shared evaluation path" as including the assembly of what is judged and the commit
 of what was permitted, because that is where the duplication actually sits once the evaluator refuses
 to do either.
+
+## Answer
+
+**Resolved 2026-09-14. Resource scope landed; Negotiation scope refused by name.** Built directly
+rather than through an inner tracker, following [ticket 14](14-compiled-graph-resolution.md)'s
+precedent — the scope decision below removed the only fork the slab had.
+
+### The two decisions this ticket said to take first
+
+- **The glossary term is Event Firing, and the package is
+  `eu.bbmri_eric.negotiator.lifecycle.firing`.** Taken with the developer before the package existed,
+  and recorded in `backend/CONTEXT.md` under Evaluation, next to the Transition Evaluator it is
+  defined against: *"Presenting an Event to a Lifecycle so that the Evaluation Pipeline judges it
+  and, when it permits, the Lifecycle moves — the new State recorded, the Lifecycle Record appended
+  and the Actions run. Where the Transition Evaluator only judges, firing is what reads the
+  Definition Version Pin the judgement is made against, and the only thing that writes."* `_Avoid_:
+  send event, trigger, dispatch, execute transition. "Fire" was already the glossary's verb — Possible
+  Events is defined as "the Events a caller could fire right now" — so the term nominalizes existing
+  vocabulary rather than introducing any.
+- **Resource scope, and stop** — this ticket's own recommendation, taken deliberately. The three
+  decisions Negotiation scope would have forced stay with the slabs that own them, and
+  `UnsupportedScopeException` names all three where a developer will actually meet them.
+
+### The slab gate
+
+| Criterion | |
+|---|---|
+| Possible Events for a real Resource, from ids and a Caller alone | ✅ |
+| A permitted Event writes the State, appends exactly one Lifecycle Record, runs the Action chain in order | ✅ |
+| A refused Event writes nothing, appends nothing, runs no Action, and the category and reason code reach the caller | ✅ |
+| An Event fired end to end — State A, Event, State B, Guard chain and Action chain actually running | ✅ |
+| Possible Events and the real gate agree, against real rows | ✅ |
+| The Information Requirement lookup reproduces today's check | ✅ |
+| `EvaluatorPurityGuardTest` green, the new module in neither guarded package | ✅ |
+| Parity **255 tests in 24 classes, 0 failures, 1 skipped**, both lifecycle paths live, no controller calling the new one | ✅ |
+
+**`EventFiringIntegrationTest` — 21 tests, and it is the test this ticket said does not exist
+anywhere.** It sits in `lifecycle` rather than `lifecycle.firing`, for the reason slab 14's test sits
+one package out from `lifecycle.definition`: from there the module's edge is the only thing nameable,
+so that it compiles is an assertion about the surface. Definition rows and the pin are written as
+SQL. **The commit assertions were checked against a mutant** — the `commit(...)` call removed — and
+three tests go red, so they are not passing by construction.
+
+### What the module is
+
+Five production files. `EventFiring` (the edge: `fire` and `possibleEvents`), `LifecycleRef` (a
+sealed subject, one case per Definition Scope), `LifecycleContextAssembler`, `EventFiringImpl`,
+`TodaysInformationRequirementLookup`, plus `AssembledEvaluation` and the two exceptions. Everything
+but the interface, the ref and the exceptions is package private.
+
+- **One assembly behind both methods**, so the listing is a dry run of the gate rather than a second
+  code path — including the same reads, which is the half ADR 0005's argument actually rests on.
+- **The pin is read, never resolved.** `resolveForResource()` is not called and must not be:
+  resolution answers what *new* work runs under, and a Lifecycle in flight is judged against what was
+  pinned to it or the pin does nothing.
+- **The commit writes through `Negotiation.setStateForResource`**, which already writes the link row
+  and appends the Lifecycle Record together. "Exactly one record" falls out of reusing the entity's
+  rule rather than being counted — including its one exception, that arriving at the initial State
+  appends nothing.
+- **`@Transactional` on public methods of a package-private class**, which is the trap slab 14
+  recorded: Spring's proxy applies to public methods only and ignores a package-private one silently.
+- **The subject committed to comes from the evaluation context, not from the caller's reference.**
+  They name the same thing; taking it from the context makes "the Lifecycle written to is the one
+  that was judged" structural rather than a convention.
+
+### `UnbuiltInformationRequirementSatisfaction` is deleted
+
+Its javadoc said "deleting this class is how the IR slab announces itself", and this is that. It
+threw on every path including `possibleEvents`, so a read-only listing raised
+`UnsupportedOperationException` until now. `TodaysInformationRequirementLookup` replaces it in the
+`firing` package — it *must* be outside `evaluation`, because it holds two repositories and
+`EvaluatorPurityGuardTest` bans the `Repository` suffix there.
+
+**It reproduces today's weak check and does not improve it.** Any Requirement for the Event name
+anywhere in the deployment, then any submission for that resource-and-negotiation pair — not for that
+Requirement, and not by anyone in particular. The predicate is line-for-line the one in
+`ResourceLifecycleServiceImpl.sendEvent`.
+
+**What "the characterization suite says so" can and cannot mean**, since this ticket's gate asks for
+it: that suite exercises the **old** path only, so nothing in it runs this class, and its staying
+green proves the old path is untouched rather than that the new one matches. What actually holds the
+equivalence is five new tests mirroring five of `ResourceInformationRequirementGateTest`'s eight
+cases — the five that are statements about the predicate; the other three are about the old path's
+*ordering* and its exception type, which ADR 0005 deliberately changes. Including the two cases that
+look like bugs and are the point:
+`submissionAgainstADifferentRequirement_satisfiesTheGate` and
+`submissionForADifferentResource_doesNotSatisfyTheGate`. ADR 0006's Audience and Quantifier are the
+change that makes the first false, with a migration story of its own.
+
+### Two findings a later slab needs
+
+- **A committed State must be a name the legacy enum still knows.** `NegotiationResourceLifecycleRecord`
+  stores `changed_to` as `NegotiationResourceState` and resolves it through `valueOf` — "deliberately
+  the loud kind". So a Definition Version naming a State that enum does not carry compiles,
+  evaluates, is permitted, **and then fails at the append**. Found by writing a graph with invented
+  State names; the test now uses legacy-valid ones. This is a hard constraint on seeding and on the
+  cutover, and it lifts only with ADR 0008's `state_id` FK conversion. Recorded in
+  `EventFiringImpl.commit`'s javadoc where someone will meet it.
+- **No state-change event is published, deliberately.** Today's `PersistStateChangeListener.onPersist`
+  publishes one and notifications and webhook deliveries ride on it. Ticket 02 already hands the
+  coupling slab two constraints about exactly that — Spawn must *not* publish
+  `ResourceStateChangeEvent`, and notification is to ride on a new `ResourceLifecyclesSpawnedEvent`
+  — so publishing here would pre-empt that decision with the one option already known to be wrong for
+  one of its callers. Nothing calls this from production, so nothing is currently unannounced.
+
+### One production file outside the module changed
+
+`Negotiation.getLifecycleDefinitionIdForResource(String)`, the sibling of the existing
+`getCurrentStateForResource`, keyed the same way and answering `Long` because the column is still
+nullable. The pin lives on the link row and `resourcesLink` has a private getter, so there was no
+way to read it from outside. **How production *writes* a pin is still unanswered** — the column is
+`updatable = false` and the row already exists — and the test writing its own pin as SQL is not an
+answer to it.
+
+### Out of scope, and still out
+
+Neither Lifecycle service replaced, Spring Statemachine not deleted, both paths live.
+`SPAWN_RESOURCE_LIFECYCLES` untouched. No Orchestration Trigger. No real `PostVisibility` adapter —
+the Action chain is proven with recording test strategies instead, because the two real Actions both
+reach a throwing placeholder and implementing either would be building another slab's work inside
+this one's test. No REST surface, no controller, no DTO.
+
+### Review, and what it changed
+
+Both axes of `/code-review` ran against the diff. Nine findings were acted on; the substantive ones:
+
+- **A real defect, from the spec axis and the standards axis both.**
+  `EvaluationContext.forResource` declares its parent-State parameter `@NonNull` and
+  `negotiation.getCurrentState()` is nullable, so a Negotiation with no State produced a bare Lombok
+  `NullPointerException` naming a parameter — from inside a factory the caller never called, and
+  flatly contradicting `EventFiring`'s "every way this could fail to answer throws". Now routed
+  through `UnstartedLifecycleException` like every sibling case.
+- **A trap set for a later session.** The test wrote its Definition Version with `active = TRUE` and
+  `is_global_default = TRUE`. Neither is needed — the pin is read, never resolved — and
+  `uq_lifecycle_definition_global_default` is a unique index over the *whole table*, so the test
+  would have started colliding with ADR 0009's v1 seed the moment that seed landed, failing anywhere
+  but here. Both flags are now `FALSE`, with the reason written where they are set.
+- **A decision taken in a branch that the slab had refused by name everywhere else.** The
+  Information Requirement lookup passed a Negotiation-scope context unchecked, which is not
+  "reproducing today" but deciding that Negotiations are ungated for ever. It now throws
+  `UnsupportedScopeException`.
+- **Two justifications that overreached, corrected rather than defended.** The deferral of the
+  state-change event cited ticket 02, whose constraints are about *Spawn* and do not cover firing a
+  Resource Event — the javadoc now says plainly that this is a gap the cutover owns, and what it
+  would silence. And "the characterization suite says so" cannot mean what this ticket's gate implies:
+  that suite runs the old path only, so its staying green proves the old path untouched, not that the
+  new one matches. The five mirroring tests are what hold the equivalence, and the answer above now
+  says which three of the eight they deliberately do not mirror.
+- **Duplication removed rather than added to.** `Negotiation` had the same resource-link walk written
+  out three times, throwing three different things for the same miss; this slab would have made it a
+  fourth. Extracted to one `linkFor`. The six SQL row writers were about to exist twice, so they are
+  now `DefinitionRows`, shared with `CompiledGraphResolutionIntegrationTest`.
+
+One finding was **declined**: that `@DirtiesContext(AFTER_EACH_TEST_METHOD)` on 21 tests is 21
+context rebuilds. It is, and it costs about 80 seconds — but `parity-gate.md` makes it the rule for
+any class that fires Events, because the corpus is shared and a class that does not dirty turns
+another class red by test ordering alone. The alternative is per-method cleanup of five tables, which
+is more code and more risk for less certainty.
