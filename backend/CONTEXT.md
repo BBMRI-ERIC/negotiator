@@ -84,6 +84,10 @@ _Avoid_: loading, hydration, parsing
 The stateless component that answers what a Definition Version permits from a given State: whether a particular Event may fire and which State it leads to, or which Events could fire at all. It holds no state, reads no data of its own, and changes nothing — committing a move and running its Actions belong to the services around it.
 _Avoid_: engine, state machine engine, workflow engine
 
+**Event Firing**:
+Presenting an Event to a Lifecycle so that the Evaluation Pipeline judges it and, when it permits, the Lifecycle moves — the new State recorded, the Lifecycle Record appended and the Actions run. Where the Transition Evaluator only judges, firing is what reads the Definition Version Pin the judgement is made against, and the only thing that writes.
+_Avoid_: send event, trigger, dispatch, execute transition
+
 **Evaluation Pipeline**:
 The fixed order in which a Transition is gated: Required Authority, then the information-requirement check, then Guards — stopping at the first failure. One pipeline answers both "may this fire now" and "what could fire now", so the two can never disagree.
 

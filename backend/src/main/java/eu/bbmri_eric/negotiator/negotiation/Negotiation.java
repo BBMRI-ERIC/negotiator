@@ -158,16 +158,47 @@ public class Negotiation extends AuditEntity {
    * @throws java.lang.IllegalArgumentException if the resource is not part of the Negotiation
    */
   public String getCurrentStateForResource(String resourceId) {
-    NegotiationResourceLink resourceLink =
-        this.resourcesLink.stream()
-            .filter(link -> link.getResource().getSourceId().equals(resourceId))
-            .findFirst()
-            .orElse(null);
-    if (resourceLink != null) {
-      return resourceLink.getCurrentState();
-    }
-    throw new IllegalArgumentException(
-        "Resource %s is not part of this negotiation".formatted(resourceId));
+    return linkFor(resourceId).getCurrentState();
+  }
+
+  /**
+   * The link row for one of this Negotiation's Resources, found by the Resource's source id.
+   *
+   * <p>The one walk every per-Resource accessor here shares. It was written out four times before,
+   * and the copies had drifted into throwing three different things for the same miss — an {@code
+   * IllegalArgumentException} with a message, one with no message at all, and an implicit null
+   * dereference — which is what a fourth copy would have made five of.
+   *
+   * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   * @throws java.lang.IllegalArgumentException if the resource is not part of the Negotiation
+   */
+  private NegotiationResourceLink linkFor(String resourceId) {
+    return this.resourcesLink.stream()
+        .filter(link -> link.getResource().getSourceId().equals(resourceId))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    "Resource %s is not part of this negotiation".formatted(resourceId)));
+  }
+
+  /**
+   * The Definition Version a linked Resource's Lifecycle is pinned to, so that the Resource is
+   * judged against the graph pinned to it rather than against whichever version is active now.
+   *
+   * <p>The sibling of {@link #getCurrentStateForResource}, and keyed the same way for the same
+   * reason: the pin lives on the link row, and the link row is reached by the Resource's source id.
+   * Answers a {@code Long} rather than a {@code long} because the column is still nullable — every
+   * row is unpinned until the migration slab backfills it — and an unpinned Lifecycle is a case the
+   * caller has to be able to see rather than an unboxing failure.
+   *
+   * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   * @return the pinned Definition Version's row id, or null if this Resource's Lifecycle is
+   *     unpinned
+   * @throws java.lang.IllegalArgumentException if the resource is not part of the Negotiation
+   */
+  public Long getLifecycleDefinitionIdForResource(String resourceId) {
+    return linkFor(resourceId).getLifecycleDefinitionId();
   }
 
   /**
@@ -177,11 +208,7 @@ public class Negotiation extends AuditEntity {
    * @param state the name of the State to be set.
    */
   public void setStateForResource(String resourceId, String state) {
-    NegotiationResourceLink link =
-        this.resourcesLink.stream()
-            .filter(resourceLink -> resourceLink.getResource().getSourceId().equals(resourceId))
-            .findFirst()
-            .orElseThrow(IllegalArgumentException::new);
+    NegotiationResourceLink link = linkFor(resourceId);
     link.setCurrentState(state);
     buildResourceStateChangeRecord(link.getResource(), state);
   }
