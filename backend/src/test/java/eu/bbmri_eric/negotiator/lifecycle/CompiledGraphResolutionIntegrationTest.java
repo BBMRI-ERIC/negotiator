@@ -12,10 +12,10 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.GuardStep;
 import eu.bbmri_eric.negotiator.lifecycle.graph.InvalidGraphException;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,42 +77,26 @@ class CompiledGraphResolutionIntegrationTest {
   @Autowired JdbcTemplate jdbc;
 
   /**
-   * Every version this test wrote, so that {@link #dropTheRowsThisTestWrote()} takes back exactly
-   * what it added and nothing else.
+   * The six tables, written to directly. Shared with {@code EventFiringIntegrationTest}, which
+   * needs the same six writers — see {@link DefinitionRows} for why they are SQL and not entities.
    */
-  private final List<Long> versionsWritten = new ArrayList<>();
+  private DefinitionRows rows;
+
+  @BeforeEach
+  void startWithNothingWritten() {
+    rows = new DefinitionRows(jdbc);
+  }
 
   /**
-   * Scoped to this test's own versions rather than {@code DELETE FROM lifecycle_definition}, which
-   * is what it said first and would have been a quiet trap: the tables are empty in every
-   * environment <em>today</em>, so an unqualified delete is correct and stays correct right up
-   * until the migration slab lands ADR 0009's v1 seed — at which point this class would wipe it for
-   * every test that ran afterwards, and the failure would surface anywhere but here.
-   *
-   * <p>Children first, and {@code action_wiring} through its Transition, because that table carries
-   * no definition column of its own.
-   *
-   * <p>What is deliberately <em>not</em> cleaned is the Compiled Graph cache, which is a singleton
-   * of the shared application context and goes on holding graphs for versions these deletes have
-   * removed. That is harmless only because the sequence never reissues an id, so no later test can
-   * ask for one of these versions and be answered from the cache.
+   * Takes back exactly what this test added and nothing else, because this class shares its
+   * application context with the rest of the suite and a version left active would be answered to
+   * the next test rather than to nobody. {@link DefinitionRows#deleteEverythingWritten()} carries
+   * the reasoning, including why an unqualified delete would be a quiet trap once ADR 0009's v1
+   * seed lands.
    */
   @AfterEach
   void dropTheRowsThisTestWrote() {
-    for (long versionId : versionsWritten) {
-      jdbc.update(
-          """
-          DELETE FROM action_wiring
-           WHERE transition_id IN (SELECT id FROM transition WHERE lifecycle_definition_id = ?)
-          """,
-          versionId);
-      jdbc.update("DELETE FROM guard_wiring WHERE lifecycle_definition_id = ?", versionId);
-      jdbc.update("DELETE FROM transition WHERE lifecycle_definition_id = ?", versionId);
-      jdbc.update("DELETE FROM state WHERE lifecycle_definition_id = ?", versionId);
-      jdbc.update("DELETE FROM event WHERE lifecycle_definition_id = ?", versionId);
-      jdbc.update("DELETE FROM lifecycle_definition WHERE id = ?", versionId);
-    }
-    versionsWritten.clear();
+    rows.deleteEverythingWritten();
   }
 
   /**
@@ -204,8 +188,8 @@ class CompiledGraphResolutionIntegrationTest {
   @Test
   @DisplayName("a version that cannot compile is refused every time, and is served once repaired")
   void graphFor_doesNotRememberAVersionThatCouldNotCompile() {
-    long versionId = writeVersion(NEGOTIATION_FAMILY, "NEGOTIATION", 1, true, false);
-    long orphan = writeState(versionId, "SUBMITTED", false, false);
+    long versionId = rows.writeVersion(NEGOTIATION_FAMILY, "NEGOTIATION", 1, true, false);
+    long orphan = rows.writeState(versionId, "SUBMITTED", false, false);
 
     assertThatThrownBy(() -> definitions.graphFor(versionId))
         .isInstanceOf(InvalidGraphException.class)
@@ -242,10 +226,10 @@ class CompiledGraphResolutionIntegrationTest {
   @Test
   @DisplayName("both Definition Scopes resolve, and answer the active version's row id")
   void resolution_answersBothScopesFromOutsideThePackage() {
-    writeVersion(NEGOTIATION_FAMILY, "NEGOTIATION", 1, false, false);
-    long activeNegotiation = writeVersion(NEGOTIATION_FAMILY, "NEGOTIATION", 2, true, false);
-    writeVersion(RESOURCE_FAMILY, "RESOURCE", 1, false, true);
-    long activeResource = writeVersion(RESOURCE_FAMILY, "RESOURCE", 2, true, true);
+    rows.writeVersion(NEGOTIATION_FAMILY, "NEGOTIATION", 1, false, false);
+    long activeNegotiation = rows.writeVersion(NEGOTIATION_FAMILY, "NEGOTIATION", 2, true, false);
+    rows.writeVersion(RESOURCE_FAMILY, "RESOURCE", 1, false, true);
+    long activeResource = rows.writeVersion(RESOURCE_FAMILY, "RESOURCE", 2, true, true);
 
     assertThat(definitions.resolveForNegotiation()).isEqualTo(activeNegotiation);
     assertThat(definitions.resolveForResource()).isEqualTo(activeResource);
@@ -286,114 +270,21 @@ class CompiledGraphResolutionIntegrationTest {
    * @return the new version's row id
    */
   private long writeTheStandardNegotiationFlow(String familyKey, int version) {
-    long versionId = writeVersion(familyKey, "NEGOTIATION", version, true, false);
-    long submitted = writeState(versionId, "SUBMITTED", true, false);
-    long inProgress = writeState(versionId, "IN_PROGRESS", false, false);
-    long concluded = writeState(versionId, "CONCLUDED", false, true);
-    writeState(versionId, "APPROVED", false, false);
-    long approve = writeEvent(versionId, "APPROVE");
-    long conclude = writeEvent(versionId, "CONCLUDE");
-    writeEvent(versionId, "OVERRIDE");
+    long versionId = rows.writeVersion(familyKey, "NEGOTIATION", version, true, false);
+    long submitted = rows.writeState(versionId, "SUBMITTED", true, false);
+    long inProgress = rows.writeState(versionId, "IN_PROGRESS", false, false);
+    long concluded = rows.writeState(versionId, "CONCLUDED", false, true);
+    rows.writeState(versionId, "APPROVED", false, false);
+    long approve = rows.writeEvent(versionId, "APPROVE");
+    long conclude = rows.writeEvent(versionId, "CONCLUDE");
+    rows.writeEvent(versionId, "OVERRIDE");
 
-    long approving = writeTransition(versionId, submitted, approve, inProgress, "IS_ADMIN");
-    long concluding = writeTransition(versionId, inProgress, conclude, concluded, "IS_ADMIN");
+    long approving = rows.writeTransition(versionId, submitted, approve, inProgress, "IS_ADMIN");
+    long concluding = rows.writeTransition(versionId, inProgress, conclude, concluded, "IS_ADMIN");
 
-    writeGuardWiring(versionId, null, DEFINITION_WIDE_GUARD, 1);
-    writeGuardWiring(versionId, concluding, TRANSITION_GUARD, 1);
-    writeActionWiring(approving, VISIBILITY_ACTION, VISIBILITY_PARAMS, 1);
+    rows.writeGuardWiring(versionId, null, DEFINITION_WIDE_GUARD, 1);
+    rows.writeGuardWiring(versionId, concluding, TRANSITION_GUARD, 1);
+    rows.writeActionWiring(approving, VISIBILITY_ACTION, VISIBILITY_PARAMS, 1);
     return versionId;
-  }
-
-  private long writeVersion(
-      String familyKey, String scope, int version, boolean active, boolean globalDefault) {
-    long versionId =
-        jdbc.queryForObject(
-            """
-            INSERT INTO lifecycle_definition (scope, family_key, name, version, active,
-                                              is_global_default)
-            VALUES (?, ?, ?, ?, ?, ?) RETURNING id
-            """,
-            Long.class,
-            scope,
-            familyKey,
-            familyKey,
-            version,
-            active,
-            globalDefault);
-    versionsWritten.add(versionId);
-    return versionId;
-  }
-
-  private long writeState(long versionId, String name, boolean initial, boolean terminal) {
-    return jdbc.queryForObject(
-        """
-        INSERT INTO state (lifecycle_definition_id, name, label, initial, terminal)
-        VALUES (?, ?, ?, ?, ?) RETURNING id
-        """,
-        Long.class,
-        versionId,
-        name,
-        name,
-        initial,
-        terminal);
-  }
-
-  private long writeEvent(long versionId, String name) {
-    return jdbc.queryForObject(
-        "INSERT INTO event (lifecycle_definition_id, name) VALUES (?, ?) RETURNING id",
-        Long.class,
-        versionId,
-        name);
-  }
-
-  /**
-   * The column list is written {@code (from, event, to)} to match the parameters, rather than in
-   * the table's own {@code (from, to, event)} order. Both are three interchangeable {@code bigint}s
-   * — transposing two would insert a different edge, compile without complaint, and be caught only
-   * by whichever assertion happened to name that Transition.
-   */
-  private long writeTransition(
-      long versionId, long fromStateId, long eventId, long toStateId, String requiredAuthority) {
-    return jdbc.queryForObject(
-        """
-        INSERT INTO transition (lifecycle_definition_id, from_state_id, event_id, to_state_id,
-                                required_authority)
-        VALUES (?, ?, ?, ?, ?) RETURNING id
-        """,
-        Long.class,
-        versionId,
-        fromStateId,
-        eventId,
-        toStateId,
-        requiredAuthority);
-  }
-
-  /**
-   * A null {@code transitionId} is how "every Transition of this version" is spelled. Cast
-   * explicitly, because that is the one parameter here that is ever null and PostgreSQL will not
-   * infer a type for an untyped null.
-   */
-  private void writeGuardWiring(long versionId, Long transitionId, String typeKey, int sortOrder) {
-    jdbc.update(
-        """
-        INSERT INTO guard_wiring (lifecycle_definition_id, transition_id, type_key, sort_order)
-        VALUES (?, CAST(? AS bigint), ?, ?)
-        """,
-        versionId,
-        transitionId,
-        typeKey,
-        sortOrder);
-  }
-
-  private void writeActionWiring(long transitionId, String typeKey, String params, int sortOrder) {
-    jdbc.update(
-        """
-        INSERT INTO action_wiring (transition_id, type_key, params, sort_order)
-        VALUES (?, ?, CAST(? AS jsonb), ?)
-        """,
-        transitionId,
-        typeKey,
-        params,
-        sortOrder);
   }
 }
