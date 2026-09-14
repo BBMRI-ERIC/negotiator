@@ -174,16 +174,40 @@ public class Negotiation extends AuditEntity {
    * @throws java.lang.IllegalArgumentException if the resource is not part of the Negotiation
    */
   public String getCurrentStateForResource(String resourceId) {
-    NegotiationResourceLink resourceLink =
-        this.resourcesLink.stream()
-            .filter(link -> link.getResource().getSourceId().equals(resourceId))
-            .findFirst()
-            .orElse(null);
-    if (resourceLink != null) {
-      return resourceLink.getCurrentState();
-    }
-    throw new IllegalArgumentException(
-        "Resource %s is not part of this negotiation".formatted(resourceId));
+    return linkFor(resourceId).getCurrentState();
+  }
+
+  /**
+   * The link row for one of this Negotiation's Resources, found by the Resource's source id. Every
+   * per-Resource accessor goes through it, so a missing Resource always fails the same way.
+   *
+   * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   * @throws java.lang.IllegalArgumentException if the resource is not part of the Negotiation
+   */
+  private NegotiationResourceLink linkFor(String resourceId) {
+    return this.resourcesLink.stream()
+        .filter(link -> link.getResource().getSourceId().equals(resourceId))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    "Resource %s is not part of this negotiation".formatted(resourceId)));
+  }
+
+  /**
+   * The Definition Version Pin of a linked Resource's Lifecycle, so that callers judge the Resource
+   * against its pinned graph rather than the active Definition Version.
+   *
+   * <p>Returns a {@code Long} because an Unstarted Lifecycle has no pin, and the caller has to see
+   * that case rather than hit an unboxing failure.
+   *
+   * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   * @return the pinned Definition Version's row id, or null if this Resource's Lifecycle is
+   *     unpinned
+   * @throws java.lang.IllegalArgumentException if the resource is not part of the Negotiation
+   */
+  public Long getLifecycleDefinitionIdForResource(String resourceId) {
+    return linkFor(resourceId).getLifecycleDefinitionId();
   }
 
   /**
@@ -193,11 +217,7 @@ public class Negotiation extends AuditEntity {
    * @param state the name of the State to be set.
    */
   public void setStateForResource(String resourceId, String state) {
-    NegotiationResourceLink link =
-        this.resourcesLink.stream()
-            .filter(resourceLink -> resourceLink.getResource().getSourceId().equals(resourceId))
-            .findFirst()
-            .orElseThrow(IllegalArgumentException::new);
+    NegotiationResourceLink link = linkFor(resourceId);
     link.setCurrentState(state);
     buildResourceStateChangeRecord(link.getResource(), state);
   }
