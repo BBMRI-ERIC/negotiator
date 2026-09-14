@@ -256,6 +256,33 @@ These were agreed with the user during charting. They are not ticket resolutions
   `DefinitionCompiler`/`DefinitionVersionRows`, the three untested topology fixtures, and the
   `.formatted` defect at `EvaluatorPurityGuardTest:145-147`.
 
+- **[09 Transition Evaluator core](issues/09-transition-evaluator-core.md)** — **resolved.** The
+  deep module of the effort exists and is green: **258 tests in 23 classes** under
+  `eu.bbmri_eric.negotiator.lifecycle.**`, parity **255/24/1 skipped**, 53 production files and
+  3,219 lines. One scope-parameterized `TransitionEvaluator` serving both Definition Scopes — what
+  parameterizes it is the graph it is handed, and the Scopes differ only in `EvaluationContext`'s two
+  factory methods. **Its no-I/O boundary is structural, not a convention:** `EvaluatorPurityGuardTest`
+  is four rules over the `graph` and `evaluation` sources — three blocklists and, for `graph`, an
+  **allowlist of exactly two imports** (`java.`, `lombok.`) — plus two anti-vacuity tests, and it
+  bans `\b\w*Repository\b` as a **suffix** so repositories that do not exist yet are banned too.
+  **That guard is the one structural gate not scheduled for deletion**, and it is why any module that
+  reads rows must live outside both packages. `gate` runs ADR 0005's order and short-circuits;
+  a Guard's refusal is always `DOMAIN_STATE_CONFLICT` whatever the Guard says, which is what keeps
+  the categories monotonic. `possibleEvents` is the same function over reachable candidates, so the
+  listing and the gate cannot disagree. All four strategies registered, `SPAWN_RESOURCE_LIFECYCLES`
+  registered-and-throwing on purpose. Wiring `params` are read **strictly** — a misspelled field
+  fails the compile rather than binding a default. **`UnbuiltInformationRequirementSatisfaction`
+  threw rather than passing**, deliberately: a permissive placeholder would silently drop the
+  Information Requirement gate the moment a service is wired to the evaluator, so even a read-only
+  Possible Events listing raised `UnsupportedOperationException`. **Ticket 15 ended that state in
+  the same commit** by building the real lookup and deleting the class; the port and the Built-in
+  Stage are unchanged.
+  **Nothing in the module writes and nothing calls it from production** — no `@Transactional`
+  anywhere, and `EvaluationOutcome.Permitted.actions()` *reports* the chain and runs none of it. Both
+  are correct for this slab and are ticket 15's whole subject. Detail and the eight inner slices:
+  **[`.scratch/transition-evaluator-core/`](../transition-evaluator-core/PRD.md)**; three things issue
+  09's own text got wrong about the code are corrected in its **D14/D15** and are not re-argued.
+
 - **[14 Compiled Graph resolution](issues/14-compiled-graph-resolution.md)** — **resolved.** The
   definition package has an edge: **`LifecycleDefinitions`**, four methods answering in `long` and
   `CompiledGraph`, with it and `DefinitionResolutionException` the package's only public types.
@@ -289,6 +316,35 @@ These were agreed with the user during charting. They are not ticket resolutions
   that naming one is "a guaranteed delta dressed as parity" — a fixture over it needs a
   bean-name-to-type-key mapping the characterization suite keeps local, which is ticket 15's call.
   No new glossary term, and **no production caller** — that is ticket 15, now unblocked.
+
+- **[15 Firing an Event through the new subsystem](issues/15-firing-an-event-through-the-new-subsystem.md)**
+  — **resolved.** The seam the evaluator left has an owner: **Event Firing**, in
+  `lifecycle.firing`, five production files behind one interface. Ids and a Caller in; the Definition
+  Version Pin read, the Compiled Graph resolved, the context assembled, the Evaluation Pipeline run,
+  and — when permitted — the State written, one Lifecycle Record appended and the Action chain run.
+  **The glossary term was taken before the package existed** and is in `backend/CONTEXT.md` next to
+  the Transition Evaluator it is defined against; "fire" was already the glossary's verb, so it
+  nominalizes existing vocabulary. **Resource scope only, deliberately** — `UnsupportedScopeException`
+  refuses Negotiation scope by name and records the three decisions it would have forced, all of
+  which stay with their own slabs. **`EventFiringIntegrationTest`, 21 tests**, is the end-to-end test
+  this ticket correctly said existed nowhere: State A, Event, State B, with both Guard scopes and a
+  two-row Action chain actually running, against definition rows and a pin the test wrote as SQL. It
+  sits one package out from `lifecycle.firing` so that what it can name *is* the module's surface,
+  and **its commit assertions were checked against a mutant** rather than trusted. Parity **255/24/1
+  skipped**, both lifecycle paths live, **no controller calls the new one**.
+  **`UnbuiltInformationRequirementSatisfaction` deleted** — its javadoc said that deletion is how the
+  IR slab announces itself — and replaced by a lookup that **reproduces today's weak check and does
+  not improve it**: any Requirement for the Event name anywhere, then any submission for the
+  resource-and-negotiation pair, with five tests mirroring the characterization cases including the
+  two that look like bugs. It had to leave `evaluation` because it holds repositories and the purity
+  guard bans the suffix there. **Two findings for later slabs:** a committed State must be a name the
+  **legacy enum still knows** — the Lifecycle Record resolves `changed_to` through `valueOf`, so an
+  invented State name compiles, evaluates, is permitted and *then* fails at the append, which
+  constrains seeding until ADR 0008's `state_id` conversion; and **no state-change event is published**,
+  left to the coupling slab because ticket 02 already fixes two constraints on exactly that event.
+  **Still open and untouched:** how production *writes* a Resource's pin — the test writes its own as
+  SQL and that is not an answer.
+
 
 ## Not yet specified
 
