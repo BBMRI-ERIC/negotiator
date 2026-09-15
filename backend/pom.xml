@@ -39,7 +39,6 @@
         <json.version>20241224</json.version>
         <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
         <jsoup.version>1.17.2</jsoup.version>
-        <lombok.version>1.18.30</lombok.version>
         <modelmapper.version>3.2.4</modelmapper.version>
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.8</pdfbox.version>
@@ -325,7 +324,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
