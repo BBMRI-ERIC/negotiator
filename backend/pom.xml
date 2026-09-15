@@ -37,7 +37,6 @@
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <poi.version>5.4.1</poi.version>
-        <reactor.version>3.7.3</reactor.version>
         <standardwebhooks.version>1.1.1</standardwebhooks.version>
         <springdoc.version>2.8.9</springdoc.version>
         <tika.version>3.3.0</tika.version>
@@ -319,11 +318,6 @@
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <version>${reactor.version}</version>
         </dependency>
 
         <!-- Documents / PDF / Office -->
