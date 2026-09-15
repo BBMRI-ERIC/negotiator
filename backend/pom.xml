@@ -46,7 +46,6 @@
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <poi.version>5.4.1</poi.version>
-        <postgresql.version>42.7.13</postgresql.version>
         <reactor.version>3.7.3</reactor.version>
         <standardwebhooks.version>1.1.1</standardwebhooks.version>
         <spring-hateoas.version>2.5.1</spring-hateoas.version>
@@ -233,7 +232,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
             <scope>runtime</scope>
         </dependency>
 
