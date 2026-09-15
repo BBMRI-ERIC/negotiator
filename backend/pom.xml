@@ -40,7 +40,6 @@
         <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
         <jsoup.version>1.17.2</jsoup.version>
         <lombok.version>1.18.30</lombok.version>
-        <micrometer.version>1.14.4</micrometer.version>
         <modelmapper.version>3.2.4</modelmapper.version>
         <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.8</pdfbox.version>
@@ -238,7 +237,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer.version}</version>
         </dependency>
 
         <!-- Utilities -->
