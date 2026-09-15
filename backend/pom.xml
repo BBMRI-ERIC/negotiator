@@ -35,7 +35,6 @@
         <itext.html2pdf.version>6.3.3</itext.html2pdf.version>
         <jakarta-activation.version>2.1.3</jakarta-activation.version>
         <jakarta-mail.version>2.1.3</jakarta-mail.version>
-        <jakarta-validation.version>3.1.1</jakarta-validation.version>
         <jaxb.version>2.3.1</jaxb.version>
         <json.version>20241224</json.version>
         <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
@@ -284,7 +283,6 @@
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-            <version>${jakarta-validation.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
