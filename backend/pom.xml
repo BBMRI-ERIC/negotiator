@@ -33,7 +33,6 @@
         <json.version>20241224</json.version>
         <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
         <modelmapper.version>3.2.4</modelmapper.version>
-        <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <poi.version>5.4.1</poi.version>
         <standardwebhooks.version>1.1.1</standardwebhooks.version>
@@ -238,11 +237,6 @@
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
             <version>${jackson-databind-nullable.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-            <artifactId>owasp-java-html-sanitizer</artifactId>
-            <version>${owasp-sanitizer.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
