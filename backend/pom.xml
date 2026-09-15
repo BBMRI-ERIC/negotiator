@@ -46,7 +46,6 @@
         <poi.version>5.4.1</poi.version>
         <reactor.version>3.7.3</reactor.version>
         <standardwebhooks.version>1.1.1</standardwebhooks.version>
-        <spring-hateoas.version>2.5.1</spring-hateoas.version>
         <springdoc.version>2.8.9</springdoc.version>
         <tika.version>3.3.0</tika.version>
         <wiremock.version>3.13.2</wiremock.version>
@@ -340,7 +339,6 @@
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
-            <version>${spring-hateoas.version}</version>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
