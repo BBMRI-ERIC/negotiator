@@ -57,7 +57,7 @@ public class PersistStateChangeListener
     Negotiation negotiation = getNegotiation(negotiationId);
     updateNegotiationStatus(state, negotiation);
 
-    if (Objects.nonNull(postSenderId) && Objects.nonNull(postBody) && !postBody.isEmpty()) {
+    if (Objects.nonNull(postSenderId) && Objects.nonNull(postBody) && !postBody.isEmpty() && Objects.nonNull(negotiation)) {
       createPostFromMessage(postSenderId, negotiation, postBody);
     }
     publishChangeEvent(state, transition, negotiationId);
