@@ -200,6 +200,8 @@ jobs:
       - build-image
       - build-frontend-image
     name: E2E Tests
+    env:
+      FEATURE_FLAG_PDF_EXPORT_ENABLED: 'true'
     strategy:
       matrix:
         browser: [ "chrome", "electron" ]
@@ -237,8 +239,6 @@ jobs:
         run: docker load --input /tmp/negotiator-frontend.tar
 
       - name: Setup API server
-        env:
-          FEATURE_FLAG_PDF_EXPORT_ENABLED: true
         run: docker compose up -d
 
       - name: Wait
