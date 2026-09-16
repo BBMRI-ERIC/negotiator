@@ -50,8 +50,19 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'frontend/yarn.lock'
 
+      - name: Guard against the Yarn pin regressing
+        working-directory: frontend
+        run: |
+          yarn_path="$(sed -nE 's/^yarnPath:[[:space:]]*(.+)$/\1/p' .yarnrc.yml)"
+          git ls-files --error-unmatch .yarnrc.yml "$yarn_path"
+          expected="$(basename "$yarn_path" .cjs | sed -E 's/^yarn-//')"
+          actual="$(yarn --version)"
+          echo "expected=$expected actual=$actual (pinned binary: $yarn_path)"
+          test "$actual" = "$expected"
+
       - name: Install dependencies
-        run: yarn --cwd frontend install
+        working-directory: frontend
+        run: yarn install --immutable
 
   build:
     runs-on: ubuntu-latest
@@ -70,10 +81,12 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Install dependencies
-        run: yarn --cwd frontend install
+        working-directory: frontend
+        run: yarn install --immutable
 
       - name: Build app
-        run: yarn --cwd frontend build
+        working-directory: frontend
+        run: yarn build
 
   lint:
     name: Lint Java Code
@@ -107,10 +120,12 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Install dependencies
-        run: yarn install --cwd frontend
+        working-directory: frontend
+        run: yarn install --immutable
 
       - name: Lint
-        run: yarn --cwd frontend eslint src
+        working-directory: frontend
+        run: yarn eslint src
 
   analyze:
     name: CodeQL Analysis
@@ -200,7 +215,8 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Install dependencies
-        run: yarn --cwd frontend install
+        working-directory: frontend
+        run: yarn install --immutable
 
       - name: Download artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v4

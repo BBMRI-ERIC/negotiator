@@ -4,6 +4,14 @@ This project uses Yarn as the package manager.
 Yarn is recommended because some legacy packages specify peer
 dependencies that can conflict with newer package versions when using npm.
 
+Yarn is pinned via `.yarnrc.yml` / `.yarn/releases` to a specific Berry
+release — see `.yarnrc.yml`'s `yarnPath` for the exact version. If you
+already have any Yarn on your PATH, this resolves automatically on
+`yarn install` — no Corepack needed. If you don't have Yarn installed at
+all, bootstrap it once with `corepack enable`, or run the pinned release
+file directly (the `.cjs` under `.yarn/releases`, e.g. `node
+.yarn/releases/yarn-<version>.cjs install`).
+
 ## Project Setup
 
 To set up the project:
