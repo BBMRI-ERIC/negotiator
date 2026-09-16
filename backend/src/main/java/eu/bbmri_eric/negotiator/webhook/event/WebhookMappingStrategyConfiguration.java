@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.webhook.event;
 
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationPayloadUpdatedEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
@@ -16,6 +17,15 @@ class WebhookMappingStrategyConfiguration {
         InformationSubmissionEvent.class,
         NegotiationInfoUpdatedWebhookEvent.class,
         WebhookEventType.NEGOTIATION_INFO_UPDATED);
+  }
+
+  @Bean
+  WebhookMappingStrategy<NegotiationPayloadUpdatedEvent>
+      negotiationPayloadUpdatedWebhookMappingStrategy() {
+    return DefaultWebhookMappingStrategy.of(
+        NegotiationPayloadUpdatedEvent.class,
+        NegotiationPayloadUpdatedWebhookEvent.class,
+        WebhookEventType.NEGOTIATION_PAYLOAD_UPDATED);
   }
 
   @Bean

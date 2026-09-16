@@ -207,6 +207,9 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationEntity.setCreatedBy(person);
     }
     negotiationRepository.saveAndFlush(negotiationEntity);
+    if (Objects.nonNull(updateDTO.getPayload())) {
+      eventPublisher.publishEvent(new NegotiationPayloadUpdatedEvent(this, negotiationId));
+    }
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
