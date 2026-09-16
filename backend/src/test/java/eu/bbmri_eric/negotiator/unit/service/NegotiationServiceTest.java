@@ -6,9 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
@@ -23,14 +26,17 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationPayloadUpdatedEvent;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationServiceImpl;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
@@ -58,6 +64,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class NegotiationServiceTest {
+  private static final String NEGOTIATION_ID = "negotiation-id";
+
   @Mock AttachmentRepository attachmentRepository;
   @Mock NegotiationRepository negotiationRepository;
   @Mock PersonRepository personRepository;
@@ -438,5 +446,52 @@ public class NegotiationServiceTest {
     negotiationService.setPrivatePostsEnabled(negotiationId, false);
     assertFalse(negotiation.isPublicPostsEnabled());
     assertFalse(negotiation.isPrivatePostsEnabled());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      authName = "admin",
+      authSubject = "admin@negotiator.dev",
+      authEmail = "admin@negotiator.dev",
+      authorities = {"ROLE_ADMIN"})
+  void update_whenPayloadIsProvided_publishesNegotiationPayloadUpdatedEvent() throws Exception {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setId(NEGOTIATION_ID);
+    negotiation.setCreatedBy(Person.builder().id(999L).build());
+    JsonNode payload = new ObjectMapper().readTree("{\"project\":{\"title\":\"Test\"}}");
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setPayload(payload);
+    when(negotiationRepository.findDetailedById(NEGOTIATION_ID))
+        .thenReturn(Optional.of(negotiation));
+    NegotiationDTO returnedDTO = new NegotiationDTO();
+    when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(returnedDTO);
+
+    negotiationService.update(NEGOTIATION_ID, updateDTO);
+
+    ArgumentCaptor<NegotiationPayloadUpdatedEvent> eventCaptor =
+        ArgumentCaptor.forClass(NegotiationPayloadUpdatedEvent.class);
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    assertEquals(NEGOTIATION_ID, eventCaptor.getValue().getNegotiationId());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      authName = "admin",
+      authSubject = "admin@negotiator.dev",
+      authEmail = "admin@negotiator.dev",
+      authorities = {"ROLE_ADMIN"})
+  void update_whenPayloadIsNull_doesNotPublishNegotiationPayloadUpdatedEvent() {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setId(NEGOTIATION_ID);
+    negotiation.setCreatedBy(Person.builder().id(999L).build());
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    when(negotiationRepository.findDetailedById(NEGOTIATION_ID))
+        .thenReturn(Optional.of(negotiation));
+    NegotiationDTO returnedDTO = new NegotiationDTO();
+    when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(returnedDTO);
+
+    negotiationService.update(NEGOTIATION_ID, updateDTO);
+
+    verify(eventPublisher, never()).publishEvent(any(NegotiationPayloadUpdatedEvent.class));
   }
 }

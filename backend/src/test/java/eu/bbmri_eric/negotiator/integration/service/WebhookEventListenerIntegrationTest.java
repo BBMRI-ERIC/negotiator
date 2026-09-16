@@ -16,6 +16,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.bbmri_eric.negotiator.email.EmailService;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.integration.api.WebhookSslTestConfig;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationPayloadUpdatedEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
@@ -434,6 +435,52 @@ class WebhookEventListenerIntegrationTest {
               assertTrue(request.containsHeader(WebhookHeaders.WEBHOOK_ID));
               assertTrue(request.getHeader(WebhookHeaders.TIMESTAMP).matches("\\d+"));
               assertFalse(request.containsHeader(WebhookHeaders.SIGNATURE));
+            });
+  }
+
+  @Test
+  void publishNegotiationPayloadUpdatedEvent_dispatchesToActiveWebhooks() {
+    String negotiationId = "negotiation-8";
+    String pathOne = "/payload-one";
+    String pathTwo = "/payload-two";
+    String pathInactive = "/payload-inactive";
+    String baseUrl = wireMockServer.getRuntimeInfo().getHttpBaseUrl();
+    createWebhook(baseUrl + pathOne, true);
+    createWebhook(baseUrl + pathTwo, true);
+    createWebhook(baseUrl + pathInactive, false);
+
+    wireMockServer.stubFor(post(urlEqualTo(pathOne)));
+    wireMockServer.stubFor(post(urlEqualTo(pathTwo)));
+
+    eventPublisher.publishEvent(new NegotiationPayloadUpdatedEvent(this, negotiationId));
+
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              wireMockServer.verify(
+                  1,
+                  postRequestedFor(urlEqualTo(pathOne))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type",
+                              equalTo(WebhookEventType.NEGOTIATION_PAYLOAD_UPDATED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo(negotiationId))));
+              wireMockServer.verify(
+                  1,
+                  postRequestedFor(urlEqualTo(pathTwo))
+                      .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
+                      .withRequestBody(
+                          matchingJsonPath(
+                              "$.type",
+                              equalTo(WebhookEventType.NEGOTIATION_PAYLOAD_UPDATED.value())))
+                      .withRequestBody(matchingJsonPath("$.timestamp"))
+                      .withRequestBody(
+                          matchingJsonPath("$.data.negotiationId", equalTo(negotiationId))));
+              wireMockServer.verify(0, postRequestedFor(urlEqualTo(pathInactive)));
             });
   }
 
