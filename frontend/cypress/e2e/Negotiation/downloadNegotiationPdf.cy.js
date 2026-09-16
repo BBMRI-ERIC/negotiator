@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
+import { describeWithFeature } from "../../support/featureFlags"
 
-describe("Test negotiation pdf download", () => {
+describeWithFeature("FEATURE_FLAG_PDF_EXPORT_ENABLED", "Test negotiation pdf download", () => {
   beforeEach(() => {
     cy.visit("http://localhost:8080")
     cy.login("Admin", "admin")

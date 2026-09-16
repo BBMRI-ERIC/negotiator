@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -94,6 +95,9 @@ public class NegotiationController {
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
     this.negotiationPdfService = negotiationPdfService;
   }
+
+  @Value("${negotiator.feature-flags.pdf-export-enabled:false}")
+  private boolean pdfExportEnabled;
 
   /** Create a negotiation */
   @PostMapping(
@@ -328,7 +332,7 @@ public class NegotiationController {
                   "Whether to include attachments to the generated PDF or not. By default it's false")
           @RequestParam(value = "includeAttachments", required = false, defaultValue = "false")
           boolean includeAttachments) {
-    if (!negotiationService.isAuthorizedForNegotiation(id)) {
+    if (!pdfExportEnabled || !negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 

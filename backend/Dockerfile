@@ -9,7 +9,7 @@ RUN mvn --quiet -B clean package -Dmaven.test.skip=true
 
 
 # Runtime image
-FROM eclipse-temurin:21-jre-noble@sha256:1038345f7b7211c290148801b92d66abe5588d4acd6820994df43b883cdfc04c
+FROM eclipse-temurin:21-jre-noble@sha256:96975602e131485862eb8cd32927face8a06d7591a5e865944b634a701d9df72
 RUN mkdir /var/log/negotiator && chown 1001 /var/log/negotiator
 RUN mkdir -p /app/config/templates && chown 1001 /app/config/templates
 USER 1001
