@@ -11,6 +11,34 @@
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Email:</div>
         <span :style="{ color: uiConfiguration.secondaryTextColor }">{{ author.email }}</span>
       </li>
+      <!-- Collaborators list -->
+      <li class="list-group-item p-2">
+        <div class="fw-bold mb-1" :style="{ color: uiConfiguration.primaryTextColor }">
+          Collaborators:
+        </div>
+        <div v-if="collaborators.length === 0" class="text-muted small">No collaborators yet.</div>
+        <ul v-else class="list-unstyled mb-0">
+          <li
+            v-for="collaborator in collaborators"
+            :key="collaborator.id"
+            class="d-flex align-items-center justify-content-between py-1"
+          >
+            <span class="text-truncate me-2" :style="{ color: uiConfiguration.secondaryTextColor }">
+              {{ collaborator.name }}
+            </span>
+            <button
+              v-if="isAuthor || isAdmin"
+              type="button"
+              class="btn btn-sm btn-link text-danger p-0 flex-shrink-0"
+              title="Remove collaborator"
+              aria-label="Remove collaborator"
+              @click="promptRemoveCollaborator(collaborator)"
+            >
+              <i class="bi bi-person-x-fill"></i>
+            </button>
+          </li>
+        </ul>
+      </li>
       <li class="list-group-item p-2 v-step-negotiation-4">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           {{ $t('negotiationPage.displayId') }}:
@@ -140,34 +168,6 @@
           :negotiation-id="negotiation.id"
           @collaborator-added="handleCollaboratorAdded"
         />
-      </li>
-      <!-- Collaborators list -->
-      <li class="list-group-item p-2">
-        <div class="fw-bold mb-1" :style="{ color: uiConfiguration.primaryTextColor }">
-          Collaborators:
-        </div>
-        <div v-if="collaborators.length === 0" class="text-muted small">No collaborators yet.</div>
-        <ul v-else class="list-unstyled mb-0">
-          <li
-            v-for="collaborator in collaborators"
-            :key="collaborator.id"
-            class="d-flex align-items-center justify-content-between py-1"
-          >
-            <span class="text-truncate me-2" :style="{ color: uiConfiguration.secondaryTextColor }">
-              {{ collaborator.name }}
-            </span>
-            <button
-              v-if="isAuthor || isAdmin"
-              type="button"
-              class="btn btn-sm btn-link text-danger p-0 flex-shrink-0"
-              title="Remove collaborator"
-              aria-label="Remove collaborator"
-              @click="promptRemoveCollaborator(collaborator)"
-            >
-              <i class="bi bi-person-x-fill"></i>
-            </button>
-          </li>
-        </ul>
       </li>
       <li
         v-if="getSummaryLinks(negotiation._links).length > 0"
