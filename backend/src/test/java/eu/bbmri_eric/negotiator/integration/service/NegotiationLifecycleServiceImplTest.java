@@ -189,6 +189,16 @@ public class NegotiationLifecycleServiceImplTest {
     assertThat(numPostEvents).isEqualTo(1);
   }
 
+  @Test
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void sendEvent_withEmptyMessage_doesNotPublishNewPostEvent() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.DECLINE, "");
+    long numPostEvents = events.stream(eu.bbmri_eric.negotiator.post.NewPostEvent.class).count();
+    assertThat(numPostEvents).isEqualTo(0);
+  }
+
   NegotiationDTO saveNegotiation() throws IOException {
     return saveNegotiation(false);
   }
