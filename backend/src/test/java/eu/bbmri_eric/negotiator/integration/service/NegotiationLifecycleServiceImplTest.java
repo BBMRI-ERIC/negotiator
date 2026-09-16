@@ -140,6 +140,8 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
     long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
     assertThat(numEvents).isEqualTo(1);
+    long numPostEvents = events.stream(eu.bbmri_eric.negotiator.post.NewPostEvent.class).count();
+    assertThat(numPostEvents).isEqualTo(0);
   }
 
   @Test
@@ -157,6 +159,8 @@ public class NegotiationLifecycleServiceImplTest {
     assertThat(numEvents).isEqualTo(1);
     posts = postRepository.findByNegotiationId(negotiationDTO.getId());
     assertThat(posts.size()).isEqualTo(numberOfPosts + 1);
+    long numPostEvents = events.stream(eu.bbmri_eric.negotiator.post.NewPostEvent.class).count();
+    assertThat(numPostEvents).isEqualTo(1);
   }
 
   @Test
@@ -181,6 +185,8 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.ABANDONED,
         negotiationLifecycleService.sendEvent(
             negotiationDTO.getId(), NegotiationEvent.ABANDON, "Not acceptable"));
+    long numPostEvents = events.stream(eu.bbmri_eric.negotiator.post.NewPostEvent.class).count();
+    assertThat(numPostEvents).isEqualTo(1);
   }
 
   NegotiationDTO saveNegotiation() throws IOException {
