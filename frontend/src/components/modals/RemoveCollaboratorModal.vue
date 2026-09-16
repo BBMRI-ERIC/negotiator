@@ -12,7 +12,9 @@
     <div class="modal-dialog modal-dialog-centered modal-sm" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
-          <h6 id="remove-collaborator-title" class="modal-title">Remove Collaborator</h6>
+          <h6 id="remove-collaborator-title" class="modal-title">
+            {{ isSelf ? 'Leave Negotiation' : 'Remove Collaborator' }}
+          </h6>
           <button
             type="button"
             class="btn-close"
@@ -23,7 +25,11 @@
         </div>
 
         <div class="modal-body">
-          <p class="mb-0">
+          <p v-if="isSelf" class="mb-0">
+            Are you sure you want to remove yourself as a collaborator? You will lose access to this
+            negotiation.
+          </p>
+          <p v-else class="mb-0">
             Are you sure you want to remove
             <strong>{{ collaborator.name }}</strong> as a collaborator?
           </p>
@@ -50,7 +56,7 @@
               class="spinner-border spinner-border-sm me-1"
               role="status"
             ></span>
-            Remove
+            {{ isSelf ? 'Leave' : 'Remove' }}
           </button>
         </div>
       </div>
@@ -77,6 +83,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  isSelf: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update:isOpen', 'collaborator-removed'])
@@ -101,7 +111,11 @@ async function confirmRemoveCollaborator() {
       { headers: getBearerHeaders() },
     )
 
-    notifications.setNotification(`${props.collaborator.name} has been removed as a collaborator.`)
+    notifications.setNotification(
+      props.isSelf
+        ? 'You have been removed as a collaborator.'
+        : `${props.collaborator.name} has been removed as a collaborator.`,
+    )
 
     emit('collaborator-removed', props.collaborator)
     emit('update:isOpen', false)

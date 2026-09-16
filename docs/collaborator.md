@@ -1,7 +1,10 @@
 # Collaborators
 
-A collaborator has access to a negotiation and can view and edit it. Collaborators may also add other collaborators 
-or transfer the negotiation to another user.
+A collaborator has access to a negotiation and can view and edit it.
+
+Only the negotiation author can decide who works on it: adding collaborators, removing them, and
+transferring the negotiation to another user are all reserved for the author. A collaborator may
+remove themselves from a negotiation at any time.
 
 ## Add Collaborators
 
@@ -11,7 +14,8 @@ The add collaborator feature allows you to add a user to a negotiation as a coll
 
 1. **Find the Negotiation**: Locate the negotiation in the sidebar or list.
 2. **Open the Modal**:
-    - Click the **Add Collaborator** button (person icon with “Add Collaborator ” label).
+    - Click the **Add Collaborator** button (person icon with “Add Collaborator ” label). The
+      button is only shown to the negotiation author.
 3. **Enter Subject ID**:
     - Type the new collaborator’s Subject ID (e.g., `1001@bbmri.eu`) in the **Subject ID** field.
     - Find the ID on the user’s profile page.
@@ -36,7 +40,8 @@ The add collaborator feature allows you to add a user to a negotiation as a coll
 
 The remove collaborator feature allows you to remove a collaborator from a negotiation by selecting them from the collaborators
 list in the negotiation sidebar. After a successful removal, the collaborator will lose access to the negotiation.
-**Note:** Only the negotiation author can remove collaborators. 
+**Note:** The negotiation author can remove any collaborator. A collaborator can only remove
+themselves, which they do with the same button on their own entry in the list.
 
 ### How to Remove a Collaborator
 

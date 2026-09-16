@@ -45,6 +45,8 @@ public interface NegotiationService {
    * @throws EntityNotStorableException if some error occurs when crating the negotiation
    * @throws eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException if the negotiation
    *     to update is not found
+   * @throws ForbiddenRequestException if the caller may not edit the negotiation, or is not the
+   *     author when transferring authorship
    */
   NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO)
       throws EntityNotFoundException;
@@ -231,7 +233,8 @@ public interface NegotiationService {
   void addCollaboratorBySubjectId(String negotiationId, String subjectId);
 
   /**
-   * Removes a collaborator from the negotiation. Only the creator or an admin may call this.
+   * Removes a collaborator from the negotiation. The author or an admin may remove any
+   * collaborator; a collaborator may remove themselves.
    *
    * @param negotiationId the id of the negotiation
    * @param personId the internal id of the person to remove
