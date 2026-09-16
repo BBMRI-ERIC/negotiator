@@ -1843,7 +1843,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Transactional
   void updateNegotiation_transferToCollaborator_ok() throws Exception {
     assertTrue(
         negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 110L),
