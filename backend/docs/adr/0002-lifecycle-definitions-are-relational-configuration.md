@@ -20,3 +20,19 @@ Today the two Lifecycles are Java enums and builder calls. The redesign's whole 
 Enum values that were already unreachable — `NegotiationState.APPROVED`, `NegotiationEvent.START`, and the `RETURN_FOR_RESUBMISSION` event and state — leave the active graph. The Override Event does not: it is live today, tagging admin state changes for history, and is kept.
 
 This ADR does not claim that Information Requirement satisfaction is one of these registry Guards — it deliberately is not (0005) — nor does it settle versioning or identity (0003).
+
+## Amendments
+
+### 2026-09-16 — State and Event rows carry the metadata the REST API already publishes
+
+_Source ticket: [The global state and event metadata contract](../../../.scratch/state-machine-implementation/issues/04-global-state-event-metadata-contract.md)._
+
+This ADR enumerated a `State` as carrying "a human label plus `initial` and `terminal` flags", and said nothing at all about what an `Event` carries. Both were written without noticing that four live REST endpoints already publish, for every State **and every Event**, a `label` *and* a `description` — and for every Resource State an ordering integer that the frontend computes an organization's rolled-up status from. Deleting the enums deletes the only source of all three, so the schema needs them.
+
+**Three columns are added, in `V36.5`.** `event.label` is NOT NULL; `state.description` and `event.description` are nullable; `state.progress_order` is an integer. ADR 0009's v1 seed populates all of them from the enum constructors it is already transcribing, with Progress Order taking the enum declaration order it reproduces exactly — 0–11 for Resource States, 0–7 for Negotiation States.
+
+**Labels cannot be derived from names.** Doing so would render `Submitted` where the UI says "Under review", and cannot produce the comma in "Mark as Currently Unavailable, But Willing to Collect".
+
+**Progress Order cannot be derived from the Transitions**, because a graph with branches has no total order. It is a *progress* ordering — what the deleted enum's own comment meant by "the most advanced state is at the bottom" — so recording it is the only available answer. It is the new glossary term **Progress Order**; the REST field keeps its older name, `ordinal`.
+
+This changes what a definition row holds. It changes nothing about the two claims this ADR exists to make: that definitions are normalized relational configuration rather than a document, and that Guard and Action logic stays in Java with only the Wiring as data.

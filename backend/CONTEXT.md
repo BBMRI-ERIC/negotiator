@@ -30,7 +30,11 @@ _Avoid_: definition type, level, tier
 ### The definition graph
 
 **State**:
-A named position in a Definition Version's graph, carrying a human label plus *initial* and *terminal* flags. Exactly one State per Definition Version is initial.
+A named position in a Definition Version's graph, carrying a human label and description, a Progress Order, and *initial* and *terminal* flags. Exactly one State per Definition Version is initial.
+
+**Progress Order**:
+How far along its Lifecycle a State sits — what a reader means by "the most advanced State" of several. Recorded on the State rather than derived, because a graph with branches has no total order. The REST API still publishes it under its older name, `ordinal`.
+_Avoid_: rank, sort order, sequence, advancement, stage
 
 **Legacy State**:
 A State that exists only because pre-redesign data names it — no Transition leads to one, and new work can never enter one. Kept so that existing history, and any live state still holding an old value, continue to resolve.
@@ -41,7 +45,7 @@ A State that behaviour outside the Lifecycle names directly instead of reading i
 _Avoid_: hardcoded state, special state, magic state
 
 **Event**:
-A named trigger that can be fired at a Lifecycle to move it out of its current State. One Event may drive Transitions from several different States of its Definition Version.
+A named trigger that can be fired at a Lifecycle to move it out of its current State, carrying a human label and description. One Event may drive Transitions from several different States of its Definition Version.
 
 **Override Event**:
 An Event carrying no Transition at all, naming an admin's direct change of a state rather than a move through the graph. It bypasses every gate, and exists so the change still appears in history under a name.
@@ -110,7 +114,7 @@ The one Resource-scope Definition Family a Resource resolves to when nothing mor
 _Avoid_: fallback definition, default machine
 
 **Definition Version Pin**:
-The immutable Definition Version recorded on a Negotiation or a NegotiationResourceLink when its Lifecycle begins, so publishing a new active version never moves work already in flight. A Negotiation pins at creation; a Resource pins at Spawn, since that is when its Lifecycle starts.
+The immutable Definition Version recorded on a Negotiation or a NegotiationResourceLink when its Lifecycle begins, so publishing a new active version never moves work already in flight. A Negotiation pins at creation; a Resource pins at Spawn, since that is when its Lifecycle starts. Anything said *about* work in flight is read through the pin — a State's label, the Events it could fire — never by resolving the active version, which would describe a Definition Version that Lifecycle is not running.
 _Avoid_: version lock, snapshot, freeze
 
 ### Lifecycle coupling
