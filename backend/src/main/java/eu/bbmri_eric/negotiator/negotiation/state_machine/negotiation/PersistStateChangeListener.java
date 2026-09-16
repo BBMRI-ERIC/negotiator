@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.post.PostType;
@@ -87,6 +88,8 @@ public class PersistStateChangeListener
     postEntity.setCreatedBy(postSender);
     postEntity.setCreationDate(LocalDateTime.now());
     postRepository.save(postEntity);
+    eventPublisher.publishEvent(
+        new NewPostEvent(this, postEntity.getId(), negotiation.getId(), postSenderId, null));
   }
 
   private void updateNegotiationStatus(State<String, String> state, Negotiation negotiation) {
