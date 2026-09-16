@@ -94,6 +94,30 @@ public class NegotiationServiceImpl implements NegotiationService {
         || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
+  /**
+   * Checks whether the currently authenticated user is the creator of the negotiation, or an admin.
+   *
+   * @param negotiationId the id of the negotiation to check
+   * @return {@code true} if the currently authenticated user is the creator or an admin
+   */
+  private boolean isNegotiationCreatorOrAdmin(String negotiationId) {
+    return isNegotiationCreator(negotiationId)
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  /**
+   * The same check, for callers that already hold the entity.
+   *
+   * @param negotiation the negotiation to check
+   * @return {@code true} if the currently authenticated user is the creator or an admin
+   */
+  private boolean isNegotiationCreatorOrAdmin(Negotiation negotiation) {
+    return Objects.equals(
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(),
+            negotiation.getCreatedBy().getId())
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+  }
+
   @Override
   public boolean isNegotiationCollaborator(String negotiationId) {
     return negotiationRepository.existsByIdAndCollaborators_Id(
@@ -212,6 +236,9 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationEntity.setDisplayId(updateDTO.getDisplayId());
     }
     if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
+      if (!isNegotiationCreatorOrAdmin(negotiationEntity)) {
+        throw new ForbiddenRequestException("Only the negotiation author can transfer authorship");
+      }
       log.info("Transferring Negotiation");
       Person person =
           personRepository
@@ -435,9 +462,8 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public void addCollaborator(String negotiationId, Long personId) {
-    if (!isNegotiationEditor(negotiationId)) {
-      throw new ForbiddenRequestException(
-          "Only the negotiation creator, an existing collaborator, or an admin can add collaborators");
+    if (!isNegotiationCreatorOrAdmin(negotiationId)) {
+      throw new ForbiddenRequestException("Only the negotiation author can add collaborators");
     }
     Negotiation negotiation = findEntityById(negotiationId, false);
     Person person =
@@ -456,9 +482,8 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public void addCollaboratorBySubjectId(String negotiationId, String subjectId) {
-    if (!isNegotiationEditor(negotiationId)) {
-      throw new ForbiddenRequestException(
-          "Only the negotiation creator, an existing collaborator, or an admin can add collaborators");
+    if (!isNegotiationCreatorOrAdmin(negotiationId)) {
+      throw new ForbiddenRequestException("Only the negotiation author can add collaborators");
     }
     Negotiation negotiation = findEntityById(negotiationId, false);
     Person person =
@@ -478,9 +503,13 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public void removeCollaborator(String negotiationId, Long personId) {
-    if (!isNegotiationCreator(negotiationId)
-        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
-      throw new ForbiddenRequestException("Only the negotiation creator can remove collaborators");
+    boolean removingSelf =
+        Objects.equals(
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), personId);
+    if (!isNegotiationCreatorOrAdmin(negotiationId)
+        && !(removingSelf && isNegotiationCollaborator(negotiationId))) {
+      throw new ForbiddenRequestException(
+          "Only the negotiation author can remove collaborators, and collaborators can remove themselves");
     }
     Negotiation negotiation = findEntityById(negotiationId, false);
     Person person =

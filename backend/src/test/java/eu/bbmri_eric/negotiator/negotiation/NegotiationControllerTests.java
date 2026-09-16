@@ -2111,7 +2111,21 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheCollaborator")
   @Transactional
-  public void addCollaboratorById_NoContent_whenCollaborator() throws Exception {
+  public void addCollaboratorById_Forbidden_whenCollaborator() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                "/v3/negotiations/%s/collaborators/105".formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isForbidden());
+    assertFalse(
+        negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 105L),
+        "A collaborator must not be able to add further collaborators");
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  @Transactional
+  public void addCollaboratorById_NoContent_whenAdmin() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
@@ -2119,7 +2133,7 @@ public class NegotiationControllerTests {
         .andExpect(status().isNoContent());
     assertTrue(
         negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 105L),
-        "SarahRepr should now be a collaborator on negotiation-1 after being added by TheCollaborator");
+        "An admin should still be able to add collaborators");
   }
 
   @Test
@@ -2151,16 +2165,16 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheCollaborator")
   @Transactional
-  public void addCollaboratorBySubjectId_NoContent_whenCollaborator() throws Exception {
+  public void addCollaboratorBySubjectId_Forbidden_whenCollaborator() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
                     "/v3/negotiations/%s/collaborators".formatted(NEGOTIATION_1_ID))
                 .param("subjectId", "5"))
-        .andExpect(status().isNoContent());
-    assertTrue(
+        .andExpect(status().isForbidden());
+    assertFalse(
         negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 105L),
-        "SarahRepr should now be a collaborator on negotiation-1 after being added by TheCollaborator via subject ID");
+        "A collaborator must not be able to add further collaborators by subject ID");
   }
 
   @Test
@@ -2248,12 +2262,99 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheCollaborator")
   @Transactional
-  public void removeCollaborator_Forbidden_whenCollaborator() throws Exception {
+  public void removeCollaborator_NoContent_whenCollaboratorRemovesSelf() throws Exception {
+    assertTrue(
+        negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 110L),
+        "TheCollaborator should be a collaborator on negotiation-1 before leaving");
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.delete(
                 "/v3/negotiations/%s/collaborators/110".formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isNoContent());
+
+    assertFalse(
+        negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 110L),
+        "A collaborator should be able to remove themselves from the negotiation");
+  }
+
+  @Test
+  @WithUserDetails("TheCollaborator")
+  @Transactional
+  public void removeCollaborator_Forbidden_whenCollaboratorRemovesSomeoneElse() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                "/v3/negotiations/%s/collaborators/105".formatted(NEGOTIATION_1_ID)))
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  @Transactional
+  public void removeCollaborator_NoContent_whenAdmin() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                "/v3/negotiations/%s/collaborators/110".formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isNoContent());
+
+    assertFalse(
+        negotiationRepository.existsByIdAndCollaborators_Id(NEGOTIATION_1_ID, 110L),
+        "An admin should still be able to remove collaborators");
+  }
+
+  @Test
+  @WithUserDetails("TheCollaborator")
+  @Transactional
+  public void updateNegotiation_transferAuthorship_Forbidden_whenCollaborator() throws Exception {
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setAuthorSubjectId("5");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/%s".formatted(NEGOTIATION_1_ID))
+                .content(TestUtils.jsonFromRequest(updateDTO))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+
+    assertEquals(
+        108L,
+        negotiationRepository.findById(NEGOTIATION_1_ID).get().getCreatedBy().getId(),
+        "TheResearcher should still be the author after a collaborator attempts a transfer");
+  }
+
+  @Test
+  @WithUserDetails("TheCollaborator")
+  @Transactional
+  public void updateNegotiation_payload_Ok_whenCollaborator() throws Exception {
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setPayload(
+        new ObjectMapper()
+            .readTree(
+                """
+                {
+                  "project": {
+                    "title": "Edited by a collaborator",
+                    "description": "Description"
+                  },
+                  "samples": {
+                    "sample-type": "DNA",
+                    "num-of-subjects": 20,
+                    "num-of-samples": 20,
+                    "volume-per-sample": 5
+                  },
+                  "ethics-vote": {
+                    "ethics-vote": "No"
+                  }
+                }
+                """));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/%s".formatted(NEGOTIATION_1_ID))
+                .content(TestUtils.jsonFromRequest(updateDTO))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.payload.project.title", is("Edited by a collaborator")));
   }
 
   @Test

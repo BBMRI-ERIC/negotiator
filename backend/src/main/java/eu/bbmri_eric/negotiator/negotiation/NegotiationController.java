@@ -372,7 +372,7 @@ public class NegotiationController {
       summary = "Add a collaborator to a negotiation",
       description =
           "Adds a person as a collaborator."
-              + " The creator, an existing collaborator, or an admin can perform this action.")
+              + " Only the author or an admin can perform this action.")
   public void addCollaborator(@Valid @PathVariable String id, @Valid @PathVariable Long personId) {
     negotiationService.addCollaborator(id, personId);
   }
@@ -383,7 +383,7 @@ public class NegotiationController {
       summary = "Add a collaborator to a negotiation by subject ID",
       description =
           "Adds a person as a collaborator by their subject ID."
-              + " The creator, an existing collaborator, or an admin can perform this action.")
+              + " Only the author or an admin can perform this action.")
   public void addCollaboratorBySubjectId(
       @Valid @PathVariable String id, @RequestParam String subjectId) {
     negotiationService.addCollaboratorBySubjectId(id, subjectId);
@@ -393,7 +393,9 @@ public class NegotiationController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
       summary = "Remove a collaborator from a negotiation",
-      description = "Removes a collaborator. Only the creator or an admin can perform this action.")
+      description =
+          "Removes a collaborator. The author or an admin can remove anyone;"
+              + " a collaborator can remove themselves.")
   public void removeCollaborator(
       @Valid @PathVariable String id, @Valid @PathVariable Long personId) {
     negotiationService.removeCollaborator(id, personId);
