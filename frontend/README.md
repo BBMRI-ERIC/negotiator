@@ -46,13 +46,32 @@ yarn lint
 
 ### Run E2E Tests with [Cypress](https://docs.cypress.io/guides/overview/why-cypress)
 
-To run end-to-end tests:
+The tests run against the docker compose stack. Start it from the repository root, then run the
+suite from `frontend/`:
 
 ```sh
+docker compose up -d
 yarn cypress run --browser chrome
 ```
 
 For additional test scripts, see [package.json](package.json).
+
+#### Feature-flagged specs
+
+`cypress.config.js` reads feature flags from the environment and passes them to the specs, so one
+variable configures both the stack and the tests covering it. Specs for a disabled flag are
+reported as pending instead of failing.
+
+`FEATURE_FLAG_PDF_EXPORT_ENABLED` gates `cypress/e2e/Negotiation/downloadNegotiationPdf.cy.js`:
+
+```sh
+export FEATURE_FLAG_PDF_EXPORT_ENABLED=true
+docker compose up -d
+cd frontend && yarn cypress run --browser chrome
+```
+
+Use `export`. Prefixing only `docker compose up -d` sets the variable for compose but not for
+Cypress, which shows the PDF buttons while the specs skip. CI sets the flag for the whole E2E job.
 
 ### Customize Configuration
 
