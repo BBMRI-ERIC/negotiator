@@ -12,7 +12,7 @@
         <span :style="{ color: uiConfiguration.secondaryTextColor }">{{ author.email }}</span>
       </li>
       <!-- Collaborators list -->
-      <li class="list-group-item p-2">
+      <li v-if="collaboratorsEnabled" class="list-group-item p-2">
         <div class="fw-bold mb-1" :style="{ color: uiConfiguration.primaryTextColor }">
           Collaborators:
         </div>
@@ -165,7 +165,7 @@
           @transfer-negotiation="handleTransferNegotiation"
         />
         <AddCollaboratorButton
-          v-if="isAuthorOrAdmin"
+          v-if="collaboratorsEnabled && isAuthorOrAdmin"
           class="mt-2"
           :negotiation-id="negotiation.id"
           @collaborator-added="handleCollaboratorAdded"
@@ -220,7 +220,7 @@ import AddCollaboratorButton from '@/components/AddCollaboratorButton.vue'
 import RemoveCollaboratorModal from '@/components/modals/RemoveCollaboratorModal.vue'
 import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
 
-const { pdfExportEnabled } = useFeatureFlags()
+const { pdfExportEnabled, collaborators: collaboratorsEnabled } = useFeatureFlags()
 
 useNegotiationPageStore()
 const notifications = useNotificationsStore()
@@ -262,7 +262,9 @@ const isRemovingSelf = computed(
 )
 
 onMounted(async () => {
-  await fetchCollaborators()
+  if (collaboratorsEnabled) {
+    await fetchCollaborators()
+  }
 })
 
 async function fetchCollaborators() {

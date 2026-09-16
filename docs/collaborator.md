@@ -6,6 +6,9 @@ Only the negotiation author can decide who works on it: adding collaborators, re
 transferring the negotiation to another user are all reserved for the author. A collaborator may
 remove themselves from a negotiation at any time.
 
+The feature is behind the `FEATURE_FLAG_COLLABORATORS` deployment flag and is off by default. When
+it is disabled, the collaborators section and the **Add Collaborator** button are hidden.
+
 ## Add Collaborators
 
 The add collaborator feature allows you to add a user to a negotiation as a collaborator by entering their Subject ID.
