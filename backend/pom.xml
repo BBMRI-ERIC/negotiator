@@ -19,41 +19,21 @@
     <properties>
         <java.version>21</java.version>
         <spring-modulith.version>1.4.12</spring-modulith.version>
-        <testcontainers-util.version>1.21.1</testcontainers-util.version>
-        <flyway.version>11.10.0</flyway.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
 
         <!-- Third-party libraries -->
-        <awaitility.version>4.3.0</awaitility.version>
         <commons-csv.version>1.14.0</commons-csv.version>
-        <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-validator.version>1.10.1</commons-validator.version>
         <docx4j.version>11.5.14</docx4j.version>
-        <gson.version>2.12.1</gson.version>
-        <httpcomponents.version>5.5.1</httpcomponents.version>
         <hypersistence.version>3.9.10</hypersistence.version>
         <itext.version>9.7.0</itext.version>
         <itext.html2pdf.version>6.3.3</itext.html2pdf.version>
-        <jakarta-activation.version>2.1.3</jakarta-activation.version>
-        <jakarta-mail.version>2.1.3</jakarta-mail.version>
-        <jakarta-validation.version>3.1.1</jakarta-validation.version>
-        <jaxb.version>2.3.1</jaxb.version>
-        <json.version>20241224</json.version>
         <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
-        <jsoup.version>1.17.2</jsoup.version>
-        <loki-logback.version>1.6.0</loki-logback.version>
-        <lombok.version>1.18.30</lombok.version>
-        <micrometer.version>1.14.4</micrometer.version>
         <modelmapper.version>3.2.4</modelmapper.version>
-        <netty-macos.version>4.2.17.Final</netty-macos.version>
-        <owasp-sanitizer.version>20260101.1</owasp-sanitizer.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <poi.version>5.4.1</poi.version>
-        <postgresql.version>42.7.13</postgresql.version>
-        <reactor.version>3.7.3</reactor.version>
         <standardwebhooks.version>1.1.1</standardwebhooks.version>
-        <spring-hateoas.version>2.5.1</spring-hateoas.version>
         <springdoc.version>2.8.9</springdoc.version>
         <tika.version>3.3.0</tika.version>
         <wiremock.version>3.13.2</wiremock.version>
@@ -189,10 +169,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
 
         <!-- Spring Modulith -->
         <dependency>
@@ -228,12 +204,10 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-            <version>${flyway.version}</version>
         </dependency>
         <dependency>
             <groupId>io.hypersistence</groupId>
@@ -243,21 +217,13 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
             <scope>runtime</scope>
         </dependency>
 
         <!-- Observability / Logging -->
         <dependency>
-            <groupId>com.github.loki4j</groupId>
-            <artifactId>loki-logback-appender</artifactId>
-            <version>${loki-logback.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer.version}</version>
         </dependency>
 
         <!-- Utilities -->
@@ -271,19 +237,8 @@
             <version>${jackson-databind-nullable.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-            <artifactId>owasp-java-html-sanitizer</artifactId>
-            <version>${owasp-sanitizer.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
@@ -291,24 +246,12 @@
             <version>${commons-validator.version}</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-            <version>${jakarta-activation.version}</version>
-        </dependency>
-        <dependency>
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
-            <version>${jakarta-mail.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-            <version>${jakarta-validation.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>${jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -323,23 +266,12 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
-            <version>${httpcomponents.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
             <version>${tika.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>${json.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
         </dependency>
         <dependency>
             <groupId>org.modelmapper.extensions</groupId>
@@ -349,7 +281,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -363,12 +294,6 @@
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
-            <version>${spring-hateoas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <version>${reactor.version}</version>
         </dependency>
 
         <!-- Documents / PDF / Office -->
@@ -455,13 +380,11 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${testcontainers-util.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${testcontainers-util.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -473,14 +396,6 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>${awaitility.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <version>${netty-macos.version}</version>
-            <classifier>osx-aarch_64</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
