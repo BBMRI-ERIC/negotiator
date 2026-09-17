@@ -8,6 +8,7 @@ export function createUserManager() {
     ...settings,
     silent_redirect_uri: silentRedirectUri,
     userStore: new WebStorageStateStore({ store: window.localStorage }),
+    loadUserInfo: true,
   })
 }
 
