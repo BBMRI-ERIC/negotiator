@@ -148,4 +148,4 @@ applications. It also includes support for user session and access token managem
 See the configuration references:
 
 - [vuex-oidc](https://github.com/perarnborg/vuex-oidc/wiki)
-- [pinia-oidc](https://github.com/zhazhazhu/pinia-oidc)
+- [oidc-client-ts](https://github.com/authts/oidc-client-ts)
