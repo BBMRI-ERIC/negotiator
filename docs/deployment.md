@@ -162,6 +162,7 @@ Use the `rotate-secrets` profile to re-encrypt existing webhook secrets with a n
 | `FEATURE_FLAG_NOTIFICATIONS` | Toggle to enable notification features                                                                                 | `false`                |
 | `FEATURE_FLAG_PDF_EXPORT_ENABLED` | Toggle to show negotiation PDF export actions in the frontend UI                                                      | `false`                |
 | `FEATURE_FLAG_ORG_RESOURCE_STATE_OVERRIDE` | Toggle to enable organization resource state override controls                                                         | `true`                 |
+| `FEATURE_FLAG_COLLABORATORS` | Toggle to enable the negotiation collaborators feature                                                                 | `false`                |
 | `DEV_MODE`                   | Enables development mode behavior                                                                                      | `false`                |
 | `AUTH_MANAGEMENT_LINK`       | Link to external authentication management interface                                                                   | `none`                 |
 

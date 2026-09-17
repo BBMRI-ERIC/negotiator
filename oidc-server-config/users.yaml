@@ -32,6 +32,38 @@
     ]
   },
   {
+    "SubjectId": "1004@bbmri.eu",
+    "Username": "Researcher2",
+    "Password": "researcher2",
+    "Claims": [
+      {
+        "Type": "name",
+        "Value": "Bella Researcher",
+        "ValueType": "string"
+      },
+      {
+        "Type": "given_name",
+        "Value": "Bella",
+        "ValueType": "string"
+      },
+      {
+        "Type": "family_name",
+        "Value": "Researcher",
+        "ValueType": "string"
+      },
+      {
+        "Type": "preferred_username",
+        "Value": "TheOtherResearcher",
+        "ValueType": "string"
+      },
+      {
+        "Type": "email",
+        "Value": "bella.researcher@gmail.com",
+        "ValueType": "string"
+      }
+    ]
+  },
+  {
     "SubjectId": "1001@bbmri.eu",
     "Username": "Biobanker",
     "Password": "biobanker",
