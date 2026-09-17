@@ -314,7 +314,7 @@ public class NegotiationController {
       summary = "Remove a resource from a negotiation",
       description =
           "Endpoint to remove a resource from a negotiation. The operation is allowed only if the negotiation is in DRAFT "
-              + "state and the user is the creator of the negotiation")
+              + "state and the user is an editor of the negotiation, meaning its author, one of its collaborators or an admin")
   @SecurityRequirement(name = "security_auth")
   public void removeResource(@Valid @PathVariable String id, @Valid @PathVariable Long resourceId) {
     negotiationService.removeResourceFromNegotiation(id, resourceId);
