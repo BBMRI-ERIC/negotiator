@@ -1666,6 +1666,61 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheCollaborator")
+  @Transactional
+  void removeResource_draftStatus_multipleResources_collaboratorCanRemoveResource()
+      throws Exception {
+    // negotiation-5 belongs to TheResearcher and has 2 resources (ids 5 and 7)
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.addCollaborator(personRepository.findById(110L).get());
+    negotiationRepository.saveAndFlush(negotiation);
+
+    int initialResourceCount = negotiation.getResources().size();
+    Assertions.assertTrue(initialResourceCount > 1, "Negotiation should have more than 1 resource");
+
+    Long resourceIdToRemove = negotiation.getResources().iterator().next().getId();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                "%s/%s/resources/%s"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID, resourceIdToRemove)))
+        .andExpect(status().isNoContent());
+
+    Negotiation updatedNegotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    assertEquals(
+        initialResourceCount - 1,
+        updatedNegotiation.getResources().size(),
+        "Resource should be removed from the negotiation");
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  @Transactional
+  void removeResource_draftStatus_nonEditor_throwsForbidden() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiationRepository.saveAndFlush(negotiation);
+
+    int initialResourceCount = negotiation.getResources().size();
+    Long resourceIdToRemove = negotiation.getResources().iterator().next().getId();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                "%s/%s/resources/%s"
+                    .formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID, resourceIdToRemove)))
+        .andExpect(status().isForbidden());
+
+    Negotiation updatedNegotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
+    assertEquals(
+        initialResourceCount,
+        updatedNegotiation.getResources().size(),
+        "Resource should still be part of the negotiation");
+  }
+
+  @Test
   @WithUserDetails("TheResearcher")
   @Transactional
   void removeResource_draftStatus_onlyOneResourceLeft_throwsBadRequest() throws Exception {
