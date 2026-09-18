@@ -15,8 +15,9 @@
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-weight: 400;
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+  font-weight: 700;
 }
 </style>

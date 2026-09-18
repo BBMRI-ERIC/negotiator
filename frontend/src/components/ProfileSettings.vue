@@ -151,7 +151,7 @@ const returnAcronymOfName = computed(() => {
     initials = words[0][0] ? words[0][0].toUpperCase() : ''
   } else if (words.length > 1) {
     // Multiple words: take first letter of first and last word
-    initials = words[0][0].toUpperCase() + ' ' + words[words.length - 1][0].toUpperCase()
+    initials = words[0][0].toUpperCase() + words[words.length - 1][0].toUpperCase()
   }
   return initials
 })
