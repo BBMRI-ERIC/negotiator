@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param fromState source negotiation state before transition
  * @param toState target negotiation state after transition
  * @param event state-machine event that triggered the transition
+ * @param postId optional identifier of the post submitted along with the state change
  */
 @WebhookEventDoc(
     summary = "Negotiation state changed",
@@ -24,4 +25,9 @@ record NegotiationStateUpdatedWebhookEvent(
     @Schema(description = "Target state after transition", example = "SUBMITTED")
         NegotiationState toState,
     @Schema(description = "State-machine event that triggered the transition", example = "SUBMIT")
-        NegotiationEvent event) {}
+        NegotiationEvent event,
+    @Schema(
+            description = "Optional identifier of the post submitted along with the state change",
+            nullable = true,
+            example = "post-1")
+        String postId) {}

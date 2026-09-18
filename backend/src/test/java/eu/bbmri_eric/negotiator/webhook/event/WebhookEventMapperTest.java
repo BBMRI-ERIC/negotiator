@@ -103,7 +103,33 @@ class WebhookEventMapperTest {
                 "negotiation-2",
                 NegotiationState.SUBMITTED,
                 NegotiationState.IN_PROGRESS,
-                NegotiationEvent.APPROVE));
+                NegotiationEvent.APPROVE,
+                null));
+  }
+
+  @Test
+  void map_whenNegotiationStateChangeEventHasPostId_includesPostIdInPayload() {
+    NegotiationStateChangeEvent event =
+        new NegotiationStateChangeEvent(
+            this,
+            "negotiation-2",
+            NegotiationState.SUBMITTED,
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE,
+            "post-42");
+
+    Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
+
+    assertThat(mapped).isPresent();
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_STATE_UPDATED);
+    assertThat(mapped.get().data())
+        .isEqualTo(
+            new NegotiationStateUpdatedWebhookEvent(
+                "negotiation-2",
+                NegotiationState.SUBMITTED,
+                NegotiationState.IN_PROGRESS,
+                NegotiationEvent.APPROVE,
+                "post-42"));
   }
 
   @Test
