@@ -4,11 +4,11 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 @Getter
-public class NegotiationPayloadUpdatedEvent extends ApplicationEvent {
+public class NegotiationUpdatedEvent extends ApplicationEvent {
 
   private final String negotiationId;
 
-  public NegotiationPayloadUpdatedEvent(Object source, String negotiationId) {
+  public NegotiationUpdatedEvent(Object source, String negotiationId) {
     super(source);
     this.negotiationId = negotiationId;
   }

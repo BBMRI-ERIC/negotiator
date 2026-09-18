@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
@@ -28,7 +27,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
@@ -229,16 +227,16 @@ public class NegotiationServiceImpl implements NegotiationService {
   public NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
     verifyWriteAccessToNegotiation(negotiationEntity);
-    boolean payloadUpdated =
-        isNegotiationPayloadUpdated(updateDTO.getPayload(), negotiationEntity.getPayload());
-    if (payloadUpdated) {
+    boolean isPayloadUpdated = isPayloadUpdated(updateDTO, negotiationEntity);
+    if (isPayloadUpdated) {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
     }
-    if (Objects.nonNull(updateDTO.getDisplayId())
-        && AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+    boolean isDisplayIdUpdated = isDisplayIdUpdated(updateDTO, negotiationEntity);
+    if (isDisplayIdUpdated) {
       negotiationEntity.setDisplayId(updateDTO.getDisplayId());
     }
-    if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
+    boolean isAuthorSubjectIdUpdated = isAuthorSubjectIdUpdated(updateDTO, negotiationEntity);
+    if (isAuthorSubjectIdUpdated) {
       if (!isNegotiationCreatorOrAdmin(negotiationEntity)) {
         throw new ForbiddenRequestException("Only the negotiation author can transfer authorship");
       }
@@ -250,24 +248,36 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationEntity.setCreatedBy(person);
       negotiationEntity.removeCollaborator(person);
     }
-    negotiationRepository.saveAndFlush(negotiationEntity);
-    if (payloadUpdated) {
-      eventPublisher.publishEvent(new NegotiationPayloadUpdatedEvent(this, negotiationId));
+    if (isPayloadUpdated || isDisplayIdUpdated || isAuthorSubjectIdUpdated) {
+      negotiationRepository.saveAndFlush(negotiationEntity);
+      eventPublisher.publishEvent(new NegotiationUpdatedEvent(this, negotiationId));
     }
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
-  private boolean isNegotiationPayloadUpdated(JsonNode newPayload, String oldPayload) {
-      if (newPayload == null) {
-          return false;
-      }
-      return !newPayload.toString().equals(oldPayload);
-  }
-
   private void verifyWriteAccessToNegotiation(Negotiation negotiationEntity) {
     if (!isNegotiationEditor(negotiationEntity.getId())) {
-      throw new ForbiddenRequestException("You are not allowed to update this entity");
-    }
+          throw new ForbiddenRequestException("You are not allowed to update this entity");
+      }
+  }
+
+  private static boolean isPayloadUpdated(
+      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
+    return updateDTO.getPayload() != null
+        && !updateDTO.getPayload().toString().equals(negotiationEntity.getPayload());
+  }
+
+  private static boolean isDisplayIdUpdated(
+      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
+    return updateDTO.getDisplayId() != null
+        && AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !updateDTO.getDisplayId().equals(negotiationEntity.getDisplayId());
+  }
+
+  private static boolean isAuthorSubjectIdUpdated(
+      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
+    return updateDTO.getAuthorSubjectId() != null
+        && !updateDTO.getAuthorSubjectId().equals(negotiationEntity.getCreatedBy().getSubjectId());
   }
 
   /**
