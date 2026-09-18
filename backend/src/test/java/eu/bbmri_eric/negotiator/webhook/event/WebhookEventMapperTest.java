@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationPayloadUpdatedEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationUpdatedEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
@@ -37,7 +37,7 @@ class WebhookEventMapperTest {
         new NegotiationStateChangeWebhookMappingStrategy(),
         new NewNegotiationWebhookMappingStrategy(),
         configuration.informationSubmissionWebhookMappingStrategy(),
-        configuration.negotiationPayloadUpdatedWebhookMappingStrategy(),
+        configuration.negotiationUpdatedWebhookMappingStrategy(),
         configuration.newPostWebhookMappingStrategy(),
         configuration.newResourcesAddedWebhookMappingStrategy(),
         configuration.resourceStateChangeWebhookMappingStrategy());
@@ -185,17 +185,16 @@ class WebhookEventMapperTest {
   }
 
   @Test
-  void map_whenNegotiationPayloadUpdatedEvent_returnsStableEventTypeAndData() {
+  void map_whenNegotiationUpdatedEvent_returnsStableEventTypeAndData() {
     String negotiationId = "negotiation-7";
-    NegotiationPayloadUpdatedEvent event = new NegotiationPayloadUpdatedEvent(this, negotiationId);
+    NegotiationUpdatedEvent event = new NegotiationUpdatedEvent(this, negotiationId);
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 
     assertThat(mapped).isPresent();
-    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_PAYLOAD_UPDATED);
+    assertThat(mapped.get().type()).isEqualTo(WebhookEventType.NEGOTIATION_UPDATED);
     assertThat(mapped.get().timestamp()).isNotNull();
-    assertThat(mapped.get().data())
-        .isEqualTo(new NegotiationPayloadUpdatedWebhookEvent(negotiationId));
+    assertThat(mapped.get().data()).isEqualTo(new NegotiationUpdatedWebhookEvent(negotiationId));
   }
 
   @Test

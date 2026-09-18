@@ -16,7 +16,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.bbmri_eric.negotiator.email.EmailService;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.integration.api.WebhookSslTestConfig;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationPayloadUpdatedEvent;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationUpdatedEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
@@ -439,7 +439,7 @@ class WebhookEventListenerIntegrationTest {
   }
 
   @Test
-  void publishNegotiationPayloadUpdatedEvent_dispatchesToActiveWebhooks() {
+  void publishNegotiationUpdatedEvent_dispatchesToActiveWebhooks() {
     String negotiationId = "negotiation-8";
     String pathOne = "/payload-one";
     String pathTwo = "/payload-two";
@@ -452,7 +452,7 @@ class WebhookEventListenerIntegrationTest {
     wireMockServer.stubFor(post(urlEqualTo(pathOne)));
     wireMockServer.stubFor(post(urlEqualTo(pathTwo)));
 
-    eventPublisher.publishEvent(new NegotiationPayloadUpdatedEvent(this, negotiationId));
+    eventPublisher.publishEvent(new NegotiationUpdatedEvent(this, negotiationId));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -464,8 +464,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(
                           matchingJsonPath(
-                              "$.type",
-                              equalTo(WebhookEventType.NEGOTIATION_PAYLOAD_UPDATED.value())))
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_UPDATED.value())))
                       .withRequestBody(matchingJsonPath("$.timestamp"))
                       .withRequestBody(
                           matchingJsonPath("$.data.negotiationId", equalTo(negotiationId))));
@@ -475,8 +474,7 @@ class WebhookEventListenerIntegrationTest {
                       .withHeader(WebhookHeaders.TIMESTAMP, matching(".+"))
                       .withRequestBody(
                           matchingJsonPath(
-                              "$.type",
-                              equalTo(WebhookEventType.NEGOTIATION_PAYLOAD_UPDATED.value())))
+                              "$.type", equalTo(WebhookEventType.NEGOTIATION_UPDATED.value())))
                       .withRequestBody(matchingJsonPath("$.timestamp"))
                       .withRequestBody(
                           matchingJsonPath("$.data.negotiationId", equalTo(negotiationId))));
