@@ -5,21 +5,16 @@
     :style="{ 'background-color': uiConfiguration?.navbarBackgroundColor }"
     class="navbar fixed-top navbar-expand-lg"
   >
-    <div class="container-fluid">
+    <div class="container-fluid px-5">
       <router-link to="/">
-        <img :src="returnLogoSrc" alt="nav-bar-logo" class="me-2" height="34" />
+        <img :src="returnLogoSrc" alt="nav-bar-logo" class="me-5" height="28" />
       </router-link>
       <div id="menu-navbar" class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
           <li v-if="isAdmin" class="nav-item v-step-10">
             <router-link
-              :style="{
-                color:
-                  $route.path === '/admin' || $route.params.userRole === 'ROLE_ADMIN'
-                    ? uiConfiguration?.navbarActiveTextColor
-                    : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
+              :class="['nav-link nav-option', { active: isAdminActive }]"
+              :style="navLinkStyle(isAdminActive)"
               to="/admin"
             >
               <i class="bi bi-clipboard-check" />
@@ -28,13 +23,8 @@
           </li>
           <li v-if="isResearcher" class="nav-item v-step-11">
             <router-link
-              :style="{
-                color:
-                  $route.path === '/researcher' || $route.params.userRole === 'ROLE_RESEARCHER'
-                    ? uiConfiguration?.navbarActiveTextColor
-                    : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
+              :class="['nav-link nav-option', { active: isResearcherActive }]"
+              :style="navLinkStyle(isResearcherActive)"
               to="/researcher"
             >
               <i class="bi bi-chat-left-dots" />
@@ -43,13 +33,8 @@
           </li>
           <li v-if="isRepresentative" class="nav-item v-step-12">
             <router-link
-              :style="{
-                color:
-                  $route.path === '/biobanker' || $route.params.userRole === 'ROLE_REPRESENTATIVE'
-                    ? uiConfiguration?.navbarActiveTextColor
-                    : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
+              :class="['nav-link nav-option', { active: isRepresentativeActive }]"
+              :style="navLinkStyle(isRepresentativeActive)"
               to="/biobanker"
             >
               <i class="bi bi-bank" />
@@ -58,15 +43,8 @@
           </li>
           <li v-if="isRepresentative || isAdmin" class="nav-item v-step-13">
             <router-link
-              :style="{
-                color:
-                  $route.path === '/governance' ||
-                  $route.params.userRole === 'ROLE_REPRESENTATIVE' ||
-                  $route.params.userRole === 'ROLE_ADMIN'
-                    ? uiConfiguration?.navbarActiveTextColor
-                    : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
+              :class="['nav-link nav-option', { active: isGovernanceActive }]"
+              :style="navLinkStyle(isGovernanceActive)"
               to="/governance"
             >
               <i class="bi bi-archive" />
@@ -81,12 +59,8 @@
           >
             <a
               id="networksDropdown"
-              :style="{
-                color: $route.path.startsWith('/networks')
-                  ? uiConfiguration?.navbarActiveTextColor
-                  : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option dropdown-toggle"
+              :class="['nav-link nav-option dropdown-toggle', { active: isNetworksActive }]"
+              :style="navLinkStyle(isNetworksActive)"
               href="#"
               role="button"
               @click="toggleDropdown"
@@ -106,12 +80,8 @@
           <!-- Single network display as clickable -->
           <li v-else-if="showNetworksTab && networks.length === 1" class="nav-item v-step-14">
             <a
-              :style="{
-                color: $route.path.startsWith('/networks')
-                  ? uiConfiguration?.navbarActiveTextColor
-                  : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
+              :class="['nav-link nav-option', { active: isNetworksActive }]"
+              :style="navLinkStyle(isNetworksActive)"
               href="#"
               @click="selectNetwork(networks[0].id)"
             >
@@ -122,13 +92,8 @@
 
           <li v-if="featureFlagsFAQ" class="nav-item v-step-15">
             <router-link
-              :style="{
-                color:
-                  $route.path === '/FAQ'
-                    ? uiConfiguration?.navbarActiveTextColor
-                    : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
+              :class="['nav-link nav-option', { active: isFaqActive }]"
+              :style="navLinkStyle(isFaqActive)"
               to="/FAQ"
             >
               <i class="bi bi-people" />
@@ -137,13 +102,8 @@
           </li>
           <li class="nav-item">
             <router-link
-              :style="{
-                color:
-                  $route.path === '/guide'
-                    ? uiConfiguration?.navbarActiveTextColor
-                    : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
+              :class="['nav-link nav-option', { active: isGuideActive }]"
+              :style="navLinkStyle(isGuideActive)"
               to="/guide"
             >
               <i class="bi bi-book" />
@@ -159,7 +119,7 @@
           <div class="spinner-grow spinner-grow-sm" role="status" />
           {{ returnCurrentMode }}
         </div>
-        <NotificationsButton class="me-3 v-step-16" />
+        <NotificationsButton class="me-5 v-step-16" />
         <span
           v-if="oidcIsAuthenticated"
           :style="{ color: uiConfiguration?.navbarWelcomeTextColor }"
@@ -204,7 +164,7 @@ import { useActuatorInfoStore } from '../store/actuatorInfo'
 import { useUserStore } from '../store/user'
 import { useOidcStore } from '../store/oidc'
 import { useNetworksPageStore } from '../store/networksPage'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const uiConfigurationStore = useUiConfiguration()
 const actuatorInfoStore = useActuatorInfoStore()
@@ -213,6 +173,7 @@ const oidcStore = useOidcStore()
 const networksPageStore = useNetworksPageStore()
 const dropdownVisible = ref(false)
 const router = useRouter()
+const route = useRoute()
 const roles = ref([])
 const { faqPage: featureFlagsFAQ } = useFeatureFlags()
 const backendEnvironment = ref('')
@@ -240,6 +201,36 @@ const isResearcher = computed(() => {
 })
 const isRepresentative = computed(() => {
   return roles.value.includes(ROLES.REPRESENTATIVE)
+})
+const isAdminActive = computed(() => {
+  return route.path === '/admin' || route.params.userRole === 'ROLE_ADMIN'
+})
+const isResearcherActive = computed(() => {
+  return route.path === '/researcher' || route.params.userRole === 'ROLE_RESEARCHER'
+})
+const isRepresentativeActive = computed(() => {
+  return route.path === '/biobanker' || route.params.userRole === 'ROLE_REPRESENTATIVE'
+})
+const isGovernanceActive = computed(() => {
+  return (
+    route.path === '/governance' ||
+    route.params.userRole === 'ROLE_REPRESENTATIVE' ||
+    route.params.userRole === 'ROLE_ADMIN'
+  )
+})
+const isNetworksActive = computed(() => {
+  return route.path.startsWith('/networks')
+})
+const isFaqActive = computed(() => {
+  return route.path === '/FAQ'
+})
+const isGuideActive = computed(() => {
+  return route.path === '/guide'
+})
+const navLinkStyle = (isActive) => ({
+  color: isActive
+    ? uiConfiguration.value?.navbarActiveTextColor
+    : uiConfiguration.value?.navbarTextColor,
 })
 const returnCurrentMode = computed(() => {
   if (import.meta.env.DEV) {
@@ -303,8 +294,18 @@ function retrieveUserRoles() {
 <style>
 nav {
   width: 100%;
-  font-size: 1rem;
+  font-size: 0.8125rem;
   text-align: left;
+}
+
+.nav-link.nav-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-link.nav-option.active {
+  font-weight: 600;
 }
 
 .nav-item.dropdown .dropdown-menu {
@@ -322,11 +323,5 @@ nav {
   text-overflow: ellipsis; /* Ellipsis for overflowing text */
   color: #495057; /* Darker gray text color to match Bootstrap's default text */
   background-color: #e7e7e7;
-}
-
-.nav-item:hover .nav-link,
-.nav-item.dropdown .dropdown-item:hover,
-.nav-item.dropdown .dropdown-item:focus {
-  box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3); /* Light gray background on hover */
 }
 </style>
