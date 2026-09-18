@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.post.PostType;
@@ -55,19 +54,25 @@ public class PersistStateChangeListener
     Long postSenderId = message.getHeaders().get("postSenderId", Long.class);
 
     Negotiation negotiation = getNegotiation(negotiationId);
+    if (negotiation == null) {
+      throw new IllegalStateException(
+          "Negotiation state change was triggered for a non-existing negotiation with ID: "
+              + negotiationId);
+    }
     updateNegotiationStatus(state, negotiation);
 
-    if (Objects.nonNull(postSenderId)
-        && Objects.nonNull(postBody)
-        && !postBody.isEmpty()
-        && Objects.nonNull(negotiation)) {
-      createPostFromMessage(postSenderId, negotiation, postBody);
+    Post post = null;
+    if (Objects.nonNull(postSenderId) && Objects.nonNull(postBody) && !postBody.isEmpty()) {
+      post = createPostFromMessage(postSenderId, negotiation, postBody);
     }
-    publishChangeEvent(state, transition, negotiationId);
+    publishChangeEvent(state, transition, negotiationId, post);
   }
 
   private void publishChangeEvent(
-      State<String, String> state, Transition<String, String> transition, String negotiationId) {
+      State<String, String> state,
+      Transition<String, String> transition,
+      String negotiationId,
+      Post post) {
     NegotiationEvent event;
     NegotiationState fromState;
     NegotiationState toState;
@@ -80,19 +85,18 @@ public class PersistStateChangeListener
       return;
     }
 
+    String postId = post != null ? post.getId() : null;
     eventPublisher.publishEvent(
-        new NegotiationStateChangeEvent(this, negotiationId, fromState, toState, event));
+        new NegotiationStateChangeEvent(this, negotiationId, fromState, toState, event, postId));
   }
 
-  private void createPostFromMessage(Long postSenderId, Negotiation negotiation, String postBody) {
+  private Post createPostFromMessage(Long postSenderId, Negotiation negotiation, String postBody) {
     Person postSender = personRepository.findById(postSenderId).orElse(null);
     Post postEntity =
         Post.builder().negotiation(negotiation).text(postBody).type(PostType.PUBLIC).build();
     postEntity.setCreatedBy(postSender);
     postEntity.setCreationDate(LocalDateTime.now());
-    postRepository.save(postEntity);
-    eventPublisher.publishEvent(
-        new NewPostEvent(this, postEntity.getId(), negotiation.getId(), postSenderId, null));
+    return postRepository.save(postEntity);
   }
 
   private void updateNegotiationStatus(State<String, String> state, Negotiation negotiation) {
