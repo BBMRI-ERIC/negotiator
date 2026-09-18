@@ -138,10 +138,15 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.IN_PROGRESS,
         NegotiationState.valueOf(
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
-    long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
-    assertThat(numEvents).isEqualTo(1);
-    long numPostEvents = events.stream(eu.bbmri_eric.negotiator.post.NewPostEvent.class).count();
-    assertThat(numPostEvents).isEqualTo(0);
+    List<NegotiationStateChangeEvent> publishedEvents =
+        events.stream(NegotiationStateChangeEvent.class).toList();
+    assertThat(publishedEvents.size()).isEqualTo(1);
+    NegotiationStateChangeEvent publishedEvent = publishedEvents.getFirst();
+    assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
+    assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.SUBMITTED);
+    assertThat(publishedEvent.getToState()).isEqualTo(NegotiationState.IN_PROGRESS);
+    assertThat(publishedEvent.getEvent()).isEqualTo(NegotiationEvent.APPROVE);
+    assertThat(publishedEvent.getPostId()).isNull();
   }
 
   @Test
@@ -155,12 +160,18 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.DECLINED,
         negotiationLifecycleService.sendEvent(
             negotiationDTO.getId(), NegotiationEvent.DECLINE, "not acceptable"));
-    long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
-    assertThat(numEvents).isEqualTo(1);
     posts = postRepository.findByNegotiationId(negotiationDTO.getId());
     assertThat(posts.size()).isEqualTo(numberOfPosts + 1);
-    long numPostEvents = events.stream(eu.bbmri_eric.negotiator.post.NewPostEvent.class).count();
-    assertThat(numPostEvents).isEqualTo(1);
+    String createdPostId = posts.get(posts.size() - 1).getId();
+    List<NegotiationStateChangeEvent> publishedEvents =
+        events.stream(NegotiationStateChangeEvent.class).toList();
+    assertThat(publishedEvents.size()).isEqualTo(1);
+    NegotiationStateChangeEvent publishedEvent = publishedEvents.getFirst();
+    assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
+    assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.SUBMITTED);
+    assertThat(publishedEvent.getToState()).isEqualTo(NegotiationState.DECLINED);
+    assertThat(publishedEvent.getEvent()).isEqualTo(NegotiationEvent.DECLINE);
+    assertThat(publishedEvent.getPostId()).isEqualTo(createdPostId);
   }
 
   @Test
@@ -185,18 +196,6 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.ABANDONED,
         negotiationLifecycleService.sendEvent(
             negotiationDTO.getId(), NegotiationEvent.ABANDON, "Not acceptable"));
-    long numPostEvents = events.stream(eu.bbmri_eric.negotiator.post.NewPostEvent.class).count();
-    assertThat(numPostEvents).isEqualTo(1);
-  }
-
-  @Test
-  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
-  @Transactional
-  void sendEvent_withEmptyMessage_doesNotPublishNewPostEvent() throws IOException {
-    NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.DECLINE, "");
-    long numPostEvents = events.stream(eu.bbmri_eric.negotiator.post.NewPostEvent.class).count();
-    assertThat(numPostEvents).isEqualTo(0);
   }
 
   NegotiationDTO saveNegotiation() throws IOException {
@@ -239,8 +238,15 @@ public class NegotiationLifecycleServiceImplTest {
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.SUBMIT));
     assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
-    long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
-    assertEquals(1, numEvents);
+    List<NegotiationStateChangeEvent> publishedEvents =
+        events.stream(NegotiationStateChangeEvent.class).toList();
+    assertEquals(1, publishedEvents.size());
+    NegotiationStateChangeEvent publishedEvent = publishedEvents.get(0);
+    assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
+    assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.DRAFT);
+    assertThat(publishedEvent.getToState()).isEqualTo(NegotiationState.SUBMITTED);
+    assertThat(publishedEvent.getEvent()).isEqualTo(NegotiationEvent.SUBMIT);
+    assertThat(publishedEvent.getPostId()).isNull();
     assertEquals(
         negotiationService.findById(negotiationDTO.getId(), false).getStatus(),
         NegotiationState.SUBMITTED.getValue());
