@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
@@ -191,7 +192,9 @@ public class NegotiationServiceImpl implements NegotiationService {
   public NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
     verifyWriteAccessToNegotiation(negotiationEntity);
-    if (Objects.nonNull(updateDTO.getPayload())) {
+    boolean payloadUpdated =
+        isNegotiationPayloadUpdated(updateDTO.getPayload(), negotiationEntity.getPayload());
+    if (payloadUpdated) {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
     }
     if (Objects.nonNull(updateDTO.getDisplayId())
@@ -207,10 +210,17 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationEntity.setCreatedBy(person);
     }
     negotiationRepository.saveAndFlush(negotiationEntity);
-    if (Objects.nonNull(updateDTO.getPayload())) {
+    if (payloadUpdated) {
       eventPublisher.publishEvent(new NegotiationPayloadUpdatedEvent(this, negotiationId));
     }
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
+  }
+
+  private boolean isNegotiationPayloadUpdated(JsonNode newPayload, String oldPayload) {
+    if (newPayload == null) {
+      return false;
+    }
+    return !newPayload.toString().equals(oldPayload);
   }
 
   private static void verifyWriteAccessToNegotiation(Negotiation negotiationEntity) {
