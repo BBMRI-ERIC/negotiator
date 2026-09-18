@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -140,7 +140,7 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
     List<NegotiationStateChangeEvent> publishedEvents =
         events.stream(NegotiationStateChangeEvent.class).toList();
-    assertThat(publishedEvents.size()).isEqualTo(1);
+    assertThat(publishedEvents).hasSize(1);
     NegotiationStateChangeEvent publishedEvent = publishedEvents.getFirst();
     assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
     assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.SUBMITTED);
@@ -161,11 +161,11 @@ public class NegotiationLifecycleServiceImplTest {
         negotiationLifecycleService.sendEvent(
             negotiationDTO.getId(), NegotiationEvent.DECLINE, "not acceptable"));
     posts = postRepository.findByNegotiationId(negotiationDTO.getId());
-    assertThat(posts.size()).isEqualTo(numberOfPosts + 1);
-    String createdPostId = posts.get(posts.size() - 1).getId();
+    assertThat(posts).hasSize(numberOfPosts + 1);
+    String createdPostId = posts.getLast().getId();
     List<NegotiationStateChangeEvent> publishedEvents =
         events.stream(NegotiationStateChangeEvent.class).toList();
-    assertThat(publishedEvents.size()).isEqualTo(1);
+    assertThat(publishedEvents).hasSize(1);
     NegotiationStateChangeEvent publishedEvent = publishedEvents.getFirst();
     assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
     assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.SUBMITTED);
@@ -240,7 +240,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
     List<NegotiationStateChangeEvent> publishedEvents =
         events.stream(NegotiationStateChangeEvent.class).toList();
-    assertEquals(1, publishedEvents.size());
+    assertThat(publishedEvents).hasSize(1);
     NegotiationStateChangeEvent publishedEvent = publishedEvents.get(0);
     assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
     assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.DRAFT);
@@ -291,7 +291,7 @@ public class NegotiationLifecycleServiceImplTest {
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Set<NegotiationLifecycleRecord> history =
         negotiationRepository.findDetailedById(negotiationDTO.getId()).get().getLifecycleHistory();
-    assertEquals(2, history.size());
+    assertThat(history).hasSize(2);
     assertTrue(
         history.stream()
             .anyMatch(record -> record.getChangedTo().equals(NegotiationState.IN_PROGRESS)));
@@ -395,7 +395,7 @@ public class NegotiationLifecycleServiceImplTest {
               negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
           Set<NegotiationResourceLifecycleRecord> records =
               negotiation.getNegotiationResourceLifecycleRecords();
-          assertEquals(4, records.size());
+          assertThat(records).hasSize(4);
         });
   }
 
@@ -567,13 +567,13 @@ public class NegotiationLifecycleServiceImplTest {
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     List<ResourceWithStatusDTO> resources =
         resourceService.findAllInNegotiation(negotiation.getId());
-    assertEquals(2, resources.size());
+    assertThat(resources).hasSize(2);
     resourceService.updateResourcesInANegotiation(
         negotiation.getId(),
         new UpdateResourcesDTO(
             resources.stream().map(ResourceWithStatusDTO::getId).collect(Collectors.toList()),
             NegotiationResourceState.RESOURCE_MADE_AVAILABLE));
-    assertEquals(2, resources.size());
+    assertThat(resources).hasSize(2);
 
     // Wait for the resource state update handler to complete
     await()
