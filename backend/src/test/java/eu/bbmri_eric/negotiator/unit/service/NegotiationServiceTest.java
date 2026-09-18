@@ -454,11 +454,12 @@ public class NegotiationServiceTest {
       authSubject = "admin@negotiator.dev",
       authEmail = "admin@negotiator.dev",
       authorities = {"ROLE_ADMIN"})
-  void update_whenPayloadIsProvided_publishesNegotiationPayloadUpdatedEvent() throws Exception {
+  void update_whenPayloadIsUpdated_publishesNegotiationPayloadUpdatedEvent() throws Exception {
     Negotiation negotiation = buildNegotiation();
     negotiation.setId(NEGOTIATION_ID);
     negotiation.setCreatedBy(Person.builder().id(999L).build());
-    JsonNode payload = new ObjectMapper().readTree("{\"project\":{\"title\":\"Test\"}}");
+    negotiation.setPayload("{\"project\":{\"title\":\"Old\"}}");
+    JsonNode payload = new ObjectMapper().readTree("{\"project\":{\"title\":\"New\"}}");
     NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
     updateDTO.setPayload(payload);
     when(negotiationRepository.findDetailedById(NEGOTIATION_ID))
@@ -472,6 +473,30 @@ public class NegotiationServiceTest {
         ArgumentCaptor.forClass(NegotiationPayloadUpdatedEvent.class);
     verify(eventPublisher).publishEvent(eventCaptor.capture());
     assertEquals(NEGOTIATION_ID, eventCaptor.getValue().getNegotiationId());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      authName = "admin",
+      authSubject = "admin@negotiator.dev",
+      authEmail = "admin@negotiator.dev",
+      authorities = {"ROLE_ADMIN"})
+  void update_whenPayloadIsSame_notPublishesNegotiationPayloadUpdatedEvent() throws Exception {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setId(NEGOTIATION_ID);
+    negotiation.setCreatedBy(Person.builder().id(999L).build());
+    negotiation.setPayload("{\"project\":{\"title\":\"Test\"}}");
+    JsonNode payload = new ObjectMapper().readTree("{\"project\":{\"title\":\"Test\"}}");
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setPayload(payload);
+    when(negotiationRepository.findDetailedById(NEGOTIATION_ID))
+        .thenReturn(Optional.of(negotiation));
+    NegotiationDTO returnedDTO = new NegotiationDTO();
+    when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(returnedDTO);
+
+    negotiationService.update(NEGOTIATION_ID, updateDTO);
+
+    verify(eventPublisher, never()).publishEvent(any(NegotiationPayloadUpdatedEvent.class));
   }
 
   @Test
