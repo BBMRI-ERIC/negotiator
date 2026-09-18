@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 public enum WebhookEventType {
   NEGOTIATION_ADDED("negotiation.added"),
   NEGOTIATION_INFO_UPDATED("negotiation.info.updated"),
+  NEGOTIATION_UPDATED("negotiation.updated"),
   NEGOTIATION_POST_ADDED("negotiation.post.added"),
   NEGOTIATION_RESOURCE_ADDED("negotiation.resource.added"),
   NEGOTIATION_RESOURCE_STATE_UPDATED("negotiation.resource.state.updated"),

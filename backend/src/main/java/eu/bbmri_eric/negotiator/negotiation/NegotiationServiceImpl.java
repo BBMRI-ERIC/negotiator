@@ -26,7 +26,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
@@ -191,14 +190,16 @@ public class NegotiationServiceImpl implements NegotiationService {
   public NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
     verifyWriteAccessToNegotiation(negotiationEntity);
-    if (Objects.nonNull(updateDTO.getPayload())) {
+    boolean isPayloadUpdated = isPayloadUpdated(updateDTO, negotiationEntity);
+    if (isPayloadUpdated) {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
     }
-    if (Objects.nonNull(updateDTO.getDisplayId())
-        && AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+    boolean isDisplayIdUpdated = isDisplayIdUpdated(updateDTO, negotiationEntity);
+    if (isDisplayIdUpdated) {
       negotiationEntity.setDisplayId(updateDTO.getDisplayId());
     }
-    if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
+    boolean isAuthorSubjectIdUpdated = isAuthorSubjectIdUpdated(updateDTO, negotiationEntity);
+    if (isAuthorSubjectIdUpdated) {
       log.info("Transferring Negotiation");
       Person person =
           personRepository
@@ -206,7 +207,10 @@ public class NegotiationServiceImpl implements NegotiationService {
               .orElseThrow(() -> new EntityNotFoundException(updateDTO.getAuthorSubjectId()));
       negotiationEntity.setCreatedBy(person);
     }
-    negotiationRepository.saveAndFlush(negotiationEntity);
+    if (isPayloadUpdated || isDisplayIdUpdated || isAuthorSubjectIdUpdated) {
+      negotiationRepository.saveAndFlush(negotiationEntity);
+      eventPublisher.publishEvent(new NegotiationUpdatedEvent(this, negotiationId));
+    }
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
@@ -216,6 +220,25 @@ public class NegotiationServiceImpl implements NegotiationService {
         && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException("You are not allowed to update this entity");
     }
+  }
+
+  private static boolean isPayloadUpdated(
+      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
+    return updateDTO.getPayload() != null
+        && !updateDTO.getPayload().toString().equals(negotiationEntity.getPayload());
+  }
+
+  private static boolean isDisplayIdUpdated(
+      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
+    return updateDTO.getDisplayId() != null
+        && AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !updateDTO.getDisplayId().equals(negotiationEntity.getDisplayId());
+  }
+
+  private static boolean isAuthorSubjectIdUpdated(
+      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
+    return updateDTO.getAuthorSubjectId() != null
+        && !updateDTO.getAuthorSubjectId().equals(negotiationEntity.getCreatedBy().getSubjectId());
   }
 
   /**

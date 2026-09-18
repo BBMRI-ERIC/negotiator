@@ -6,9 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
@@ -25,12 +28,15 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationServiceImpl;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationUpdatedEvent;
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
@@ -39,11 +45,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -58,6 +68,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class NegotiationServiceTest {
+  private static final String NEGOTIATION_ID = "negotiation-id";
+
   @Mock AttachmentRepository attachmentRepository;
   @Mock NegotiationRepository negotiationRepository;
   @Mock PersonRepository personRepository;
@@ -438,5 +450,63 @@ public class NegotiationServiceTest {
     negotiationService.setPrivatePostsEnabled(negotiationId, false);
     assertFalse(negotiation.isPublicPostsEnabled());
     assertFalse(negotiation.isPrivatePostsEnabled());
+  }
+
+  static Stream<Arguments> updateEventPublishingCombinations() throws Exception {
+    JsonNode newPayload = new ObjectMapper().readTree("{\"project\":{\"title\":\"New\"}}");
+    JsonNode samePayload = new ObjectMapper().readTree("{\"project\":{\"title\":\"Old\"}}");
+    return Stream.of(
+        // payload, displayId, authorSubjectId, expectUpdate
+        Arguments.of(newPayload, "new-display-id", "new-subject", true),
+        Arguments.of(newPayload, "new-display-id", null, true),
+        Arguments.of(newPayload, null, "new-subject", true),
+        Arguments.of(null, "new-display-id", "new-subject", true),
+        Arguments.of(newPayload, null, null, true),
+        Arguments.of(null, "new-display-id", null, true),
+        Arguments.of(null, null, "new-subject", true),
+        Arguments.of(null, null, null, false),
+        Arguments.of(samePayload, "old-display-id", "old-subject", false));
+  }
+
+  @ParameterizedTest
+  @MethodSource("updateEventPublishingCombinations")
+  @WithMockNegotiatorUser(
+      authName = "admin",
+      authSubject = "admin@negotiator.dev",
+      authEmail = "admin@negotiator.dev",
+      authorities = {"ROLE_ADMIN"})
+  void update_saveNegAndPublishesNegotiationUpdatedEvent_onlyWhenSomethingChanged(
+      JsonNode newPayload, String newDisplayId, String newAuthorSubjectId, boolean expectUpdate) {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setId(NEGOTIATION_ID);
+    negotiation.setCreatedBy(Person.builder().id(999L).subjectId("old-subject").build());
+    negotiation.setPayload("{\"project\":{\"title\":\"Old\"}}");
+    negotiation.setDisplayId("old-display-id");
+
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setPayload(newPayload);
+    updateDTO.setDisplayId(newDisplayId);
+    updateDTO.setAuthorSubjectId(newAuthorSubjectId);
+
+    when(negotiationRepository.findDetailedById(NEGOTIATION_ID))
+        .thenReturn(Optional.of(negotiation));
+    when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(new NegotiationDTO());
+    if (newAuthorSubjectId != null) {
+      when(personRepository.findBySubjectId(newAuthorSubjectId))
+          .thenReturn(Optional.of(Person.builder().id(888L).subjectId(newAuthorSubjectId).build()));
+    }
+
+    negotiationService.update(NEGOTIATION_ID, updateDTO);
+
+    if (expectUpdate) {
+      verify(negotiationRepository).saveAndFlush(negotiation);
+      ArgumentCaptor<NegotiationUpdatedEvent> captor =
+          ArgumentCaptor.forClass(NegotiationUpdatedEvent.class);
+      verify(eventPublisher).publishEvent(captor.capture());
+      assertEquals(NEGOTIATION_ID, captor.getValue().getNegotiationId());
+    } else {
+      verify(negotiationRepository, never()).saveAndFlush(any());
+      verify(eventPublisher, never()).publishEvent(any(NegotiationUpdatedEvent.class));
+    }
   }
 }
