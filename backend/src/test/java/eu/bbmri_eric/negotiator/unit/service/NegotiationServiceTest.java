@@ -454,8 +454,9 @@ public class NegotiationServiceTest {
 
   static Stream<Arguments> updateEventPublishingCombinations() throws Exception {
     JsonNode newPayload = new ObjectMapper().readTree("{\"project\":{\"title\":\"New\"}}");
+    JsonNode samePayload = new ObjectMapper().readTree("{\"project\":{\"title\":\"Old\"}}");
     return Stream.of(
-        // payload, displayId, authorSubjectId changed -> expectEvent
+        // payload, displayId, authorSubjectId, expectUpdate
         Arguments.of(newPayload, "new-display-id", "new-subject", true),
         Arguments.of(newPayload, "new-display-id", null, true),
         Arguments.of(newPayload, null, "new-subject", true),
@@ -463,7 +464,8 @@ public class NegotiationServiceTest {
         Arguments.of(newPayload, null, null, true),
         Arguments.of(null, "new-display-id", null, true),
         Arguments.of(null, null, "new-subject", true),
-        Arguments.of(null, null, null, false));
+        Arguments.of(null, null, null, false),
+        Arguments.of(samePayload, "old-display-id", "old-subject", false));
   }
 
   @ParameterizedTest
@@ -474,7 +476,7 @@ public class NegotiationServiceTest {
       authEmail = "admin@negotiator.dev",
       authorities = {"ROLE_ADMIN"})
   void update_saveNegAndPublishesNegotiationUpdatedEvent_onlyWhenSomethingChanged(
-      JsonNode newPayload, String newDisplayId, String newAuthorSubjectId, boolean expectEvent) {
+      JsonNode newPayload, String newDisplayId, String newAuthorSubjectId, boolean expectUpdate) {
     Negotiation negotiation = buildNegotiation();
     negotiation.setId(NEGOTIATION_ID);
     negotiation.setCreatedBy(Person.builder().id(999L).subjectId("old-subject").build());
@@ -496,7 +498,7 @@ public class NegotiationServiceTest {
 
     negotiationService.update(NEGOTIATION_ID, updateDTO);
 
-    if (expectEvent) {
+    if (expectUpdate) {
       verify(negotiationRepository).saveAndFlush(negotiation);
       ArgumentCaptor<NegotiationUpdatedEvent> captor =
           ArgumentCaptor.forClass(NegotiationUpdatedEvent.class);
