@@ -6,6 +6,7 @@
       class="btn btn-sm rounded-circle position-relative py-0 px-1"
       :style="{ color: uiConfiguration?.navbarButtonOutlineColor }"
       data-bs-toggle="dropdown"
+      data-bs-display="static"
       aria-expanded="false"
       @click="() => fetchNotifications(0)"
     >
@@ -56,7 +57,7 @@
         >
           <div class="me-auto">
             <div class="fw-bold">{{ notification.title }}</div>
-            <div class="small">{{ notification.message }}</div>
+            <div class="small text-wrap">{{ notification.message }}</div>
             <div v-if="notification.negotiationId" class="small text-primary mt-1">
               <i class="bi bi-arrow-right-circle"></i> Click to view negotiation
             </div>
@@ -290,6 +291,20 @@ onUnmounted(() => {
   overflow: hidden;
   overflow-y: auto;
   max-height: calc(100vh - 150px);
+  width: 410px;
+}
+
+@media (max-width: 576px) {
+  .dropdown {
+    position: static;
+  }
+
+  .dropdown-menu {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .notification-badge {
