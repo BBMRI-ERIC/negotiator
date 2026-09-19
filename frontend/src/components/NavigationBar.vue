@@ -5,11 +5,11 @@
     :style="{ 'background-color': uiConfiguration?.navbarBackgroundColor }"
     class="navbar fixed-top navbar-expand-lg"
   >
-    <div class="container-fluid px-5">
-      <router-link to="/">
+    <div class="container-fluid px-4 px-md-5">
+      <router-link class="navbar-logo" to="/">
         <img :src="returnLogoSrc" alt="nav-bar-logo" class="me-5" height="28" />
       </router-link>
-      <div id="menu-navbar" class="collapse navbar-collapse">
+      <div id="menu-navbar" ref="menuNavbarRef" class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
           <li v-if="isAdmin" class="nav-item v-step-10">
             <router-link
@@ -111,47 +111,43 @@
             </router-link>
           </li>
         </ul>
-        <div
-          v-if="oidcIsAuthenticated && returnCurrentMode"
-          :class="returnCurrentModeTextColor"
-          class="me-2 me-3"
-        >
-          <div class="spinner-grow spinner-grow-sm" role="status" />
-          {{ returnCurrentMode }}
-        </div>
-        <NotificationsButton class="me-5 v-step-16" />
-        <span
-          v-if="oidcIsAuthenticated"
-          :style="{ color: uiConfiguration?.navbarWelcomeTextColor }"
-          class="me-2"
-        >
-          {{ oidcUser.preferred_username }}
-        </span>
       </div>
-      <div>
-        <ProfileSettings
-          :is-admin="isAdmin"
-          :is-representative="isRepresentative"
-          :user="oidcUser"
-          class="me-3 v-step-17"
-        />
-        <button
-          aria-controls="menu-navbar"
-          aria-expanded="false"
-          class="navbar-toggler"
-          data-bs-target="#menu-navbar"
-          data-bs-toggle="collapse"
-          type="button"
-        >
-          <span class="navbar-toggler-icon" />
-        </button>
+      <div
+        v-if="oidcIsAuthenticated && returnCurrentMode"
+        :class="returnCurrentModeTextColor"
+        :title="returnCurrentMode"
+        class="me-0 me-md-3 d-inline-flex align-items-center gap-2 navbar-env-indicator"
+      >
+        <div class="spinner-grow spinner-grow-sm" role="status" />
+        <span class="d-none d-lg-inline text-nowrap fw-semibold">{{ returnCurrentMode }}</span>
       </div>
+      <NotificationsButton class="me-0 me-md-3 v-step-16 navbar-notifications" />
+
+      <button
+        ref="togglerRef"
+        aria-controls="menu-navbar"
+        aria-expanded="false"
+        class="navbar-toggler navbar-toggler-mobile-left border-0 shadow-none"
+        data-bs-target="#menu-navbar"
+        data-bs-toggle="collapse"
+        type="button"
+      >
+        <span class="navbar-toggler-icon" />
+      </button>
+
+      <ProfileSettings
+        :is-admin="isAdmin"
+        :is-representative="isRepresentative"
+        :user="oidcUser"
+        class="v-step-17 navbar-profile"
+      />
     </div>
   </nav>
 </template>
 
 <script setup>
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { Collapse } from 'bootstrap'
 import { ROLES } from '@/config/consts'
 import ProfileSettings from '../components/ProfileSettings.vue'
 import bbmriLogo from '../assets/images/bbmri/nav-bar-bbmri.png'
@@ -172,6 +168,8 @@ const userStore = useUserStore()
 const oidcStore = useOidcStore()
 const networksPageStore = useNetworksPageStore()
 const dropdownVisible = ref(false)
+const menuNavbarRef = ref(null)
+const togglerRef = ref(null)
 const router = useRouter()
 const route = useRoute()
 const roles = ref([])
@@ -289,6 +287,24 @@ function retrieveBackendEnvironment() {
 function retrieveUserRoles() {
   roles.value = userInfo.value.roles
 }
+
+function handleOutsideClick(event) {
+  const menuEl = menuNavbarRef.value
+  if (!menuEl || !menuEl.classList.contains('show')) {
+    return
+  }
+  if (menuEl.contains(event.target) || togglerRef.value?.contains(event.target)) {
+    return
+  }
+  Collapse.getInstance(menuEl)?.hide()
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleOutsideClick)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleOutsideClick)
+})
 </script>
 
 <style>
@@ -323,5 +339,25 @@ nav {
   text-overflow: ellipsis; /* Ellipsis for overflowing text */
   color: #495057; /* Darker gray text color to match Bootstrap's default text */
   background-color: #e7e7e7;
+}
+
+@media (max-width: 991.98px) {
+  .navbar-toggler-mobile-left {
+    order: -3;
+  }
+
+  .navbar-toggler {
+    padding-left: 0 !important;
+  }
+
+  .navbar-logo {
+    order: -2;
+  }
+
+  .navbar-notifications,
+  .navbar-profile,
+  .navbar-env-indicator {
+    order: -1;
+  }
 }
 </style>
