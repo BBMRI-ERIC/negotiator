@@ -452,6 +452,33 @@ public class NegotiationServiceTest {
     assertFalse(negotiation.isPrivatePostsEnabled());
   }
 
+  @Test
+  @WithMockNegotiatorUser(
+      id = 2L,
+      authName = "researcher",
+      authSubject = "researcher@aai.eu",
+      authEmail = "researcher@aai.eu",
+      authorities = {"ROLE_RESEARCHER"})
+  void update_throwsForbidden_whenNonAdminUpdatesDisplayId() {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setId(NEGOTIATION_ID);
+    negotiation.setDisplayId("old-display-id");
+    negotiation.setCreatedBy(Person.builder().id(2L).subjectId("researcher@aai.eu").build());
+
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setDisplayId("new-display-id");
+
+    when(negotiationRepository.findDetailedById(NEGOTIATION_ID))
+        .thenReturn(Optional.of(negotiation));
+    when(personRepository.isNegotiationCreator(2L, NEGOTIATION_ID)).thenReturn(true);
+
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> negotiationService.update(NEGOTIATION_ID, updateDTO));
+
+    verify(negotiationRepository, never()).saveAndFlush(any());
+  }
+
   static Stream<Arguments> updateEventPublishingCombinations() throws Exception {
     JsonNode newPayload = new ObjectMapper().readTree("{\"project\":{\"title\":\"New\"}}");
     JsonNode samePayload = new ObjectMapper().readTree("{\"project\":{\"title\":\"Old\"}}");
