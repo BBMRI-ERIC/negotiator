@@ -27,6 +27,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
@@ -233,6 +234,9 @@ public class NegotiationServiceImpl implements NegotiationService {
     }
     boolean isDisplayIdUpdated = isDisplayIdUpdated(updateDTO, negotiationEntity);
     if (isDisplayIdUpdated) {
+      if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+        throw new ForbiddenRequestException("Only the admin can change the negotiation display ID");
+      }
       negotiationEntity.setDisplayId(updateDTO.getDisplayId());
     }
     boolean isAuthorSubjectIdUpdated = isAuthorSubjectIdUpdated(updateDTO, negotiationEntity);
@@ -270,7 +274,6 @@ public class NegotiationServiceImpl implements NegotiationService {
   private static boolean isDisplayIdUpdated(
       NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
     return updateDTO.getDisplayId() != null
-        && AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !updateDTO.getDisplayId().equals(negotiationEntity.getDisplayId());
   }
 
