@@ -3,7 +3,7 @@
     <button
       ref="dropdownButton"
       type="button"
-      class="btn btn-sm rounded-circle position-relative py-0 px-1"
+      class="btn btn-sm rounded-circle position-relative notification-toggle-btn"
       :style="{ color: uiConfiguration?.navbarButtonOutlineColor }"
       data-bs-toggle="dropdown"
       data-bs-display="static"
@@ -314,6 +314,15 @@ onUnmounted(() => {
     width: 100%;
     max-width: 100%;
   }
+}
+
+.notification-toggle-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .notification-badge {
