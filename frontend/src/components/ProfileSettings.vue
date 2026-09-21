@@ -32,7 +32,7 @@
               {{ user.name }}
             </div>
           </div>
-          <i class="bi bi-x ms-2 h4" />
+          <i class="bi bi-x ms-2 h4 close-icon" />
         </div>
       </li>
       <li>
@@ -198,5 +198,9 @@ function signOutOidc() {
 <style scoped>
 .sign-out:hover {
   color: #dc3545;
+}
+
+.close-icon {
+  cursor: pointer;
 }
 </style>
