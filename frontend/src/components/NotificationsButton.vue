@@ -22,14 +22,23 @@
     <ul ref="dropdownMenu" class="dropdown-menu dropdown-menu-end">
       <li class="dropdown-item-text alert-info d-flex justify-content-between align-items-center">
         <span>Notifications ({{ totalElements }})</span>
-        <button
-          v-if="unreadCount > 0"
-          @click.stop="markAllAsRead"
-          class="btn btn-sm btn-outline-primary"
-          title="Mark all as read"
-        >
-          <i class="bi bi-check-all"></i>
-        </button>
+        <div class="d-flex align-items-center gap-1">
+          <button
+            v-if="unreadCount > 0"
+            @click.stop="markAllAsRead"
+            class="btn btn-sm btn-outline-primary"
+            title="Mark all as read"
+          >
+            <i class="bi bi-check-all"></i>
+          </button>
+          <button
+            @click.stop="closeDropdown"
+            class="btn btn-sm p-0 border-0 ms-2 lh-1"
+            title="Close"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
       </li>
       <li>
         <hr class="dropdown-divider" />
