@@ -18,7 +18,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
     description = "Sent when the negotiation lifecycle state transitions to a new state.")
 @Schema(description = "Webhook data payload for a negotiation state transition.")
 record NegotiationStateUpdatedWebhookEvent(
-    @Schema(description = "Identifier of the affected negotiation", example = "negotiation-2")
+    @Schema(
+            description = "Identifier of the affected negotiation",
+            example = "550e8400-e29b-41d4-a716-446655440000")
         String negotiationId,
     @Schema(description = "Source state before transition", example = "DRAFT")
         NegotiationState fromState,
@@ -29,5 +31,5 @@ record NegotiationStateUpdatedWebhookEvent(
     @Schema(
             description = "Optional identifier of the post submitted along with the state change",
             nullable = true,
-            example = "post-1")
+            example = "bb50ca76-daa0-4a1e-9d74-c0ae90922554")
         String postId) {}
