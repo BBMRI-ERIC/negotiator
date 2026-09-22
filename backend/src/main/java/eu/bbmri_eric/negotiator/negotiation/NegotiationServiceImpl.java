@@ -228,19 +228,24 @@ public class NegotiationServiceImpl implements NegotiationService {
   public NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
     verifyWriteAccessToNegotiation(negotiationEntity);
-    boolean isPayloadUpdated = isPayloadUpdated(updateDTO, negotiationEntity);
-    if (isPayloadUpdated) {
+    boolean updated = false;
+    if (updateDTO.getPayload() != null
+        && !updateDTO.getPayload().toString().equals(negotiationEntity.getPayload())) {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
+      updated = true;
     }
-    boolean isDisplayIdUpdated = isDisplayIdUpdated(updateDTO, negotiationEntity);
-    if (isDisplayIdUpdated) {
+    if (updateDTO.getDisplayId() != null
+        && !updateDTO.getDisplayId().equals(negotiationEntity.getDisplayId())) {
       if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
         throw new ForbiddenRequestException("Only the admin can change the negotiation display ID");
       }
       negotiationEntity.setDisplayId(updateDTO.getDisplayId());
+      updated = true;
     }
-    boolean isAuthorSubjectIdUpdated = isAuthorSubjectIdUpdated(updateDTO, negotiationEntity);
-    if (isAuthorSubjectIdUpdated) {
+    if (updateDTO.getAuthorSubjectId() != null
+        && !updateDTO
+            .getAuthorSubjectId()
+            .equals(negotiationEntity.getCreatedBy().getSubjectId())) {
       if (!isNegotiationCreatorOrAdmin(negotiationEntity)) {
         throw new ForbiddenRequestException("Only the negotiation author can transfer authorship");
       }
@@ -251,8 +256,9 @@ public class NegotiationServiceImpl implements NegotiationService {
               .orElseThrow(() -> new EntityNotFoundException(updateDTO.getAuthorSubjectId()));
       negotiationEntity.setCreatedBy(person);
       negotiationEntity.removeCollaborator(person);
+      updated = true;
     }
-    if (isPayloadUpdated || isDisplayIdUpdated || isAuthorSubjectIdUpdated) {
+    if (updated) {
       negotiationRepository.saveAndFlush(negotiationEntity);
       eventPublisher.publishEvent(new NegotiationUpdatedEvent(this, negotiationId));
     }
@@ -263,24 +269,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     if (!isNegotiationEditor(negotiationEntity.getId())) {
           throw new ForbiddenRequestException("You are not allowed to update this entity");
       }
-  }
-
-  private static boolean isPayloadUpdated(
-      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
-    return updateDTO.getPayload() != null
-        && !updateDTO.getPayload().toString().equals(negotiationEntity.getPayload());
-  }
-
-  private static boolean isDisplayIdUpdated(
-      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
-    return updateDTO.getDisplayId() != null
-        && !updateDTO.getDisplayId().equals(negotiationEntity.getDisplayId());
-  }
-
-  private static boolean isAuthorSubjectIdUpdated(
-      NegotiationUpdateDTO updateDTO, Negotiation negotiationEntity) {
-    return updateDTO.getAuthorSubjectId() != null
-        && !updateDTO.getAuthorSubjectId().equals(negotiationEntity.getCreatedBy().getSubjectId());
   }
 
   /**
