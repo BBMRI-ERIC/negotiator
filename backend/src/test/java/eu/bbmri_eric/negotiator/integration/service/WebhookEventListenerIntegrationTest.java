@@ -79,7 +79,8 @@ class WebhookEventListenerIntegrationTest {
             "negotiation-1",
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE));
+            NegotiationEvent.APPROVE,
+            null));
 
     await()
         .atMost(Duration.ofSeconds(5))
@@ -130,7 +131,8 @@ class WebhookEventListenerIntegrationTest {
             "negotiation-1",
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT));
+            NegotiationEvent.SUBMIT,
+            null));
 
     await()
         .atMost(Duration.ofSeconds(5))

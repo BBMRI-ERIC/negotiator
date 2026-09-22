@@ -39,7 +39,8 @@ class NegotiationInProgressHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            null);
 
     handler.notify(event);
 
@@ -55,7 +56,8 @@ class NegotiationInProgressHandlerTest {
             negotiationId,
             NegotiationState.DRAFT,
             NegotiationState.SUBMITTED,
-            NegotiationEvent.SUBMIT);
+            NegotiationEvent.SUBMIT,
+            null);
 
     handler.notify(event);
 
@@ -71,7 +73,8 @@ class NegotiationInProgressHandlerTest {
             negotiationId,
             NegotiationState.SUBMITTED,
             NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE);
+            NegotiationEvent.APPROVE,
+            null);
 
     handler.notify(event);
 
