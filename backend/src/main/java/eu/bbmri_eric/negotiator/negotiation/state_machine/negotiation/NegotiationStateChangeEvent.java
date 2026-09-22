@@ -18,15 +18,6 @@ public class NegotiationStateChangeEvent extends ApplicationEvent {
       String negotiationId,
       NegotiationState fromState,
       NegotiationState toState,
-      NegotiationEvent event) {
-    this(source, negotiationId, fromState, toState, event, null);
-  }
-
-  public NegotiationStateChangeEvent(
-      Object source,
-      String negotiationId,
-      NegotiationState fromState,
-      NegotiationState toState,
       NegotiationEvent event,
       @Nullable String postId) {
     super(source);
