@@ -2,7 +2,7 @@
   <div>
     <div class="card mb-2">
       <div class="card-header bg-body" :style="{ color: 'var(--bs-card-title-text)' }">
-        <span class="h5">{{ title }}</span>
+        <span class="h5"><NegotiationTitle :title="title" /></span>
         <h6 class="float-end">
           <UiBadge :class="getBadgeColor(status)" :icon="getBadgeIcon(status)" width="125px">
             {{ transformStatus(status) }}
@@ -21,6 +21,7 @@
 <script setup>
 import { transformStatus, getBadgeColor, getBadgeIcon } from '../composables/utils.js'
 import UiBadge from '@/components/ui/UiBadge.vue'
+import NegotiationTitle from '@/components/NegotiationTitle.vue'
 
 defineProps({
   id: {

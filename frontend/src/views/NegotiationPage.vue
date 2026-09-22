@@ -30,9 +30,9 @@
       <div class="row-col-2">
         <h1
           class="fw-bold v-step-negotiation-0"
-          :style="{ color: uiConfiguration.primaryTextColor }"
+          :style="{ color: uiConfiguration.primaryTextColor, textTransform: 'uppercase' }"
         >
-          {{ negotiation ? negotiation.payload?.project?.title?.toUpperCase() : '' }}
+          <NegotiationTitle :title="getNegotiationTitle(negotiation?.payload)" />
         </h1>
         <p
           v-if="negotiation.status === 'DRAFT'"

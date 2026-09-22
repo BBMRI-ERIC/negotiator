@@ -95,7 +95,7 @@
           v-for="fn in negotiations"
           :id="fn.id"
           :key="fn.id"
-          :title="fn.payload.project.title"
+          :title="getNegotiationTitle(fn.payload)"
           :status="fn.status"
           :submitter="fn.author.name"
           :creation-date="formatDate(fn.creationDate)"
@@ -160,6 +160,9 @@
               "
             />
           </template>
+          <template #title="{ value }">
+            <NegotiationTitle :title="value" />
+          </template>
           <template #creationDate="{ value }">
             <TimeStamp :value="value" :muted="true" />
           </template>
@@ -222,7 +225,9 @@ import {
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import SortButton from '@/components/ui/SortButton.vue'
+import NegotiationTitle from '@/components/NegotiationTitle.vue'
 import { useI18n } from 'vue-i18n'
+import { getNegotiationTitle } from '@/utils/payload.js'
 
 const { t } = useI18n()
 const filtersSortData = defineModel('filtersSortData')
@@ -256,7 +261,7 @@ const tableHeaders = [
   {
     key: 'title',
     label: 'Title',
-    slot: undefined,
+    slot: 'title',
     style: { color: '#3c3c3d' },
   },
   {
@@ -294,7 +299,7 @@ const tableHeaders = [
 const tableData = computed(() =>
   Array.isArray(props.negotiations)
     ? props.negotiations.map((fn) => ({
-        title: fn.payload?.project?.title,
+        title: getNegotiationTitle(fn.payload),
         displayId: fn.displayId,
         creationDate: fn.creationDate,
         author: fn.author.name,
