@@ -267,8 +267,8 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   private void verifyWriteAccessToNegotiation(Negotiation negotiationEntity) {
     if (!isNegotiationEditor(negotiationEntity.getId())) {
-          throw new ForbiddenRequestException("You are not allowed to update this entity");
-      }
+      throw new ForbiddenRequestException("You are not allowed to update this entity");
+    }
   }
 
   /**
