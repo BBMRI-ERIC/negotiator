@@ -114,8 +114,12 @@ The one Resource-scope Definition Family a Resource resolves to when nothing mor
 _Avoid_: fallback definition, default machine
 
 **Definition Version Pin**:
-The immutable Definition Version recorded on a Negotiation or a NegotiationResourceLink when its Lifecycle begins, so publishing a new active version never moves work already in flight. A Negotiation pins at creation; a Resource pins at Spawn, since that is when its Lifecycle starts. Anything said *about* work in flight is read through the pin — a State's label, the Events it could fire — never by resolving the active version, which would describe a Definition Version that Lifecycle is not running.
+The immutable Definition Version recorded on a Negotiation or a NegotiationResourceLink when its Lifecycle begins, so publishing a new active version never moves work already in flight. A Negotiation pins at creation; a Resource pins at Spawn, since that is when its Lifecycle starts. Anything said *about* work in flight is read through the pin — a State's label, the Events it could fire — never by resolving the active version, which would describe a Definition Version that Lifecycle is not running. The pin is also what says whether a Lifecycle has started at all. A NegotiationResourceLink with no pin has not been spawned, and a State value sitting on such a link was written by an Override rather than reached through the graph.
 _Avoid_: version lock, snapshot, freeze
+
+**Unstarted Lifecycle**:
+A NegotiationResourceLink carrying no Definition Version Pin. Its Resource Lifecycle has not begun, so it has no graph, no Possible Events and no terminal judgement, and every attempt to judge it is refused rather than answered against the active version. It may still hold a State, because the Override path can write one before approval; that value is not a position in any graph, and nothing may read it as one. The converse cannot occur, because a pinned link always holds a State.
+_Avoid_: uninitialized resource, stateless link, orphan link
 
 ### Lifecycle coupling
 

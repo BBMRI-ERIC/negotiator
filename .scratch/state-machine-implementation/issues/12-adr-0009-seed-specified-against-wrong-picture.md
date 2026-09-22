@@ -52,3 +52,20 @@ is wired to.
 Slab 08 is unaffected — it builds tables, and the tables express every shape above. This ticket must
 resolve before the seed SQL is written (the migration slab) and before the coupling slab wires
 `SPAWN_RESOURCE_LIFECYCLES`.
+
+## Added by ticket 05 (2026-09-22)
+
+**Defect 3 — the v1 Negotiation graph has two entry points.**
+`NegotiationStateMachineConfig.java:31` declares `SUBMITTED` the initial State. `DRAFT` appears
+only as a transition *source* (`:39`), never as a target, and is entered solely by direct insert
+from `NegotiationModelMapper.initialStateFor`. `backend/CONTEXT.md` allows exactly one initial State
+per Definition Version, so ADR 0009's seed cannot be a faithful transcription of both. Same shape as
+defects 1 and 2: an ADR and the glossary describing a graph the code does not have.
+
+**And one behaviour this ticket already owns, now with a second caller.** Ticket 05 decided Spawn
+pins unconditionally over every requested Resource, but deliberately left *which State* Spawn writes
+to a Resource that already carries one to this ticket — it is the same `if` as defect 1's "which
+State does Spawn write" and "is it keyed on `APPROVE` or on arriving at `IN_PROGRESS`". Today the
+answer is skip (`ResourceNotificationService.handleResourceStateManagement:50-52`). Related: a
+Resource added while the parent is `PAUSED` lands on `SUBMITTED` and nobody is ever contacted,
+because that method early-returns unless the Negotiation is `IN_PROGRESS`.

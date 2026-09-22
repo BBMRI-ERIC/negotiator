@@ -110,3 +110,12 @@ the *dead* copy of the median query, so the live copy at `NegotiationRepository:
 **How to re-check all of this in one command:** run `RawStateNamesInSqlGuardTest`. It pins all
 fourteen literals by file, line, name and SQL quoting, and its javadoc attributes each one to the
 KPI it serves and to what breaks it. It fails the build when it drifts, which no ticket does.
+
+## Added by ticket 05 (2026-09-22)
+
+A second instance of this ticket's shape, from the same family of defects: `UpdateResourcesDTO`'s
+`state` field defaults to `SUBMITTED` and `ResourceServiceImpl.updateResourceStatus:177-190` writes
+it through `setStateForResource` as a raw State **name**. A Definition Family that does not define a
+State called `SUBMITTED` gets a link row holding a name absent from its own graph. The DTO's own
+javadoc already records the hazard. Same stage, same question: what does a State name mean when the
+family is configurable?
