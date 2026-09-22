@@ -308,6 +308,8 @@ import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
 import { ROLES } from '@/config/consts.js'
 import UiBadge from '@/components/ui/UiBadge.vue'
+import NegotiationTitle from '@/components/NegotiationTitle.vue'
+import { getNegotiationTitle } from '@/utils/payload.js'
 
 const props = defineProps({
   negotiationId: {
