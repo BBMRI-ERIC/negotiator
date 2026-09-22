@@ -10,6 +10,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.post.Post;
+import eu.bbmri_eric.negotiator.user.Person;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,6 +22,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
@@ -121,6 +124,22 @@ public class Negotiation extends AuditEntity {
   @JoinColumn(name = "discovery_service_id")
   @NotNull
   private DiscoveryService discoveryService;
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "negotiation_collaborator_link",
+      joinColumns = @JoinColumn(name = "negotiation_id"),
+      inverseJoinColumns = @JoinColumn(name = "person_id"))
+  @Builder.Default
+  private Set<Person> collaborators = new HashSet<>();
+
+  public boolean addCollaborator(Person person) {
+    return this.collaborators.add(person);
+  }
+
+  public boolean removeCollaborator(Person person) {
+    return this.collaborators.remove(person);
+  }
 
   public void setAttachments(Set<Attachment> attachments) {
     if (attachments != null) {

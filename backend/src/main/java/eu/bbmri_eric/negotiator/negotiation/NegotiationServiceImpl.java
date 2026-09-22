@@ -22,6 +22,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
+import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
@@ -86,6 +87,43 @@ public class NegotiationServiceImpl implements NegotiationService {
         AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
   }
 
+  @Override
+  public boolean isNegotiationEditor(String negotiationId) {
+    return isNegotiationCreator(negotiationId)
+        || isNegotiationCollaborator(negotiationId)
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  /**
+   * Checks whether the currently authenticated user is the creator of the negotiation, or an admin.
+   *
+   * @param negotiationId the id of the negotiation to check
+   * @return {@code true} if the currently authenticated user is the creator or an admin
+   */
+  private boolean isNegotiationCreatorOrAdmin(String negotiationId) {
+    return isNegotiationCreator(negotiationId)
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  /**
+   * The same check, for callers that already hold the entity.
+   *
+   * @param negotiation the negotiation to check
+   * @return {@code true} if the currently authenticated user is the creator or an admin
+   */
+  private boolean isNegotiationCreatorOrAdmin(Negotiation negotiation) {
+    return Objects.equals(
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(),
+            negotiation.getCreatedBy().getId())
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  @Override
+  public boolean isNegotiationCollaborator(String negotiationId) {
+    return negotiationRepository.existsByIdAndCollaborators_Id(
+        negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
+  }
+
   /**
    * Check if the currently authenticated user is authorized for the negotiation
    *
@@ -98,10 +136,9 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Deprecated(forRemoval = true)
   public boolean isAuthorizedForNegotiation(String negotiationId) {
     Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
-    return isNegotiationCreator(negotiationId)
+    return isNegotiationEditor(negotiationId)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(userId, negotiationId)
-        || personRepository.isManagerOfAnyResourceOfNegotiation(userId, negotiationId)
-        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+        || personRepository.isManagerOfAnyResourceOfNegotiation(userId, negotiationId);
   }
 
   public boolean isOrganizationPartOfNegotiation(
@@ -199,21 +236,23 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationEntity.setDisplayId(updateDTO.getDisplayId());
     }
     if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
+      if (!isNegotiationCreatorOrAdmin(negotiationEntity)) {
+        throw new ForbiddenRequestException("Only the negotiation author can transfer authorship");
+      }
       log.info("Transferring Negotiation");
       Person person =
           personRepository
               .findBySubjectId(updateDTO.getAuthorSubjectId())
               .orElseThrow(() -> new EntityNotFoundException(updateDTO.getAuthorSubjectId()));
       negotiationEntity.setCreatedBy(person);
+      negotiationEntity.removeCollaborator(person);
     }
     negotiationRepository.saveAndFlush(negotiationEntity);
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
-  private static void verifyWriteAccessToNegotiation(Negotiation negotiationEntity) {
-    if (!AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()
-            .equals(negotiationEntity.getCreatedBy().getId())
-        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+  private void verifyWriteAccessToNegotiation(Negotiation negotiationEntity) {
+    if (!isNegotiationEditor(negotiationEntity.getId())) {
       throw new ForbiddenRequestException("You are not allowed to update this entity");
     }
   }
@@ -386,9 +425,9 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   private void verifyRemoveResourcePreconditions(String negotiationId, Negotiation negotiation) {
-    if (!isNegotiationCreator(negotiationId)) {
+    if (!isNegotiationEditor(negotiationId)) {
       throw new ForbiddenRequestException(
-          "Only the negotiation author can remove resources from a draft negotiation");
+          "Only editors of the negotiation can remove resources from a draft negotiation");
     }
     if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
       throw new IllegalStateException(
@@ -409,5 +448,75 @@ public class NegotiationServiceImpl implements NegotiationService {
                 new EntityNotFoundException(
                     "Resource with id %s not found in negotiation %s"
                         .formatted(resourceId, negotiationId)));
+  }
+
+  @Override
+  public Set<UserResponseModel> getCollaborators(String negotiationId) {
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userId);
+    Negotiation negotiation = findEntityById(negotiationId, false);
+    return negotiation.getCollaborators().stream()
+        .map(person -> modelMapper.map(person, UserResponseModel.class))
+        .collect(Collectors.toSet());
+  }
+
+  @Override
+  public void addCollaborator(String negotiationId, Long personId) {
+    if (!isNegotiationCreatorOrAdmin(negotiationId)) {
+      throw new ForbiddenRequestException("Only the negotiation author can add collaborators");
+    }
+    Negotiation negotiation = findEntityById(negotiationId, false);
+    Person person =
+        personRepository
+            .findById(personId)
+            .orElseThrow(() -> new EntityNotFoundException(personId));
+    if (Objects.equals(negotiation.getCreatedBy().getId(), person.getId())) {
+      throw new ConflictStatusException(
+          "The negotiation author cannot be added as a collaborator.");
+    }
+    if (!negotiation.addCollaborator(person)) {
+      throw new ConflictStatusException("This user is already a collaborator.");
+    }
+    negotiationRepository.save(negotiation);
+  }
+
+  @Override
+  public void addCollaboratorBySubjectId(String negotiationId, String subjectId) {
+    if (!isNegotiationCreatorOrAdmin(negotiationId)) {
+      throw new ForbiddenRequestException("Only the negotiation author can add collaborators");
+    }
+    Negotiation negotiation = findEntityById(negotiationId, false);
+    Person person =
+        personRepository
+            .findBySubjectId(subjectId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("No user found with subject ID: " + subjectId));
+    if (Objects.equals(negotiation.getCreatedBy().getId(), person.getId())) {
+      throw new ConflictStatusException(
+          "The negotiation author cannot be added as a collaborator.");
+    }
+    if (!negotiation.addCollaborator(person)) {
+      throw new ConflictStatusException("This user is already a collaborator.");
+    }
+    negotiationRepository.save(negotiation);
+  }
+
+  @Override
+  public void removeCollaborator(String negotiationId, Long personId) {
+    boolean removingSelf =
+        Objects.equals(
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), personId);
+    if (!isNegotiationCreatorOrAdmin(negotiationId)
+        && !(removingSelf && isNegotiationCollaborator(negotiationId))) {
+      throw new ForbiddenRequestException(
+          "Only the negotiation author can remove collaborators, and collaborators can remove themselves");
+    }
+    Negotiation negotiation = findEntityById(negotiationId, false);
+    Person person =
+        personRepository
+            .findById(personId)
+            .orElseThrow(() -> new EntityNotFoundException(personId));
+    negotiation.removeCollaborator(person);
+    negotiationRepository.save(negotiation);
   }
 }

@@ -11,6 +11,34 @@
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Email:</div>
         <span :style="{ color: uiConfiguration.secondaryTextColor }">{{ author.email }}</span>
       </li>
+      <!-- Collaborators list -->
+      <li v-if="collaboratorsEnabled" class="list-group-item p-2">
+        <div class="fw-bold mb-1" :style="{ color: uiConfiguration.primaryTextColor }">
+          Collaborators:
+        </div>
+        <div v-if="collaborators.length === 0" class="text-muted small">No collaborators yet.</div>
+        <ul v-else class="list-unstyled mb-0">
+          <li
+            v-for="collaborator in collaborators"
+            :key="collaborator.id"
+            class="d-flex align-items-center justify-content-between py-1"
+          >
+            <span class="text-truncate me-2" :style="{ color: uiConfiguration.secondaryTextColor }">
+              {{ collaborator.name }}
+            </span>
+            <button
+              v-if="canRemoveCollaborator(collaborator)"
+              type="button"
+              class="btn btn-sm btn-link text-danger p-0 flex-shrink-0"
+              :title="isSelf(collaborator) ? 'Leave negotiation' : 'Remove collaborator'"
+              :aria-label="isSelf(collaborator) ? 'Leave negotiation' : 'Remove collaborator'"
+              @click="promptRemoveCollaborator(collaborator)"
+            >
+              <i class="bi bi-person-x-fill"></i>
+            </button>
+          </li>
+        </ul>
+      </li>
       <li class="list-group-item p-2 v-step-negotiation-4">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           {{ $t('negotiationPage.displayId') }}:
@@ -131,9 +159,16 @@
           :include-attachments="true"
         />
         <TransferButton
+          v-if="isAuthorOrAdmin"
           class="mt-2"
           :negotiation-id="negotiation.id"
           @transfer-negotiation="handleTransferNegotiation"
+        />
+        <AddCollaboratorButton
+          v-if="collaboratorsEnabled && isAuthorOrAdmin"
+          class="mt-2"
+          :negotiation-id="negotiation.id"
+          @collaborator-added="handleCollaboratorAdded"
         />
       </li>
       <li
@@ -151,10 +186,18 @@
       </li>
     </ul>
   </div>
+
+  <RemoveCollaboratorModal
+    v-model:is-open="isRemoveCollaboratorModalOpen"
+    :collaborator="collaboratorToRemove"
+    :negotiation-id="negotiation.id"
+    :is-self="isRemovingSelf"
+    @collaborator-removed="handleCollaboratorRemoved"
+  />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import UiBadge from '@/components/ui/UiBadge.vue'
 import PDFButton from '@/components/PDFButton.vue'
@@ -169,17 +212,26 @@ import {
 } from '../composables/utils.js'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from '../store/notifications'
+import { useUserStore } from '../store/user.js'
+import { useRouter } from 'vue-router'
 import TimeStamp from '@/components/ui/TimeStamp.vue'
 import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
+import AddCollaboratorButton from '@/components/AddCollaboratorButton.vue'
+import RemoveCollaboratorModal from '@/components/modals/RemoveCollaboratorModal.vue'
 import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
 
-const { pdfExportEnabled } = useFeatureFlags()
+const { pdfExportEnabled, collaborators: collaboratorsEnabled } = useFeatureFlags()
 
 useNegotiationPageStore()
 const notifications = useNotificationsStore()
+const userStore = useUserStore()
+const router = useRouter()
 
 const isEditingDisplayId = ref(false)
 const editedDisplayId = ref('')
+const collaborators = ref([])
+const collaboratorToRemove = ref(null)
+const isRemoveCollaboratorModalOpen = ref(false)
 
 const props = defineProps({
   negotiation: { type: Object, required: true },
@@ -194,8 +246,65 @@ const emit = defineEmits([
   'assign-status',
   'download-attachment-from-link',
   'transfer-negotiation',
+  'collaborator-added',
+  'collaborator-removed',
   'update-display-id',
 ])
+
+const isAuthor = computed(
+  () => userStore.userInfo?.subjectId && userStore.userInfo.subjectId === props.author?.subjectId,
+)
+
+const isAuthorOrAdmin = computed(() => Boolean(isAuthor.value) || props.isAdmin)
+
+const isRemovingSelf = computed(
+  () => Boolean(collaboratorToRemove.value) && isSelf(collaboratorToRemove.value),
+)
+
+onMounted(async () => {
+  if (collaboratorsEnabled) {
+    await fetchCollaborators()
+  }
+})
+
+async function fetchCollaborators() {
+  try {
+    const response = await axios.get(
+      `${apiPaths.NEGOTIATION_PATH}/${props.negotiation.id}/collaborators`,
+      { headers: getBearerHeaders() },
+    )
+    collaborators.value = Array.isArray(response.data)
+      ? response.data
+      : (response.data?._embedded?.users ?? [])
+  } catch (error) {
+    console.error('Failed to fetch collaborators:', error)
+  }
+}
+
+function isSelf(collaborator) {
+  return Boolean(userStore.userInfo?.id) && userStore.userInfo.id === collaborator?.id
+}
+
+function canRemoveCollaborator(collaborator) {
+  return isAuthorOrAdmin.value || isSelf(collaborator)
+}
+
+function promptRemoveCollaborator(collaborator) {
+  collaboratorToRemove.value = collaborator
+  isRemoveCollaboratorModalOpen.value = true
+}
+
+async function handleCollaboratorRemoved(collaborator) {
+  emit('collaborator-removed', collaborator)
+  const removedSelf = isSelf(collaborator)
+  collaboratorToRemove.value = null
+
+  if (removedSelf && !isAuthorOrAdmin.value) {
+    router.push({ name: 'researcher' })
+    return
+  }
+  await fetchCollaborators()
+}
 
 function assignStatus(status) {
   emit('assign-status', status)
@@ -219,6 +328,11 @@ function handleTransferNegotiation(subjectId) {
   // Optional: Log or perform cleanup
   console.log(`Negotiation transferred to Subject ID: ${subjectId}`)
   emit('transfer-negotiation', subjectId)
+}
+
+function handleCollaboratorAdded(user) {
+  emit('collaborator-added', user)
+  fetchCollaborators()
 }
 
 function startEditDisplayId() {

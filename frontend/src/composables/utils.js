@@ -2,6 +2,29 @@ export function capitalizeFirstLetter(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1)
 }
 
+export function capitalizeAllWords(val) {
+  const str = String(val ?? '').trim()
+  if (!str) return ''
+
+  const capitalizeToken = (word) => {
+    const [, core] = word.match(/^[^A-Za-z]*([A-Za-z]+)/) ?? []
+    return core && core === core.toUpperCase()
+      ? word // preserve acronyms as-is (e.g. "ERIC", "ID", "CV(s)")
+      : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  }
+
+  return str
+    .split(/[\s_]+/) // only space/underscore are hard word separators
+    .filter(Boolean) // remove empty strings from edge cases
+    .map((word) =>
+      word
+        .split('-')
+        .map((part) => part.split('/').map(capitalizeToken).join('/'))
+        .join('-'),
+    ) // keep hyphens and slashes literal
+    .join(' ')
+}
+
 export function transformStatus(status) {
   if (status === 'SUBMITTED') {
     return 'UNDER REVIEW'

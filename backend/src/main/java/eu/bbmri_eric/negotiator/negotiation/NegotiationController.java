@@ -19,6 +19,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.user.PersonService;
+import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
@@ -165,9 +167,8 @@ public class NegotiationController {
   @GetMapping("/negotiations/{id}")
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
-    boolean isAdmin = AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
-    if (negotiationService.isNegotiationCreator(id) || isAdmin) {
-      return assembler.toModelWithRequirementLink(negotiationDTO, isAdmin);
+    if (negotiationService.isNegotiationEditor(id)) {
+      return assembler.toModelWithRequirementLink(negotiationDTO);
     }
     return assembler.toModel(negotiationDTO);
   }
@@ -313,7 +314,7 @@ public class NegotiationController {
       summary = "Remove a resource from a negotiation",
       description =
           "Endpoint to remove a resource from a negotiation. The operation is allowed only if the negotiation is in DRAFT "
-              + "state and the user is the creator of the negotiation")
+              + "state and the user is an editor of the negotiation, meaning its author, one of its collaborators or an admin")
   @SecurityRequirement(name = "security_auth")
   public void removeResource(@Valid @PathVariable String id, @Valid @PathVariable Long resourceId) {
     negotiationService.removeResourceFromNegotiation(id, resourceId);
@@ -355,6 +356,49 @@ public class NegotiationController {
         .contentType(MediaType.APPLICATION_PDF)
         .header("Content-Disposition", "attachment; filename=\"" + pdfName + ".pdf\"")
         .body(pdfBytes);
+  }
+
+  @GetMapping("/negotiations/{id}/collaborators")
+  @Operation(
+      summary = "List collaborators of a negotiation",
+      description = "Returns all collaborators of the negotiation.")
+  public Set<UserResponseModel> getCollaborators(@Valid @PathVariable String id) {
+    return negotiationService.getCollaborators(id);
+  }
+
+  @PostMapping("/negotiations/{id}/collaborators/{personId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+      summary = "Add a collaborator to a negotiation",
+      description =
+          "Adds a person as a collaborator."
+              + " Only the author or an admin can perform this action.")
+  public void addCollaborator(@Valid @PathVariable String id, @Valid @PathVariable Long personId) {
+    negotiationService.addCollaborator(id, personId);
+  }
+
+  @PostMapping("/negotiations/{id}/collaborators")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+      summary = "Add a collaborator to a negotiation by subject ID",
+      description =
+          "Adds a person as a collaborator by their subject ID."
+              + " Only the author or an admin can perform this action.")
+  public void addCollaboratorBySubjectId(
+      @Valid @PathVariable String id, @RequestParam String subjectId) {
+    negotiationService.addCollaboratorBySubjectId(id, subjectId);
+  }
+
+  @DeleteMapping("/negotiations/{id}/collaborators/{personId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+      summary = "Remove a collaborator from a negotiation",
+      description =
+          "Removes a collaborator. The author or an admin can remove anyone;"
+              + " a collaborator can remove themselves.")
+  public void removeCollaborator(
+      @Valid @PathVariable String id, @Valid @PathVariable Long personId) {
+    negotiationService.removeCollaborator(id, personId);
   }
 
   private String getUserId() {
