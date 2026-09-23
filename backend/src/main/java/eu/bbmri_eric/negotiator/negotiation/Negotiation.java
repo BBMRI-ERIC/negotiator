@@ -91,7 +91,7 @@ public class Negotiation extends AuditEntity {
   @Setter(AccessLevel.PRIVATE)
   private Set<NegotiationResourceLink> resourcesLink = new HashSet<>();
 
-  @Formula(value = "JSON_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
+  @Formula(value = "JSONB_PATH_QUERY_FIRST(payload::jsonb, '$.*.title') #>> '{}'")
   private String title;
 
   @Type(JsonType.class)
