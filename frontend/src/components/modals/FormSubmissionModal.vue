@@ -136,7 +136,7 @@
                   </div>
                 </div>
 
-                <div v-else-if="criteria.type === 'SINGLE_CHOICE'">
+                <div v-else-if="criteria.type === 'SINGLE_CHOICE_RADIO'">
                   <div
                     v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
                     :key="index"
@@ -492,7 +492,10 @@ function initNegotiationCriteria() {
           negotiationCriteria.value[section.name][criteria.name] = []
         }
         getValueSet(criteria._links['value-set'].href, criteria.id)
-      } else if (criteria.type === 'SINGLE_CHOICE' || criteria.type === 'SINGLE_CHOICE_DROPDOWN') {
+      } else if (
+        criteria.type === 'SINGLE_CHOICE_RADIO' ||
+        criteria.type === 'SINGLE_CHOICE_DROPDOWN'
+      ) {
         if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
           negotiationCriteria.value[section.name][criteria.name] =
             submittedForm.value.payload[section.name][criteria.name]
@@ -581,7 +584,7 @@ function isNumber(evt) {
 }
 
 function transformMessage(text) {
-  if (text == 'SINGLE_CHOICE' || text == 'SINGLE_CHOICE_DROPDOWN' || text == 'BOOLEAN') {
+  if (text == 'SINGLE_CHOICE_RADIO' || text == 'SINGLE_CHOICE_DROPDOWN' || text == 'BOOLEAN') {
     return 'Please select one of available values'
   } else if (text == 'MULTIPLE_CHOICE') {
     return 'Please select at least one of the available values'

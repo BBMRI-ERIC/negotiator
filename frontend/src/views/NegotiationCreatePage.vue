@@ -243,7 +243,7 @@ function createAccessFormWithPayload() {
           element.value = requestSummary.value.payload?.[section.name]?.[element.name] ?? ''
           break
         case 'MULTIPLE_CHOICE':
-        case 'SINGLE_CHOICE':
+        case 'SINGLE_CHOICE_RADIO':
           element.value = requestSummary.value.payload
             ? requestSummary.value.payload[section.name][element.name]
             : []

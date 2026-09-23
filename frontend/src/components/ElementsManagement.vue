@@ -218,7 +218,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 
 const elementTypes = [
-  'SINGLE_CHOICE',
+  'SINGLE_CHOICE_RADIO',
   'SINGLE_CHOICE_DROPDOWN',
   'MULTIPLE_CHOICE',
   'FILE',
@@ -250,7 +250,7 @@ const paginatedElements = computed(() => {
 })
 
 const isChoiceType = computed(() =>
-  ['SINGLE_CHOICE', 'SINGLE_CHOICE_DROPDOWN', 'MULTIPLE_CHOICE'].includes(
+  ['SINGLE_CHOICE_RADIO', 'SINGLE_CHOICE_DROPDOWN', 'MULTIPLE_CHOICE'].includes(
     currentElement.value.type,
   ),
 )

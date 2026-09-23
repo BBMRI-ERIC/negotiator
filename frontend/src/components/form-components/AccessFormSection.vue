@@ -109,7 +109,7 @@
           </div>
         </div>
 
-        <div v-else-if="element.type === 'SINGLE_CHOICE'">
+        <div v-else-if="element.type === 'SINGLE_CHOICE_RADIO'">
           <div v-if="valueSetsLoading">
             <span class="text-muted">Loading options...</span>
           </div>
@@ -283,7 +283,9 @@ const valueSetsLoading = ref(false)
 const choiceElementIds = computed(() => {
   const elements = accessFormWithPayloadSection.value?.elements || []
   return elements
-    .filter((e) => ['MULTIPLE_CHOICE', 'SINGLE_CHOICE', 'SINGLE_CHOICE_DROPDOWN'].includes(e.type))
+    .filter((e) =>
+      ['MULTIPLE_CHOICE', 'SINGLE_CHOICE_RADIO', 'SINGLE_CHOICE_DROPDOWN'].includes(e.type),
+    )
     .map((e) => e.id)
     .join(',')
 })
@@ -292,7 +294,9 @@ function loadValueSets() {
   valueSetsLoading.value = true
   const elements = accessFormWithPayloadSection.value?.elements || []
   const promises = elements
-    .filter((e) => ['MULTIPLE_CHOICE', 'SINGLE_CHOICE', 'SINGLE_CHOICE_DROPDOWN'].includes(e.type))
+    .filter((e) =>
+      ['MULTIPLE_CHOICE', 'SINGLE_CHOICE_RADIO', 'SINGLE_CHOICE_DROPDOWN'].includes(e.type),
+    )
     .map((e) =>
       negotiationFormStore
         .retrieveDynamicAccessFormsValueSetByID(e.id)
@@ -367,7 +371,7 @@ function isAttachmentPresentInNegotiation(newFile) {
 }
 
 function transformMessage(text) {
-  if (text == 'SINGLE_CHOICE' || text == 'SINGLE_CHOICE_DROPDOWN' || text == 'BOOLEAN') {
+  if (text == 'SINGLE_CHOICE_RADIO' || text == 'SINGLE_CHOICE_DROPDOWN' || text == 'BOOLEAN') {
     return 'Please select one of available values'
   } else if (text == 'MULTIPLE_CHOICE') {
     return 'Please select at least one of the available values'
