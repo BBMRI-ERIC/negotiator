@@ -219,6 +219,7 @@ const pageSize = ref(10)
 
 const elementTypes = [
   'SINGLE_CHOICE',
+  'SINGLE_CHOICE_DROPDOWN',
   'MULTIPLE_CHOICE',
   'FILE',
   'TEXT',
@@ -249,7 +250,9 @@ const paginatedElements = computed(() => {
 })
 
 const isChoiceType = computed(() =>
-  ['SINGLE_CHOICE', 'MULTIPLE_CHOICE'].includes(currentElement.value.type),
+  ['SINGLE_CHOICE', 'SINGLE_CHOICE_DROPDOWN', 'MULTIPLE_CHOICE'].includes(
+    currentElement.value.type,
+  ),
 )
 
 const isCreatingNewValueSet = computed(() => currentElement.value.valueSetId === 'CREATE_NEW')

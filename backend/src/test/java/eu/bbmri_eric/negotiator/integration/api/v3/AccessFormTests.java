@@ -118,6 +118,51 @@ public class AccessFormTests {
 
   @Test
   @WithMockUser(roles = "ADMIN")
+  void createElement_singleChoiceDropdownWithNoValueSet_throwsBadRequest() throws Exception {
+    ElementCreateDTO createDTO =
+        new ElementCreateDTO(
+            "test", "test", "test", "test", FormElementType.SINGLE_CHOICE_DROPDOWN, null);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void createElement_singleChoiceDropdownWithValueSet_ok() throws Exception {
+    ValueSetCreateDTO valueSetCreateDTO =
+        new ValueSetCreateDTO("test", "test", List.of("idk", "lol"));
+    MvcResult valueSetResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(VALUE_SETS_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(valueSetCreateDTO)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    Long valueSetId =
+        new ObjectMapper()
+            .readTree(valueSetResult.getResponse().getContentAsString())
+            .get("id")
+            .asLong();
+    ElementCreateDTO createDTO =
+        new ElementCreateDTO(
+            "test", "test", "test", "test", FormElementType.SINGLE_CHOICE_DROPDOWN, valueSetId);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.type", is("SINGLE_CHOICE_DROPDOWN")))
+        .andExpect(jsonPath("$.linkedValueSet.id", equalTo(valueSetId.intValue())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   void updateElement_elementExists_ok() throws Exception {
     ElementCreateDTO createDTO =
         new ElementCreateDTO("test", "test", "test", null, FormElementType.TEXT, null);

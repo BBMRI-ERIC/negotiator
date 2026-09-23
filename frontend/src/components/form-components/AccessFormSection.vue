@@ -134,6 +134,29 @@
           </div>
         </div>
 
+        <div v-else-if="element.type === 'SINGLE_CHOICE_DROPDOWN'">
+          <div v-if="valueSetsLoading">
+            <span class="text-muted">Loading options...</span>
+          </div>
+          <select
+            v-else
+            :id="`dropdown-${element.id}`"
+            v-model="element.value"
+            :required="element.required"
+            class="form-select text-secondary-text"
+            :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+          >
+            <option value="">{{ element.placeholder || 'Select an option' }}</option>
+            <option
+              v-for="value in negotiationValueSets[element.id]?.availableValues"
+              :key="`${element.id}-${value}`"
+              :value="value"
+            >
+              {{ value }}
+            </option>
+          </select>
+        </div>
+
         <div v-else-if="element.type === 'TEXT_LARGE'">
           <textarea
             v-model="element.value"
@@ -260,7 +283,7 @@ const valueSetsLoading = ref(false)
 const choiceElementIds = computed(() => {
   const elements = accessFormWithPayloadSection.value?.elements || []
   return elements
-    .filter((e) => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
+    .filter((e) => ['MULTIPLE_CHOICE', 'SINGLE_CHOICE', 'SINGLE_CHOICE_DROPDOWN'].includes(e.type))
     .map((e) => e.id)
     .join(',')
 })
@@ -269,7 +292,7 @@ function loadValueSets() {
   valueSetsLoading.value = true
   const elements = accessFormWithPayloadSection.value?.elements || []
   const promises = elements
-    .filter((e) => e.type === 'MULTIPLE_CHOICE' || e.type === 'SINGLE_CHOICE')
+    .filter((e) => ['MULTIPLE_CHOICE', 'SINGLE_CHOICE', 'SINGLE_CHOICE_DROPDOWN'].includes(e.type))
     .map((e) =>
       negotiationFormStore
         .retrieveDynamicAccessFormsValueSetByID(e.id)
@@ -344,7 +367,7 @@ function isAttachmentPresentInNegotiation(newFile) {
 }
 
 function transformMessage(text) {
-  if (text == 'SINGLE_CHOICE' || text == 'BOOLEAN') {
+  if (text == 'SINGLE_CHOICE' || text == 'SINGLE_CHOICE_DROPDOWN' || text == 'BOOLEAN') {
     return 'Please select one of available values'
   } else if (text == 'MULTIPLE_CHOICE') {
     return 'Please select at least one of the available values'
