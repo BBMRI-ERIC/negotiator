@@ -116,12 +116,12 @@
         v-if="oidcIsAuthenticated && returnCurrentMode"
         :class="returnCurrentModeTextColor"
         :title="returnCurrentMode"
-        class="me-0 me-md-3 d-inline-flex align-items-center gap-2 navbar-env-indicator"
+        class="me-3 d-inline-flex align-items-center gap-2 navbar-env-indicator"
       >
         <div class="spinner-grow spinner-grow-sm" role="status" />
         <span class="d-none d-lg-inline text-nowrap fw-semibold">{{ returnCurrentMode }}</span>
       </div>
-      <NotificationsButton class="me-0 me-md-3 v-step-16 navbar-notifications" />
+      <NotificationsButton class="me-3 v-step-16 navbar-notifications" />
 
       <button
         ref="togglerRef"
@@ -341,6 +341,10 @@ nav {
   background-color: #e7e7e7;
 }
 
+.navbar-nav {
+  margin-left: 3px;
+}
+
 @media (max-width: 991.98px) {
   .navbar-toggler-mobile-left {
     order: -3;
@@ -352,6 +356,7 @@ nav {
 
   .navbar-logo {
     order: -2;
+    margin-right: auto;
   }
 
   .navbar-notifications,

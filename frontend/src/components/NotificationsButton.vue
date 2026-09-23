@@ -309,10 +309,11 @@ onUnmounted(() => {
   }
 
   .dropdown-menu {
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: 100%;
+    left: 8px !important;
+    right: 8px !important;
+    top: 55px !important;
+    width: auto;
+    max-width: none;
   }
 }
 
