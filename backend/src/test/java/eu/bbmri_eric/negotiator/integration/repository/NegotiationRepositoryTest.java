@@ -24,6 +24,7 @@ import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class NegotiationRepositoryTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NetworkRepository networkRepository;
   @Autowired PostRepository postRepository;
+  @Autowired EntityManager entityManager;
 
   private DiscoveryService discoveryService;
   private Person person;
@@ -111,6 +113,16 @@ public class NegotiationRepositoryTest {
   void save_1_ok() {
     saveNegotiation();
     assertEquals(1, negotiationRepository.findAll().size());
+  }
+
+  @Test
+  void getTitle_titleInAnySection_returnsTitle() {
+    payload = "{\"details\":{\"title\":\"Title outside project\"}}";
+    saveNegotiation();
+    entityManager.flush();
+    entityManager.clear();
+
+    assertEquals("Title outside project", negotiationRepository.findAll().getFirst().getTitle());
   }
 
   @Test
