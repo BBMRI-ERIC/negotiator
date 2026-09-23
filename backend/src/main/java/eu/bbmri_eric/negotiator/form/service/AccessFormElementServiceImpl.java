@@ -24,7 +24,7 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
 
   private static final Set<FormElementType> VALUE_SET_TYPES =
       EnumSet.of(
-          FormElementType.SINGLE_CHOICE,
+          FormElementType.SINGLE_CHOICE_RADIO,
           FormElementType.SINGLE_CHOICE_DROPDOWN,
           FormElementType.MULTIPLE_CHOICE);
 
