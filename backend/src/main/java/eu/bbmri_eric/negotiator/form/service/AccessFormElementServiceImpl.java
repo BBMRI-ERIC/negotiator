@@ -9,8 +9,10 @@ import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSet;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSetRepository;
 import jakarta.transaction.Transactional;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
@@ -19,6 +21,12 @@ import org.springframework.stereotype.Service;
 @Service
 @CommonsLog
 public class AccessFormElementServiceImpl implements AccessFormElementService {
+
+  private static final Set<FormElementType> VALUE_SET_TYPES =
+      EnumSet.of(
+          FormElementType.SINGLE_CHOICE,
+          FormElementType.SINGLE_CHOICE_DROPDOWN,
+          FormElementType.MULTIPLE_CHOICE);
 
   private final AccessFormElementRepository repository;
   private final ValueSetRepository valueSetRepository;
@@ -34,8 +42,7 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
   }
 
   private static void verifyTypeAndValueSetCombination(ElementCreateDTO elementCreateDTO) {
-    if ((elementCreateDTO.getType() == FormElementType.MULTIPLE_CHOICE
-            || elementCreateDTO.getType() == FormElementType.SINGLE_CHOICE)
+    if (VALUE_SET_TYPES.contains(elementCreateDTO.getType())
         && (elementCreateDTO.getValueSetId() == null
             || elementCreateDTO.getValueSetId().equals(0L))) {
       throw new IllegalArgumentException("The chosen element type must have a value set");

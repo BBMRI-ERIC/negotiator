@@ -274,6 +274,25 @@
                   </div>
                 </div>
 
+                <div v-else-if="criteria.type === 'SINGLE_CHOICE_DROPDOWN'">
+                  <select
+                    :id="`dropdown-${criteria.id}`"
+                    v-model="negotiationCriteria[section.name][criteria.name]"
+                    :required="criteria.required"
+                    class="form-select text-secondary-text"
+                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                  >
+                    <option value="">{{ criteria.placeholder || 'Select an option' }}</option>
+                    <option
+                      v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
+                      :key="index"
+                      :value="value"
+                    >
+                      {{ value }}
+                    </option>
+                  </select>
+                </div>
+
                 <div v-else-if="criteria.type === 'TEXT_LARGE'">
                   <textarea
                     v-model="negotiationCriteria[section.name][criteria.name]"
@@ -745,6 +764,9 @@ function initNegotiationCriteria() {
         getValueSet(criteria.id)
       } else if (criteria.type === 'SINGLE_CHOICE') {
         getValueSet(criteria.id)
+      } else if (criteria.type === 'SINGLE_CHOICE_DROPDOWN') {
+        negotiationCriteria.value[section.name][criteria.name] = ''
+        getValueSet(criteria.id)
       } else {
         negotiationCriteria.value[section.name][criteria.name] = null
       }
@@ -764,7 +786,7 @@ function isNumber(evt) {
   }
 }
 function transformMessage(text) {
-  if (text == 'SINGLE_CHOICE' || text == 'BOOLEAN') {
+  if (text == 'SINGLE_CHOICE' || text == 'SINGLE_CHOICE_DROPDOWN' || text == 'BOOLEAN') {
     return 'Please select one of available values'
   } else if (text == 'MULTIPLE_CHOICE') {
     return 'Please select at least one of the available values'

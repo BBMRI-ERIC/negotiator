@@ -239,6 +239,9 @@ function createAccessFormWithPayload() {
             ? requestSummary.value.payload[section.name][element.name]
             : ''
           break
+        case 'SINGLE_CHOICE_DROPDOWN':
+          element.value = requestSummary.value.payload?.[section.name]?.[element.name] ?? ''
+          break
         case 'MULTIPLE_CHOICE':
         case 'SINGLE_CHOICE':
           element.value = requestSummary.value.payload
