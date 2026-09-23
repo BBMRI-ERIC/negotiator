@@ -1497,6 +1497,78 @@ public class NegotiationControllerTests {
     }
   }
 
+  /**
+   * Adding a Resource used to rebuild the whole link set through {@link
+   * Negotiation#setResources(Set)}, which re-links every Resource with a null state. So linking one
+   * Resource cleared {@code current_state} on every other Resource of the Negotiation, and only the
+   * ones named in the request body were re-stated afterwards - leaving the rest stateless. The
+   * Resource asserted on below is deliberately <em>not</em> named in the request, which is the case
+   * nothing else in this class covers: {@code addResources_resourcesAlreadyPresent_noChange} names
+   * every Resource it checks, and with no new Resource in the payload it never enters the branch
+   * that did the damage.
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void addResources_newResource_leavesTheStateOfAResourceItDoesNotNameAlone() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    Resource alreadyLinked = negotiation.getResources().iterator().next();
+    negotiation.setStateForResource(
+        alreadyLinked.getSourceId(), NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+    Resource newResource =
+        resourceRepository.findAll().stream()
+            .filter(resource -> !negotiation.getResources().contains(resource))
+            .findFirst()
+            .orElseThrow();
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        new ObjectMapper()
+                            .writeValueAsString(
+                                new UpdateResourcesDTO(List.of(newResource.getId())))))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    JsonNode resourcesAsJson =
+        new ObjectMapper()
+            .readTree(result.getResponse().getContentAsString())
+            .get("_embedded")
+            .get("resources");
+    JsonNode untouched = null;
+    JsonNode added = null;
+    for (JsonNode resourceAsJson : resourcesAsJson) {
+      String sourceId = resourceAsJson.get("sourceId").asText();
+      if (sourceId.equals(alreadyLinked.getSourceId())) {
+        untouched = resourceAsJson;
+      } else if (sourceId.equals(newResource.getSourceId())) {
+        added = resourceAsJson;
+      }
+    }
+    assertNotNull(added, "the Resource the request named should have been linked");
+    assertEquals(NegotiationResourceState.SUBMITTED.name(), currentStateOf(added));
+    assertNotNull(untouched, "the Resource already linked should still be linked");
+    assertEquals(
+        NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name(),
+        currentStateOf(untouched),
+        "adding a Resource must not clear the state of one it does not name");
+  }
+
+  /**
+   * The {@code currentState} of one Resource of the response, or null when it has none. Read
+   * defensively because the field is omitted entirely for a stateless link, and a Resource left
+   * stateless is exactly what this is used to detect - an NPE would report the symptom as a broken
+   * test rather than as the missing state it is.
+   */
+  private static String currentStateOf(JsonNode resourceAsJson) {
+    JsonNode currentState = resourceAsJson.get("currentState");
+    return currentState == null || currentState.isNull() ? null : currentState.asText();
+  }
+
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   @Transactional

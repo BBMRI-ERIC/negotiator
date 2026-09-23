@@ -104,9 +104,8 @@ public class ResourceServiceImpl implements ResourceService {
               && negotiation.getCurrentState().equals(NegotiationState.DRAFT))) {
         throw new ForbiddenRequestException("You are not allowed to perform this action");
       }
-      Set<Resource> newNegotiationResources = new HashSet<>(negotiation.getResources());
-      newNegotiationResources.addAll(resourcesToUpdate);
-      negotiation.setResources(newNegotiationResources);
+      // Add one at a time: setResources would rebuild every link and clear its state.
+      resourcesToUpdate.forEach(negotiation::addResource);
     }
   }
 
