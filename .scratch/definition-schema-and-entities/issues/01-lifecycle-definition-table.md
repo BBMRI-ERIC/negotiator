@@ -52,7 +52,7 @@ Do not re-derive them.
       it must not constrain them.
 - [x] `scope` persists as a string, not an ordinal.
 - [~] Foreign keys pointing at this table are `ON DELETE RESTRICT`. *(Vacuous in this slice — none
-      exist yet. Recorded as a note at the foot of `V36.0` for slices 02-05.)* ADR 0003 says a version that is
+      exist yet. Recorded as a note at the foot of `V37.0` for slices 02-05.)* ADR 0003 says a version that is
       active or referenced is never mutated in place and **never discarded**, so a cascade would
       express a deletion the model does not have.
 - [x] The full backend suite is green, including the parity half of
@@ -95,7 +95,7 @@ None - can start immediately.
 
 | File | What |
 |---|---|
-| `backend/src/main/resources/db/migration/V36.0__add_lifecycle_definition_table.sql` | The table, the `(family_key, version)` unique constraint and the two partial unique indexes |
+| `backend/src/main/resources/db/migration/V37.0__add_lifecycle_definition_table.sql` | The table, the `(family_key, version)` unique constraint and the two partial unique indexes |
 | `backend/src/main/java/eu/bbmri_eric/negotiator/lifecycle/definition/LifecycleDefinition.java` | Package-private entity |
 | `.../lifecycle/definition/DefinitionScope.java` | Package-private enum, `NEGOTIATION` \| `RESOURCE` |
 | `.../lifecycle/definition/LifecycleDefinitionRepository.java` | Package-private repository |
@@ -126,7 +126,7 @@ sits in another family — so no other index can be the source of the refusal.
 ### Two things the ticket asked for that a test cannot carry
 
 - **`ON DELETE RESTRICT`**: no foreign key points at this table yet, so the rule survives as a note at
-  the foot of `V36.0` for slices 02–05 to follow.
+  the foot of `V37.0` for slices 02–05 to follow.
 - **`family_key` immutability**: `@Setter(AccessLevel.NONE)` plus `updatable = false` makes an attempted
   change a *compile* error, so there is no runtime refusal to assert. What is asserted instead is the
   observable half — `update_toTheEditableFields_leavesTheIdentityColumnsUntouched` renames a family and
@@ -135,18 +135,18 @@ sits in another family — so no other index can be the source of the refusal.
 
 ### Known unenforced invariants, recorded per the Notes
 
-Written at the foot of `V36.0`, where a reader of the DDL asks why they are absent: the *at least one*
+Written at the foot of `V37.0`, where a reader of the DDL asks why they are absent: the *at least one*
 half of "exactly one active version per family", and `scope` being fixed for a whole family while stored
 per row. Both belong to publish-time validation in stage 3. No trigger, no deferred constraint.
 
 ### Follow-up: the comments were slimmed after landing
 
 The prose above describes the commit as it first landed. A follow-up commit cut the comments back —
-`V36.0` from 25 comment lines to 10, the entity javadoc from four paragraphs to one sentence — on the
+`V37.0` from 25 comment lines to 10, the entity javadoc from four paragraphs to one sentence — on the
 grounds that code comments should carry definitions and short constraint rationales, not the ADR
 citations, stage references and implementation history they had accumulated. The DDL, the entity code
 and all 11 tests are byte-for-byte unchanged.
 
 Two pointers above are therefore stale: the `ON DELETE RESTRICT` rule and the unenforced invariants
-are **no longer written at the foot of `V36.0`**. Both now live in
+are **no longer written at the foot of `V37.0`**. Both now live in
 [STATUS.md](../STATUS.md), which is where slices 02-05 read their conventions.

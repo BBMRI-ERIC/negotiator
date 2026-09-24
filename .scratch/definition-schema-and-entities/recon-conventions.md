@@ -74,8 +74,8 @@ dumped pre-Flyway schema.
 Highest applied version is **`V35.0`**
 (`backend/src/main/resources/db/migration/V35.0__migrate_custom_event_type_to_ping.sql`).
 
-**Next free version: `V36.0`.** Suggested filename following house style:
-`backend/src/main/resources/db/migration/V36.0__add_lifecycle_definition_schema.sql`.
+**Next free version: `V37.0`.** Suggested filename following house style:
+`backend/src/main/resources/db/migration/V37.0__add_lifecycle_definition_schema.sql`.
 
 ### 1.4 How the dev/test seeds relate to `db/migration/`
 
@@ -91,7 +91,7 @@ mechanism:
 
 Both seeds are `R__` (repeatable): Flyway runs them **after all versioned migrations**,
 and **re-runs them whenever their checksum changes**. Practical consequence for this
-slab: a new table added in `V36.0` exists before the seed runs, so the seed *may*
+slab: a new table added in `V37.0` exists before the seed runs, so the seed *may*
 insert into it — but ticket 08 is additive-only and nothing reads the new tables, so
 **do not touch either `R__Initial_data.sql`.** Also note the test seed is a plain
 `insert into …` script with hard-coded ids
@@ -110,7 +110,7 @@ public FlywayMigrationStrategy cleanMigrateStrategy() {
 ```
 
 So every test context build drops and re-applies the whole migration chain — a broken
-`V36.0` fails *every* Testcontainer test, not just new ones.
+`V37.0` fails *every* Testcontainer test, not just new ones.
 
 ### 1.5 The test context customizer and `loadTestData`
 

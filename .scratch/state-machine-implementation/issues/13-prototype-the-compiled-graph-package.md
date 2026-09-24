@@ -171,7 +171,7 @@ Its documents are not disposable, and each has a different fate:
   the code while porting the strategies and found only §8's bean pattern wanting. Its findings that
   matter are now stated from primary sources instead — today's two-hardcoded-name terminal predicate
   from B's own Guard javadoc, spawn's real location from ticket 02's decision, and `type_key`
-  carrying no uniqueness constraint from `V36.3` itself, which the PRD's D4 records because it makes
+  carrying no uniqueness constraint from `V37.3` itself, which the PRD's D4 records because it makes
   a compiled Guard chain a list and never a map. **One correction to it, from B:** §8 offers `DefaultWebhookMappingStrategy` as "the direct
   model for `SET_POST_VISIBILITY`: one class, three configured instances". It does not transfer and
   following it fails the boot — the webhook beans each declare a *different* key, while all three

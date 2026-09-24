@@ -24,7 +24,7 @@ on the map.
 
 ## What slice 01 fixed for every later slice
 
-- **Migration numbering.** `V36.0` is taken. Slice 02 is `V36.1`, and so on to `V36.5` — one file per
+- **Migration numbering.** `V37.0` is taken. Slice 02 is `V37.1`, and so on to `V37.5` — one file per
   slice, never appending to an applied file, because that changes its checksum and fails Flyway
   validation on any developer database that already ran it.
 - **Table name and FK spelling.** `lifecycle_definition`, so foreign keys read
@@ -115,7 +115,7 @@ on the map.
   single-column `@JoinColumn`; Hibernate inserts all of them and PostgreSQL validates the pair. No
   `insertable = false` juggling, no `@IdClass`.
 - **The consequence is that one slice's migration alters an earlier slice's tables.** Still additive,
-  still one file per slice, but what constrains `state` now lives in both `V36.1` and `V36.2`.
+  still one file per slice, but what constrains `state` now lives in both `V37.1` and `V37.2`.
 - **A redundant-looking FK may be untestable.** `fk_transition_lifecycle_definition` is transitively
   implied by the composite FKs, so no write can violate it while satisfying them. It is kept for the
   reader and carries no test. Check for this before writing a test that cannot fail — slice 03 wrote
@@ -209,8 +209,8 @@ on the map.
 
 ## What slice 05 fixed for slices 06-07
 
-- **The pin columns are `V36.4`.** Slice 06 is `V36.5` if it needs DDL, which it does not — the
-  resolver seam is Java only. `V36.5` is therefore still free for whoever needs it next.
+- **The pin columns are `V37.4`.** Slice 06 is `V37.5` if it needs DDL, which it does not — the
+  resolver seam is Java only. `V37.5` is therefore still free for whoever needs it next.
 - **Adding a column to `negotiation` costs nothing at the gate.** This was the slice the parity
   number existed for, and it did not move: an extra nullable field on the two most-read entities is
   invisible to every DTO, mapper and characterization assertion in the suite. Nothing needed
@@ -260,7 +260,7 @@ on the map.
 
 ## What slice 06 fixed for slice 07
 
-- **Slice 06 added no migration, so `V36.5` is still free.** The resolver seam is Java only, as slice
+- **Slice 06 added no migration, so `V37.5` is still free.** The resolver seam is Java only, as slice
   05 predicted. The whole of slice 06's production diff is three new files in
   `lifecycle.definition` plus two derived finders on `LifecycleDefinitionRepository`, so slice 07's
   diff criterion still expects exactly two touched files outside the package — `Negotiation` and

@@ -74,7 +74,7 @@ The ticket's premises were wrong in four places, and each correction changed an 
 |---|---|
 | "Three DTOs" | **Four.** `negotiation/dto/NegotiationEventMetadataDTO` exists too — already `String`-valued and already fed by the Enum-Backed Lifecycle Catalog, because slab 07 reached it through `NegotiationController` while the other three stayed carved out. |
 | "check what populates `description` — `NegotiationStateMetadata` may no longer exist" | It **does not exist**; the javadoc reference is dead. `label` and `description` come from the four enum constructors. |
-| "no description column — either the schema needs one, or the field is dropped" | True for `state`, and **worse for `event`: that table is `id, lifecycle_definition_id, name` and has no `label` either** (`V36.1`). For Events *both* published fields are unsourced, not one. |
+| "no description column — either the schema needs one, or the field is dropped" | True for `state`, and **worse for `event`: that table is `id, lifecycle_definition_id, name` and has no `label` either** (`V37.1`). For Events *both* published fields are unsourced, not one. |
 | "Only the two Resource DTOs have the problem" | **False.** `/negotiation-lifecycle/events` loses `START`, so a Negotiation-scope endpoint changes too. Sub-question 4 is answered in the negative: the answer does *not* stay clean per Definition Scope. |
 
 **Who consumes these — sub-question 1, answered by reading the frontend rather than guessing.**
@@ -176,7 +176,7 @@ Three sub-decisions:
 - **Seeded for both Definition Scopes, published only where it is published today.** The column sits
   on `state`, so Negotiation States get values (declaration order, 0–7). `NegotiationStateMetadataDto`
   does **not** start publishing it.
-- Columns land in `V36.5`, which slab 08 left free.
+- Columns land in `V37.5`, which slab 08 left free.
 
 With decisions 2 and 3 together, **`negotiation-states.json` and `resource-states.json` pass
 unchanged**.
@@ -319,7 +319,7 @@ as unused. Four one-line assertions are cheap insurance.
 
 - **`EnumBackedLifecycleCatalog` is a deletion**, along with its test, once the fifth
   `LifecycleDefinitions` method exists and its six callers move.
-- **`V36.5` carries three columns** — `event.label` NOT NULL, `state.description`,
+- **`V37.5` carries three columns** — `event.label` NOT NULL, `state.description`,
   `event.description`, `state.progress_order` — and ADR 0009's seed must populate all of them, with
   Progress Order 0–11 for Resource States and 0–7 for Negotiation States.
 - **The intended-delta count for these endpoints is two**, and `parity-gate.md` needs both: the Event
