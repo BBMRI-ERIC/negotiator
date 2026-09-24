@@ -101,7 +101,8 @@ class WebhookEventListenerIntegrationTest {
                     "negotiationId": "negotiation-1",
                     "fromState": "SUBMITTED",
                     "toState": "IN_PROGRESS",
-                    "event": "APPROVE"
+                    "event": "APPROVE",
+                    "postId": null
                   }
                   """);
               wireMockServer.verify(
