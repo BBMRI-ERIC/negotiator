@@ -42,7 +42,8 @@
           <input
             v-model="element.value"
             :type="element.type"
-            :placeholder="element.description"
+            :placeholder="elementPlaceholder(element)"
+            :aria-describedby="element.description ? `hint-${element.id}` : null"
             class="form-control text-secondary-text"
             :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
             :required="element.required"
@@ -58,6 +59,7 @@
               :required="element.required"
               class="form-check-input"
               :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+              :aria-describedby="element.description ? `hint-${element.id}` : null"
               type="radio"
             />
             <label class="form-check-label" :for="`boolean-${element.name}-yes`"> Yes </label>
@@ -70,6 +72,7 @@
               :required="element.required"
               class="form-check-input"
               :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+              :aria-describedby="element.description ? `hint-${element.id}` : null"
               type="radio"
             />
             <label class="form-check-label" :for="`boolean-${element.id}-no`"> No </label>
@@ -93,6 +96,7 @@
                 :required="element.required"
                 class="form-check-input"
                 :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+                :aria-describedby="element.description ? `hint-${element.id}` : null"
                 type="checkbox"
               />
               <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
@@ -126,6 +130,7 @@
                 :required="element.required"
                 class="form-check-input"
                 :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+                :aria-describedby="element.description ? `hint-${element.id}` : null"
                 type="radio"
                 @click="element.value == value ? (element.value = '') : (element.value = value)"
               />
@@ -137,7 +142,8 @@
         <div v-else-if="element.type === 'TEXT_LARGE'">
           <textarea
             v-model="element.value"
-            :placeholder="element.description"
+            :placeholder="elementPlaceholder(element)"
+            :aria-describedby="element.description ? `hint-${element.id}` : null"
             class="form-control text-secondary-text"
             :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
             :required="element.required"
@@ -148,7 +154,8 @@
           <input
             v-model="element.value"
             :type="element.type"
-            :placeholder="element.description"
+            :placeholder="elementPlaceholder(element)"
+            :aria-describedby="element.description ? `hint-${element.id}` : null"
             class="form-control text-secondary-text"
             :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
             :required="element.required"
@@ -168,22 +175,21 @@
             :accept="fileExtensions"
             class="form-control text-secondary-text"
             :required="element.required"
-            :placeholder="element.description"
+            :placeholder="elementPlaceholder(element)"
+            :aria-describedby="element.description ? `hint-${element.id}` : null"
             :type="element.type"
             @change="handleFileUpload($event, index)"
           />
         </div>
 
         <div v-else-if="element.type === 'DATE'" class="w-25">
-          <p v-if="element.description" class="text-muted">
-            {{ element.description }}
-          </p>
           <input
             id="startDate"
             v-model="element.value"
             value=""
             class="form-control form-control-sm"
             :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+            :aria-describedby="element.description ? `hint-${element.id}` : null"
             type="date"
           />
         </div>
@@ -198,16 +204,18 @@
           v-else
           v-model="element.value"
           :type="element.type"
-          :placeholder="element.description"
+          :placeholder="elementPlaceholder(element)"
+          :aria-describedby="element.description ? `hint-${element.id}` : null"
           class="form-control text-secondary-text"
           :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
         />
 
         <div
-          v-if="validationErrorHighlight && validationErrorHighlight.includes(element.id)"
+          v-if="element.type !== 'INFORMATION' && element.description"
+          :id="`hint-${element.id}`"
           class="invalid-text"
         >
-          {{ transformMessage(element.type) }}
+          {{ element.required ? '* ' : '' }}{{ element.description }}
         </div>
         <div v-else class="invalid-text">&#8203;</div>
       </div>
@@ -217,6 +225,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { Tooltip } from 'bootstrap'
 import { useNegotiationFormStore } from '../../store/negotiationForm'
 import { useNotificationsStore } from '../../store/notifications'
 
@@ -286,7 +295,12 @@ function loadValueSets() {
   })
 }
 
-onMounted(loadValueSets)
+onMounted(() => {
+  loadValueSets()
+  new Tooltip(document.body, {
+    selector: "[data-bs-toggle='tooltip']",
+  })
+})
 
 // Watch only the element IDs to avoid triggering on user input changes
 watch(choiceElementIds, (newIds, oldIds) => {
@@ -341,6 +355,10 @@ function isAttachmentPresentInNegotiation(newFile) {
     }
   })
   return isAttachmentPresent
+}
+
+function elementPlaceholder(element) {
+  return element.placeholder || transformMessage(element.type)
 }
 
 function transformMessage(text) {
