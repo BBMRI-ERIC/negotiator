@@ -201,7 +201,8 @@ class WebhookEventMapperTest {
           "negotiationId": "negotiation-2",
           "fromState": "SUBMITTED",
           "toState": "IN_PROGRESS",
-          "event": "APPROVE"
+          "event": "APPROVE",
+          "postId": null
         }
         """);
   }
