@@ -203,7 +203,7 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, "SUBMITTED", toState.name(), "APPROVE");
+            this, negotiationId, "SUBMITTED", toState.name(), "APPROVE", null);
 
     // When
     handler.notify(event);

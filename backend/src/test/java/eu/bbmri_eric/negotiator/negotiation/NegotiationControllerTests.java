@@ -1600,8 +1600,7 @@ public class NegotiationControllerTests {
   void addResources_newResource_leavesTheStateOfAResourceItDoesNotNameAlone() throws Exception {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     Resource alreadyLinked = negotiation.getResources().iterator().next();
-    negotiation.setStateForResource(
-        alreadyLinked.getSourceId(), NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+    negotiation.setStateForResource(alreadyLinked.getSourceId(), "RESOURCE_MADE_AVAILABLE");
     Resource newResource =
         resourceRepository.findAll().stream()
             .filter(resource -> !negotiation.getResources().contains(resource))
@@ -1637,10 +1636,10 @@ public class NegotiationControllerTests {
       }
     }
     assertNotNull(added, "the Resource the request named should have been linked");
-    assertEquals(NegotiationResourceState.SUBMITTED.name(), currentStateOf(added));
+    assertEquals("SUBMITTED", currentStateOf(added));
     assertNotNull(untouched, "the Resource already linked should still be linked");
     assertEquals(
-        NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name(),
+        "RESOURCE_MADE_AVAILABLE",
         currentStateOf(untouched),
         "adding a Resource must not clear the state of one it does not name");
   }
@@ -1826,7 +1825,7 @@ public class NegotiationControllerTests {
   void removeResource_draftStatus_multipleResources_adminCanRemoveResource() throws Exception {
     // negotiation-5 belongs to TheResearcher and has 2 resources (ids 5 and 7)
     Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     negotiationRepository.saveAndFlush(negotiation);
 
     int initialResourceCount = negotiation.getResources().size();
@@ -1855,7 +1854,7 @@ public class NegotiationControllerTests {
       throws Exception {
     // negotiation-5 belongs to TheResearcher and has 2 resources (ids 5 and 7)
     Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     negotiation.addCollaborator(personRepository.findById(110L).get());
     negotiationRepository.saveAndFlush(negotiation);
 
@@ -1883,7 +1882,7 @@ public class NegotiationControllerTests {
   @Transactional
   void removeResource_draftStatus_nonEditor_throwsForbidden() throws Exception {
     Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     negotiationRepository.saveAndFlush(negotiation);
 
     int initialResourceCount = negotiation.getResources().size();
@@ -1929,7 +1928,7 @@ public class NegotiationControllerTests {
   @Transactional
   void removeResource_draftStatus_onlyOneResourceLeft_asAdmin_throwsBadRequest() throws Exception {
     Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_5_ID).get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiation.setCurrentState("DRAFT");
     negotiationRepository.saveAndFlush(negotiation);
     Long resourceIdToRemove = negotiation.getResources().iterator().next().getId();
     mockMvc.perform(

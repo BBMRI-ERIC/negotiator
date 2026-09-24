@@ -140,9 +140,9 @@ public class NegotiationLifecycleServiceImplTest {
     assertThat(publishedEvents).hasSize(1);
     NegotiationStateChangeEvent publishedEvent = publishedEvents.getFirst();
     assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
-    assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.SUBMITTED);
-    assertThat(publishedEvent.getToState()).isEqualTo(NegotiationState.IN_PROGRESS);
-    assertThat(publishedEvent.getEvent()).isEqualTo(NegotiationEvent.APPROVE);
+    assertThat(publishedEvent.getFromState()).isEqualTo("SUBMITTED");
+    assertThat(publishedEvent.getToState()).isEqualTo("IN_PROGRESS");
+    assertThat(publishedEvent.getEvent()).isEqualTo("APPROVE");
     assertThat(publishedEvent.getPostId()).isNull();
   }
 
@@ -166,9 +166,9 @@ public class NegotiationLifecycleServiceImplTest {
     assertThat(publishedEvents).hasSize(1);
     NegotiationStateChangeEvent publishedEvent = publishedEvents.getFirst();
     assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
-    assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.SUBMITTED);
-    assertThat(publishedEvent.getToState()).isEqualTo(NegotiationState.DECLINED);
-    assertThat(publishedEvent.getEvent()).isEqualTo(NegotiationEvent.DECLINE);
+    assertThat(publishedEvent.getFromState()).isEqualTo("SUBMITTED");
+    assertThat(publishedEvent.getToState()).isEqualTo("DECLINED");
+    assertThat(publishedEvent.getEvent()).isEqualTo("DECLINE");
     assertThat(publishedEvent.getPostId()).isEqualTo(createdPostId);
   }
 
@@ -236,9 +236,9 @@ public class NegotiationLifecycleServiceImplTest {
     assertThat(publishedEvents).hasSize(1);
     NegotiationStateChangeEvent publishedEvent = publishedEvents.get(0);
     assertThat(publishedEvent.getNegotiationId()).isEqualTo(negotiationDTO.getId());
-    assertThat(publishedEvent.getFromState()).isEqualTo(NegotiationState.DRAFT);
-    assertThat(publishedEvent.getToState()).isEqualTo(NegotiationState.SUBMITTED);
-    assertThat(publishedEvent.getEvent()).isEqualTo(NegotiationEvent.SUBMIT);
+    assertThat(publishedEvent.getFromState()).isEqualTo("DRAFT");
+    assertThat(publishedEvent.getToState()).isEqualTo("SUBMITTED");
+    assertThat(publishedEvent.getEvent()).isEqualTo("SUBMIT");
     assertThat(publishedEvent.getPostId()).isNull();
     assertEquals(
         negotiationService.findById(negotiationDTO.getId(), false).getStatus(),
