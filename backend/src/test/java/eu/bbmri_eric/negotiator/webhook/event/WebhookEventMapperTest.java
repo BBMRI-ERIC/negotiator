@@ -98,12 +98,7 @@ class WebhookEventMapperTest {
   void map_whenNegotiationStateChangeEventHasPostId_includesPostIdInPayload() {
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            "negotiation-2",
-            NegotiationState.SUBMITTED,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE,
-            "post-42");
+            this, "negotiation-2", "SUBMITTED", "IN_PROGRESS", "APPROVE", "post-42");
 
     Optional<WebhookPayloadEnvelope<?>> mapped = mapper.map(event);
 

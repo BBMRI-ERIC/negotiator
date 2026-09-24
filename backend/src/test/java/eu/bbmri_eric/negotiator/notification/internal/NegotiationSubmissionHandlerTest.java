@@ -120,7 +120,7 @@ class NegotiationSubmissionHandlerTest {
     for (NegotiationState state : nonSubmittedStates) {
       NegotiationStateChangeEvent event =
           new NegotiationStateChangeEvent(
-              this, negotiationId, "SUBMITTED", state.name(), "APPROVE");
+              this, negotiationId, "SUBMITTED", state.name(), "APPROVE", null);
 
       // When
       handler.notify(event);
