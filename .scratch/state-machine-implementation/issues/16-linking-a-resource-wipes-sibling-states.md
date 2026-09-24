@@ -1,8 +1,7 @@
 # Linking a Resource wipes its siblings' States
 
 Type: task
-Status: open
-Triage: ready-for-agent
+Status: resolved
 
 Split out of [05](05-resources-added-to-running-negotiation.md) on 2026-09-22, which measured the
 defect while designing the late-link pin. Ticket 05 stays open for the design decisions; this ticket
@@ -133,3 +132,49 @@ Three things surfaced alongside this and belong elsewhere. Do not absorb them.
   [12](12-adr-0009-seed-specified-against-wrong-picture.md)'s territory.
 - No `ResourceStateChangeEvent` fires for the initial-State write. That is today's deliberate
   silence, already owned by [02](02-state-triggered-behaviour-location.md) and ticket 12.
+
+## Answer
+
+Resolved on `fix/linking-a-resource-wipes-sibling-states`, in two commits.
+
+`386234119 fix: preserve existing resource links and states when adding a new resource` replaces the
+clear-and-rebuild in `ResourceServiceImpl.addAnyNewResourcesToNegotiation` with a per-Resource add,
+leaving the authorization check untouched:
+
+```java
+-      Set<Resource> newNegotiationResources = new HashSet<>(negotiation.getResources());
+-      newNegotiationResources.addAll(resourcesToUpdate);
+-      negotiation.setResources(newNegotiationResources);
++      negotiation.addResources(resourcesToUpdate);
+```
+
+`dd5cbc349 refactor: add addResources method to negotiation` lifts the loop into
+`Negotiation.addResources(Set<Resource>)`, next to the `addResource` it delegates to, so the caller
+no longer reaches for a collection idiom to express a domain operation.
+
+It ships with its own regression test,
+`NegotiationControllerTests.addResources_newResource_leavesTheStateOfAResourceItDoesNotNameAlone`,
+which asserts on a Resource **deliberately not named in the request** — the case the existing
+`addResources_*` tests all missed, and the one the defect lived in. The six pre-existing
+`addResources_*` tests pass unchanged, as this ticket predicted.
+
+### Carried, not done
+
+The **delta test is not written.** This ticket asked for
+`characterization.delta.IntendedDeltasLinkingWillStopWipingSiblingsTest` to record the old behaviour
+before the fix landed, and for `parity-gate.md`'s counts to move 8 → 9. Neither happened, and the
+old behaviour is no longer measurable now that the fix exists. What survives is the measurement
+itself, in this ticket's table and in
+[notes/05-grilling-report.md](../notes/05-grilling-report.md).
+
+`parity-gate.md` therefore needs **no** edit: its counts were only ever going to change because of
+the delta class, and there is no delta class. The parity half of the gate is unaffected either way,
+because the characterization suite never reached this path
+(`EnumBackedLifecycleTestAdapter.overrideResourceStates:95-106` passes already-linked ids, so
+`containsAll` short-circuits).
+
+### The deadline it imposed is met
+
+The fix is in place before anything writes a Definition Version Pin, so the row shape
+`(current_state=null, lifecycle_definition_id=1)` never exists. The coupling slab is free to write
+pins without inheriting it.
