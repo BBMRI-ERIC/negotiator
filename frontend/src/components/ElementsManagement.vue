@@ -160,25 +160,31 @@
             </div>
 
             <div class="mb-3">
-              <label for="valueSetValues" class="form-label">
-                Values *
-                <small class="text-muted">(separate with semicolons)</small>
-              </label>
-              <textarea
-                class="form-control"
-                id="valueSetValues"
-                v-model="valueSetValues"
-                required
-                rows="3"
-                :placeholder="
-                  isCreatingNewValueSet
-                    ? 'Enter values separated by semicolons (e.g., Option 1;Option 2;Option 3)'
-                    : 'Edit values separated by semicolons'
-                "
-              ></textarea>
+              <label class="form-label">Values *</label>
+              <div v-for="(_, index) in valueSetValues" :key="index" class="input-group mb-2">
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="valueSetValues[index]"
+                  placeholder="Enter a value"
+                  required
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  aria-label="Remove value"
+                  :disabled="valueSetValues.length === 1"
+                  @click="removeValue(index)"
+                >
+                  &times;
+                </button>
+              </div>
               <div v-if="!isCreatingNewValueSet" class="form-text">
                 You can edit the values for the selected value set.
               </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary mt-2" @click="addValue">
+                + Add Value
+              </button>
             </div>
           </template>
         </form>
@@ -239,7 +245,7 @@ const currentElement = ref({
 })
 
 const valueSetName = ref('')
-const valueSetValues = ref('')
+const valueSetValues = ref([''])
 
 const totalPages = computed(() => Math.ceil(elements.value.length / pageSize.value))
 
@@ -268,11 +274,24 @@ const isFormValid = computed(() => {
 
   const valueSetValid = currentElement.value.valueSetId
   const additionalFieldsValid = isCreatingNewValueSet.value
-    ? valueSetName.value && valueSetValues.value
-    : valueSetValues.value
+    ? valueSetName.value && hasValidValues.value
+    : hasValidValues.value
 
   return basicFieldsValid && valueSetValid && additionalFieldsValid
 })
+
+const hasValidValues = computed(() => valueSetValues.value.some((v) => v.trim()))
+
+function addValue() {
+  valueSetValues.value.push('')
+}
+
+function removeValue(index) {
+  valueSetValues.value.splice(index, 1)
+  if (valueSetValues.value.length === 0) {
+    valueSetValues.value.push('')
+  }
+}
 
 function formatElementType(type) {
   return type
@@ -290,7 +309,7 @@ function resetForm() {
     valueSetId: 'CREATE_NEW',
   }
   valueSetName.value = ''
-  valueSetValues.value = ''
+  valueSetValues.value = ['']
   isEditing.value = false
 }
 
@@ -312,10 +331,10 @@ function openEditModal(element) {
   }
 
   valueSetName.value = ''
-  valueSetValues.value = ''
+  valueSetValues.value = ['']
 
-  if (element.linkedValueSet?.availableValues) {
-    valueSetValues.value = element.linkedValueSet.availableValues.join(';')
+  if (element.linkedValueSet?.availableValues?.length) {
+    valueSetValues.value = [...element.linkedValueSet.availableValues]
   }
 
   if (valueSetId !== 'CREATE_NEW') {
@@ -326,12 +345,14 @@ function openEditModal(element) {
 function onValueSetChange() {
   if (isCreatingNewValueSet.value) {
     valueSetName.value = ''
-    valueSetValues.value = ''
+    valueSetValues.value = ['']
   } else {
     const selectedValueSet = valueSets.value.find(
       (vs) => vs.id === Number(currentElement.value.valueSetId),
     )
-    valueSetValues.value = selectedValueSet?.availableValues?.join(';') || ''
+    valueSetValues.value = selectedValueSet?.availableValues?.length
+      ? [...selectedValueSet.availableValues]
+      : ['']
   }
 }
 
@@ -344,10 +365,7 @@ async function saveElement() {
         // Create new value set
         const valueSetData = {
           name: valueSetName.value,
-          availableValues: valueSetValues.value
-            .split(';')
-            .map((v) => v.trim())
-            .filter(Boolean),
+          availableValues: valueSetValues.value.map((v) => v.trim()).filter(Boolean),
         }
 
         const createdValueSet = await formsStore.createValueSet(valueSetData)
@@ -359,10 +377,7 @@ async function saveElement() {
           name:
             valueSetName.value ||
             valueSets.value.find((vs) => vs.id === Number(currentElement.value.valueSetId))?.name,
-          availableValues: valueSetValues.value
-            .split(';')
-            .map((v) => v.trim())
-            .filter(Boolean),
+          availableValues: valueSetValues.value.map((v) => v.trim()).filter(Boolean),
         }
 
         await formsStore.updateValueSet(Number(currentElement.value.valueSetId), valueSetData)
