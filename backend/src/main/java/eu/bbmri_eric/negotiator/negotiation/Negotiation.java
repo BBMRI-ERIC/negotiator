@@ -232,6 +232,21 @@ public class Negotiation extends AuditEntity {
   }
 
   /**
+   * Link resources to the negotiation. Calls {@link
+   * #addResource(eu.bbmri_eric.negotiator.governance.resource.Resource)} for each resource.
+   *
+   * @param resources to be linked.
+   * @return true if all resources were added, false otherwise.
+   */
+  public boolean addResources(Set<Resource> resources) {
+    boolean allAdded = true;
+    for (Resource resource : resources) {
+      allAdded &= addResource(resource);
+    }
+    return allAdded;
+  }
+
+  /**
    * Remove a resource from the Negotiation.
    *
    * @param resource to be removed.
