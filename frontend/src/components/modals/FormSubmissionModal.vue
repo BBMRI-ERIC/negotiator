@@ -136,7 +136,7 @@
                   </div>
                 </div>
 
-                <div v-else-if="criteria.type === 'SINGLE_CHOICE'">
+                <div v-else-if="criteria.type === 'SINGLE_CHOICE_RADIO'">
                   <div
                     v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
                     :key="index"
@@ -157,6 +157,25 @@
                       <label class="form-check-label" for="inlineRadio1">{{ value }}</label>
                     </div>
                   </div>
+                </div>
+
+                <div v-else-if="criteria.type === 'SINGLE_CHOICE_DROPDOWN'">
+                  <select
+                    :id="`dropdown-${criteria.id}`"
+                    v-model="negotiationCriteria[section.name][criteria.name]"
+                    :required="criteria.required"
+                    class="form-select text-secondary-text"
+                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                  >
+                    <option value="">{{ criteria.placeholder || 'Select an option' }}</option>
+                    <option
+                      v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
+                      :key="index"
+                      :value="value"
+                    >
+                      {{ value }}
+                    </option>
+                  </select>
                 </div>
 
                 <div v-else-if="criteria.type === 'TEXT_LARGE'">
@@ -473,10 +492,15 @@ function initNegotiationCriteria() {
           negotiationCriteria.value[section.name][criteria.name] = []
         }
         getValueSet(criteria._links['value-set'].href, criteria.id)
-      } else if (criteria.type === 'SINGLE_CHOICE') {
+      } else if (
+        criteria.type === 'SINGLE_CHOICE_RADIO' ||
+        criteria.type === 'SINGLE_CHOICE_DROPDOWN'
+      ) {
         if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
           negotiationCriteria.value[section.name][criteria.name] =
             submittedForm.value.payload[section.name][criteria.name]
+        } else if (criteria.type === 'SINGLE_CHOICE_DROPDOWN') {
+          negotiationCriteria.value[section.name][criteria.name] = ''
         }
         getValueSet(criteria._links['value-set'].href, criteria.id)
       } else if (criteria.type === 'FILE') {
@@ -560,7 +584,7 @@ function isNumber(evt) {
 }
 
 function transformMessage(text) {
-  if (text == 'SINGLE_CHOICE' || text == 'BOOLEAN') {
+  if (text == 'SINGLE_CHOICE_RADIO' || text == 'SINGLE_CHOICE_DROPDOWN' || text == 'BOOLEAN') {
     return 'Please select one of available values'
   } else if (text == 'MULTIPLE_CHOICE') {
     return 'Please select at least one of the available values'

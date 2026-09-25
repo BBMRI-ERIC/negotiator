@@ -111,7 +111,8 @@ In order to allow the definition of access forms and elements the XSD file **bbm
             <xs:enumeration value="TEXT_LARGE"/>
             <xs:enumeration value="NUMBER"/>
             <xs:enumeration value="DATE"/>
-            <xs:enumeration value="SINGLE_CHOICE"/>
+            <xs:enumeration value="SINGLE_CHOICE_RADIO"/>
+            <xs:enumeration value="SINGLE_CHOICE_DROPDOWN"/>
             <xs:enumeration value="MULTIPLE_CHOICE"/>
             <xs:enumeration value="BOOLEAN"/>
             <xs:enumeration value="FILE"/>
@@ -143,7 +144,12 @@ In order to allow the definition of access forms and elements the XSD file **bbm
             <xs:enumeration value="False"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="SINGLE_CHOICE">
+    <xs:simpleType name="SINGLE_CHOICE_RADIO">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CHOICE"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="SINGLE_CHOICE_DROPDOWN">
         <xs:restriction base="xs:string">
             <xs:enumeration value="CHOICE"/>
         </xs:restriction>
@@ -258,8 +264,9 @@ The **Dynamic Access Form** supports various data field formats to accommodate d
 - **NUMBER**: An field that accepts numerical values, such as quantities or measurements.
 - **DATE**: A date field that allows users to input a calendar date.
 - **BOOLEAN**: A boolean input that allows users to select or deselect an option.
-- **SINGLE_CHOICE**: A set of options where only one can be selected at a time, useful for multiple-choice questions.
-- **MULTIPLE_CHOICE**: A dropdown menu that provides a list of options for users to choose from.
+- **SINGLE_CHOICE_RADIO**: A set of radio buttons where only one option can be selected at a time (formerly SINGLE_CHOICE).
+- **SINGLE_CHOICE_DROPDOWN**: Same as SINGLE_CHOICE_RADIO (one value from a value set), but rendered as a dropdown menu instead of radio buttons. Useful for long option lists.
+- **MULTIPLE_CHOICE**: A set of checkboxes where several options can be selected at once.
 - **FILE**: An input field that allows users to upload files, such as documents or images.
 - **INFORMATION**: A read-only field that displays information or instructions to users.
 
