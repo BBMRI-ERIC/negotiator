@@ -67,10 +67,12 @@ insert into public.access_form_element (id, creation_date, modified_date, create
                                         description, type, access_form_section_id, value_set_id)
 values (100, '2024-05-29 13:14:33.787183', '2024-05-29 13:14:33.787183', 2, 2, 'Multichoice test', 'Select multiple',
         'Multiple selection', 'MULTIPLE_CHOICE', null, 100),
-       (101, null, '2024-05-29 13:17:20.905824', 2, 2, 'Single test', 'Select one', 'Single selection', 'SINGLE_CHOICE_RADIO',
+       (101, null, '2024-05-29 13:17:20.905824', 2, 2, 'Single test radio', 'Single select radio button test', 'Single selection radio buttons', 'SINGLE_CHOICE_RADIO',
         null, 101),
        (102, '2024-05-29 13:19:58.992884', '2024-05-29 13:19:58.992884', 2, 2, 'Bool test', 'Select one',
-        'Yes-no selection', 'BOOLEAN', null, null)
+        'Yes-no selection', 'BOOLEAN', null, null),
+       (103, null, '2024-05-29 13:17:20.905824', 2, 2, 'Single test dropdown', 'Single select dropdown test', 'Single selection dropdown', 'SINGLE_CHOICE_DROPDOWN',
+        null, 101)
 on conflict do nothing;
 
 insert into public.access_form_section_element_link (id, access_form_section_link_id, access_form_element_id,
