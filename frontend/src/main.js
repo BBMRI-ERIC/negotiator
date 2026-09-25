@@ -10,7 +10,8 @@ import Vue3Tour from 'vue3-tour'
 import 'vue3-tour/dist/vue3-tour.css'
 import { useOidcStore } from './store/oidc'
 import { useUserStore } from './store/user'
-import { piniaOidcCreateRouterMiddleware } from 'pinia-oidc'
+import { userManager } from './services/oidcUserManager'
+import { createOidcGuard } from './router/oidcGuard'
 import VueDOMPurifyHTML from 'vue-dompurify-html'
 import { createI18n } from 'vue-i18n'
 import i18nConfig from './config/i18n.js'
@@ -66,20 +67,6 @@ app.use(pinia)
 
 const oidcStore = useOidcStore()
 
-// Here we are working around pinia-oidc not automatically updating the user info in the store after a successful silent renew.
-// By calling oidcCheckAccess the oidc store will update the user info internally
-oidcStore.addOidcEventListener({
-  eventName: 'userLoaded',
-  eventListener: async () => {
-    const route = router.currentRoute.value
-    await oidcStore.oidcCheckAccess({
-      path: route.path,
-      fullPath: route.fullPath,
-      meta: route.meta ?? {},
-    })
-  },
-})
-
 app.use(Vue3Tour)
 app.use(VueDOMPurifyHTML, {
   default: {
@@ -87,28 +74,22 @@ app.use(VueDOMPurifyHTML, {
   },
 })
 
-oidcStore.addOidcEventListener({
-  eventName: 'tokenExpired',
-  eventListener: async () => {
-    console.log('OIDC: Access token has expired')
+userManager.events.addAccessTokenExpired(async () => {
+  console.log('OIDC: Access token has expired')
 
-    // Check if we are not on the home page
-    if (router.currentRoute.value.name !== 'home') {
-      await router.replace({
-        name: 'home',
-        query: { logged_out_reason: 'token_expired' },
-      })
-    }
-  },
+  // Check if we are not on the home page
+  if (router.currentRoute.value.name !== 'home') {
+    await router.replace({
+      name: 'home',
+      query: { logged_out_reason: 'token_expired' },
+    })
+  }
 })
 
-oidcStore.addOidcEventListener({
-  eventName: 'silentRenewError',
-  eventListener: async ({ detail: error }) => {
-    console.error('OIDC: Access token could not be renewed:', error)
-  },
+userManager.events.addSilentRenewError((error) => {
+  console.error('OIDC: Access token could not be renewed:', error)
 })
 
-router.beforeEach(piniaOidcCreateRouterMiddleware(oidcStore))
+router.beforeEach(createOidcGuard(userManager, oidcStore))
 
 app.mount('#app')

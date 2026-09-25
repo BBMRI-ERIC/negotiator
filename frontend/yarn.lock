@@ -1662,13 +1662,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crypto-js@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "crypto-js@npm:4.2.0"
-  checksum: 10c0/8fbdf9d56f47aea0794ab87b0eb9833baf80b01a7c5c1b0edc7faf25f662fb69ab18dc2199e2afcac54670ff0cd9607a9045a3f7a80336cccd18d77a55b9fdf0
-  languageName: node
-  linkType: hard
-
 "cssesc@npm:^3.0.0":
   version: 3.0.0
   resolution: "cssesc@npm:3.0.0"
@@ -2867,13 +2860,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jwt-decode@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "jwt-decode@npm:3.1.2"
-  checksum: 10c0/a951547946b5e8b1d9df818152d6b1dbaf13eebb3a6e6daceedf888968f5d255959852c8188aae2c825dc9104a99d25cb6c23f25d76545d1aa0315b968b6912e
-  languageName: node
-  linkType: hard
-
 "jwt-decode@npm:^4.0.0":
   version: 4.0.0
   resolution: "jwt-decode@npm:4.0.0"
@@ -3295,7 +3281,6 @@ __metadata:
     moment: "npm:^2.29.4"
     oidc-client-ts: "npm:^3.5.0"
     pinia: "npm:^3.0.3"
-    pinia-oidc: "npm:^1.0.10"
     prettier: "npm:^3.8.1"
     sass: "npm:^1.102.0"
     sass-loader: "npm:^16.0.5"
@@ -3390,16 +3375,6 @@ __metadata:
   version: 1.13.4
   resolution: "object-inspect@npm:1.13.4"
   checksum: 10c0/d7f8711e803b96ea3191c745d6f8056ce1f2496e530e6a19a0e92d89b0fa3c76d910c31f0aa270432db6bd3b2f85500a376a83aaba849a8d518c8845b3211692
-  languageName: node
-  linkType: hard
-
-"oidc-client-ts@npm:^2.0.4":
-  version: 2.5.0
-  resolution: "oidc-client-ts@npm:2.5.0"
-  dependencies:
-    crypto-js: "npm:^4.2.0"
-    jwt-decode: "npm:^3.1.2"
-  checksum: 10c0/323d3d838f983f19687caf662f955cdca473a74bb32b43f561721c2e1f565b31677270cc10eac46ee60c61f8a6984a1b39fe574d8f3ac873c9491af793678c84
   languageName: node
   linkType: hard
 
@@ -3568,19 +3543,6 @@ __metadata:
   version: 2.3.0
   resolution: "pify@npm:2.3.0"
   checksum: 10c0/551ff8ab830b1052633f59cb8adc9ae8407a436e06b4a9718bcb27dc5844b83d535c3a8512b388b6062af65a98c49bdc0dd523d8b2617b188f7c8fee457158dc
-  languageName: node
-  linkType: hard
-
-"pinia-oidc@npm:^1.0.10":
-  version: 1.0.10
-  resolution: "pinia-oidc@npm:1.0.10"
-  dependencies:
-    oidc-client-ts: "npm:^2.0.4"
-    typescript: "npm:^4.6.4"
-  peerDependencies:
-    oidc-client: ">= 1.10.1"
-    pinia: ">= 2.0.0"
-  checksum: 10c0/a19d74b581b54fde55af75e4eeedba12738ec2d651a18f9db5de2fe64c82b2d9658e3c545e55c554312a8e69b65e41ef9f29de7fd366c4549602f108049596ee
   languageName: node
   linkType: hard
 
@@ -4349,26 +4311,6 @@ __metadata:
   version: 0.8.1
   resolution: "type-fest@npm:0.8.1"
   checksum: 10c0/dffbb99329da2aa840f506d376c863bd55f5636f4741ad6e65e82f5ce47e6914108f44f340a0b74009b0cb5d09d6752ae83203e53e98b1192cf80ecee5651636
-  languageName: node
-  linkType: hard
-
-"typescript@npm:^4.6.4":
-  version: 4.9.5
-  resolution: "typescript@npm:4.9.5"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/5f6cad2e728a8a063521328e612d7876e12f0d8a8390d3b3aaa452a6a65e24e9ac8ea22beb72a924fd96ea0a49ea63bb4e251fb922b12eedfb7f7a26475e5c56
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^4.6.4#optional!builtin<compat/typescript>":
-  version: 4.9.5
-  resolution: "typescript@patch:typescript@npm%3A4.9.5#optional!builtin<compat/typescript>::version=4.9.5&hash=289587"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/e3333f887c6829dfe0ab6c1dbe0dd1e3e2aeb56c66460cb85c5440c566f900c833d370ca34eb47558c0c69e78ced4bfe09b8f4f98b6de7afed9b84b8d1dd06a1
   languageName: node
   linkType: hard
 
