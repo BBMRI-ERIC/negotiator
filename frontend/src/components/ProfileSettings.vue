@@ -5,6 +5,7 @@
       class="mr-3 text-light"
       :style="{ 'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important' }"
       data-bs-toggle="dropdown"
+      data-bs-display="static"
       aria-expanded="false"
     >
       {{ returnAcronymOfName }}
@@ -12,27 +13,32 @@
 
     <ul class="dropdown-menu dropdown-menu-end mt-1">
       <li class="container mb-3 mt-2">
-        <div class="d-flex flex-row">
-          <profileAvatar
-            type="button"
-            class="me-3 mt-1 text-light"
-            :style="{
-              'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important',
-            }"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {{ returnAcronymOfName }}
-          </profileAvatar>
-          <div>
-            <div :style="{ color: uiConfiguration?.navbarTextColor }">
-              {{ user.email }}
-            </div>
-            <div :style="{ color: uiConfiguration?.navbarTextColor, opacity: 0.7 }">
-              {{ user.name }}
+        <div class="d-flex flex-row justify-content-between">
+          <div class="d-flex flex-row">
+            <profileAvatar
+              type="button"
+              class="me-3 mt-1 text-light flex-shrink-0"
+              :style="{
+                'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important',
+              }"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              {{ returnAcronymOfName }}
+            </profileAvatar>
+            <div class="user-info">
+              <div class="user-info-text" :style="{ color: uiConfiguration?.navbarTextColor }">
+                {{ user.email }}
+              </div>
+              <div
+                class="user-info-text"
+                :style="{ color: uiConfiguration?.navbarTextColor, opacity: 0.7 }"
+              >
+                {{ user.name }}
+              </div>
             </div>
           </div>
-          <i class="bi bi-x ms-2 h4" />
+          <i class="bi bi-x ms-2 h4 close-icon" />
         </div>
       </li>
       <li>
@@ -151,7 +157,7 @@ const returnAcronymOfName = computed(() => {
     initials = words[0][0] ? words[0][0].toUpperCase() : ''
   } else if (words.length > 1) {
     // Multiple words: take first letter of first and last word
-    initials = words[0][0].toUpperCase() + ' ' + words[words.length - 1][0].toUpperCase()
+    initials = words[0][0].toUpperCase() + words[words.length - 1][0].toUpperCase()
   }
   return initials
 })
@@ -198,5 +204,38 @@ function signOutOidc() {
 <style scoped>
 .sign-out:hover {
   color: #dc3545;
+}
+
+.close-icon {
+  cursor: pointer;
+}
+
+.user-info-text {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (min-width: 992px) {
+  .dropdown-menu {
+    min-width: 320px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .dropdown-menu {
+    position: fixed !important;
+    inset: auto 8px auto 8px !important;
+    top: 56px !important;
+    transform: none !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .container {
+    padding-left: 1.5rem;
+  }
 }
 </style>

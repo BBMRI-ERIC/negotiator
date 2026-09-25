@@ -3,9 +3,10 @@
     <button
       ref="dropdownButton"
       type="button"
-      class="btn btn-sm rounded-circle position-relative py-0 px-1"
+      class="btn btn-sm rounded-circle position-relative notification-toggle-btn"
       :style="{ color: uiConfiguration?.navbarButtonOutlineColor }"
       data-bs-toggle="dropdown"
+      data-bs-display="static"
       aria-expanded="false"
       @click="() => fetchNotifications(0)"
     >
@@ -21,14 +22,23 @@
     <ul ref="dropdownMenu" class="dropdown-menu dropdown-menu-end">
       <li class="dropdown-item-text alert-info d-flex justify-content-between align-items-center">
         <span>Notifications ({{ totalElements }})</span>
-        <button
-          v-if="unreadCount > 0"
-          @click.stop="markAllAsRead"
-          class="btn btn-sm btn-outline-primary"
-          title="Mark all as read"
-        >
-          <i class="bi bi-check-all"></i>
-        </button>
+        <div class="d-flex align-items-center gap-1">
+          <button
+            v-if="unreadCount > 0"
+            @click.stop="markAllAsRead"
+            class="btn btn-sm btn-outline-primary"
+            title="Mark all as read"
+          >
+            <i class="bi bi-check-all"></i>
+          </button>
+          <button
+            @click.stop="closeDropdown"
+            class="btn btn-sm p-0 border-0 ms-2 lh-1"
+            title="Close"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
       </li>
       <li>
         <hr class="dropdown-divider" />
@@ -56,7 +66,7 @@
         >
           <div class="me-auto">
             <div class="fw-bold">{{ notification.title }}</div>
-            <div class="small">{{ notification.message }}</div>
+            <div class="small text-wrap">{{ notification.message }}</div>
             <div v-if="notification.negotiationId" class="small text-primary mt-1">
               <i class="bi bi-arrow-right-circle"></i> Click to view negotiation
             </div>
@@ -290,6 +300,30 @@ onUnmounted(() => {
   overflow: hidden;
   overflow-y: auto;
   max-height: calc(100vh - 150px);
+  width: 410px;
+}
+
+@media (max-width: 576px) {
+  .dropdown {
+    position: static;
+  }
+
+  .dropdown-menu {
+    left: 8px !important;
+    right: 8px !important;
+    top: 55px !important;
+    width: auto;
+    max-width: none;
+  }
+}
+
+.notification-toggle-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .notification-badge {
