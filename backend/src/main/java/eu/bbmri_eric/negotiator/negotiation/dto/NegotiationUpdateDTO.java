@@ -18,6 +18,7 @@ public class NegotiationUpdateDTO {
   private String displayId;
 
   @Schema(description = "Payload with the details of the Negotiation")
+  @ValidPayloadKeys
   private JsonNode payload;
 
   @Schema(
