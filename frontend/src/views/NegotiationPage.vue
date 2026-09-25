@@ -76,8 +76,7 @@
               <div
                 class="me-2 fw-bold"
                 :style="{ color: uiConfiguration.secondaryTextColor }"
-                v-html="decodeHTML(subelementkey)"
-              ></div>
+              >{{ decodeHTML(subelementkey) }}</div>
               <span
                 v-if="isAttachment(subelement)"
                 :style="{ color: uiConfiguration.secondaryTextColor }"
@@ -498,12 +497,9 @@ function isAttachment(value) {
 }
 
 function decodeHTML(htmlString) {
-  let spacedString = transformDashToSpace(htmlString)
+  const spacedString = transformDashToSpace(htmlString)
   const parser = new DOMParser()
-  const decodedString = parser.parseFromString(spacedString, 'text/html').body.textContent
-  const txt = document.createElement('div')
-  txt.innerHTML = decodedString
-  return txt.innerHTML
+  return parser.parseFromString(spacedString, 'text/html').body.textContent
 }
 
 async function updateNegotiation(message) {

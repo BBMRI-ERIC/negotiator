@@ -25,7 +25,7 @@ public class NegotiationCreateDTO {
 
   @Valid @NotEmpty private String request;
 
-  @NotNull private JsonNode payload;
+  @NotNull @ValidPayloadKeys private JsonNode payload;
 
   private Set<AttachmentMetadataDTO> attachments;
 }
