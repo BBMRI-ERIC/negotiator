@@ -1,3 +1,90 @@
+# Negotiator v3.24.0
+
+**Release Date:** June 2026  
+**Full Changelog:** [v3.23.0...v3.24.0](https://github.com/BBMRI-ERIC/negotiator/compare/v3.23.0...v3.24.0-rc1)
+
+## What's New
+
+### Requests with Collaborators
+
+![Share Requests with Collaborator](/public/v3.24.0-collaborators.gif)
+
+You can now **share requests with collaborators**. This allows you to involve other users in the negotiation process, enabling better collaboration and communication within your team.
+
+## User Interface Improvements
+
+- Display proper file icon and name depending on file type depending on file type
+- Rearranged negotiation filter controls
+
+## For Administrators
+
+### Deployment Updates
+
+- Added feature flag for exports
+- Added organization resource state override feature flag
+- Implemented GET /v3/negotiations/{negotiationId}/posts/{postId} with visibility-aware access control
+- Added option to use a simplified resource state machine
+
+## Bug Fixes
+
+- **Administration**: Additional authorization for admins to remove resources from negotiation
+- **Administration**: Fixed broken edit resource pagination
+- **Administration**: Fixed setting the correct version of wizard
+- **Access Forms**: Fixed Info icon / status dropdown button openable when not updatable
+
+## Dependency Updates
+
+We've updated various components to their latest versions for improved security and performance and made some replacements:
+- replaced Flying Saucer with iText pdfHTML
+- remove unused EclipseLink MOXy
+- remove unused backend dependencies
+- remove unused loki-logback-appender
+- remove webflux and netty
+- added commons lang3 explicitly
+- eclipse-temurin from 1038345 → 9697560
+- js-yaml from 4.3.1 → 4.3.2
+- nginxinc/nginx-unprivileged from 1.31.3-perl → 1.31.4-perl
+- org.apache.pdfbox:pdfbox from 3.0.5 → 3.0.8
+- org.postgresql:postgresql from 42.7.11 → 42.7.13
+- vue-chartjs from 5.3.2 → 5.3.3
+- io.netty:netty-resolver-dns-native-macos from 4.1.119.Final → 4.2.17.Final
+- sass from 1.97.1 → 1.102.0
+- vite from 6.4.1 → 8.1.5
+- update vite to latest
+- spring managed dependency cleanup
+- yarn version 1 → 4
+
+*Thank you to all contributors who made this release possible: [@tmilost](https://github.com/tmilost), [@stetsche](https://github.com/stetsche), [@ChrisiSailer](https://github.com/ChrisiSailer), [@ondraholis](https://github.com/ondraholis) and [@fuchs-an](https://github.com/fuchs-an)!*
+
+**License:** GNU Affero General Public License v3.0  
+**Developed by:** [BBMRI-ERIC](https://bbmri-eric.eu)
+
+# Negotiator v3.23.0
+
+**Release Date:** June 2026  
+**Full Changelog:** [v3.22.0...v3.23.0](https://github.com/BBMRI-ERIC/negotiator/compare/v3.22.0...v3.23.0)
+
+## What's New
+
+
+*Thank you to all contributors who made this release possible!*
+
+**License:** GNU Affero General Public License v3.0  
+**Developed by:** [BBMRI-ERIC](https://bbmri-eric.eu)
+
+# Negotiator v3.22.0
+
+**Release Date:** May 2026  
+**Full Changelog:** [v3.21.0...v3.22.0](https://github.com/BBMRI-ERIC/negotiator/compare/v3.21.0...v3.22.0)
+
+## What's New
+
+
+*Thank you to all contributors who made this release possible!*
+
+**License:** GNU Affero General Public License v3.0  
+**Developed by:** [BBMRI-ERIC](https://bbmri-eric.eu)
+
 # Negotiator v3.21.0
 
 **Release Date:** April 2026  
