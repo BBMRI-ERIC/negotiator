@@ -4,7 +4,6 @@ import eu.bbmri_eric.negotiator.common.exceptions.ConflictStatusException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
-import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationForNegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
@@ -13,8 +12,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import java.util.List;
-
-import org.springframework.data.domain.Page;
 import java.util.Set;
 import org.springframework.data.domain.Pageable;
 
