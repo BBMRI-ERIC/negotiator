@@ -1,6 +1,7 @@
 <template>
   <div class="btn-group">
     <profileAvatar
+      ref="dropdownToggle"
       type="button"
       class="mr-3 text-light"
       :style="{ 'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important' }"
@@ -38,7 +39,15 @@
               </div>
             </div>
           </div>
-          <i class="bi bi-x ms-2 h4 close-icon" />
+          <button
+            type="button"
+            class="btn btn-sm p-0 border-0 ms-2 lh-1 align-self-start"
+            aria-label="Close"
+            title="Close"
+            @click.stop="closeDropdown"
+          >
+            <i class="bi bi-x h4" aria-hidden="true" />
+          </button>
         </div>
       </li>
       <li>
@@ -115,7 +124,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { Dropdown } from 'bootstrap'
 import externalLinks from '@/config/externalLinks'
 import { useOidcStore } from '@/store/oidc'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
@@ -139,6 +149,15 @@ const props = defineProps({
 })
 
 const uiConfigurationStore = useUiConfiguration()
+
+const dropdownToggle = ref(null)
+
+function closeDropdown() {
+  const toggleEl = dropdownToggle.value?.$el
+  if (toggleEl) {
+    Dropdown.getOrCreateInstance(toggleEl).hide()
+  }
+}
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.navbar
@@ -204,10 +223,6 @@ function signOutOidc() {
 <style scoped>
 .sign-out:hover {
   color: #dc3545;
-}
-
-.close-icon {
-  cursor: pointer;
 }
 
 .user-info-text {
