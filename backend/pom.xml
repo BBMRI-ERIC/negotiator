@@ -19,7 +19,7 @@
     <properties>
         <java.version>21</java.version>
         <spring-modulith.version>1.4.12</spring-modulith.version>
-        <spring.state-machine.version>4.0.0</spring.state-machine.version>
+        <spring.state-machine.version>4.0.2</spring.state-machine.version>
 
         <!-- Third-party libraries -->
         <commons-csv.version>1.14.0</commons-csv.version>
