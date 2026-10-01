@@ -68,7 +68,7 @@
                 <configuration>
                 </configuration>
                 <groupId>org.apache.maven.plugins</groupId>
-                <version>3.5.5</version>
+                <version>3.6.0</version>
             </plugin>
             <plugin>
                 <artifactId>spring-boot-maven-plugin</artifactId>
