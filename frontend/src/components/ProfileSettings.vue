@@ -35,7 +35,7 @@
             title="Close"
             @click.stop="closeDropdown"
           >
-            <i class="bi bi-x h4" aria-hidden="true" />
+            <i class="bi bi-x-lg" aria-hidden="true" />
           </button>
         </div>
       </li>
