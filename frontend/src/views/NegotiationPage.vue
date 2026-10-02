@@ -26,6 +26,13 @@
       :message-enabled="false"
       @confirm="deleteNegotiation()"
     />
+    <confirmation-modal
+      id="statusUpdateModal"
+      :title="`Status update for ${selectedOrganization ? selectedOrganization.name : 'Unknown organization'}`"
+      :text="`Are you sure you want to change the status of all ${selectedOrganization ? selectedOrganization.name : 'Unknown organization'} resources you represent in this Negotiation to ${selectedOrgStatus ? selectedOrgStatus.label : 'Unknown'}?`"
+      :message-enabled="false"
+      @confirm="updateOrganizationStatus"
+    />
     <div class="row mt-4">
       <div class="row-col-2">
         <h1
@@ -225,6 +232,7 @@
                     :resource-states="resourceStates"
                     :isAdmin="isAdmin"
                     @reload-resources="reloadResources()"
+                    @update-org-status="assignOrgStatus"
                   />
                 </div>
               </div>
@@ -247,6 +255,7 @@
                     :resource-states="resourceStates"
                     :isAdmin="isAdmin"
                     @reload-resources="reloadResources()"
+                    @update-org-status="assignOrgStatus"
                   />
                 </div>
               </div>
@@ -322,6 +331,8 @@ const resources = ref([])
 const representedResourcesIds = ref([])
 const possibleEvents = ref([])
 const selectedStatus = ref(undefined)
+const selectedOrganization = ref(undefined)
+const selectedOrgStatus = ref(undefined)
 const attachments = ref([])
 const downloadingAttachments = ref(new Set())
 const isAddResourcesButtonVisible = ref(false)
@@ -430,6 +441,23 @@ const postsRecipients = computed(() => {
 
 function assignStatus(status) {
   selectedStatus.value = status
+}
+
+function assignOrgStatus(state, organization) {
+  selectedOrgStatus.value = state
+  selectedOrganization.value = organization
+}
+
+// Update the status of all resources the user represents in the selected organization
+async function updateOrganizationStatus() {
+  const data = {
+    resourceIds: selectedOrganization.value.resources
+      .filter(isResourceRepresented)
+      .map((resource) => resource.id),
+    state: selectedOrgStatus.value.value,
+  }
+  await negotiationPageStore.addResources(data, props.negotiationId)
+  reloadResources()
 }
 
 const author = computed(() => {

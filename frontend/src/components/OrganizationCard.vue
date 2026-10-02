@@ -5,8 +5,6 @@
       :org="org"
       :ui-configuration="uiConfiguration"
       :sorted-states="sortedStates"
-      :dropdown-visible="dropdownVisible"
-      @toggle-dropdown="toggleDropdown"
       @toggle-collapse="toggleCollapse"
       @update-org-status="handleUpdateOrgStatus"
     />
@@ -27,7 +25,7 @@
 </template>
 
 <script setup>
-import { computed, reactive } from 'vue'
+import { computed } from 'vue'
 import OrganizationHeader from './OrganizationHeader.vue'
 import ResourceItem from './ResourceItem.vue'
 
@@ -47,17 +45,7 @@ const emit = defineEmits([
   'edit-info-submission',
 ])
 
-const dropdownVisible = reactive({})
-
 const sanitizeId = (id) => id.replaceAll(':', '_')
-
-const toggleDropdown = (orgId) => {
-  // Close other dropdowns in this card
-  Object.keys(dropdownVisible).forEach((key) => {
-    if (key !== orgId) dropdownVisible[key] = false
-  })
-  dropdownVisible[orgId] = !dropdownVisible[orgId]
-}
 
 const toggleCollapse = (orgId) => {
   emit('toggle-collapse', orgId)
