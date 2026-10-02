@@ -21,13 +21,6 @@
     :isAdmin="isAdmin"
     @editInfoSubmission="editInfoSubmission"
   />
-  <confirmation-modal
-    id="statusUpdateModal"
-    :title="`Status update for ${selectedOrganization ? selectedOrganization.name : 'Unknown'}`"
-    :text="`Are you sure you want to change the status of all ${selectedOrganization ? selectedOrganization.name : 'Unknown'} resources you represent in this Negotiation to ${orgStatus ? orgStatus.label : 'Unknown'}?`"
-    :message-enabled="false"
-    @confirm="updateOrganization"
-  />
 
   <!-- Organization Card Component -->
   <OrganizationCard
@@ -54,16 +47,15 @@ import { useFormsStore } from '../store/forms'
 import OrganizationCard from './OrganizationCard.vue'
 import FormViewModal from '@/components/modals/FormViewModal.vue'
 import FormSubmissionModal from '@/components/modals/FormSubmissionModal.vue'
-import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 
-const props = defineProps({
+defineProps({
   orgId: { type: String, default: undefined },
   org: { type: Object, default: () => ({}) },
   resourceStates: { type: Array, default: () => [] },
   negotiationId: { type: String, default: undefined },
   isAdmin: { type: Boolean, default: false },
 })
-const emit = defineEmits(['reloadResources'])
+const emit = defineEmits(['reloadResources', 'update-org-status'])
 
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()
@@ -75,8 +67,6 @@ const requirementId = ref(undefined)
 const resourceId = ref(undefined)
 const requiredAccessForm = ref({})
 const submittedForm = ref({})
-const selectedOrganization = ref(undefined)
-const orgStatus = ref(undefined)
 
 // Modal Refs and Instances
 const formSubmissionModalRef = ref(null)
@@ -119,25 +109,7 @@ async function updateResourceState(link) {
 }
 
 const updateOrgStatus = (state, organization) => {
-  selectedOrganization.value = organization
-  orgStatus.value = state
-}
-
-// Update organization with new status for all represented resources
-const getRepresentedResources = (resources) =>
-  resources
-    .filter((resource) =>
-      Object.values(resource._links).some((link) => link.title === 'Next Lifecycle event'),
-    )
-    .map((resource) => resource.id)
-
-const updateOrganization = async () => {
-  const data = {
-    resourceIds: getRepresentedResources(selectedOrganization.value.resources),
-    state: orgStatus.value.value,
-  }
-  await negotiationPageStore.addResources(data, props.negotiationId)
-  emit('reloadResources')
+  emit('update-org-status', state, organization)
 }
 
 onMounted(() => {
