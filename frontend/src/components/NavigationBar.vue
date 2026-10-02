@@ -310,7 +310,7 @@ onBeforeUnmount(() => {
 <style>
 nav {
   width: 100%;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   text-align: left;
 }
 
@@ -342,7 +342,7 @@ nav {
 }
 
 .navbar-nav {
-  margin-left: 3px;
+  margin-left: 6px;
 }
 
 @media (max-width: 991.98px) {
