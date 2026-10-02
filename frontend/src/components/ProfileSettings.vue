@@ -13,20 +13,9 @@
     </profileAvatar>
 
     <ul class="dropdown-menu dropdown-menu-end mt-1">
-      <li class="container mb-3 mt-2">
+      <li class="container mb-3 mt-2 px-3">
         <div class="d-flex flex-row justify-content-between">
           <div class="d-flex flex-row">
-            <profileAvatar
-              type="button"
-              class="me-3 mt-1 text-light flex-shrink-0"
-              :style="{
-                'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important',
-              }"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              {{ returnAcronymOfName }}
-            </profileAvatar>
             <div class="user-info">
               <div class="user-info-text" :style="{ color: uiConfiguration?.navbarTextColor }">
                 {{ user.email }}
