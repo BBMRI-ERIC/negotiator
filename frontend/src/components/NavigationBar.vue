@@ -320,6 +320,32 @@ nav {
   gap: 6px;
 }
 
+/* Extra specificity to beat Bootstrap's .navbar-expand-lg .navbar-nav .nav-link padding */
+.navbar .navbar-nav .nav-link.nav-option {
+  padding: 6px 6px;
+  border-radius: 6px;
+  transition: background-color 80ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* GitHub-style hover: translucent rounded background, text color unchanged */
+.nav-link.nav-option:hover,
+.nav-link.nav-option:focus-visible {
+  background-color: rgba(129, 139, 152, 0.15);
+}
+
+.nav-link.nav-option:active {
+  background-color: rgba(129, 139, 152, 0.25);
+}
+
+@media (min-width: 992px) {
+  .navbar-nav .nav-item + .nav-item {
+    margin-left: 2px;
+  }
+  .navbar .navbar-nav .nav-link.nav-option {
+    padding: 6px 8px;
+  }
+}
+
 .nav-link.nav-option.active {
   font-weight: 600;
 }
@@ -339,10 +365,6 @@ nav {
   text-overflow: ellipsis; /* Ellipsis for overflowing text */
   color: #495057; /* Darker gray text color to match Bootstrap's default text */
   background-color: #e7e7e7;
-}
-
-.navbar-nav {
-  margin-left: 6px;
 }
 
 @media (max-width: 991.98px) {
