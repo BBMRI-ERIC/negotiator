@@ -253,4 +253,9 @@ function signOutOidc() {
     padding-left: 1.5rem;
   }
 }
+
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: var(--bs-tertiary-bg); /* same as the hover color */
+  --bs-dropdown-link-active-color: inherit;
+}
 </style>
