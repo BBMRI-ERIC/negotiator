@@ -36,7 +36,6 @@
     "moment": "^2.29.4",
     "oidc-client-ts": "^3.5.0",
     "pinia": "^3.0.3",
-    "pinia-oidc": "^1.0.10",
     "sass-loader": "^16.0.5",
     "vue": "^3.5.28",
     "vue-chartjs": "^5.3.4",
