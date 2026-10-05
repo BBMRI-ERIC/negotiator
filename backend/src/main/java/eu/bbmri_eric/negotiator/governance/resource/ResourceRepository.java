@@ -17,7 +17,7 @@ public interface ResourceRepository
 
   @Query(
       value =
-          """
+"""
 select
     rs.id              as id,
     nrl.negotiation_id as negotiationId,
