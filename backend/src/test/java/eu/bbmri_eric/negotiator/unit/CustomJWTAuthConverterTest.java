@@ -25,9 +25,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public class CustomJWTAuthConverterTest {
 
-  private static final String TEST_AUTHZ_CLAIM = "eduperson_entitlement";
-  private static final String TEST_AUTHZ_ADMIN_VALUE =
-      "urn:geant:bbmri-eric.eu:res:role_admin#aai.lifescience-ri.eu";
+  private static final String TEST_AUTHZ_CLAIM = "roles";
+  private static final String TEST_AUTHZ_ADMIN_VALUE = "admin";
   private static final String USER_INFO_ENDPOINT_PATH = "/userinfo";
 
   @RegisterExtension
@@ -110,18 +109,18 @@ public class CustomJWTAuthConverterTest {
   }
 
   @Test
-  void testConvertCasMachineToken_usesGrantType() {
+  void testConvertMachineTokenWithGrantType() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("client_id", "casMachineClient");
+    claims.put("client_id", "machineUser");
     claims.put("grant_type", "client_credentials");
     claims.put("scope", "openid negotiator_authz_management");
-    Jwt jwt = createFakeJwt(claims, "casMachineToken");
+    Jwt jwt = createFakeJwt(claims, "machineToken");
 
-    when(personRepository.findBySubjectId("casMachineClient")).thenReturn(Optional.empty());
+    when(personRepository.findBySubjectId("machineUser")).thenReturn(Optional.empty());
     Person newClient =
         Person.builder()
-            .subjectId("casMachineClient")
-            .name("casMachineClient")
+            .subjectId("machineUser")
+            .name("machineUser")
             .email("no_email")
             .isServiceAccount(true)
             .build();
@@ -138,47 +137,51 @@ public class CustomJWTAuthConverterTest {
   @Test
   void testConvertUserTokenWithoutUserInfoEndpoint_createsNewUserFromJwtClaims() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("sub", "user1");
-    claims.put("name", "User One");
-    claims.put("email", "user1@example.com");
+    claims.put("sub", "test-user-1");
+    claims.put("name", "Test User 1");
+    claims.put("email", "test.user1@example.invalid");
     claims.put("scope", "profile");
-    Jwt jwt = createFakeJwt(claims, "userToken");
+    Jwt jwt = createFakeJwt(claims, "userToken1");
 
-    when(personRepository.findBySubjectId("user1")).thenReturn(Optional.empty());
+    when(personRepository.findBySubjectId("test-user-1")).thenReturn(Optional.empty());
     Person newUser =
-        Person.builder().subjectId("user1").name("User One").email("user1@example.com").build();
+        Person.builder()
+            .subjectId("test-user-1")
+            .name("Test User 1")
+            .email("test.user1@example.invalid")
+            .build();
     when(personRepository.save(any(Person.class))).thenReturn(newUser);
 
     var authToken = converterWithoutUserInfo.convert(jwt);
     UserPrincipal principal = (UserPrincipal) authToken.getPrincipal();
-    assertEquals("user1", principal.getPerson().getSubjectId());
-    assertEquals("User One", principal.getName());
-    assertEquals("user1@example.com", principal.getPerson().getEmail());
+    assertEquals("test-user-1", principal.getPerson().getSubjectId());
+    assertEquals("Test User 1", principal.getName());
+    assertEquals("test.user1@example.invalid", principal.getPerson().getEmail());
   }
 
   @Test
-  void testConvertCasUserToken_usesJwtClaimsWithoutUserInfoRequest() {
+  void testConvertUserTokenWithGrantType_usesJwtClaimsWithoutUserInfoRequest() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("sub", "casUser");
-    claims.put("client_id", "casClient");
+    claims.put("sub", "userWithGrantType");
+    claims.put("client_id", "clientWithGrantType");
     claims.put("grant_type", "authorization_code");
-    claims.put("name", "CAS User");
-    claims.put("email", "cas.user@example.com");
+    claims.put("name", "User With Grant Type");
+    claims.put("email", "user.with.grant.type@example.com");
     claims.put(TEST_AUTHZ_CLAIM, List.of(TEST_AUTHZ_ADMIN_VALUE));
-    Jwt jwt = createFakeJwt(claims, "casUserToken");
+    Jwt jwt = createFakeJwt(claims, "userTokenWithGrantType");
 
-    when(personRepository.findBySubjectId("casUser")).thenReturn(Optional.empty());
+    when(personRepository.findBySubjectId("userWithGrantType")).thenReturn(Optional.empty());
     Person newUser =
         Person.builder()
-            .subjectId("casUser")
-            .name("CAS User")
-            .email("cas.user@example.com")
+            .subjectId("userWithGrantType")
+            .name("User With Grant Type")
+            .email("user.with.grant.type@example.com")
             .build();
     when(personRepository.save(any(Person.class))).thenReturn(newUser);
 
     var authToken = converterWithUserInfo.convert(jwt);
     UserPrincipal principal = (UserPrincipal) authToken.getPrincipal();
-    assertEquals("casUser", principal.getPerson().getSubjectId());
+    assertEquals("userWithGrantType", principal.getPerson().getSubjectId());
     assertTrue(
         authToken.getAuthorities().stream()
             .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")));
@@ -188,11 +191,11 @@ public class CustomJWTAuthConverterTest {
   @Test
   void testConvertUserTokenWithUserInfoEndpoint_success() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("sub", "user2");
-    claims.put("client_id", "legacyClient");
+    claims.put("sub", "test-user-2");
+    claims.put("client_id", "test-client-legacy");
     claims.put("scope", "openid profile");
-    claims.put("name", "Fallback Name");
-    claims.put("email", "fallback@example.com");
+    claims.put("name", "Fallback User");
+    claims.put("email", "fallback.user@example.invalid");
     Jwt jwt = createFakeJwt(claims, "userToken2");
 
     wireMockServer.stubFor(
@@ -203,28 +206,32 @@ public class CustomJWTAuthConverterTest {
                     .withStatus(200)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .withBody(
-                        "{\"name\": \"Jane Doe\", \"email\": \"jane@example.com\", \"sub\": \"user2\"}")));
+                        "{\"name\": \"User Info Name\", \"email\": \"userinfo@example.invalid\", \"sub\": \"test-user-2\"}")));
 
-    when(personRepository.findBySubjectId("user2")).thenReturn(Optional.empty());
+    when(personRepository.findBySubjectId("test-user-2")).thenReturn(Optional.empty());
     Person newUser =
-        Person.builder().subjectId("user2").name("Jane Doe").email("jane@example.com").build();
+        Person.builder()
+            .subjectId("test-user-2")
+            .name("User Info Name")
+            .email("userinfo@example.invalid")
+            .build();
     when(personRepository.save(any(Person.class))).thenReturn(newUser);
 
     var authToken = converterWithUserInfo.convert(jwt);
     UserPrincipal principal = (UserPrincipal) authToken.getPrincipal();
-    assertEquals("user2", principal.getPerson().getSubjectId());
-    assertEquals("Jane Doe", principal.getName());
-    assertEquals("jane@example.com", principal.getPerson().getEmail());
+    assertEquals("test-user-2", principal.getPerson().getSubjectId());
+    assertEquals("User Info Name", principal.getName());
+    assertEquals("userinfo@example.invalid", principal.getPerson().getEmail());
     wireMockServer.verify(1, getRequestedFor(urlEqualTo(USER_INFO_ENDPOINT_PATH)));
   }
 
   @Test
   void testConvertUserTokenWithUserInfoEndpoint_errorWhenEndpointFails() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("sub", "user3");
+    claims.put("sub", "test-user-3");
     claims.put("scope", "openid profile");
-    claims.put("name", "Fallback Name");
-    claims.put("email", "fallback@example.com");
+    claims.put("name", "Fallback User");
+    claims.put("email", "fallback.user@example.invalid");
     Jwt jwt = createFakeJwt(claims, "userToken3");
 
     wireMockServer.stubFor(
@@ -232,12 +239,12 @@ public class CustomJWTAuthConverterTest {
             .withHeader("Authorization", equalTo("Bearer userToken3"))
             .willReturn(aResponse().withStatus(500).withBody("Server Error")));
 
-    when(personRepository.findBySubjectId("user3")).thenReturn(Optional.empty());
+    when(personRepository.findBySubjectId("test-user-3")).thenReturn(Optional.empty());
     Person newUser =
         Person.builder()
-            .subjectId("user3")
-            .name("Fallback Name")
-            .email("fallback@example.com")
+            .subjectId("test-user-3")
+            .name("Fallback User")
+            .email("fallback.user@example.invalid")
             .build();
     when(personRepository.save(any(Person.class))).thenReturn(newUser);
 
@@ -247,15 +254,19 @@ public class CustomJWTAuthConverterTest {
   @Test
   void testUpdateExistingUser_updatesUserInformation() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("sub", "user4");
+    claims.put("sub", "test-user-4");
     claims.put("scope", "openid profile");
-    claims.put("name", "Old Name");
-    claims.put("email", "old@example.com");
+    claims.put("name", "Existing User Name");
+    claims.put("email", "existing.user@example.invalid");
     Jwt jwt = createFakeJwt(claims, "userToken4");
 
     Person existingUser =
-        Person.builder().subjectId("user4").name("Old Name").email("old@example.com").build();
-    when(personRepository.findBySubjectId("user4")).thenReturn(Optional.of(existingUser));
+        Person.builder()
+            .subjectId("test-user-4")
+            .name("Existing User Name")
+            .email("existing.user@example.invalid")
+            .build();
+    when(personRepository.findBySubjectId("test-user-4")).thenReturn(Optional.of(existingUser));
 
     wireMockServer.stubFor(
         get(USER_INFO_ENDPOINT_PATH)
@@ -265,16 +276,20 @@ public class CustomJWTAuthConverterTest {
                     .withStatus(200)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .withBody(
-                        "{\"name\": \"New Name\", \"email\": \"new@example.com\", \"sub\": \"user4\"}")));
+                        "{\"name\": \"Updated User Name\", \"email\": \"updated.user@example.invalid\", \"sub\": \"test-user-4\"}")));
 
     Person updatedUser =
-        Person.builder().subjectId("user4").name("New Name").email("new@example.com").build();
+        Person.builder()
+            .subjectId("test-user-4")
+            .name("Updated User Name")
+            .email("updated.user@example.invalid")
+            .build();
     when(personRepository.save(any(Person.class))).thenReturn(updatedUser);
 
     var authToken = converterWithUserInfo.convert(jwt);
     UserPrincipal principal = (UserPrincipal) authToken.getPrincipal();
-    assertEquals("New Name", principal.getName());
-    assertEquals("new@example.com", principal.getPerson().getEmail());
+    assertEquals("Updated User Name", principal.getName());
+    assertEquals("updated.user@example.invalid", principal.getPerson().getEmail());
   }
 
   @Test
@@ -329,7 +344,7 @@ public class CustomJWTAuthConverterTest {
   @Test
   void testUserInfoCache_behavior() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("sub", "cacheUser");
+    claims.put("sub", "test-user-cache");
     claims.put("scope", "openid profile");
     Jwt jwt = createFakeJwt(claims, "userTokenCache");
 
@@ -341,14 +356,14 @@ public class CustomJWTAuthConverterTest {
                     .withStatus(200)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .withBody(
-                        "{\"name\": \"Cached User\", \"email\": \"cached@user.com\", \"sub\": \"cacheUser\"}")));
+                        "{\"name\": \"Cached Test User\", \"email\": \"cached.user@example.invalid\", \"sub\": \"test-user-cache\"}")));
 
-    when(personRepository.findBySubjectId("cacheUser")).thenReturn(Optional.empty());
+    when(personRepository.findBySubjectId("test-user-cache")).thenReturn(Optional.empty());
     Person newUser =
         Person.builder()
-            .subjectId("cacheUser")
-            .name("Cached User")
-            .email("cached@user.com")
+            .subjectId("test-user-cache")
+            .name("Cached Test User")
+            .email("cached.user@example.invalid")
             .build();
     when(personRepository.save(any(Person.class))).thenReturn(newUser);
 
@@ -363,7 +378,7 @@ public class CustomJWTAuthConverterTest {
   @Test
   void testCleanCache_clearsUserInfoCache() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("sub", "cacheUser");
+    claims.put("sub", "test-user-cache");
     claims.put("scope", "openid profile");
     Jwt jwt = createFakeJwt(claims, "userTokenCache");
 
@@ -375,9 +390,9 @@ public class CustomJWTAuthConverterTest {
                     .withStatus(200)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .withBody(
-                        "{\"name\": \"Cached User\", \"email\": \"cached@user.com\", \"sub\": \"cacheUser\"}")));
+                        "{\"name\": \"Cached Test User\", \"email\": \"cached.user@example.invalid\", \"sub\": \"test-user-cache\"}")));
 
-    when(personRepository.findBySubjectId("cacheUser")).thenReturn(Optional.empty());
+    when(personRepository.findBySubjectId("test-user-cache")).thenReturn(Optional.empty());
     when(personRepository.save(any(Person.class))).thenReturn(Person.builder().build());
 
     converterWithUserInfo.convert(jwt);
