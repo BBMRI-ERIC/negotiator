@@ -25,8 +25,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public class CustomJWTAuthConverterTest {
 
-  private static final String TEST_AUTHZ_CLAIM = "roles";
-  private static final String TEST_AUTHZ_ADMIN_VALUE = "admin";
+  private static final String TEST_AUTHZ_CLAIM = "eduperson_entitlement";
+  private static final String TEST_AUTHZ_ADMIN_VALUE =
+      "urn:geant:bbmri-eric.eu:res:role_admin#aai.lifescience-ri.eu";
   private static final String USER_INFO_ENDPOINT_PATH = "/userinfo";
 
   @RegisterExtension
@@ -109,6 +110,32 @@ public class CustomJWTAuthConverterTest {
   }
 
   @Test
+  void testConvertCasMachineToken_usesGrantType() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("client_id", "casMachineClient");
+    claims.put("grant_type", "client_credentials");
+    claims.put("scope", "openid negotiator_authz_management");
+    Jwt jwt = createFakeJwt(claims, "casMachineToken");
+
+    when(personRepository.findBySubjectId("casMachineClient")).thenReturn(Optional.empty());
+    Person newClient =
+        Person.builder()
+            .subjectId("casMachineClient")
+            .name("casMachineClient")
+            .email("no_email")
+            .isServiceAccount(true)
+            .build();
+    when(personRepository.save(any(Person.class))).thenReturn(newClient);
+
+    var authToken = converterWithoutUserInfo.convert(jwt);
+    UserPrincipal principal = (UserPrincipal) authToken.getPrincipal();
+    assertTrue(principal.getPerson().isServiceAccount());
+    assertTrue(
+        authToken.getAuthorities().stream()
+            .anyMatch(authority -> authority.getAuthority().equals("ROLE_AUTHORIZATION_MANAGER")));
+  }
+
+  @Test
   void testConvertUserTokenWithoutUserInfoEndpoint_createsNewUserFromJwtClaims() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("sub", "user1");
@@ -130,9 +157,39 @@ public class CustomJWTAuthConverterTest {
   }
 
   @Test
+  void testConvertCasUserToken_usesJwtClaimsWithoutUserInfoRequest() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("sub", "casUser");
+    claims.put("client_id", "casClient");
+    claims.put("grant_type", "authorization_code");
+    claims.put("name", "CAS User");
+    claims.put("email", "cas.user@example.com");
+    claims.put(TEST_AUTHZ_CLAIM, List.of(TEST_AUTHZ_ADMIN_VALUE));
+    Jwt jwt = createFakeJwt(claims, "casUserToken");
+
+    when(personRepository.findBySubjectId("casUser")).thenReturn(Optional.empty());
+    Person newUser =
+        Person.builder()
+            .subjectId("casUser")
+            .name("CAS User")
+            .email("cas.user@example.com")
+            .build();
+    when(personRepository.save(any(Person.class))).thenReturn(newUser);
+
+    var authToken = converterWithUserInfo.convert(jwt);
+    UserPrincipal principal = (UserPrincipal) authToken.getPrincipal();
+    assertEquals("casUser", principal.getPerson().getSubjectId());
+    assertTrue(
+        authToken.getAuthorities().stream()
+            .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")));
+    wireMockServer.verify(0, getRequestedFor(urlEqualTo(USER_INFO_ENDPOINT_PATH)));
+  }
+
+  @Test
   void testConvertUserTokenWithUserInfoEndpoint_success() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("sub", "user2");
+    claims.put("client_id", "legacyClient");
     claims.put("scope", "openid profile");
     claims.put("name", "Fallback Name");
     claims.put("email", "fallback@example.com");
@@ -158,6 +215,7 @@ public class CustomJWTAuthConverterTest {
     assertEquals("user2", principal.getPerson().getSubjectId());
     assertEquals("Jane Doe", principal.getName());
     assertEquals("jane@example.com", principal.getPerson().getEmail());
+    wireMockServer.verify(1, getRequestedFor(urlEqualTo(USER_INFO_ENDPOINT_PATH)));
   }
 
   @Test
@@ -231,7 +289,7 @@ public class CustomJWTAuthConverterTest {
   @Test
   void testParseUserAuthorities_withAdminRole() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("roles", List.of("admin"));
+    claims.put(TEST_AUTHZ_CLAIM, List.of(TEST_AUTHZ_ADMIN_VALUE));
 
     Collection<GrantedAuthority> authorities = converterWithUserInfo.parseUserAuthorities(claims);
     assertTrue(authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
@@ -240,7 +298,7 @@ public class CustomJWTAuthConverterTest {
   @Test
   void testParseUserAuthorities_withResearcherRole() {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("roles", List.of("researcher"));
+    claims.put(TEST_AUTHZ_CLAIM, List.of("researcher"));
 
     Collection<GrantedAuthority> authorities = converterWithUserInfo.parseUserAuthorities(claims);
     assertTrue(authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_RESEARCHER")));
@@ -255,6 +313,17 @@ public class CustomJWTAuthConverterTest {
     Collection<GrantedAuthority> authorities = converterWithUserInfo.getAuthoritiesFromScope(jwt);
     assertTrue(
         authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_AUTHORIZATION_MANAGER")));
+  }
+
+  @Test
+  void testGetAuthoritiesFromScope_doesNotMatchPartialScopeName() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("scope", "not_negotiator_authz_management");
+    Jwt jwt = createFakeJwt(claims, "scopeToken");
+
+    Collection<GrantedAuthority> authorities = converterWithUserInfo.getAuthoritiesFromScope(jwt);
+
+    assertTrue(authorities.isEmpty());
   }
 
   @Test
