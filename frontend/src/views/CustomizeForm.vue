@@ -177,184 +177,196 @@
                   </div>
                 </div>
 
-                <div v-if="criteria.type === 'TEXT'">
-                  <input
-                    v-model="negotiationCriteria[section.name][criteria.name]"
-                    :type="criteria.type"
-                    :placeholder="criteria.description"
-                    class="form-control text-secondary-text"
-                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
-                    :required="criteria.required"
-                  />
-                </div>
-
-                <div v-else-if="criteria.type === 'BOOLEAN'">
-                  <div class="form-check form-check-inline">
+                <div class="d-flex align-items-center gap-2">
+                  <div v-if="criteria.type === 'TEXT'" class="flex-grow-1">
                     <input
-                      id="inlineRadio1"
                       v-model="negotiationCriteria[section.name][criteria.name]"
-                      value="Yes"
-                      :required="criteria.required"
-                      class="form-check-input"
+                      :type="criteria.type"
+                      :placeholder="criteria.description"
+                      class="form-control text-secondary-text"
                       :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
-                      type="radio"
-                    />
-                    <label class="form-check-label" for="inlineRadio1"> Yes </label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input
-                      id="inlineRadio2"
-                      v-model="negotiationCriteria[section.name][criteria.name]"
-                      value="No"
                       :required="criteria.required"
-                      class="form-check-input"
-                      :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
-                      type="radio"
                     />
-                    <label class="form-check-label" for="inlineRadio2"> No </label>
                   </div>
-                </div>
 
-                <div v-else-if="criteria.type === 'MULTIPLE_CHOICE'">
-                  <div
-                    v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
-                    :key="index"
-                  >
-                    <div class="form-check form-check-inline">
-                      <input
-                        id="inlineCheckbox1"
-                        v-model="negotiationCriteria[section.name][criteria.name]"
-                        :value="value"
-                        :required="criteria.required"
-                        class="form-check-input"
-                        :class="
-                          validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
-                        "
-                        type="checkbox"
-                      />
-                      <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
-                    </div>
-                  </div>
-                  <div
-                    v-if="
-                      negotiationValueSets[criteria.id]?.externalDocumentation &&
-                      negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'
-                    "
-                  >
-                    <span class="text-muted"> External Documentation - </span>
-                    <a
-                      :href="negotiationValueSets[criteria.id]?.externalDocumentation"
-                      :style="{ color: uiConfiguration?.linksTextColor }"
-                    >
-                      {{ negotiationValueSets[criteria.id]?.externalDocumentation }}
-                    </a>
-                  </div>
-                </div>
-
-                <div v-else-if="criteria.type === 'SINGLE_CHOICE_RADIO'">
-                  <div
-                    v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
-                    :key="index"
-                  >
+                  <div v-else-if="criteria.type === 'BOOLEAN'">
                     <div class="form-check form-check-inline">
                       <input
                         id="inlineRadio1"
                         v-model="negotiationCriteria[section.name][criteria.name]"
-                        :value="value"
+                        value="Yes"
                         :required="criteria.required"
                         class="form-check-input"
                         :class="
                           validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
                         "
                         type="radio"
-                        @click="uncheckRadioButton(value, section.name, criteria.name)"
                       />
-                      <label class="form-check-label" for="inlineRadio1">{{ value }}</label>
+                      <label class="form-check-label" for="inlineRadio1"> Yes </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        id="inlineRadio2"
+                        v-model="negotiationCriteria[section.name][criteria.name]"
+                        value="No"
+                        :required="criteria.required"
+                        class="form-check-input"
+                        :class="
+                          validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
+                        "
+                        type="radio"
+                      />
+                      <label class="form-check-label" for="inlineRadio2"> No </label>
                     </div>
                   </div>
-                </div>
 
-                <div v-else-if="criteria.type === 'SINGLE_CHOICE_DROPDOWN'">
-                  <select
-                    :id="`dropdown-${criteria.id}`"
-                    v-model="negotiationCriteria[section.name][criteria.name]"
-                    :required="criteria.required"
-                    class="form-select text-secondary-text"
-                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
-                  >
-                    <option value="">{{ criteria.placeholder || 'Select an option' }}</option>
-                    <option
+                  <div v-else-if="criteria.type === 'MULTIPLE_CHOICE'">
+                    <div
                       v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
                       :key="index"
-                      :value="value"
                     >
-                      {{ value }}
-                    </option>
-                  </select>
-                </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          id="inlineCheckbox1"
+                          v-model="negotiationCriteria[section.name][criteria.name]"
+                          :value="value"
+                          :required="criteria.required"
+                          class="form-check-input"
+                          :class="
+                            validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
+                          "
+                          type="checkbox"
+                        />
+                        <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
+                      </div>
+                    </div>
+                    <div
+                      v-if="
+                        negotiationValueSets[criteria.id]?.externalDocumentation &&
+                        negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'
+                      "
+                    >
+                      <span class="text-muted"> External Documentation - </span>
+                      <a
+                        :href="negotiationValueSets[criteria.id]?.externalDocumentation"
+                        :style="{ color: uiConfiguration?.linksTextColor }"
+                      >
+                        {{ negotiationValueSets[criteria.id]?.externalDocumentation }}
+                      </a>
+                    </div>
+                  </div>
 
-                <div v-else-if="criteria.type === 'TEXT_LARGE'">
-                  <textarea
-                    v-model="negotiationCriteria[section.name][criteria.name]"
-                    :placeholder="criteria.description"
-                    class="form-control text-secondary-text"
-                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
-                    :required="criteria.required"
-                  />
-                </div>
+                  <div v-else-if="criteria.type === 'SINGLE_CHOICE_RADIO'">
+                    <div
+                      v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
+                      :key="index"
+                    >
+                      <div class="form-check form-check-inline">
+                        <input
+                          id="inlineRadio1"
+                          v-model="negotiationCriteria[section.name][criteria.name]"
+                          :value="value"
+                          :required="criteria.required"
+                          class="form-check-input"
+                          :class="
+                            validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
+                          "
+                          type="radio"
+                          @click="uncheckRadioButton(value, section.name, criteria.name)"
+                        />
+                        <label class="form-check-label" for="inlineRadio1">{{ value }}</label>
+                      </div>
+                    </div>
+                  </div>
 
-                <div v-else-if="criteria.type === 'NUMBER'" class="col-5">
+                  <div v-else-if="criteria.type === 'SINGLE_CHOICE_DROPDOWN'" class="flex-grow-1">
+                    <select
+                      :id="`dropdown-${criteria.id}`"
+                      v-model="negotiationCriteria[section.name][criteria.name]"
+                      :required="criteria.required"
+                      class="form-select text-secondary-text"
+                      :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                    >
+                      <option value="">{{ criteria.placeholder || 'Select an option' }}</option>
+                      <option
+                        v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
+                        :key="index"
+                        :value="value"
+                      >
+                        {{ value }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div v-else-if="criteria.type === 'TEXT_LARGE'" class="flex-grow-1">
+                    <textarea
+                      v-model="negotiationCriteria[section.name][criteria.name]"
+                      :placeholder="criteria.description"
+                      class="form-control text-secondary-text"
+                      :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                      :required="criteria.required"
+                    />
+                  </div>
+
+                  <div v-else-if="criteria.type === 'NUMBER'" class="col-5">
+                    <input
+                      v-model="negotiationCriteria[section.name][criteria.name]"
+                      :type="criteria.type"
+                      :placeholder="criteria.description"
+                      class="form-control text-secondary-text"
+                      :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                      :required="criteria.required"
+                      @keypress="isNumber($event)"
+                    />
+                  </div>
+
+                  <div v-else-if="criteria.type === 'FILE'" class="flex-grow-1">
+                    <input
+                      accept=".pdf"
+                      class="form-control text-secondary-text"
+                      :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                      :required="criteria.required"
+                      :placeholder="criteria.description"
+                      :type="criteria.type"
+                      @change="handleFileUpload($event, section.name, criteria.name)"
+                    />
+                  </div>
+
+                  <div v-else-if="criteria.type === 'DATE'" class="w-25">
+                    <p v-if="criteria.description" class="text-muted">
+                      {{ criteria.description }}
+                    </p>
+                    <input
+                      id="startDate"
+                      v-model="negotiationCriteria[section.name][criteria.name]"
+                      value=""
+                      class="form-control form-control-sm"
+                      :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                      type="date"
+                    />
+                  </div>
+
+                  <div v-else-if="criteria.type === 'INFORMATION'">
+                    <p v-if="criteria.description" class="text-muted">
+                      {{ criteria.description }}
+                    </p>
+                  </div>
+
                   <input
+                    v-else
                     v-model="negotiationCriteria[section.name][criteria.name]"
                     :type="criteria.type"
                     :placeholder="criteria.description"
                     class="form-control text-secondary-text"
-                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                     :required="criteria.required"
-                    @keypress="isNumber($event)"
+                  />
+
+                  <InfoTooltip
+                    v-if="criteria.description"
+                    :text="criteria.description"
+                    :style="{ color: uiConfiguration?.primaryTextColor }"
                   />
                 </div>
-
-                <div v-else-if="criteria.type === 'FILE'">
-                  <input
-                    accept=".pdf"
-                    class="form-control text-secondary-text"
-                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
-                    :required="criteria.required"
-                    :placeholder="criteria.description"
-                    :type="criteria.type"
-                    @change="handleFileUpload($event, section.name, criteria.name)"
-                  />
-                </div>
-
-                <div v-else-if="criteria.type === 'DATE'" class="w-25">
-                  <p v-if="criteria.description" class="text-muted">
-                    {{ criteria.description }}
-                  </p>
-                  <input
-                    id="startDate"
-                    v-model="negotiationCriteria[section.name][criteria.name]"
-                    value=""
-                    class="form-control form-control-sm"
-                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
-                    type="date"
-                  />
-                </div>
-
-                <div v-else-if="criteria.type === 'INFORMATION'">
-                  <p v-if="criteria.description" class="text-muted">
-                    {{ criteria.description }}
-                  </p>
-                </div>
-
-                <input
-                  v-else
-                  v-model="negotiationCriteria[section.name][criteria.name]"
-                  :type="criteria.type"
-                  :placeholder="criteria.description"
-                  class="form-control text-secondary-text"
-                  :required="criteria.required"
-                />
 
                 <div v-if="validationColorHighlight.includes(criteria.name)" class="invalidText">
                   {{ transformMessage(criteria.type) }}
@@ -422,6 +434,7 @@ import AddFormSectionModal from '@/components/modals/AddFormSectionModal.vue'
 import { FormWizard, TabContent } from 'vue3-form-wizard'
 import { useNegotiationFormStore } from '../store/negotiationForm'
 import AdminSettingsPageHeader from '@/components/AdminSettingsPageHeader.vue'
+import InfoTooltip from '@/components/ui/InfoTooltip.vue'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import 'vue3-form-wizard/dist/style.css'
 import draggable from 'vuedraggable'

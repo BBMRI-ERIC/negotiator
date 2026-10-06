@@ -26,11 +26,7 @@
         {{ capitalizeAllWords(element.label) }}
       </label>
       <span v-if="element.description" class="ms-2 text-muted">
-        <i
-          class="py-1 bi bi-info-circle"
-          data-bs-toggle="tooltip"
-          :data-bs-title="element.description"
-        />
+        <InfoTooltip :text="element.description" />
       </span>
 
       <div
@@ -38,193 +34,197 @@
         v-on:focusout="handleFocusOutEvent()"
         v-on:focusin="$emit('elementFocusInEvent')"
       >
-        <div v-if="element.type === 'TEXT'">
-          <input
-            v-model="element.value"
-            :type="element.type"
-            :placeholder="element.description"
-            class="form-control text-secondary-text"
-            :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-            :required="element.required"
-          />
-        </div>
-
-        <div v-else-if="element.type === 'BOOLEAN'">
-          <div class="form-check form-check-inline">
+        <div class="d-flex align-items-center gap-2">
+          <div v-if="element.type === 'TEXT'" class="flex-grow-1">
             <input
-              :id="`boolean-${element.id}-yes`"
               v-model="element.value"
-              value="Yes"
-              :required="element.required"
-              class="form-check-input"
+              :type="element.type"
+              :placeholder="element.description"
+              class="form-control text-secondary-text"
               :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-              type="radio"
-            />
-            <label class="form-check-label" :for="`boolean-${element.name}-yes`"> Yes </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input
-              :id="`boolean-${element.id}-no`"
-              v-model="element.value"
-              value="No"
               :required="element.required"
-              class="form-check-input"
-              :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-              type="radio"
             />
-            <label class="form-check-label" :for="`boolean-${element.id}-no`"> No </label>
           </div>
-        </div>
 
-        <div v-else-if="element.type === 'MULTIPLE_CHOICE'">
-          <div v-if="valueSetsLoading">
-            <span class="text-muted">Loading options...</span>
-          </div>
-          <div v-else>
-            <div
-              class="form-check form-check-inline"
-              v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
-              :key="`${element.id}-${value}`"
-            >
+          <div v-else-if="element.type === 'BOOLEAN'">
+            <div class="form-check form-check-inline">
               <input
-                :id="`inlineCheckbox-${element.id}-${index}`"
+                :id="`boolean-${element.id}-yes`"
                 v-model="element.value"
-                :value="value"
-                :required="element.required"
-                class="form-check-input"
-                :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-                type="checkbox"
-              />
-              <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
-            </div>
-          </div>
-          <div v-if="element.externalDocumentation && element?.externalDocumentation !== 'none'">
-            <span class="text-muted"> External Documentation - </span>
-            <a
-              :href="element?.externalDocumentation"
-              :style="{ color: uiConfiguration?.linksTextColor }"
-            >
-              {{ element?.externalDocumentation }}
-            </a>
-          </div>
-        </div>
-
-        <div v-else-if="element.type === 'SINGLE_CHOICE_RADIO'">
-          <div v-if="valueSetsLoading">
-            <span class="text-muted">Loading options...</span>
-          </div>
-          <div v-else>
-            <div
-              class="form-check form-check-inline"
-              v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
-              :key="`${element.id}-${value}`"
-            >
-              <input
-                :id="`inlineRadio-${element.id}-${index}`"
-                v-model="element.value"
-                :value="value"
+                value="Yes"
                 :required="element.required"
                 class="form-check-input"
                 :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
                 type="radio"
-                @click="element.value == value ? (element.value = '') : (element.value = value)"
               />
-              <label class="form-check-label" for="inlineRadio1">{{ value }}</label>
+              <label class="form-check-label" :for="`boolean-${element.name}-yes`"> Yes </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                :id="`boolean-${element.id}-no`"
+                v-model="element.value"
+                value="No"
+                :required="element.required"
+                class="form-check-input"
+                :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+                type="radio"
+              />
+              <label class="form-check-label" :for="`boolean-${element.id}-no`"> No </label>
             </div>
           </div>
-        </div>
 
-        <div v-else-if="element.type === 'SINGLE_CHOICE_DROPDOWN'">
-          <div v-if="valueSetsLoading">
-            <span class="text-muted">Loading options...</span>
+          <div v-else-if="element.type === 'MULTIPLE_CHOICE'">
+            <div v-if="valueSetsLoading">
+              <span class="text-muted">Loading options...</span>
+            </div>
+            <div v-else>
+              <div
+                class="form-check form-check-inline"
+                v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
+                :key="`${element.id}-${value}`"
+              >
+                <input
+                  :id="`inlineCheckbox-${element.id}-${index}`"
+                  v-model="element.value"
+                  :value="value"
+                  :required="element.required"
+                  class="form-check-input"
+                  :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+                  type="checkbox"
+                />
+                <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
+              </div>
+            </div>
+            <div v-if="element.externalDocumentation && element?.externalDocumentation !== 'none'">
+              <span class="text-muted"> External Documentation - </span>
+              <a
+                :href="element?.externalDocumentation"
+                :style="{ color: uiConfiguration?.linksTextColor }"
+              >
+                {{ element?.externalDocumentation }}
+              </a>
+            </div>
           </div>
-          <select
-            v-else
-            :id="`dropdown-${element.id}`"
-            v-model="element.value"
-            :required="element.required"
-            class="form-select text-secondary-text"
-            :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-          >
-            <option value="">{{ element.placeholder || 'Select an option' }}</option>
-            <option
-              v-for="value in negotiationValueSets[element.id]?.availableValues"
-              :key="`${element.id}-${value}`"
-              :value="value"
+
+          <div v-else-if="element.type === 'SINGLE_CHOICE_RADIO'">
+            <div v-if="valueSetsLoading">
+              <span class="text-muted">Loading options...</span>
+            </div>
+            <div v-else>
+              <div
+                class="form-check form-check-inline"
+                v-for="(value, index) in negotiationValueSets[element.id]?.availableValues"
+                :key="`${element.id}-${value}`"
+              >
+                <input
+                  :id="`inlineRadio-${element.id}-${index}`"
+                  v-model="element.value"
+                  :value="value"
+                  :required="element.required"
+                  class="form-check-input"
+                  :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+                  type="radio"
+                  @click="element.value == value ? (element.value = '') : (element.value = value)"
+                />
+                <label class="form-check-label" for="inlineRadio1">{{ value }}</label>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="element.type === 'SINGLE_CHOICE_DROPDOWN'" class="flex-grow-1">
+            <div v-if="valueSetsLoading">
+              <span class="text-muted">Loading options...</span>
+            </div>
+            <select
+              v-else
+              :id="`dropdown-${element.id}`"
+              v-model="element.value"
+              :required="element.required"
+              class="form-select text-secondary-text"
+              :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
             >
-              {{ value }}
-            </option>
-          </select>
-        </div>
+              <option value="">{{ element.placeholder || 'Select an option' }}</option>
+              <option
+                v-for="value in negotiationValueSets[element.id]?.availableValues"
+                :key="`${element.id}-${value}`"
+                :value="value"
+              >
+                {{ value }}
+              </option>
+            </select>
+          </div>
 
-        <div v-else-if="element.type === 'TEXT_LARGE'">
-          <textarea
-            v-model="element.value"
-            :placeholder="element.description"
-            class="form-control text-secondary-text"
-            :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-            :required="element.required"
-          />
-        </div>
+          <div v-else-if="element.type === 'TEXT_LARGE'" class="flex-grow-1">
+            <textarea
+              v-model="element.value"
+              :placeholder="element.description"
+              class="form-control text-secondary-text"
+              :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+              :required="element.required"
+            />
+          </div>
 
-        <div v-else-if="element.type === 'NUMBER'" class="col-5">
+          <div v-else-if="element.type === 'NUMBER'" class="col-5">
+            <input
+              v-model="element.value"
+              :type="element.type"
+              :placeholder="element.description"
+              class="form-control text-secondary-text"
+              :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+              :required="element.required"
+              @keypress="isNumber($event)"
+            />
+          </div>
+
+          <div v-else-if="element.type === 'FILE'" class="flex-grow-1">
+            <label
+              v-if="element.value?.name"
+              class="form-label text-primary-text text-truncate w-100"
+              :title="element.name"
+            >
+              Uploaded file: {{ element.value.name }}
+            </label>
+            <input
+              :accept="fileExtensions"
+              class="form-control text-secondary-text"
+              :required="element.required"
+              :placeholder="element.description"
+              :type="element.type"
+              @change="handleFileUpload($event, index)"
+            />
+          </div>
+
+          <div v-else-if="element.type === 'DATE'" class="w-25">
+            <p v-if="element.description" class="text-muted">
+              {{ element.description }}
+            </p>
+            <input
+              id="startDate"
+              v-model="element.value"
+              value=""
+              class="form-control form-control-sm"
+              :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
+              type="date"
+            />
+          </div>
+
+          <div v-else-if="element.type === 'INFORMATION'">
+            <p v-if="element.description" class="text-muted">
+              {{ element.value || element.description }}
+            </p>
+          </div>
+
           <input
+            v-else
             v-model="element.value"
             :type="element.type"
             :placeholder="element.description"
             class="form-control text-secondary-text"
             :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-            :required="element.required"
-            @keypress="isNumber($event)"
           />
-        </div>
 
-        <div v-else-if="element.type === 'FILE'">
-          <label
-            v-if="element.value?.name"
-            class="form-label text-primary-text text-truncate w-100"
-            :title="element.name"
-          >
-            Uploaded file: {{ element.value.name }}
-          </label>
-          <input
-            :accept="fileExtensions"
-            class="form-control text-secondary-text"
-            :required="element.required"
-            :placeholder="element.description"
-            :type="element.type"
-            @change="handleFileUpload($event, index)"
-          />
+          <InfoTooltip v-if="element.description" class="text-muted" :text="element.description" />
         </div>
-
-        <div v-else-if="element.type === 'DATE'" class="w-25">
-          <p v-if="element.description" class="text-muted">
-            {{ element.description }}
-          </p>
-          <input
-            id="startDate"
-            v-model="element.value"
-            value=""
-            class="form-control form-control-sm"
-            :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-            type="date"
-          />
-        </div>
-
-        <div v-else-if="element.type === 'INFORMATION'">
-          <p v-if="element.description" class="text-muted">
-            {{ element.value || element.description }}
-          </p>
-        </div>
-
-        <input
-          v-else
-          v-model="element.value"
-          :type="element.type"
-          :placeholder="element.description"
-          class="form-control text-secondary-text"
-          :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
-        />
 
         <div
           v-if="validationErrorHighlight && validationErrorHighlight.includes(element.id)"
@@ -242,6 +242,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useNegotiationFormStore } from '../../store/negotiationForm'
 import { useNotificationsStore } from '../../store/notifications'
+import InfoTooltip from '../ui/InfoTooltip.vue'
 
 import fileExtensions from '@/config/uploadFileExtensions.js'
 import { capitalizeAllWords, isFileExtensionsSupported } from '../../composables/utils.js'
