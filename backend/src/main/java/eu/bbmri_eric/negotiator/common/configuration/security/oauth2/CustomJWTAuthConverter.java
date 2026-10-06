@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
@@ -34,10 +36,12 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   // Constants for claim names and scopes
   private static final String CLAIM_CLIENT_ID = "client_id";
+  private static final String CLAIM_GRANT_TYPE = "grant_type";
   private static final String CLAIM_SCOPE = "scope";
   private static final String CLAIM_SUB = "sub";
   private static final String CLAIM_NAME = "name";
   private static final String CLAIM_EMAIL = "email";
+  private static final String GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
   private static final String SCOPE_OPENID = "openid";
   private static final String NEGOTIATOR_AUTHZ_MANAGEMENT = "negotiator_authz_management";
   private static final String NEGOTIATOR_RESOURCE_MANAGEMENT = "negotiator_resource_management";
@@ -61,8 +65,14 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private static boolean isClientCredentialsToken(Jwt jwt) {
+    String grantType = jwt.getClaimAsString(CLAIM_GRANT_TYPE);
+    if (grantType != null) {
+      return GRANT_TYPE_CLIENT_CREDENTIALS.equals(grantType);
+    }
+
     return jwt.hasClaim(CLAIM_CLIENT_ID)
-        && !jwt.getClaimAsString(CLAIM_SCOPE).contains(SCOPE_OPENID);
+        && jwt.hasClaim(CLAIM_SCOPE)
+        && !hasScope(jwt, SCOPE_OPENID);
   }
 
   private NegotiatorJwtAuthenticationToken parseJWTAsUserToken(Jwt jwt) {
@@ -110,19 +120,21 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   public static Collection<GrantedAuthority> getAuthoritiesFromScope(Jwt jwt) {
     Set<GrantedAuthority> authorities = new HashSet<>();
-    if (jwt.hasClaim(CLAIM_SCOPE)) {
-      String scopes = jwt.getClaimAsString(CLAIM_SCOPE);
-      if (scopes.contains(NEGOTIATOR_AUTHZ_MANAGEMENT)) {
-        authorities.add(new SimpleGrantedAuthority("ROLE_AUTHORIZATION_MANAGER"));
-      }
-      if (scopes.contains(NEGOTIATOR_RESOURCE_MANAGEMENT)) {
-        authorities.add(new SimpleGrantedAuthority("ROLE_RESOURCE_MANAGER"));
-      }
-      if (scopes.contains(NEGOTIATOR_MONITORING)) {
-        authorities.add(new SimpleGrantedAuthority("ROLE_PROMETHEUS"));
-      }
+    if (hasScope(jwt, NEGOTIATOR_AUTHZ_MANAGEMENT)) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_AUTHORIZATION_MANAGER"));
+    }
+    if (hasScope(jwt, NEGOTIATOR_RESOURCE_MANAGEMENT)) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_RESOURCE_MANAGER"));
+    }
+    if (hasScope(jwt, NEGOTIATOR_MONITORING)) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_PROMETHEUS"));
     }
     return authorities;
+  }
+
+  private static boolean hasScope(Jwt jwt, String expectedScope) {
+    String scopes = jwt.getClaimAsString(CLAIM_SCOPE);
+    return ArrayUtils.contains(StringUtils.split(scopes), expectedScope);
   }
 
   public Collection<GrantedAuthority> parseUserAuthorities(Map<String, Object> claims) {
@@ -153,9 +165,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private boolean shouldFetchUserInfo(Jwt jwt) {
-    return userInfoEndpoint != null
-        && !userInfoEndpoint.isBlank()
-        && jwt.getClaimAsString(CLAIM_SCOPE).contains(SCOPE_OPENID);
+    return userInfoEndpoint != null && !userInfoEndpoint.isBlank() && hasScope(jwt, SCOPE_OPENID);
   }
 
   private Map<String, Object> fetchAndCacheUserInfo(Jwt jwt) {
