@@ -19,6 +19,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
@@ -170,13 +171,11 @@ public class PostServiceImpl implements PostService {
       throw new EntityNotFoundException(negotiationId);
     }
     verifyReadAccess(negotiationId);
-    List<Post> allNegotiationPosts = postRepository.findByNegotiationId(negotiationId);
-    List<Post> readablePosts = getReadablePosts(allNegotiationPosts);
-    if (negotiationService.isNegotiationEditor(negotiationId)) {
-      readablePosts.addAll(getAllUnreadablePosts(allNegotiationPosts));
-    } else {
-      addUserAccessiblePosts(allNegotiationPosts, readablePosts);
-    }
+    Predicate<Post> canRead = readFilter(negotiationId);
+    List<Post> readablePosts =
+        postRepository.findByNegotiationId(negotiationId).stream()
+            .filter(canRead)
+            .collect(Collectors.toList());
     return sortedPosts(readablePosts);
   }
 
@@ -196,24 +195,19 @@ public class PostServiceImpl implements PostService {
         negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  private List<Post> getReadablePosts(List<Post> allNegotiationPosts) {
-    return allNegotiationPosts.stream().filter(Post::isPublic).collect(Collectors.toList());
-  }
-
-  private List<Post> getAllUnreadablePosts(List<Post> allNegotiationPosts) {
-    return allNegotiationPosts.stream()
-        .filter(post -> !post.isPublic())
-        .collect(Collectors.toList());
-  }
-
-  private void addUserAccessiblePosts(List<Post> allNegotiationPosts, List<Post> readablePosts) {
-    Person user = getCurrentUser();
-    Set<Organization> accessibleOrganizations = getUserAccessibleOrganizations(user);
-
-    allNegotiationPosts.stream()
-        .filter(
-            post -> !post.isPublic() && accessibleOrganizations.contains(post.getOrganization()))
-        .forEach(readablePosts::add);
+  /**
+   * Builds the rule for which posts of a negotiation the current user may read. Negotiation editors
+   * read every post; anyone else reads public posts and private posts sent to an organization
+   * reachable through their resources or networks.
+   *
+   * @return a predicate that is true for posts the current user may read
+   */
+  private Predicate<Post> readFilter(String negotiationId) {
+    if (negotiationService.isNegotiationEditor(negotiationId)) {
+      return post -> true;
+    }
+    Set<Organization> organizations = getUserAccessibleOrganizations(getCurrentUser());
+    return post -> post.isPublic() || organizations.contains(post.getOrganization());
   }
 
   private Person getCurrentUser() {
