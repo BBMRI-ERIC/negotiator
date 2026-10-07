@@ -36,7 +36,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -153,6 +152,7 @@ public class PostServiceTest {
             .build();
     organization1.setResources(Set.of(resource1));
     organization2.setResources(Set.of(resource2));
+    biobanker1.setResources(Set.of(resource1));
 
     negotiation =
         Negotiation.builder()
@@ -211,6 +211,7 @@ public class PostServiceTest {
             BIOBANKER_1_ID, organization1.getId()))
         .thenReturn(true);
     when(negotiationRepository.existsById(NEG_1)).thenReturn(true);
+    when(personRepository.findById(BIOBANKER_1_ID)).thenReturn(Optional.of(biobanker1));
     // For void methods, use doThrow instead of thenThrow
 
     when(personService.isRepresentativeOfAnyResourceOfOrganization(
@@ -437,7 +438,6 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  @Disabled
   public void test_findByNegotiationId_AsBiobanker_All() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(allPosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -445,7 +445,6 @@ public class PostServiceTest {
   }
 
   /** Tests that a person not involved in the negotiation, gets no posts */
-  @Disabled
   @Test
   @WithMockNegotiatorUser(
       id = BIOBANKER_3_ID,
@@ -499,7 +498,6 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  @Disabled
   public void test_findByNegotiationId_AsBiobanker_Public() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(publicPosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -560,7 +558,6 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  @Disabled
   public void test_findByNegotiationId_AsBiobanker_Private() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(privatePosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -625,7 +622,6 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  @Disabled
   public void test_findByNegotiationId_AsBiobanker_Private_withOrganizationId() {
     List<Post> posts = List.of(privateResToOrg1, privateBio1ToOrg1);
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(posts);
