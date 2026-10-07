@@ -5,6 +5,7 @@
       :ui-configuration="uiConfiguration"
       :organizations="organizations"
       :negotiation="negotiation"
+      @reply="startReply"
     />
     <hr v-if="combinedItems.length === 0" class="my-3" />
     <MessageForm
@@ -14,9 +15,11 @@
       :file-extensions="fileExtensions"
       :is-uploading="isUploading"
       :upload-error="uploadError"
+      :reply-target="replyTarget"
       @new-attachment="handleNewAttachment"
       @send-message="handleSendMessage"
       @clear-upload-error="uploadError = ''"
+      @cancel-reply="replyTarget = null"
     />
   </div>
 </template>
@@ -28,6 +31,7 @@ import MessageForm from './MessageForm.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import fileExtensions from '@/config/uploadFileExtensions.js'
+import { POST_TYPE } from '@/config/consts.js'
 
 const negotiationPageStore = useNegotiationPageStore()
 const uiConfigurationStore = useUiConfiguration()
@@ -45,6 +49,7 @@ const emit = defineEmits(['new_attachment'])
 const posts = ref([])
 const isUploading = ref(false)
 const uploadError = ref('')
+const replyTarget = ref(null)
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
 
 const combinedItems = computed(() => {
@@ -59,9 +64,34 @@ const combinedItems = computed(() => {
     type: 'post',
     createdAt: new Date(post.creationDate).getTime(),
     id: `post-${post.id}`,
+    postId: post.id,
+    replyChannel: replyChannelFor(post),
   }))
   return [...events, ...postsMapped].sort((a, b) => a.createdAt - b.createdAt)
 })
+
+// Takes the post itself, not the timeline item, whose type combinedItems overwrites.
+// A reply to a private post must stay in that post's channel, so that channel is locked.
+function replyChannelFor(post) {
+  const { publicPostsEnabled, privatePostsEnabled } = props.negotiation
+  if (post.type === POST_TYPE.PRIVATE) {
+    const isRecipient = props.recipients.some((r) => r.id === post.organizationId)
+    return privatePostsEnabled && isRecipient
+      ? { channelId: post.organizationId, locked: true }
+      : null
+  }
+  if (!publicPostsEnabled && !privatePostsEnabled) return null
+  return { channelId: publicPostsEnabled ? 'public' : '', locked: false }
+}
+
+function startReply(item) {
+  replyTarget.value = {
+    postId: item.postId,
+    authorName: item.createdBy?.name || 'Unknown',
+    excerpt: item.text,
+    ...item.replyChannel,
+  }
+}
 
 onBeforeMount(() => {
   retrievePostsByNegotiationId()
@@ -74,6 +104,7 @@ async function retrievePostsByNegotiationId() {
 }
 
 async function handleSendMessage({ message, channelId, attachment }) {
+  const target = replyTarget.value
   try {
     uploadError.value = ''
 
@@ -87,9 +118,14 @@ async function handleSendMessage({ message, channelId, attachment }) {
         text: message,
         negotiationId: props.negotiation.id,
         type: channelId === 'public' ? 'PUBLIC' : 'PRIVATE',
+        replyToId: target?.postId,
       }
       await negotiationPageStore.addMessageToNegotiation(data).then((post) => {
         if (post) {
+          // Don't drop a reply the user started on another message while this one was sending
+          if (replyTarget.value === target) {
+            replyTarget.value = null
+          }
           retrievePostsByNegotiationId()
         }
       })

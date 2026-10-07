@@ -57,10 +57,21 @@
                 </span>
               </div>
 
-              <span class="badge rounded-pill" :class="getChannelPostColor(item)">
-                <i :class="getChannelIcon(item)" />
-                {{ getChannelName(item) }}
-              </span>
+              <div class="d-flex align-items-center">
+                <span class="badge rounded-pill" :class="getChannelPostColor(item)">
+                  <i :class="getChannelIcon(item)" />
+                  {{ getChannelName(item) }}
+                </span>
+                <button
+                  v-if="item.replyChannel"
+                  type="button"
+                  class="btn btn-sm btn-link reply-button ms-2"
+                  :style="{ color: uiConfiguration.primaryTextColor }"
+                  @click="emit('reply', item)"
+                >
+                  <i class="bi bi-reply" /> Reply
+                </button>
+              </div>
             </div>
           </div>
           <div
@@ -106,6 +117,8 @@ const props = defineProps({
     default: () => ({ author: { id: '' } }),
   },
 })
+
+const emit = defineEmits(['reply'])
 
 function getAuthorName(item) {
   return item.createdBy?.name || 'Unknown'
