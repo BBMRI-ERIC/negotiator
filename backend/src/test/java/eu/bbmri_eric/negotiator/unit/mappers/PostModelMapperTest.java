@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.post.Post;
@@ -36,5 +37,34 @@ public class PostModelMapperTest {
     PostDTO postDTO = mapper.map(post, PostDTO.class);
     assertEquals(post.getText(), postDTO.getText());
     assertEquals(post.getNegotiation().getId(), postDTO.getNegotiationId());
+  }
+
+  @Test
+  public void map_PostToDTO_keepsIdAndReplyToIdApart() {
+    Post post = buildPost();
+    post.setReplyToId("original-id");
+    PostDTO postDTO = mapper.map(post, PostDTO.class);
+    assertEquals("test-id", postDTO.getId());
+    assertEquals("original-id", postDTO.getReplyToId());
+  }
+
+  @Test
+  public void map_PostToDTO_withoutReplyToId() {
+    PostDTO postDTO = mapper.map(buildPost(), PostDTO.class);
+    assertEquals("test-id", postDTO.getId());
+    assertNull(postDTO.getReplyToId());
+  }
+
+  private static Post buildPost() {
+    Post post =
+        Post.builder()
+            .id("test-id")
+            .type(PostType.PUBLIC)
+            .negotiation(Negotiation.builder().id("test-negotiation-id").build())
+            .text("This is important")
+            .build();
+    post.setCreationDate(LocalDateTime.now());
+    post.setCreatedBy(new Person());
+    return post;
   }
 }

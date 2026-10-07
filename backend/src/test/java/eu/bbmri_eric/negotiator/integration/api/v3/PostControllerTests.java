@@ -35,6 +35,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 public class PostControllerTests {
 
   private static final String NEGOTIATION_1_ID = "negotiation-1";
+  // Created by TheResearcher with public posts enabled, so a post there reaches the reply check
+  private static final String NEGOTIATION_2_ID = "negotiation-2";
   private static final String NEGOTIATION_1_ORGANIZATION_ID = "biobank:1";
   private static final String NEGOTIATIONS_URI = "/v3/negotiations";
   private static final String POSTS_URI = "posts";
@@ -196,6 +198,54 @@ public class PostControllerTests {
     Optional<Post> post = postRepository.findById(postId);
     assert post.isPresent();
     assertEquals(post.get().getCreatedBy().getName(), "TheResearcher");
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void testCreateReplyOK() throws Exception {
+    PostCreateDTO request = TestUtils.createPostDTO(null, "reply", null, PostType.PUBLIC);
+    request.setReplyToId(POST_1_RESEARCHER_ID);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(request)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.text", is("reply")))
+        .andExpect(jsonPath("$.replyToId", is(POST_1_RESEARCHER_ID)));
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testCreateReplyToUnknownPost() throws Exception {
+    PostCreateDTO request = TestUtils.createPostDTO(null, "reply", null, PostType.PUBLIC);
+    request.setReplyToId("unknown-post");
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(request)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testCreateReplyToPostOfAnotherNegotiation() throws Exception {
+    PostCreateDTO request = TestUtils.createPostDTO(null, "reply", null, PostType.PUBLIC);
+    request.setReplyToId(POST_1_RESEARCHER_ID);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_2_ID, POSTS_URI);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(request)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
