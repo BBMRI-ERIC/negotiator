@@ -59,6 +59,7 @@ const combinedItems = computed(() => {
     createdAt: new Date(event.timestamp).getTime(),
     id: `event-${event.id || event.timestamp}`,
   }))
+  const postsById = new Map(posts.value.map((post) => [post.id, post]))
   const postsMapped = posts.value.map((post) => ({
     ...post,
     type: 'post',
@@ -66,9 +67,23 @@ const combinedItems = computed(() => {
     id: `post-${post.id}`,
     postId: post.id,
     replyChannel: replyChannelFor(post),
+    inReplyTo: inReplyToFor(post, postsById),
   }))
   return [...events, ...postsMapped].sort((a, b) => a.createdAt - b.createdAt)
 })
+
+// The backend's channel rule means anyone who can see a reply can also see its original,
+// so the original is always loaded here; "missing" is only a fallback.
+function inReplyToFor(post, postsById) {
+  if (!post.replyToId) return null
+  const original = postsById.get(post.replyToId)
+  if (!original) return { missing: true }
+  return {
+    postId: original.id,
+    authorName: original.createdBy?.name || 'Unknown',
+    excerpt: original.text,
+  }
+}
 
 // Takes the post itself, not the timeline item, whose type combinedItems overwrites.
 // A reply to a private post must stay in that post's channel, so that channel is locked.
