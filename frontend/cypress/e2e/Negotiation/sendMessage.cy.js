@@ -13,7 +13,7 @@ describe("Test negotiation message", () => {
             // Comment section
             cy.get("[resources=\"[object Object]\"] > :nth-child(1)").should("be.visible")
             // Send message section
-            cy.get(".mb-4 > .mb-3").should("be.visible")
+            cy.get(".mb-4 > textarea").should("be.visible")
             cy.get("#recipient").should("be.visible")
             cy.get(".btn-attachment").should("be.visible")
             cy.get(".mb-4 > .d-flex > span").should("be.visible")
@@ -25,9 +25,24 @@ describe("Test negotiation message", () => {
             // Comment section
             cy.get("[resources=\"[object Object]\"] > :nth-child(1)").should("be.visible")
             // Send message section
-            cy.get(".mb-4 > .mb-3").type("Hi i want to test message functionality, have a great day.")
+            cy.get(".mb-4 > textarea").type("Hi i want to test message functionality, have a great day.")
             cy.get("#recipient").select("Public channel")
             cy.get('#send').click()
+        })
+
+        it("test send a message with Ctrl+Enter", () => {
+            cy.get("#recipient").select("Public channel")
+            cy.get(".mb-4 > textarea").type("First line{enter}second line")
+            cy.get(".mb-4 > textarea").should("have.value", "First line\nsecond line")
+            cy.get(".mb-4 > textarea").type("{ctrl}{enter}")
+            cy.get(".mb-4 > textarea").should("have.value", "")
+        })
+
+        it("test send a message with Cmd+Enter", () => {
+            cy.get("#recipient").select("Public channel")
+            cy.get(".mb-4 > textarea").type("Sent with Cmd+Enter")
+            cy.get(".mb-4 > textarea").type("{cmd}{enter}")
+            cy.get(".mb-4 > textarea").should("have.value", "")
         })
     })
     context("check if message is visible in negotiation", () => {
