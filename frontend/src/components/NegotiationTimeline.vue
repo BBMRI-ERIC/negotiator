@@ -19,6 +19,7 @@
         :ui-configuration="uiConfiguration"
         :organizations="organizations"
         :negotiation="negotiation"
+        @reply="emit('reply', $event)"
       />
     </div>
   </div>
@@ -33,4 +34,6 @@ defineProps({
   organizations: Object,
   negotiation: Object,
 })
+
+const emit = defineEmits(['reply'])
 </script>
