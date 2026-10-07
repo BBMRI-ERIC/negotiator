@@ -28,4 +28,6 @@ public class PostDTO {
   private String organizationId;
 
   private PostType type = PostType.PUBLIC;
+
+  private String replyToId;
 }
