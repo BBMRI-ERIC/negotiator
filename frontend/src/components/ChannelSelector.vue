@@ -16,6 +16,7 @@
       v-model="channelId"
       class="form-select w-50 mb-3 mt-2"
       :style="{ color: uiConfiguration.primaryTextColor }"
+      :disabled="disabled"
     >
       <option disabled selected value="">-- Select channel --</option>
       <option value="public">Public channel</option>
@@ -51,6 +52,10 @@ defineProps({
     type: Object,
     required: true,
     default: () => ({ primaryTextColor: '#000' }),
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 })
 
