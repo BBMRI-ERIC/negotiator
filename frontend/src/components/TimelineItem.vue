@@ -27,7 +27,7 @@
         <div v-if="item.type === 'event'" :style="{ color: uiConfiguration.primaryTextColor }">
           {{ item.text }}
         </div>
-        <div v-else class="card" style="width: 100%">
+        <div v-else :id="item.id" class="card" style="width: 100%">
           <div class="card-header">
             <div class="mb-2">
               <span>
@@ -73,6 +73,21 @@
                 </button>
               </div>
             </div>
+          </div>
+          <div v-if="item.inReplyTo" class="px-3 pt-3">
+            <div v-if="item.inReplyTo.missing" class="reply-reference small text-muted">
+              ↪ Reply to an earlier message
+            </div>
+            <button
+              v-else
+              type="button"
+              class="reply-reference small"
+              :style="{ color: uiConfiguration.secondaryTextColor }"
+              @click="showOriginal(item.inReplyTo.postId)"
+            >
+              ↪ Reply to <strong>{{ item.inReplyTo.authorName }}</strong>
+              <span class="reply-excerpt">{{ item.inReplyTo.excerpt }}</span>
+            </button>
           </div>
           <div
             class="card-body"
@@ -169,6 +184,14 @@ function getBadgeTooltip(badge) {
   return badgeTooltips[badge] || 'Badge details'
 }
 
+function showOriginal(postId) {
+  const card = document.getElementById(`post-${postId}`)
+  if (!card) return
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  card.classList.add('reply-highlight')
+  setTimeout(() => card.classList.remove('reply-highlight'), 2000)
+}
+
 function formatText(text) {
   if (!text) return ''
   // Escape HTML to prevent XSS, then replace newlines with <br>
@@ -191,6 +214,32 @@ function formatText(text) {
 }
 .timeline-content .card {
   width: 100%;
+  transition: box-shadow 0.3s ease;
+}
+
+.reply-highlight {
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.5);
+}
+
+.reply-reference {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-left: 3px solid rgba(108, 117, 125, 0.5);
+  background-color: rgba(108, 117, 125, 0.08);
+  text-align: left;
+}
+
+button.reply-reference:hover {
+  background-color: rgba(108, 117, 125, 0.16);
+}
+
+.reply-excerpt {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ui-timestamp-text {
