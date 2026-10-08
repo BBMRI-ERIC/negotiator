@@ -25,7 +25,7 @@
       <label class="form-label" :class="{ required: element.required }">
         {{ capitalizeAllWords(element.label) }}
       </label>
-      <span v-if="element.description" class="ms-2 text-muted">
+      <span v-if="element.description && element.type !== 'INFORMATION'" class="ms-2 text-muted">
         <InfoTooltip :text="element.description" />
       </span>
 
