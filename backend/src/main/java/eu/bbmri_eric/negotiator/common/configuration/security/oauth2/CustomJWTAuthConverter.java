@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.WrongJWTException;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.validation.ConstraintViolationException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -133,8 +133,13 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private static boolean hasScope(Jwt jwt, String expectedScope) {
-    String scopes = jwt.getClaimAsString(CLAIM_SCOPE);
-    return ArrayUtils.contains(StringUtils.split(scopes), expectedScope);
+    List<String> scopeClaimEntries = jwt.getClaimAsStringList(CLAIM_SCOPE);
+    return scopeClaimEntries != null
+        && scopeClaimEntries.stream()
+            .filter(Objects::nonNull)
+            .map(StringUtils::split)
+            .flatMap(Arrays::stream)
+            .anyMatch(expectedScope::equals);
   }
 
   public Collection<GrantedAuthority> parseUserAuthorities(Map<String, Object> claims) {

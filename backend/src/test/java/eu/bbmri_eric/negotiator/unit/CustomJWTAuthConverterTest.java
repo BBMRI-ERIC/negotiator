@@ -331,6 +331,30 @@ public class CustomJWTAuthConverterTest {
   }
 
   @Test
+  void testGetAuthoritiesFromScope_withArrayScopes() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("scope", List.of("negotiator_api", "negotiator_resource_management"));
+    Jwt jwt = createFakeJwt(claims, "arrayScopeToken");
+
+    Collection<GrantedAuthority> authorities = converterWithUserInfo.getAuthoritiesFromScope(jwt);
+
+    assertTrue(
+        authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_RESOURCE_MANAGER")));
+  }
+
+  @Test
+  void testGetAuthoritiesFromScope_withSpaceSeparatedScopes() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("scope", "negotiator_api negotiator_resource_management");
+    Jwt jwt = createFakeJwt(claims, "spaceSeparatedScopeToken");
+
+    Collection<GrantedAuthority> authorities = converterWithUserInfo.getAuthoritiesFromScope(jwt);
+
+    assertTrue(
+        authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_RESOURCE_MANAGER")));
+  }
+
+  @Test
   void testGetAuthoritiesFromScope_doesNotMatchPartialScopeName() {
     Map<String, Object> claims = new HashMap<>();
     claims.put("scope", "not_negotiator_authz_management");
