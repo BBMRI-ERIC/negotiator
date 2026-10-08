@@ -6,12 +6,14 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +74,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
     return jwt.hasClaim(CLAIM_CLIENT_ID)
         && jwt.hasClaim(CLAIM_SCOPE)
-        && !hasScope(jwt, SCOPE_OPENID);
+        && !getScopes(jwt).contains(SCOPE_OPENID);
   }
 
   private NegotiatorJwtAuthenticationToken parseJWTAsUserToken(Jwt jwt) {
@@ -120,26 +122,29 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   public static Collection<GrantedAuthority> getAuthoritiesFromScope(Jwt jwt) {
     Set<GrantedAuthority> authorities = new HashSet<>();
-    if (hasScope(jwt, NEGOTIATOR_AUTHZ_MANAGEMENT)) {
+    Set<String> scopes = getScopes(jwt);
+    if (scopes.contains(NEGOTIATOR_AUTHZ_MANAGEMENT)) {
       authorities.add(new SimpleGrantedAuthority("ROLE_AUTHORIZATION_MANAGER"));
     }
-    if (hasScope(jwt, NEGOTIATOR_RESOURCE_MANAGEMENT)) {
+    if (scopes.contains(NEGOTIATOR_RESOURCE_MANAGEMENT)) {
       authorities.add(new SimpleGrantedAuthority("ROLE_RESOURCE_MANAGER"));
     }
-    if (hasScope(jwt, NEGOTIATOR_MONITORING)) {
+    if (scopes.contains(NEGOTIATOR_MONITORING)) {
       authorities.add(new SimpleGrantedAuthority("ROLE_PROMETHEUS"));
     }
     return authorities;
   }
 
-  private static boolean hasScope(Jwt jwt, String expectedScope) {
+  private static Set<String> getScopes(Jwt jwt) {
     List<String> scopeClaimEntries = jwt.getClaimAsStringList(CLAIM_SCOPE);
-    return scopeClaimEntries != null
-        && scopeClaimEntries.stream()
-            .filter(Objects::nonNull)
-            .map(StringUtils::split)
-            .flatMap(Arrays::stream)
-            .anyMatch(expectedScope::equals);
+    if (scopeClaimEntries == null) {
+      return Collections.emptySet();
+    }
+    return scopeClaimEntries.stream()
+        .filter(Objects::nonNull)
+        .map(StringUtils::split)
+        .flatMap(Arrays::stream)
+        .collect(Collectors.toSet());
   }
 
   public Collection<GrantedAuthority> parseUserAuthorities(Map<String, Object> claims) {
@@ -170,7 +175,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private boolean shouldFetchUserInfo(Jwt jwt) {
-    return userInfoEndpoint != null && !userInfoEndpoint.isBlank() && hasScope(jwt, SCOPE_OPENID);
+    return userInfoEndpoint != null
+        && !userInfoEndpoint.isBlank()
+        && getScopes(jwt).contains(SCOPE_OPENID);
   }
 
   private Map<String, Object> fetchAndCacheUserInfo(Jwt jwt) {
