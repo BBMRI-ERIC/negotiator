@@ -99,10 +99,8 @@
           Check the boxes of the fields you wish to display!
         </div>
         <div v-if="section.description" class="mx-3 d-flex justify-content-end">
-          <i
-            class="py-1 bi bi-info-circle"
-            data-bs-toggle="tooltip"
-            :data-bs-title="section.description"
+          <InfoTooltip
+            :text="section.description"
             :style="{ color: uiConfiguration?.primaryTextColor }"
           />
         </div>
@@ -149,16 +147,17 @@
                       {{ criteria.label }}
                     </label>
 
-                    <span v-if="criteria.description" class="ms-2 text-muted">
-                      <i
-                        class="py-1 bi bi-info-circle"
-                        data-bs-toggle="tooltip"
-                        :data-bs-title="criteria.description"
+                    <span
+                      v-if="criteria.description && criteria.type !== 'INFORMATION'"
+                      class="ms-2 text-muted"
+                    >
+                      <InfoTooltip
+                        :text="criteria.description"
                         :style="{ color: uiConfiguration?.primaryTextColor }"
                       />
                     </span>
                   </div>
-                  <div class="form-check">
+                  <div v-if="criteria.type !== 'INFORMATION'" class="form-check">
                     <input
                       :id="`inlineCheckboxRequired-${criteria.id}`"
                       @change="
@@ -415,7 +414,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Tooltip } from 'bootstrap'
 import { useUserStore } from '../store/user.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import AddFormSectionModal from '@/components/modals/AddFormSectionModal.vue'
@@ -426,6 +424,7 @@ import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import 'vue3-form-wizard/dist/style.css'
 import draggable from 'vuedraggable'
 import { useRouter, useRoute } from 'vue-router'
+import InfoTooltip from '@/components/ui/InfoTooltip.vue'
 
 const props = defineProps({
   typeAccessForm: {
@@ -465,9 +464,6 @@ onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
     await userStore.retrieveUser()
   }
-  new Tooltip(document.body, {
-    selector: "[data-bs-toggle='tooltip']",
-  })
   accessFormElements.value = await negotiationFormStore.retrieveFormElements()
   // edit-duplicate section
   if (route.params.accessFormId) {
