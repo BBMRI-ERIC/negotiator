@@ -32,10 +32,10 @@
           <i
             v-if="canUpdateStatus"
             class="bi icon-smaller mx-1"
-            :class="dropdownVisible[orgId] ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"
+            :class="dropdownVisible ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"
           />
         </button>
-        <ul v-if="canUpdateStatus && dropdownVisible[orgId]" class="dropdown-menu show">
+        <ul v-if="canUpdateStatus && dropdownVisible" class="dropdown-menu show">
           <li
             v-for="state in sortedStates"
             :key="state.value"
@@ -66,18 +66,18 @@ const props = defineProps({
   org: { type: Object, required: true },
   uiConfiguration: { type: Object, required: true },
   sortedStates: { type: Array, default: () => [] },
-  dropdownVisible: { type: Object, default: () => ({}) },
 })
-const emit = defineEmits(['toggle-dropdown', 'toggle-collapse', 'update-org-status'])
+const emit = defineEmits(['toggle-collapse', 'update-org-status'])
 
 const isCollapsed = ref(false)
+const dropdownVisible = ref(false)
 const sanitizeId = (id) => id.replaceAll(':', '_')
 
 const canUpdateStatus = computed(() => props.org.updatable && orgResourceStateOverride)
 
 const onToggleDropdown = () => {
   if (!canUpdateStatus.value) return
-  emit('toggle-dropdown', props.orgId)
+  dropdownVisible.value = !dropdownVisible.value
 }
 
 const onToggleCollapse = () => {
@@ -86,6 +86,7 @@ const onToggleCollapse = () => {
 }
 
 const onUpdateOrgStatus = (state) => {
+  dropdownVisible.value = false
   emit('update-org-status', state, props.org, props.orgId)
 }
 </script>
