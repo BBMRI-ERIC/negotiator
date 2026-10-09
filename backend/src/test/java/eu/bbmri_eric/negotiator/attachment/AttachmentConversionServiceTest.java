@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentDTO;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +49,7 @@ class AttachmentConversionServiceTest {
   @Test
   void testconvertAttachmentsToPdf_WithDocxAttachment_ConvertsSuccessfully() throws IOException {
     String attachmentId = "docx-attachment-1";
-    byte[] docxBytes = loadTestDocxFile();
+    byte[] docxBytes = AttachmentTestHelper.loadTestDocxFile();
     AttachmentDTO docxAttachment =
         AttachmentDTO.builder()
             .id(attachmentId)
@@ -71,7 +70,7 @@ class AttachmentConversionServiceTest {
   @Test
   void testconvertAttachmentsToPdf_WithDocAttachment() throws IOException {
     String attachmentId = "doc-attachment-1";
-    byte[] docBytes = loadTestDocFile();
+    byte[] docBytes = AttachmentTestHelper.loadTestDocFile();
     AttachmentDTO docAttachment =
         AttachmentDTO.builder()
             .id(attachmentId)
@@ -91,7 +90,7 @@ class AttachmentConversionServiceTest {
   @Test
   void testconvertAttachmentsToPdf_WithDocAttachment_SkipsInvalidDoc() throws IOException {
     String attachmentId = "doc-attachment-1";
-    byte[] docBytes = loadTestDocFile();
+    byte[] docBytes = AttachmentTestHelper.loadTestDocFile();
     AttachmentDTO docAttachment =
         AttachmentDTO.builder()
             .id(attachmentId)
@@ -111,7 +110,7 @@ class AttachmentConversionServiceTest {
   @Test
   void testconvertAttachmentsToPdf_WithTikaDocxType_ConvertsSuccessfully() throws IOException {
     String attachmentId = "tika-docx-attachment-1";
-    byte[] docxBytes = loadTestDocxFile();
+    byte[] docxBytes = AttachmentTestHelper.loadTestDocxFile();
     AttachmentDTO docxAttachment =
         AttachmentDTO.builder()
             .id(attachmentId)
@@ -132,7 +131,7 @@ class AttachmentConversionServiceTest {
   @Test
   void testconvertAttachmentsToPdf_WithTikaDocType_SkipsInvalidDoc() throws IOException {
     String attachmentId = "tika-doc-attachment-1";
-    byte[] docBytes = loadTestDocFile();
+    byte[] docBytes = AttachmentTestHelper.loadTestDocFile();
     AttachmentDTO docAttachment =
         AttachmentDTO.builder()
             .id(attachmentId)
@@ -152,7 +151,7 @@ class AttachmentConversionServiceTest {
   @Test
   void testconvertAttachmentsToPdf_WithTikaDocType() throws IOException {
     String attachmentId = "tika-doc-attachment-1";
-    byte[] docBytes = loadTestDocFileValid();
+    byte[] docBytes = AttachmentTestHelper.loadTestDocFileValid();
     AttachmentDTO docAttachment =
         AttachmentDTO.builder()
             .id(attachmentId)
@@ -175,7 +174,7 @@ class AttachmentConversionServiceTest {
     String docxId = "docx-1";
 
     byte[] pdfBytes = "PDF content".getBytes();
-    byte[] docxBytes = loadTestDocxFile();
+    byte[] docxBytes = AttachmentTestHelper.loadTestDocxFile();
 
     AttachmentDTO pdfAttachment =
         AttachmentDTO.builder()
@@ -519,7 +518,7 @@ class AttachmentConversionServiceTest {
     String validDocxId = "valid-docx";
 
     byte[] pdfBytes = "PDF content".getBytes();
-    byte[] docxBytes = createMinimalDocxBytes();
+    byte[] docxBytes = AttachmentTestHelper.createMinimalDocxBytes();
 
     AttachmentDTO validPdfAttachment =
         AttachmentDTO.builder()
@@ -571,7 +570,7 @@ class AttachmentConversionServiceTest {
   void testconvertAttachmentsToPdf_WithValidDocWithContent_ProcessesSuccessfully()
       throws IOException {
     String attachmentId = "valid-doc-with-content";
-    byte[] docBytes = createValidDocBytes();
+    byte[] docBytes = AttachmentTestHelper.createValidDocBytes();
     AttachmentDTO docAttachment =
         AttachmentDTO.builder()
             .id(attachmentId)
@@ -731,7 +730,7 @@ class AttachmentConversionServiceTest {
   void testConvertDocToPdf_WithValidDocFile_ConvertsSuccessfully() {
     // Test successful DOC to PDF conversion with a more realistic DOC structure
     String attachmentId = "valid-doc-conversion";
-    byte[] validDocBytes = createRealisticDocBytes();
+    byte[] validDocBytes = AttachmentTestHelper.createRealisticDocBytes();
 
     AttachmentDTO docAttachment =
         AttachmentDTO.builder()
@@ -760,235 +759,5 @@ class AttachmentConversionServiceTest {
           pdfHeader.startsWith("%PDF") || pdfResult.length > 100,
           "Result should be a valid PDF or substantial content");
     }
-  }
-
-  private byte[] loadTestDocxFile() throws IOException {
-    try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/test.docx")) {
-      if (inputStream == null) {
-        return createMinimalDocxBytes();
-      }
-      return inputStream.readAllBytes();
-    }
-  }
-
-  private byte[] loadTestDocFileValid() throws IOException {
-    try (InputStream inputStream =
-        getClass().getResourceAsStream("/test-documents/test-valid.doc")) {
-      if (inputStream == null) {
-        return createMinimalDocBytes();
-      }
-      return inputStream.readAllBytes();
-    }
-  }
-
-  private byte[] loadTestDocFile() throws IOException {
-    try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/test.doc")) {
-      if (inputStream == null) {
-        return createMinimalDocBytes();
-      }
-      return inputStream.readAllBytes();
-    }
-  }
-
-  private byte[] createMinimalDocxBytes() {
-    String minimalDocx =
-        "PK\u0003\u0004\u0014\u0000\u0000\u0000\u0008\u0000\u0000\u0000\u0000\u0000"
-            + "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
-            + "\u0019\u0000\u0000\u0000[Content_Types].xmlPK\u0003\u0004\u0014\u0000"
-            + "\u0000\u0000\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
-            + "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u000b\u0000\u0000\u0000"
-            + "_rels/.relsPK\u0005\u0006\u0000\u0000\u0000\u0000\u0002\u0000\u0002\u0000"
-            + "^\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000";
-    return minimalDocx.getBytes();
-  }
-
-  private byte[] createMinimalDocBytes() {
-    byte[] docHeader = {
-      (byte) 0xD0,
-      (byte) 0xCF,
-      (byte) 0x11,
-      (byte) 0xE0,
-      (byte) 0xA1,
-      (byte) 0xB1,
-      (byte) 0x1A,
-      (byte) 0xE1
-    };
-    byte[] docContent = new byte[512];
-    System.arraycopy(docHeader, 0, docContent, 0, docHeader.length);
-    return docContent;
-  }
-
-  private byte[] createValidDocBytes() {
-    // Create a more complete DOC structure that might be parseable
-    byte[] docHeader = {
-      (byte) 0xD0,
-      (byte) 0xCF,
-      (byte) 0x11,
-      (byte) 0xE0,
-      (byte) 0xA1,
-      (byte) 0xB1,
-      (byte) 0x1A,
-      (byte) 0xE1,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x3E,
-      0x00,
-      0x03,
-      0x00,
-      (byte) 0xFE,
-      (byte) 0xFF,
-      0x09,
-      0x00,
-      0x06,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x10,
-      0x00,
-      0x00
-    };
-    byte[] docContent = new byte[2048];
-    System.arraycopy(docHeader, 0, docContent, 0, docHeader.length);
-    return docContent;
-  }
-
-  private byte[] createValidEmptyDocBytes() {
-    // Create a DOC structure that will parse but have no paragraphs
-    byte[] docHeader = {
-      (byte) 0xD0, (byte) 0xCF, (byte) 0x11, (byte) 0xE0,
-      (byte) 0xA1, (byte) 0xB1, (byte) 0x1A, (byte) 0xE1
-    };
-    byte[] docContent = new byte[1024];
-    System.arraycopy(docHeader, 0, docContent, 0, docHeader.length);
-    return docContent;
-  }
-
-  private byte[] createRealisticDocBytes() {
-    // Create a more realistic DOC file structure that has a better chance of being parsed
-    // This creates a minimal but more complete OLE2 compound document structure
-    byte[] docContent = new byte[4096]; // Larger size for more realistic structure
-
-    // OLE2 header (first 512 bytes are the header sector)
-    byte[] oleHeader = {
-      // OLE signature
-      (byte) 0xD0,
-      (byte) 0xCF,
-      (byte) 0x11,
-      (byte) 0xE0,
-      (byte) 0xA1,
-      (byte) 0xB1,
-      (byte) 0x1A,
-      (byte) 0xE1,
-      // Minor version
-      0x00,
-      0x00,
-      // Major version
-      0x3E,
-      0x00,
-      // Byte order
-      (byte) 0xFE,
-      (byte) 0xFF,
-      // Sector size (512 bytes = 2^9)
-      0x09,
-      0x00,
-      // Mini sector size (64 bytes = 2^6)
-      0x06,
-      0x00,
-      // Reserved fields
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      // Number of directory sectors
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      // Number of FAT sectors
-      0x01,
-      0x00,
-      0x00,
-      0x00,
-      // Directory first sector
-      0x01,
-      0x00,
-      0x00,
-      0x00,
-      // Transaction signature
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      // Mini stream cutoff (4096 bytes)
-      0x00,
-      0x10,
-      0x00,
-      0x00,
-      // First mini FAT sector
-      (byte) 0xFF,
-      (byte) 0xFF,
-      (byte) 0xFF,
-      (byte) 0xFF,
-      // Number of mini FAT sectors
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      // First difat sector
-      (byte) 0xFF,
-      (byte) 0xFF,
-      (byte) 0xFF,
-      (byte) 0xFF
-    };
-
-    System.arraycopy(oleHeader, 0, docContent, 0, oleHeader.length);
-
-    // Fill remaining header with appropriate values
-    // FAT array (starting at offset 76)
-    int fatOffset = 76;
-    // Sector 0 points to sector 1 (continuation)
-    docContent[fatOffset] = (byte) 0xFF;
-    docContent[fatOffset + 1] = (byte) 0xFF;
-    docContent[fatOffset + 2] = (byte) 0xFF;
-    docContent[fatOffset + 3] = (byte) 0xFE; // End of chain
-
-    // Add some realistic Word document content in subsequent sectors
-    // This creates a minimal Word document structure
-    int contentOffset = 512; // Start of sector 1
-    String wordContent = "Microsoft Word Document Content";
-    byte[] contentBytes = wordContent.getBytes();
-    System.arraycopy(
-        contentBytes,
-        0,
-        docContent,
-        contentOffset,
-        Math.min(contentBytes.length, docContent.length - contentOffset));
-
-    return docContent;
   }
 }
