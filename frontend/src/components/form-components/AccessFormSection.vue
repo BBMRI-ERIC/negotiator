@@ -25,12 +25,8 @@
       <label class="form-label" :class="{ required: element.required }">
         {{ capitalizeAllWords(element.label) }}
       </label>
-      <span v-if="element.description" class="ms-2 text-muted">
-        <i
-          class="py-1 bi bi-info-circle"
-          data-bs-toggle="tooltip"
-          :data-bs-title="element.description"
-        />
+      <span v-if="element.description && element.type !== 'INFORMATION'" class="ms-2 text-muted">
+        <InfoTooltip :text="element.description" />
       </span>
 
       <div
@@ -242,6 +238,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useNegotiationFormStore } from '../../store/negotiationForm'
 import { useNotificationsStore } from '../../store/notifications'
+import InfoTooltip from '../ui/InfoTooltip.vue'
 
 import fileExtensions from '@/config/uploadFileExtensions.js'
 import { capitalizeAllWords, isFileExtensionsSupported } from '../../composables/utils.js'
