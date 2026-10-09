@@ -139,20 +139,20 @@ const readyToSend = computed(() => {
 
 const selectedChannelName = computed(() => {
   if (!channelId.value) return ''
-  if (channelId.value === 'public') return 'Public channel'
+  if (channelId.value === 'public') return 'Request-wide'
   const recipient = props.recipients.find((r) => r.id === channelId.value)
-  return recipient ? `Author - ${recipient.name}` : 'Author - Unknown'
+  return recipient ? `1:1 · Author & ${recipient.name}` : '1:1 · Author & Unknown'
 })
 
 const channelVisibilityMessage = computed(() => {
   if (!channelId.value) return ''
   if (channelId.value === 'public') {
-    return 'Visible to all authorized negotiation participants (author, representatives, administrator).'
+    return 'Visible to everyone involved in this request: the author, representatives and administrators.'
   }
   const recipient = props.recipients.find((r) => r.id === channelId.value)
   return recipient
-    ? `Private channel between the negotiation author and ${recipient.name}.`
-    : 'Private channel between the negotiation author and the selected organization.'
+    ? `Visible only to the request author, representatives of ${recipient.name} and administrators.`
+    : 'Visible only to the request author, representatives of the selected organization and administrators.'
 })
 
 function resetForm() {

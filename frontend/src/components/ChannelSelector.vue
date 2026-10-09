@@ -3,7 +3,7 @@
     <div v-if="selectedChannelName" class="mt-2">
       <UiBadge
         :class="channelId === 'public' ? 'bg-warning rounded-pill' : 'bg-primary rounded-pill'"
-        :icon="channelId === 'public' ? 'bi bi-globe' : 'bi bi-lock-fill'"
+        :icon="channelId === 'public' ? 'bi bi-people-fill' : 'bi bi-lock-fill'"
       >
         Channel: {{ selectedChannelName }}
       </UiBadge>
@@ -18,15 +18,15 @@
       :style="{ color: uiConfiguration.primaryTextColor }"
     >
       <option disabled selected value="">-- Select channel --</option>
-      <option value="public">Public channel</option>
-      <optgroup label="Private channels">
+      <option value="public">Request-wide</option>
+      <optgroup label="1:1 channels">
         <option
           v-for="recipient in recipients"
           :key="recipient.id"
           :value="recipient.id"
           :disabled="!negotiation.privatePostsEnabled"
         >
-          Author - {{ recipient.name }}
+          Author &amp; {{ recipient.name }}
         </option>
       </optgroup>
     </select>

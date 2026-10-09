@@ -116,16 +116,16 @@ function getChannelPostColor(item) {
 }
 
 function getChannelIcon(item) {
-  return item.organizationId === undefined ? 'bi bi-globe' : 'bi bi-lock-fill'
+  return item.organizationId === undefined ? 'bi bi-people-fill' : 'bi bi-lock-fill'
 }
 
 function getChannelName(item) {
   if (item.organizationId && props.organizations[item.organizationId]) {
-    return `Author - ${props.organizations[item.organizationId].name}`
+    return `1:1 · Author & ${props.organizations[item.organizationId].name}`
   } else if (item.personRecipient) {
     return item.personRecipient.name
   } else {
-    return 'Public channel'
+    return 'Request-wide'
   }
 }
 
