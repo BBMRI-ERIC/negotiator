@@ -12,10 +12,14 @@
       />
       <textarea
         v-model="message"
-        class="form-control mb-3"
+        class="form-control"
+        placeholder="Write your message..."
         :style="{ color: uiConfiguration.secondaryTextColor }"
         :disabled="props.isUploading"
+        @keydown.ctrl.enter.prevent="sendMessage"
+        @keydown.meta.enter.prevent="sendMessage"
       />
+      <div class="form-text text-end mb-2">{{ sendShortcut }} to send</div>
       <NegotiationAttachment
         v-if="attachment"
         class="ms-auto"
@@ -127,6 +131,8 @@ const channelId = ref('')
 const attachment = ref(undefined)
 const fileInputKey = ref(0)
 const attachmentError = ref('')
+
+const sendShortcut = /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘+Enter' : 'Ctrl+Enter'
 
 const readyToSend = computed(() => {
   return (
