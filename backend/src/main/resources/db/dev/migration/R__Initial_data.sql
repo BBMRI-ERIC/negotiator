@@ -79,7 +79,8 @@ insert into public.access_form_section_element_link (id, access_form_section_lin
                                                      is_required, element_order)
 values (100, 7, 100, true, 10),
        (101, 7, 101, true, 11),
-       (102, 7, 102, true, 12)
+       (102, 7, 102, true, 12),
+       (103, 7, 103, false, 13)
 on conflict do nothing;
 
 insert into negotiation (id, creation_date, modified_date, current_state, payload, public_posts_enabled, private_posts_enabled, created_by, modified_by, human_readable, discovery_service_id)
