@@ -157,7 +157,10 @@
                       />
                     </span>
                   </div>
-                  <div v-if="criteria.type !== 'INFORMATION'" class="form-check">
+                  <div
+                    v-if="criteria.type !== 'INFORMATION' || criteria.required"
+                    class="form-check"
+                  >
                     <input
                       :id="`inlineCheckboxRequired-${criteria.id}`"
                       @change="
