@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
@@ -13,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
 
 public class NegotiationModelAssemblerTest {
-  NegotiationModelAssembler negotiationModelAssembler = new NegotiationModelAssembler(null, null);
+  NegotiationModelAssembler negotiationModelAssembler =
+      new NegotiationModelAssembler(null, null, "http://localhost:8080");
 
   @Test
   void toModel_null_nullPointer() {
@@ -70,5 +72,39 @@ public class NegotiationModelAssemblerTest {
                 null)
             .getContent()
             .size());
+  }
+
+  @Test
+  void toModel_withFrontendUrl_uiLinkPresent() {
+    assertEquals(
+        "http://localhost:8080/negotiations/1",
+        negotiationModelAssembler
+            .toModel(NegotiationDTO.builder().id("1").build())
+            .getLink("ui")
+            .get()
+            .getHref());
+  }
+
+  @Test
+  void toModel_withTrailingSlashFrontendUrl_uiLinkNormalized() {
+    NegotiationModelAssembler assemblerWithTrailingSlash =
+        new NegotiationModelAssembler(null, null, "http://localhost:8080/");
+    assertEquals(
+        "http://localhost:8080/negotiations/1",
+        assemblerWithTrailingSlash
+            .toModel(NegotiationDTO.builder().id("1").build())
+            .getLink("ui")
+            .get()
+            .getHref());
+  }
+
+  @Test
+  void toModel_withEmptyFrontendUrl_uiLinkAbsent() {
+    NegotiationModelAssembler assemblerWithoutUrl = new NegotiationModelAssembler(null, null, "");
+    assertTrue(
+        assemblerWithoutUrl
+            .toModel(NegotiationDTO.builder().id("1").build())
+            .getLink("ui")
+            .isEmpty());
   }
 }
