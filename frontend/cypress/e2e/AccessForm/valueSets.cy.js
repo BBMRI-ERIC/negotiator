@@ -18,8 +18,10 @@ function assertDropdownOptions(selector) {
 
 describe("Test value sets of access form elements", () => {
     let valueSetStatuses
+    let draftNegotiation
 
     beforeEach(() => {
+        draftNegotiation = null
         valueSetStatuses = []
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
@@ -28,6 +30,18 @@ describe("Test value sets of access form elements", () => {
                 valueSetStatuses.push(res.statusCode)
             })
         }).as("valueSet")
+    })
+
+    // Opening a new request creates a draft, which would otherwise be merged into
+    // requests created by later specs and show up first in negotiation lists.
+    afterEach(() => {
+        if (draftNegotiation) {
+            cy.request({
+                method: "DELETE",
+                url: `http://localhost:8080/api/v3/negotiations/${draftNegotiation.id}`,
+                headers: { Authorization: draftNegotiation.authorization }
+            })
+        }
     })
 
     function assertAllValueSetsLoaded() {
@@ -51,7 +65,12 @@ describe("Test value sets of access form elements", () => {
                     return win.open.wrappedMethod.call(win, url, "_self")
                 }).as("open")
             })
-            cy.intercept("GET", "**/api/v3/negotiations/*/access-form").as("accessForm")
+            cy.intercept("GET", "**/api/v3/negotiations/*/access-form", (req) => {
+                draftNegotiation = {
+                    id: req.url.match(/negotiations\/([^/]+)\/access-form/)[1],
+                    authorization: req.headers.authorization
+                }
+            }).as("accessForm")
             cy.get("[data-test=new-request-modal-start-button]").click()
             cy.wait("@accessForm")
 
