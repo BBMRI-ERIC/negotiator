@@ -40,7 +40,41 @@ public class UIConfigControllerTest {
         .andExpect(jsonPath("$.theme.activeThemeFile").value("default"))
         .andExpect(jsonPath("$.theme.activeLogosFiles").value("default"))
         .andExpect(jsonPath("$.footer.isFooterStatusPageVisible").value(true))
-        .andExpect(jsonPath("$.footer.footerHeight").value(50));
+        .andExpect(jsonPath("$.footer.footerHeight").value(50))
+        .andExpect(jsonPath("$.login.loginProviderHeader").value(""))
+        .andExpect(jsonPath("$.login.loginProviderText").value("Life Science Login"))
+        .andExpect(jsonPath("$.login.loginProviderLogoUrl").value("/ls-aai-logo.png"));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  void testUpdate_loginProvider_ok() throws Exception {
+    String json =
+        """
+         {
+            "login": {
+              "loginProviderHeader": "Log in",
+              "loginProviderText": "Institutional Login",
+              "loginProviderLogoUrl": ""
+            }
+         }
+         """;
+
+    mvc.perform(
+            MockMvcRequestBuilders.put("/v3/ui-config")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+        .andExpect(status().isNoContent());
+
+    Assertions.assertEquals(
+        "Log in",
+        uiParameterRepository.findByCategoryAndName("login", "loginProviderHeader").getValue());
+    Assertions.assertEquals(
+        "Institutional Login",
+        uiParameterRepository.findByCategoryAndName("login", "loginProviderText").getValue());
+    Assertions.assertEquals(
+        "",
+        uiParameterRepository.findByCategoryAndName("login", "loginProviderLogoUrl").getValue());
   }
 
   @Test

@@ -32,4 +32,4 @@ if (import.meta.env.DEV) {
 
 export default oidcSettings
 
-console.debug("oidcSettings:", oidcSettings);
+console.debug('oidcSettings:', oidcSettings)

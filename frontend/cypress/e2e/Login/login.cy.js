@@ -26,14 +26,9 @@ describe("Test login", () => {
             cy.get(".card-title").should("have.text", "NEGOTIATOR")
         })
 
-        it("check visibility of text", () => {
-            cy.get(".card-subtitle").should("be.visible")
-            cy.get(".card-subtitle").should("have.text", " Choose how to log in ")
-        })
-
         it("check visibility of \"Life Science Login\" button", () => {
             cy.get(".btn > .align-self-center").should("be.visible")
-            cy.get(".btn > .align-self-center").should("have.text", " Life Science Login")
+            cy.get(".btn > .align-self-center").should("have.text", "Life Science Login")
         })
 
         it("check visibility of footer text", () => {
