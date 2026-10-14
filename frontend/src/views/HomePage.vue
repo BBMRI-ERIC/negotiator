@@ -37,7 +37,7 @@
                   height="23"
                   class="float-center mb-1 pe-2"
                   :src="uiConfigurationLogin.loginProviderLogoUrl"
-                  alt="icon"
+                  aria-hidden="true"
                 />
                 <span class="align-self-center pe-4 text-primary-link-color">
                   {{ uiConfigurationLogin?.loginProviderText }}</span
