@@ -22,4 +22,6 @@ public class PostCreateDTO {
   @Valid private String organizationId;
 
   @Valid private PostType type;
+
+  @Valid private String replyToId;
 }

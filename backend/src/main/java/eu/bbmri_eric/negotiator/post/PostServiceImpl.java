@@ -18,7 +18,9 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
@@ -63,7 +65,11 @@ public class PostServiceImpl implements PostService {
   }
 
   private static Post getPostEntity(PostCreateDTO postRequest) {
-    return Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
+    return Post.builder()
+        .text(postRequest.getText())
+        .type(postRequest.getType())
+        .replyToId(postRequest.getReplyToId())
+        .build();
   }
 
   /**
@@ -80,6 +86,9 @@ public class PostServiceImpl implements PostService {
   public PostDTO create(PostCreateDTO postRequest, String negotiationId) {
     Negotiation negotiation = getNegotiation(negotiationId);
     checkAuthorization(postRequest, negotiationId, negotiation);
+    if (postRequest.getReplyToId() != null) {
+      checkReplyTarget(postRequest, negotiationId);
+    }
     Post postEntity = setUpPostEntity(postRequest, negotiation);
     try {
       postEntity = postRepository.save(postEntity);
@@ -109,6 +118,32 @@ public class PostServiceImpl implements PostService {
       throw new ForbiddenRequestException(
           "%s posts are not currently allowed for this negotiation"
               .formatted(postRequest.getType()));
+    }
+  }
+
+  /**
+   * Checks that the post being replied to is in the same negotiation and readable by the current
+   * user, and that a reply to a private post stays in that post's private channel. Under this rule
+   * anyone who can read a reply can also read the post it answers.
+   */
+  private void checkReplyTarget(PostCreateDTO postRequest, String negotiationId) {
+    Post original =
+        postRepository.findByIdAndNegotiationId(postRequest.getReplyToId(), negotiationId);
+    if (original == null) {
+      throw new WrongRequestException(
+          "The message you are replying to does not exist in this negotiation");
+    }
+    if (!readFilter(negotiationId).test(original)) {
+      throw new ForbiddenRequestException("You are not authorized to reply to this message");
+    }
+    if (!original.isPublic()) {
+      String originalChannel =
+          original.getOrganization() != null ? original.getOrganization().getExternalId() : null;
+      if (postRequest.getType() != PostType.PRIVATE
+          || !Objects.equals(originalChannel, postRequest.getOrganizationId())) {
+        throw new WrongRequestException(
+            "A reply to a private message must be sent in the same private channel");
+      }
     }
   }
 
@@ -170,13 +205,11 @@ public class PostServiceImpl implements PostService {
       throw new EntityNotFoundException(negotiationId);
     }
     verifyReadAccess(negotiationId);
-    List<Post> allNegotiationPosts = postRepository.findByNegotiationId(negotiationId);
-    List<Post> readablePosts = getReadablePosts(allNegotiationPosts);
-    if (negotiationService.isNegotiationEditor(negotiationId)) {
-      readablePosts.addAll(getAllUnreadablePosts(allNegotiationPosts));
-    } else {
-      addUserAccessiblePosts(allNegotiationPosts, readablePosts);
-    }
+    Predicate<Post> canRead = readFilter(negotiationId);
+    List<Post> readablePosts =
+        postRepository.findByNegotiationId(negotiationId).stream()
+            .filter(canRead)
+            .collect(Collectors.toList());
     return sortedPosts(readablePosts);
   }
 
@@ -196,24 +229,19 @@ public class PostServiceImpl implements PostService {
         negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  private List<Post> getReadablePosts(List<Post> allNegotiationPosts) {
-    return allNegotiationPosts.stream().filter(Post::isPublic).collect(Collectors.toList());
-  }
-
-  private List<Post> getAllUnreadablePosts(List<Post> allNegotiationPosts) {
-    return allNegotiationPosts.stream()
-        .filter(post -> !post.isPublic())
-        .collect(Collectors.toList());
-  }
-
-  private void addUserAccessiblePosts(List<Post> allNegotiationPosts, List<Post> readablePosts) {
-    Person user = getCurrentUser();
-    Set<Organization> accessibleOrganizations = getUserAccessibleOrganizations(user);
-
-    allNegotiationPosts.stream()
-        .filter(
-            post -> !post.isPublic() && accessibleOrganizations.contains(post.getOrganization()))
-        .forEach(readablePosts::add);
+  /**
+   * Builds the rule for which posts of a negotiation the current user may read. Negotiation editors
+   * read every post; anyone else reads public posts and private posts sent to an organization
+   * reachable through their resources or networks.
+   *
+   * @return a predicate that is true for posts the current user may read
+   */
+  private Predicate<Post> readFilter(String negotiationId) {
+    if (negotiationService.isNegotiationEditor(negotiationId)) {
+      return post -> true;
+    }
+    Set<Organization> organizations = getUserAccessibleOrganizations(getCurrentUser());
+    return post -> post.isPublic() || organizations.contains(post.getOrganization());
   }
 
   private Person getCurrentUser() {
