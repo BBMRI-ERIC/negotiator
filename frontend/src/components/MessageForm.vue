@@ -12,6 +12,7 @@
       />
       <textarea
         v-model="message"
+        data-cy="message-input"
         class="form-control"
         placeholder="Write your message..."
         :style="{ color: uiConfiguration.secondaryTextColor }"
