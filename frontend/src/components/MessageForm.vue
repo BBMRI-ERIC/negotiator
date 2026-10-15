@@ -20,7 +20,6 @@
         @keydown.ctrl.enter.prevent="sendMessage"
         @keydown.meta.enter.prevent="sendMessage"
       />
-      <div class="form-text text-end mb-2">{{ sendShortcut }} to send</div>
       <NegotiationAttachment
         v-if="attachment"
         class="ms-auto"
@@ -33,16 +32,7 @@
         {{ attachmentError }}
       </div>
       <div class="d-flex flex-row-reverse mt-3 mb-2">
-        <span
-          data-bs-toggle="tooltip"
-          :title="
-            negotiation.publicPostsEnabled
-              ? ''
-              : negotiation.status === 'DRAFT'
-                ? 'Messaging is unavailable until you submit the request'
-                : 'Messaging is unavailable until the request has been reviewed.'
-          "
-        >
+        <span ref="sendTooltipEl">
           <button
             type="submit"
             id="send"
@@ -87,7 +77,8 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { Tooltip } from 'bootstrap'
 import NegotiationAttachment from './NegotiationAttachment.vue'
 import ChannelSelector from './ChannelSelector.vue'
 import { isFileExtensionsSupported } from '../composables/utils.js'
@@ -134,6 +125,29 @@ const fileInputKey = ref(0)
 const attachmentError = ref('')
 
 const sendShortcut = /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘+Enter' : 'Ctrl+Enter'
+
+const sendTooltipEl = ref(null)
+let sendTooltip
+
+const sendTooltipText = computed(() => {
+  if (!props.negotiation.publicPostsEnabled) {
+    return props.negotiation.status === 'DRAFT'
+      ? 'Messaging is unavailable until you submit the request'
+      : 'Messaging is unavailable until the request has been reviewed.'
+  }
+  if (channelId.value === '') return 'Please select channel'
+  if (message.value === '') return 'Message cannot be empty'
+  return `Send (${sendShortcut})`
+})
+
+onMounted(() => {
+  // title as a function so Bootstrap re-reads it on every show instead of caching it
+  sendTooltip = new Tooltip(sendTooltipEl.value, { title: () => sendTooltipText.value })
+})
+
+onBeforeUnmount(() => {
+  sendTooltip?.dispose()
+})
 
 const readyToSend = computed(() => {
   return (
