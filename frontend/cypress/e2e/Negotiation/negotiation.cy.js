@@ -95,11 +95,9 @@ describe("Test access negotiations", () => {
 
             // Right side informations
             //  Author:
-            cy.get(".order-1 > .list-group > :nth-child(1) > .fw-bold").should("be.visible")
-            cy.get(".order-1 > .list-group > :nth-child(1) > :nth-child(2)").should("be.visible")
+            cy.get('[data-cy="negotiation-author"]').should("be.visible")
             //  Email:
-            cy.get(".order-1 > .list-group > :nth-child(2) > .fw-bold").should("be.visible")
-            cy.get(".order-1 > .list-group > :nth-child(2) > span").should("be.visible")
+            cy.get('[data-cy="negotiation-email"]').should("be.visible")
             //  Negotiation ID:
             cy.get("[data-test=sidebar-negotiation-id-label]").should("be.visible")
             cy.get("[data-test=sidebar-negotiation-id-value]").should("be.visible")
