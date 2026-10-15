@@ -42,11 +42,7 @@
               :before-change="isSectionValid(section)"
             >
               <div v-if="section.description" class="mx-3 d-flex justify-content-end">
-                <i
-                  class="py-1 bi bi-info-circle"
-                  data-bs-toggle="tooltip"
-                  :data-bs-title="section.description"
-                />
+                <InfoTooltip :text="section.description" />
               </div>
 
               <div v-for="criteria in section.elements" :key="criteria.name" class="mb-4 mx-3">
@@ -57,12 +53,11 @@
                   {{ criteria.label }}
                 </label>
 
-                <span v-if="criteria.description" class="ms-2 text-muted">
-                  <i
-                    class="py-1 bi bi-info-circle"
-                    data-bs-toggle="tooltip"
-                    :data-bs-title="criteria.description"
-                  />
+                <span
+                  v-if="criteria.description && criteria.type !== 'INFORMATION'"
+                  class="ms-2 text-muted"
+                >
+                  <InfoTooltip :text="criteria.description" />
                 </span>
 
                 <div v-if="criteria.type === 'TEXT'">
@@ -331,14 +326,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
-import { Tooltip } from 'bootstrap'
+import { ref, watch } from 'vue'
 import { FormWizard, TabContent } from 'vue3-form-wizard'
 import 'vue3-form-wizard/dist/style.css'
 import { useFormsStore } from '../../store/forms'
 import { useNotificationsStore } from '../../store/notifications'
 import fileExtensions from '@/config/uploadFileExtensions.js'
 import { isFileExtensionsSupported } from '../../composables/utils.js'
+import InfoTooltip from '../ui/InfoTooltip.vue'
 
 const props = defineProps({
   id: {
@@ -417,11 +412,6 @@ watch(
     }
   },
 )
-onMounted(() => {
-  new Tooltip(document.body, {
-    selector: "[data-bs-toggle='tooltip']",
-  })
-})
 
 async function loadAccessForm(id) {
   return formsStore.retrieveAccessFormById(id)
