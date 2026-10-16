@@ -1,35 +1,46 @@
 <template>
-  <span ref="titleElement">{{ displayTitle }}</span>
+  <span ref="titleElement" class="negotiation-title" :style="{ WebkitLineClamp: lines }">{{
+    displayTitle
+  }}</span>
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { Tooltip } from 'bootstrap'
-import { DEFAULT_NEGOTIATION_TITLE_MAX_LENGTH } from '@/config/consts.js'
+import { useResizeObserver } from '@vueuse/core'
+import { NEGOTIATION_TITLE_LINES } from '@/config/consts.js'
 
 const props = defineProps({
   title: { type: String, default: '' },
-  maxLength: { type: Number, default: DEFAULT_NEGOTIATION_TITLE_MAX_LENGTH },
+  lines: { type: Number, default: NEGOTIATION_TITLE_LINES },
 })
 
 const titleElement = ref(null)
+const isTruncated = ref(false)
 let tooltip = null
 
-const isTruncated = computed(() => props.maxLength > 0 && props.title.length > props.maxLength)
+const displayTitle = computed(() => (props.title ? props.title : 'Untitled'))
 
-const displayTitle = computed(() => {
-  if (!props.title) return 'Untitled'
-  return isTruncated.value
-    ? props.title.substring(0, props.maxLength).trimEnd() + '...'
-    : props.title
-})
+function measureOverflow() {
+  isTruncated.value = titleElement.value.scrollHeight > titleElement.value.clientHeight
+}
 
 function updateTooltip() {
   tooltip?.dispose()
   tooltip = isTruncated.value ? new Tooltip(titleElement.value, { title: () => props.title }) : null
 }
 
-onMounted(updateTooltip)
+useResizeObserver(titleElement, measureOverflow)
+watch(() => props.title, measureOverflow, { flush: 'post' })
 watch(isTruncated, updateTooltip)
 onBeforeUnmount(() => tooltip?.dispose())
 </script>
+
+<style scoped>
+.negotiation-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+</style>
