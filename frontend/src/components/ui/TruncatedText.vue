@@ -20,7 +20,8 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { ref } from 'vue'
+import { useResizeObserver } from '@vueuse/core'
 import { TRUNCATED_TEXT_LINES } from '@/config/consts.js'
 
 defineProps({
@@ -30,19 +31,13 @@ defineProps({
 const textElement = ref(null)
 const expanded = ref(false)
 const isOverflowing = ref(false)
-let resizeObserver = null
 
 function measureOverflow() {
   if (expanded.value) return
   isOverflowing.value = textElement.value.scrollHeight > textElement.value.clientHeight
 }
 
-onMounted(() => {
-  resizeObserver = new ResizeObserver(measureOverflow)
-  resizeObserver.observe(textElement.value)
-})
-
-onBeforeUnmount(() => resizeObserver?.disconnect())
+useResizeObserver(textElement, measureOverflow)
 </script>
 
 <style scoped>
