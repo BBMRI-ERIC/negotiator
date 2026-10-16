@@ -24,20 +24,23 @@
             <b>NEGOTIATOR</b>
           </h1>
           <div class="card-body">
-            <h4 class="card-subtitle text-center fw-bold pb-2 text-primary-text">
-              Choose how to log in
+            <h4
+              v-if="uiConfigurationLogin?.loginProviderHeader"
+              class="card-subtitle text-center fw-bold pb-2 text-primary-text"
+            >
+              {{ uiConfigurationLogin.loginProviderHeader }}
             </h4>
             <div class="d-grid mx-3 mb-5">
               <button class="btn btn-outline-light" @click.stop.prevent="authenticateOidc">
                 <img
-                  width="28"
+                  v-if="uiConfigurationLogin?.loginProviderLogoUrl"
                   height="23"
                   class="float-center mb-1 pe-2"
-                  src="../assets/images/ls-aai-logo.png"
-                  alt="icon"
+                  :src="uiConfigurationLogin.loginProviderLogoUrl"
+                  aria-hidden="true"
                 />
                 <span class="align-self-center pe-4 text-primary-link-color">
-                  Life Science Login</span
+                  {{ uiConfigurationLogin?.loginProviderText }}</span
                 >
               </button>
             </div>
