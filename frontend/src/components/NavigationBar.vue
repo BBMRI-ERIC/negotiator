@@ -217,8 +217,8 @@ const isRepresentativeActive = computed(() => {
 const isGovernanceActive = computed(() => {
   return (
     route.path === '/governance' ||
-    route.params.userRole === 'ROLE_REPRESENTATIVE' ||
-    route.params.userRole === 'ROLE_ADMIN'
+    isRepresentative() || 
+    isGovernanceManager()
   )
 })
 const isNetworksActive = computed(() => {
