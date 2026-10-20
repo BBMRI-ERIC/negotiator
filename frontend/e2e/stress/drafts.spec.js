@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures.js'
+import { authFile } from '../users.js'
 
 // These tests depend on Researcher2's list of drafts, so they run one after another in a single
 // worker and leave no drafts behind.
@@ -42,4 +43,34 @@ test('a double-clicked submit confirmation still submits the negotiation', async
   await expect
     .poll(() => api.status(id), { message: `the UI sent ${submits.length} SUBMIT request(s)` })
     .toBe('SUBMITTED')
+})
+
+test('saving a draft in a second, older tab keeps the changes saved in the first tab', async ({
+  browser,
+  researcher2Page: firstTab,
+  api,
+}) => {
+  // The same draft is open in two tabs (or by the author and a collaborator).
+  const id = await api.createNegotiation('DRAFT', 'researcher2')
+  const secondTab = await (
+    await browser.newContext({ storageState: authFile('researcher2') })
+  ).newPage()
+  for (const tab of [firstTab, secondTab]) {
+    await tab.goto(`/edit/requests/${id}?step=1`)
+    await expect(tab.locator('input[type=text]:visible').first()).toBeVisible()
+  }
+  const title = `Renamed in the first tab ${Date.now()}`
+
+  await firstTab.locator('input[type=text]:visible').first().fill(title)
+  await firstTab.getByRole('button', { name: 'Save Draft' }).click()
+  await expect.poll(async () => (await api.payload(id)).project.title).toBe(title)
+
+  await secondTab.locator('textarea:visible').first().fill('Added in the second tab')
+  await secondTab.getByRole('button', { name: 'Save Draft' }).click()
+  await expect(secondTab.getByText('Negotiation saved correctly as draft')).toBeVisible()
+
+  expect((await api.payload(id)).project.title, "the first tab's change was overwritten").toBe(
+    title,
+  )
+  await secondTab.context().close()
 })

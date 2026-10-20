@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import { Buffer } from 'node:buffer'
 import { request, expect } from '@playwright/test'
 import { authFile } from './users.js'
 
@@ -112,8 +113,37 @@ export class NegotiatorApi {
     return (await this.admin.get(`negotiations/${id}`)).ok()
   }
 
+  async userId(role) {
+    return (await ok(await this.clients[role].get('userinfo'))).id
+  }
+
+  async payload(id) {
+    return (await ok(await this.admin.get(`negotiations/${id}`))).payload
+  }
+
+  sendResourceEvent(id, event, resourceId = RESOURCE.id) {
+    return this.biobanker.put(
+      `negotiations/${id}/resources/${encodeURIComponent(resourceId)}/lifecycle/${event}`,
+    )
+  }
+
+  async resourceState(id, resourceId = RESOURCE.id) {
+    const body = await ok(await this.admin.get(`negotiations/${id}/resources`))
+    return body._embedded.resources.find((r) => r.sourceId === resourceId).currentState
+  }
+
+  upload(client, id, name, content) {
+    return client.post(`negotiations/${id}/attachments`, {
+      multipart: { file: { name, mimeType: 'text/plain', buffer: Buffer.from(content) } },
+    })
+  }
+
+  async attachments(id) {
+    return ok(await this.researcher.get(`negotiations/${id}/attachments`))
+  }
+
   async deleteDrafts(author) {
-    const { id: userId } = await ok(await this.clients[author].get('userinfo'))
+    const userId = await this.userId(author)
     const body = await ok(
       await this.clients[author].get(`users/${userId}/negotiations?role=author&status=DRAFT`),
     )
