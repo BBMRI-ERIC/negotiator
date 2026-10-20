@@ -20,6 +20,15 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
+      testIgnore: /recording\//,
+    },
+    // Records the API traffic of real user journeys for the load tests; run on demand only.
+    {
+      name: 'record',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+      testMatch: /recording\/.*\.spec\.js/,
+      fullyParallel: false,
     },
   ],
 })

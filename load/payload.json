@@ -1,0 +1,26 @@
+{
+  "project": {
+    "title": "Playwright stress test",
+    "disease-code": "E11.9",
+    "objective": "Exercise concurrent workflows",
+    "organization": "Playwright",
+    "profit": "No",
+    "acknowledgment": "None",
+    "Multichoice test": [
+      "first_choice"
+    ],
+    "Single test": "first_choice",
+    "Bool test": "Yes"
+  },
+  "request": {
+    "description": "Created by an e2e test",
+    "collection": "",
+    "donors": "10",
+    "samples": "blood",
+    "specifics": "None"
+  },
+  "ethics-vote": {
+    "ethics-vote": "Approved",
+    "ethics-vote-attachment": null
+  }
+}

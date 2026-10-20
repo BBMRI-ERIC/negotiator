@@ -1,0 +1,1018 @@
+{
+  "researcher": [
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/networks",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/notifications",
+      "query": "?page=0&size=10",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/negotiation-lifecycle/states",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/networks",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/negotiations",
+      "query": "?role=author&createdAfter=&createdBefore=&sortBy=creationDate&sortOrder=DESC&search=&page=0",
+      "status": 200,
+      "ms": 8
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 401,
+      "ms": 1
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/attachments",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/networks",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/notifications",
+      "query": "?page=0&size=10",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/networks",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/lifecycle",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/resource-lifecycle/states",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/timeline",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "send message",
+      "method": "POST",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 201,
+      "ms": 9
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    }
+  ],
+  "representative": [
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/notifications",
+      "query": "?page=0&size=10",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/negotiation-lifecycle/states",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/negotiations",
+      "query": "?role=representative&createdAfter=&createdBefore=&sortBy=creationDate&sortOrder=DESC&search=&page=0",
+      "status": 200,
+      "ms": 12
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 401,
+      "ms": 1
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/attachments",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/notifications",
+      "query": "?page=0&size=10",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/lifecycle",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/resource-lifecycle/states",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/timeline",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "send message",
+      "method": "POST",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 201,
+      "ms": 11
+    },
+    {
+      "step": "send message",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    }
+  ],
+  "admin": [
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/notifications",
+      "query": "?page=0&size=10",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/negotiation-lifecycle/states",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open list",
+      "method": "GET",
+      "path": "/api/v3/negotiations",
+      "query": "?createdAfter=&createdBefore=&sortBy=creationDate&sortOrder=DESC&search=&page=0",
+      "status": 200,
+      "ms": 10
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 401,
+      "ms": 1
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/attachments",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/notifications",
+      "query": "?page=0&size=10",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/lifecycle",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/resource-lifecycle/states",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "open negotiation",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/timeline",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "approve",
+      "method": "PUT",
+      "path": "/api/v3/negotiations/{id}/lifecycle/APPROVE",
+      "query": "",
+      "status": 200,
+      "ms": 15
+    },
+    {
+      "step": "approve",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "approve",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "approve",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "approve",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/timeline",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "approve",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/lifecycle",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "approve",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    }
+  ],
+  "new request": [
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/ui-config",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/actuator/info",
+      "query": "",
+      "status": 200,
+      "ms": 2
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/userinfo",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/notifications",
+      "query": "?page=0&size=10",
+      "status": 200,
+      "ms": 11
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/negotiations",
+      "query": "?role=author&status=DRAFT&page=0",
+      "status": 200,
+      "ms": 9
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/requests/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/requests/{id}/access-form",
+      "query": "",
+      "status": 200,
+      "ms": 8
+    },
+    {
+      "step": "open handover link",
+      "method": "POST",
+      "path": "/api/v3/negotiations",
+      "query": "",
+      "status": 201,
+      "ms": 12
+    },
+    {
+      "step": "open handover link",
+      "method": "GET",
+      "path": "/api/v3/discovery-services",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "walk through form",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/negotiations",
+      "query": "?role=author&status=DRAFT&page=0",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "walk through form",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 8
+    },
+    {
+      "step": "walk through form",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 6
+    },
+    {
+      "step": "walk through form",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/access-form",
+      "query": "",
+      "status": 200,
+      "ms": 7
+    },
+    {
+      "step": "walk through form",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/attachments",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "walk through form",
+      "method": "GET",
+      "path": "/api/v3/discovery-services",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "walk through form",
+      "method": "PATCH",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 9
+    },
+    {
+      "step": "walk through form",
+      "method": "PATCH",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 10
+    },
+    {
+      "step": "walk through form",
+      "method": "PATCH",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 9
+    },
+    {
+      "step": "submit",
+      "method": "PATCH",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 9
+    },
+    {
+      "step": "submit",
+      "method": "PATCH",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "submit",
+      "method": "PUT",
+      "path": "/api/v3/negotiations/{id}/lifecycle/SUBMIT",
+      "query": "",
+      "status": 200,
+      "ms": 18
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/attachments",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/posts",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/users/{id}/resources",
+      "query": "",
+      "status": 200,
+      "ms": 5
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/lifecycle",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/resource-lifecycle/states",
+      "query": "",
+      "status": 200,
+      "ms": 3
+    },
+    {
+      "step": "submit",
+      "method": "GET",
+      "path": "/api/v3/negotiations/{id}/timeline",
+      "query": "",
+      "status": 200,
+      "ms": 4
+    }
+  ]
+}
