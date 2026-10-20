@@ -10,6 +10,9 @@ HELP.md
 frontend/node_modules
 frontend/dist
 frontend/cypress/screenshots
+frontend/e2e/.auth
+frontend/playwright-report
+frontend/test-results
 backend/target
 
 ### STS ###
