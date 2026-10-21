@@ -31,4 +31,4 @@ logging:
     org.springframework.security: info
     eu.bbmri_eric.negotiator: info
 negotiator:
-  emailLogo: "https://web.bbmri-eric.eu/Negotiator/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png"
+  emailLogo: "${negotiator.frontend-url}/default/negotiaor-email-logo.png"
