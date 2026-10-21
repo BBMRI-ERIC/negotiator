@@ -18,6 +18,8 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
   private static final String CONTENT_TYPE_TIKA_OOXML = "application/x-tika-ooxml";
   private static final String CONTENT_TYPE_DOC = "application/msword";
   private static final String CONTENT_TYPE_TIKA_MSOFFICE = "application/x-tika-msoffice";
+  private static final String CONTENT_TYPE_TIKA_XLSX =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
   private final AttachmentService attachmentService;
 
@@ -117,6 +119,7 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
       }
       case CONTENT_TYPE_DOCX, CONTENT_TYPE_TIKA_OOXML -> new DocxConverter();
       case CONTENT_TYPE_DOC, CONTENT_TYPE_TIKA_MSOFFICE -> new DocConverter();
+      case CONTENT_TYPE_TIKA_XLSX -> new XlsxConverter();
       default -> {
         throw new IllegalArgumentException("Unsupported content type");
       }
