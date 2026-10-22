@@ -25,7 +25,7 @@ This file is a Thymeleaf HTML template used to generate the footer of an email, 
 
     <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e9ecef;">
         <p style="font-size: 12px; color: #adb5bd; margin: 0; font-family: Arial, Helvetica, sans-serif;">
-            © 2025 BBMRI-ERIC Negotiator
+            © <span th:text="${year}"></span> BBMRI-ERIC Negotiator
         </p>
     </div>
 </div>

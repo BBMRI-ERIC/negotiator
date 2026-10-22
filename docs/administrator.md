@@ -93,12 +93,14 @@ Below is a table of all available variables for the email template:
 | emailYoursSincerelyText | The closing "Yours sincerely" text used in the email footer   |
 | emailHelpdeskHref       | The URL (href) for the helpdesk or support                    |
 | logoUrl                 | The URL to the logo displayed in the email                    |
+| year                    | The current year from the server clock at rendering time     |
 
 Below is a table of all available variables for the PDF template:
 
 | Variable Name           | Description                                                        |
 |-------------------------|--------------------------------------------------------------------|
 | now                     | The current timestamp                                              |
+| year                    | The current year from the server clock at rendering time          |
 | logoUrl                 | The URL to the logo displayed in the document                      |
 | authorName              | The name of the user who created the negotiation                   |
 | authorEmail             | The email address of the negotiation's creator                     |
