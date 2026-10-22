@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.template.TemplateService;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -46,6 +47,7 @@ public class PdfContextBuilder {
       // If you add or modify them mention it in the documentation.
       Map<String, Object> variables = new HashMap<>();
       variables.put("now", LocalDateTime.now().format(DTF));
+      variables.put("year", Year.now().getValue());
       variables.put("logoUrl", logoURL);
       variables.put("authorName", negotiation.getCreatedBy().getName());
       variables.put("authorEmail", negotiation.getCreatedBy().getEmail());
