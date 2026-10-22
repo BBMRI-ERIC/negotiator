@@ -138,8 +138,8 @@ const router = createRouter({
           component: EmailNotificationsSection,
         },
         {
-          path: 'email-templates',
-          name: 'admin-email-templates',
+          path: 'templates',
+          name: 'admin-templates',
           component: TemplateSection,
         },
         {

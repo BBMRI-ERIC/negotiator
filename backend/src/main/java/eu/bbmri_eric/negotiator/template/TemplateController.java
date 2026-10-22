@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/v3")
 @CommonsLog
-@Tag(name = "Email Templates", description = "Retrieve and update templates")
+@Tag(name = "Templates", description = "Manage templates for email notifications and PDF exports")
 @SecurityRequirement(name = "security_auth")
 public class TemplateController {
 
@@ -25,29 +25,26 @@ public class TemplateController {
 
   @GetMapping("/templates")
   @Operation(
-      summary = "Get all notification templates",
-      description = "Get all notification templates")
+      summary = "Get all templates",
+      description = "Get all templates for email notifications and PDF exports")
   @ResponseStatus(HttpStatus.OK)
-  public List<String> getAllNotificationTemplates() {
+  public List<String> getAllTemplates() {
     return templateService.getAll();
   }
 
   @GetMapping(value = "/templates/{templateName}", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
-  @Operation(
-      summary = "Get a notification template",
-      description = "Get a notification template by name")
+  @Operation(summary = "Get a template", description = "Get a template by name")
   @ResponseStatus(HttpStatus.OK)
-  public String getNotificationTemplate(@PathVariable String templateName) {
+  public String getTemplate(@PathVariable String templateName) {
     return templateService.getByName(templateName);
   }
 
   @PutMapping(value = "/templates/{templateName}", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
   @Operation(
-      summary = "Update a notification template",
-      description = "Update the content of a notification template by name")
+      summary = "Update a template",
+      description = "Update the content of a template by name")
   @ResponseStatus(HttpStatus.OK)
-  public String updateNotificationTemplate(
-      @PathVariable String templateName, @RequestBody String template) {
+  public String updateTemplate(@PathVariable String templateName, @RequestBody String template) {
     return templateService.updateTemplate(templateName, template);
   }
 
@@ -55,11 +52,9 @@ public class TemplateController {
       value = "/templates/{templateName}/operations",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_XHTML_XML_VALUE)
-  @Operation(
-      summary = "Reset a notification template",
-      description = "Reset a notification template to the default content")
+  @Operation(summary = "Reset a template", description = "Reset a template to the default content")
   @ResponseStatus(HttpStatus.OK)
-  public String resetNotificationTemplate(
+  public String resetTemplate(
       @PathVariable String templateName, @RequestBody TemplateOperationRequest request) {
 
     if (request.getOperation() == TemplateOperationRequest.Operation.RESET) {
