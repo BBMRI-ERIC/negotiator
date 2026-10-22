@@ -66,21 +66,25 @@ For setup and technical details, see [Managing webhooks](/webhooks#managing-webh
 
 ## Templates
 
-The Negotiator provides a set of customizable templates used for generating PDFs, emails, and more. Admin users can
-update or reset these templates via the UI in Admin Settings → Templates.
+The Negotiator provides customizable templates for email notifications and PDF exports. Admin users can
+edit or reset these templates via **Administrator Console → Templates** (`/settings/templates`).
 
 Templates are written in HTML using [Thymeleaf](https://www.thymeleaf.org/) syntax, allowing dynamic content through
 expressions, conditionals, and loops.
 
+To customize a template, select **Edit Template**, modify its HTML, and choose **Update Template**.
+Keep the expressions needed for dynamic content. Changes apply to subsequently generated emails and PDFs.
+Templates can include shared fragments, so editing a fragment may affect multiple outputs.
+Email and PDF logo URLs can be configured independently; see [Deployment configuration](/deployment#custom-properties-for-the-backend-docker-container).
+
 > [!NOTE]
-> If you customize a template, it will not be automatically updated when a new version of Negotiator is released. This
-> ensures your customizations are preserved during upgrades.
-> To restore a template to the latest official version, use the Reset option.
+> Customized templates are preserved during upgrades. Unmodified templates receive updated defaults
+> at application startup. Use **Reset Template** to restore the current bundled default.
 
 > [!WARNING]
 > Resetting a template will remove all your customizations for that template.
 
-Below is a table of all available variables for the email template:
+### Email template variables
 
 | Variable Name           | Description                                                   |
 |-------------------------|---------------------------------------------------------------|
@@ -95,7 +99,7 @@ Below is a table of all available variables for the email template:
 | logoUrl                 | The URL to the logo displayed in the email                    |
 | year                    | The current year from the server clock at rendering time     |
 
-Below is a table of all available variables for the PDF template:
+### PDF template variables
 
 | Variable Name           | Description                                                        |
 |-------------------------|--------------------------------------------------------------------|

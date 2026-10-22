@@ -6,14 +6,14 @@ import java.util.Map;
 public interface TemplateService {
 
   /**
-   * Get all notification templates.
+   * Get all templates for email notifications and PDF exports.
    *
    * @return the templates.
    */
   List<String> getAll();
 
   /**
-   * Get a notification template.
+   * Get a template.
    *
    * @param templateName the name of the template.
    * @return the template.
@@ -21,7 +21,7 @@ public interface TemplateService {
   String getByName(String templateName);
 
   /**
-   * Update a notification template.
+   * Update a template.
    *
    * @param templateName the name of the template.
    * @param template the new template.
@@ -29,7 +29,7 @@ public interface TemplateService {
   String updateTemplate(String templateName, String template);
 
   /**
-   * Reset a notification template.
+   * Reset a template.
    *
    * @param templateName the name of the template.
    */

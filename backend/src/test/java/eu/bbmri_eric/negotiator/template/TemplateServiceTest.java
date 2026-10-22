@@ -338,10 +338,14 @@ public class TemplateServiceTest {
   void copyright_shouldRenderProvidedYear(String templateName) {
     Map<String, Object> variables =
         Map.of(
-            "year", 2099,
-            "logoUrl", "https://example.org/logo.png",
-            "negotiationPayload", Map.of(),
-            "resourcesByOrganization", Map.of());
+            "year",
+            2099,
+            "logoUrl",
+            "https://example.org/logo.png",
+            "negotiationPayload",
+            Map.of(),
+            "resourcesByOrganization",
+            Map.of());
 
     String result = templateService.processTemplate(variables, templateName);
 
