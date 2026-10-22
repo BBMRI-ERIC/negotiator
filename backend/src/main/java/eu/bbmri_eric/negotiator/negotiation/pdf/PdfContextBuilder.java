@@ -28,7 +28,7 @@ public class PdfContextBuilder {
   private final ObjectMapper objectMapper;
   private final TemplateService templateService;
 
-  @Value("${negotiator.emailLogo}")
+  @Value("${negotiator.exportLogo}")
   private String logoURL;
 
   public PdfContextBuilder(ObjectMapper objectMapper, TemplateService templateService) {

@@ -30,5 +30,3 @@ logging:
     org.springframeworf.web: info
     org.springframework.security: info
     eu.bbmri_eric.negotiator: info
-negotiator:
-  emailLogo: "${negotiator.frontend-url}/default/negotiaor-email-logo.png"
