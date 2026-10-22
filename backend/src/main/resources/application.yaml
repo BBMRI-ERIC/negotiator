@@ -97,6 +97,7 @@ negotiator:
   emailYoursSincerelyText: "The BBMRI-ERIC Team"
   emailHelpdeskHref: "mailto:negotiator@helpdesk.bbmri-eric.eu"
   emailLogo: "${negotiator.frontend-url}/default/negotiator-email-logo.png"
+  exportLogo: "${negotiator.frontend-url}/default/negotiator-export-logo.png"
   pdfFont: "/fonts/OpenSans.ttf"
   authorization:
     claim: "eduperson_entitlement"

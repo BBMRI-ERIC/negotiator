@@ -307,6 +307,30 @@ public class TemplateServiceTest {
   }
 
   @Test
+  @DisplayName("PDF summary should pass its export logo URL to the shared logo template")
+  void pdfSummary_shouldRenderProvidedExportLogo() {
+    Map<String, Object> variables =
+        Map.of(
+            "logoUrl", "https://example.org/export-logo.png",
+            "negotiationPayload", Map.of(),
+            "resourcesByOrganization", Map.of());
+
+    String result = templateService.processTemplate(variables, "PDF_NEGOTIATION_SUMMARY");
+
+    assertThat(result).contains("src=\"https://example.org/export-logo.png\"");
+  }
+
+  @Test
+  @DisplayName("Email logo should render its configured image URL")
+  void emailLogo_shouldRenderProvidedEmailLogo() {
+    String result =
+        templateService.processTemplate(
+            Map.of("logoUrl", "https://example.org/email-logo.png"), "LOGO");
+
+    assertThat(result).contains("src=\"https://example.org/email-logo.png\"");
+  }
+
+  @Test
   @DisplayName("Update template should not remove allowed elements")
   void updateTemplate_notSanitized() {
     templateService.resetTemplate("EMAIL");

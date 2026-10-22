@@ -56,7 +56,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   @Value("${negotiator.pdfFont}")
   private String fontPath;
 
-  @Value("${negotiator.emailLogo}")
+  @Value("${negotiator.exportLogo}")
   private String logoURL;
 
   public NegotiationPdfServiceImpl(
