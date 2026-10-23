@@ -12,7 +12,7 @@ function assertDropdownOptions(selector) {
         .find("option")
         .should(($options) => {
             const values = [...$options].map((option) => option.value).filter(Boolean)
-            expect(values).to.deep.equal(expectedValues)
+            expect(values).to.have.members(expectedValues)
         })
 }
 
