@@ -21,6 +21,7 @@
       <button
         :class="activeNavItemIndex < navItemsLength + 1 > 0 ? '' : 'disabled'"
         class="btn btn-outline-primary"
+        data-test="form-navigation-next-button"
         @click="nextTab"
       >
         Next <i class="bi bi-chevron-right"></i>
