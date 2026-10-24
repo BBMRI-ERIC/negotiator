@@ -23,6 +23,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -56,7 +57,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   @Value("${negotiator.pdfFont}")
   private String fontPath;
 
-  @Value("${negotiator.emailLogo}")
+  @Value("${negotiator.exportLogo}")
   private String logoURL;
 
   public NegotiationPdfServiceImpl(
@@ -163,6 +164,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     Context context = new Context();
     try {
       context.setVariable("now", LocalDateTime.now().format(DTF));
+      context.setVariable("year", Year.now().getValue());
       context.setVariable("logoUrl", logoURL);
       context.setVariable("authorName", negotiation.getCreatedBy().getName());
       context.setVariable("authorEmail", negotiation.getCreatedBy().getEmail());

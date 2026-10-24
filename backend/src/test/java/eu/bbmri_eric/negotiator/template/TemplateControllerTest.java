@@ -13,6 +13,8 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -62,7 +64,7 @@ class TemplateControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void getAllNotificationTemplates_returnsTemplateList() throws Exception {
+  void getAllTemplates_returnsEmailAndPdfTemplates() throws Exception {
     createTestTemplates();
 
     mockMvc
@@ -73,12 +75,12 @@ class TemplateControllerTest {
         .andExpect(jsonPath("$.length()").value(3))
         .andExpect(jsonPath("$[0]").value("email_body"))
         .andExpect(jsonPath("$[1]").value("email_footer"))
-        .andExpect(jsonPath("$[2]").value("email_logo"));
+        .andExpect(jsonPath("$[2]").value("PDF_NEGOTIATION_SUMMARY"));
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void getAllNotificationTemplates_whenNoTemplates_returnsEmptyList() throws Exception {
+  void getAllTemplates_whenNoTemplates_returnsEmptyList() throws Exception {
     mockMvc
         .perform(get(TEMPLATES_ENDPOINT))
         .andExpect(status().isOk())
@@ -87,15 +89,16 @@ class TemplateControllerTest {
         .andExpect(jsonPath("$.length()").value(0));
   }
 
-  @Test
+  @ParameterizedTest
+  @ValueSource(strings = {"EMAIL", "PDF_NEGOTIATION_SUMMARY"})
   @WithMockUser(roles = "ADMIN")
-  void getNotificationTemplate_whenTemplateExists_returnsTemplateContent() throws Exception {
+  void getTemplate_whenTemplateExists_returnsTemplateContent(String templateName) throws Exception {
     var templateContent = "<html><body>Test template</body></html>";
-    var template = Template.builder().name("email_body").content(templateContent).build();
+    var template = Template.builder().name(templateName).content(templateContent).build();
     templateRepository.save(template);
 
     mockMvc
-        .perform(get(TEMPLATES_ENDPOINT + "/email_body"))
+        .perform(get(TEMPLATES_ENDPOINT + "/" + templateName))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/xhtml+xml;charset=UTF-8"))
         .andExpect(content().string(templateContent));
@@ -103,7 +106,7 @@ class TemplateControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void getNotificationTemplate_whenTemplateNotFound_returnsEmptyString() throws Exception {
+  void getTemplate_whenTemplateNotFound_returnsEmptyString() throws Exception {
     mockMvc
         .perform(get(TEMPLATES_ENDPOINT + "/nonexistent"))
         .andExpect(status().isOk())
@@ -113,7 +116,7 @@ class TemplateControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void updateNotificationTemplate_withValidContent_returnsUpdatedContent() throws Exception {
+  void updateTemplate_withValidContent_returnsUpdatedContent() throws Exception {
     var originalContent = "<html><body>Original template</body></html>";
     var newContent = "<html><body>Updated template</body></html>";
     var template = Template.builder().name("email_body").content(originalContent).build();
@@ -135,7 +138,7 @@ class TemplateControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void updateNotificationTemplate_createsNewTemplate_whenNotExists() throws Exception {
+  void updateTemplate_createsNewTemplate_whenNotExists() throws Exception {
     var newContent = "<html><body>New template</body></html>";
     mockMvc
         .perform(
@@ -145,11 +148,13 @@ class TemplateControllerTest {
         .andExpect(status().isBadRequest());
   }
 
-  @Test
+  @ParameterizedTest
+  @ValueSource(strings = {"EMAIL", "PDF_NEGOTIATION_SUMMARY"})
   @WithMockUser(roles = "ADMIN")
-  void resetNotificationTemplate_withResetOperation_returnsOriginalContent() throws Exception {
+  void resetTemplate_withResetOperation_returnsOriginalContent(String templateName)
+      throws Exception {
     var modifiedContent = "<html><body>Modified template</body></html>";
-    var template = Template.builder().name("email").content(modifiedContent).build();
+    var template = Template.builder().name(templateName).content(modifiedContent).build();
     templateRepository.save(template);
 
     var request = new TemplateOperationRequest();
@@ -157,20 +162,20 @@ class TemplateControllerTest {
 
     mockMvc
         .perform(
-            post(TEMPLATES_ENDPOINT + "/email/operations")
+            post(TEMPLATES_ENDPOINT + "/" + templateName + "/operations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/xhtml+xml;charset=UTF-8"));
 
-    var resetTemplate = templateRepository.findByName("email");
+    var resetTemplate = templateRepository.findByName(templateName);
     assertTrue(resetTemplate.isPresent());
     assertNotEquals(modifiedContent, resetTemplate.get().getContent());
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void resetNotificationTemplate_wrongName_throws400() throws Exception {
+  void resetTemplate_wrongName_throws400() throws Exception {
     var modifiedContent = "<html><body>Modified template</body></html>";
     var template = Template.builder().name("email").content(modifiedContent).build();
     templateRepository.save(template);
@@ -188,7 +193,7 @@ class TemplateControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  void resetNotificationTemplate_withInvalidOperation_returnsBadRequest() throws Exception {
+  void resetTemplate_withInvalidOperation_returnsBadRequest() throws Exception {
     var template =
         Template.builder().name("email_body").content("<html><body>Test</body></html>").build();
     templateRepository.save(template);
@@ -205,12 +210,12 @@ class TemplateControllerTest {
   }
 
   @Test
-  void getAllNotificationTemplates_withoutAuthentication_returnsUnauthorized() throws Exception {
+  void getAllTemplates_withoutAuthentication_returnsUnauthorized() throws Exception {
     mockMvc.perform(get(TEMPLATES_ENDPOINT)).andExpect(status().isUnauthorized());
   }
 
   @Test
-  void updateNotificationTemplate_withoutAuthentication_returnsUnauthorized() throws Exception {
+  void updateTemplate_withoutAuthentication_returnsUnauthorized() throws Exception {
     mockMvc
         .perform(
             put(TEMPLATES_ENDPOINT + "/email_body")
@@ -220,7 +225,7 @@ class TemplateControllerTest {
   }
 
   @Test
-  void resetNotificationTemplate_withoutAuthentication_returnsUnauthorized() throws Exception {
+  void resetTemplate_withoutAuthentication_returnsUnauthorized() throws Exception {
     var request = new TemplateOperationRequest();
     request.setOperation(TemplateOperationRequest.Operation.RESET);
 
@@ -245,8 +250,8 @@ class TemplateControllerTest {
             .build();
     var template3 =
         Template.builder()
-            .name("email_logo")
-            .content("<html><body>Logo template</body></html>")
+            .name("PDF_NEGOTIATION_SUMMARY")
+            .content("<html><body>PDF summary template</body></html>")
             .build();
 
     templateRepository.save(template1);

@@ -45,8 +45,8 @@ SPRING_MAIL_PASSWORD="pass"
 
 ### Email Templates
 
-Email templates use [Thymeleaf](https://www.thymeleaf.org/) as the template engine for dynamic content.
-Templates can be managed through the negotiator's admin interface.
+For email template customization and available variables, see
+[Templates in the Administrator Guide](/administrator#templates).
 
 ## Developer Guide: Extending the Notification System
 

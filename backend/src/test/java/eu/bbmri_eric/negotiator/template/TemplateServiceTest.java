@@ -13,6 +13,8 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -304,6 +306,50 @@ public class TemplateServiceTest {
     assertThat(result).contains("<div>Hello</div>");
     assertThat(result).doesNotContain("<script>");
     assertThat(result).doesNotContain("alert('xss')");
+  }
+
+  @Test
+  @DisplayName("PDF summary should pass its export logo URL to the shared logo template")
+  void pdfSummary_shouldRenderProvidedExportLogo() {
+    Map<String, Object> variables =
+        Map.of(
+            "logoUrl", "https://example.org/export-logo.png",
+            "negotiationPayload", Map.of(),
+            "resourcesByOrganization", Map.of());
+
+    String result = templateService.processTemplate(variables, "PDF_NEGOTIATION_SUMMARY");
+
+    assertThat(result).contains("src=\"https://example.org/export-logo.png\"");
+  }
+
+  @Test
+  @DisplayName("Email logo should render its configured image URL")
+  void emailLogo_shouldRenderProvidedEmailLogo() {
+    String result =
+        templateService.processTemplate(
+            Map.of("logoUrl", "https://example.org/email-logo.png"), "LOGO");
+
+    assertThat(result).contains("src=\"https://example.org/email-logo.png\"");
+  }
+
+  @DisplayName("Copyright notices should render the supplied year")
+  @ParameterizedTest
+  @ValueSource(strings = {"EMAIL_FOOTER", "PDF_NEGOTIATION_SUMMARY"})
+  void copyright_shouldRenderProvidedYear(String templateName) {
+    Map<String, Object> variables =
+        Map.of(
+            "year",
+            2099,
+            "logoUrl",
+            "https://example.org/logo.png",
+            "negotiationPayload",
+            Map.of(),
+            "resourcesByOrganization",
+            Map.of());
+
+    String result = templateService.processTemplate(variables, templateName);
+
+    assertThat(result).contains("\u00a9 <span>2099</span> BBMRI-ERIC");
   }
 
   @Test
