@@ -142,6 +142,23 @@ public class PostControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
+  @Transactional
+  public void testCreatePost_networkManagerAuthor_getsNetworkManagerTag() throws Exception {
+    String requestBody = "{\"text\":\"message from network manager\",\"type\":\"PUBLIC\"}";
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.text", is("message from network manager")))
+        .andExpect(jsonPath("$.tags[*].key", hasItem("network-manager")));
+  }
+
+  @Test
   @WithUserDetails("TheResearcher")
   @Transactional
   public void testUpdatePost_ignoresTagsInBody_andReturnsComputedTags() throws Exception {
