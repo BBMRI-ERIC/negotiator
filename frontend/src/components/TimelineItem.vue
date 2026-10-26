@@ -32,14 +32,14 @@
             <div class="mb-2">
               <span>
                 <UiBadge
-                  v-for="badge in getUserBadges(item)"
-                  :key="badge"
+                  v-for="tag in item.tags"
+                  :key="tag.key"
                   :class="'rounded-pill'"
                   :style="{ backgroundColor: uiConfiguration.primaryTextColor }"
-                  :title="getBadgeTooltip(badge)"
+                  :title="tag.description"
                   data-bs-toggle="tooltip"
                 >
-                  {{ badge }}
+                  {{ tag.name }}
                 </UiBadge>
               </span>
             </div>
@@ -89,7 +89,7 @@ const props = defineProps({
   item: {
     type: Object,
     required: true,
-    default: () => ({ type: '', text: '', createdBy: { name: '' }, timestamp: '' }),
+    default: () => ({ type: '', text: '', createdBy: { name: '' }, timestamp: '', tags: [] }),
   },
   uiConfiguration: {
     type: Object,
@@ -127,33 +127,6 @@ function getChannelName(item) {
   } else {
     return 'Public channel'
   }
-}
-
-function getUserBadges(item) {
-  const badges = []
-  if (item.createdBy?.representativeOfAnyResource === true) {
-    badges.push('Representative')
-  }
-  if (item.createdBy?.id === props.negotiation.author?.id) {
-    badges.push('Author')
-  }
-  if (item.createdBy?.admin === true) {
-    badges.push('Admin')
-  }
-  if (item.createdBy?.networkManager === true) {
-    badges.push('NetworkManager')
-  }
-  return badges
-}
-
-function getBadgeTooltip(badge) {
-  const badgeTooltips = {
-    Admin: 'Negotiator Administrator',
-    Author: 'Author of this Request',
-    Representative: 'Representative of a resource',
-    NetworkManager: 'Manager of a Network responsible for moderating requests',
-  }
-  return badgeTooltips[badge] || 'Badge details'
 }
 
 function formatText(text) {
