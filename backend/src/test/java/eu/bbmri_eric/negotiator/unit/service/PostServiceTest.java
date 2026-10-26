@@ -14,6 +14,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -757,6 +758,27 @@ public class PostServiceTest {
     assertEquals(2, posts.size());
     assertEquals(posts.getFirst().getTags(), posts.get(1).getTags());
     assertTrue(hasTag(posts.getFirst(), "author"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findByNegotiationId_tagsNetworkManager() {
+    Network network = Network.builder().id(1L).externalId("network:1").name("Network 1").build();
+    network.addManager(biobanker1);
+    Post post =
+        TestUtils.createPost(negotiation, biobanker1, organization1, "network manager post", PostType.PUBLIC);
+    when(postRepository.findByNegotiationId(NEG_1)).thenReturn(List.of(post));
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
+
+    List<PostDTO> posts = postService.findByNegotiationId(NEG_1);
+
+    assertEquals(1, posts.size());
+    assertTrue(hasTag(posts.getFirst(), "network-manager"));
+    assertFalse(hasTag(posts.getFirst(), "author"));
   }
 
   private static boolean hasTag(PostDTO post, String key) {
