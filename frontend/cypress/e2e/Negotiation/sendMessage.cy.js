@@ -26,7 +26,7 @@ describe("Test negotiation message", () => {
             cy.get("[resources=\"[object Object]\"] > :nth-child(1)").should("be.visible")
             // Send message section
             cy.get(".mb-4 > .mb-3").type("Hi i want to test message functionality, have a great day.")
-            cy.get("#recipient").select("Public channel")
+            cy.get("#recipient").select("Request-wide")
             cy.get('#send').click()
         })
     })
