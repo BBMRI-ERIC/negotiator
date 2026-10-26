@@ -6,7 +6,8 @@ insert into person (id, email, name, subject_id, password, organization, admin)
 values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false),
        (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false),
        (3, 'for-backwards-compatability', 'directory', '',
-        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, false)
+        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, false),
+       (4, 'alice.administrator@gmail.com', 'TheAdministrator', '1002@bbmri.eu', null, 'BBMRI', true)
 on conflict do nothing;
 
 insert into organization (ID, external_id, name)
