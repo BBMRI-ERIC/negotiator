@@ -17,7 +17,10 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -93,7 +96,9 @@ public class PostServiceImpl implements PostService {
             negotiationId,
             postEntity.getCreatedBy().getId(),
             postEntity.getOrganization() != null ? postEntity.getOrganization().getId() : null));
-    return modelMapper.map(postEntity, PostDTO.class);
+    PostDTO postDTO = modelMapper.map(postEntity, PostDTO.class);
+    postDTO.setTags(toDTOs(computeTags(postEntity.getCreatedBy(), negotiation)));
+    return postDTO;
   }
 
   private void checkAuthorization(
@@ -115,9 +120,7 @@ public class PostServiceImpl implements PostService {
   @Override
   @Transactional
   public PostDTO findById(String negotiationId, String id) {
-    if (!negotiationRepository.existsById(negotiationId)) {
-      throw new EntityNotFoundException(negotiationId);
-    }
+    Negotiation negotiation = getNegotiation(negotiationId);
     Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     verifyReadAccess(negotiationId);
     if (!post.isPublic() && !negotiationService.isNegotiationEditor(negotiationId)) {
@@ -130,7 +133,9 @@ public class PostServiceImpl implements PostService {
         throw new ForbiddenRequestException("You are not authorized to read this post");
       }
     }
-    return modelMapper.map(post, PostDTO.class);
+    PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+    postDTO.setTags(toDTOs(computeTags(post.getCreatedBy(), negotiation)));
+    return postDTO;
   }
 
   @NonNull
@@ -166,9 +171,7 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findByNegotiationId(String negotiationId) {
-    if (!negotiationRepository.existsById(negotiationId)) {
-      throw new EntityNotFoundException(negotiationId);
-    }
+    Negotiation negotiation = getNegotiation(negotiationId);
     verifyReadAccess(negotiationId);
     List<Post> allNegotiationPosts = postRepository.findByNegotiationId(negotiationId);
     List<Post> readablePosts = getReadablePosts(allNegotiationPosts);
@@ -177,18 +180,50 @@ public class PostServiceImpl implements PostService {
     } else {
       addUserAccessiblePosts(allNegotiationPosts, readablePosts);
     }
-    return sortedPosts(readablePosts);
+    return sortedPosts(readablePosts, negotiation);
   }
 
-  private @NotNull List<PostDTO> sortedPosts(List<Post> readablePosts) {
+  private @NotNull List<PostDTO> sortedPosts(List<Post> readablePosts, Negotiation negotiation) {
     try {
       readablePosts.sort(Comparator.comparing(Post::getCreationDate));
     } catch (NullPointerException e) {
       log.warn("Error sorting posts");
     }
+    Map<String, Set<PostTag>> tagsByUserId = new HashMap<>();
     return readablePosts.stream()
-        .map(post -> modelMapper.map(post, PostDTO.class))
+        .map(
+            post -> {
+              PostDTO dto = modelMapper.map(post, PostDTO.class);
+              Set<PostTag> tags =
+                  tagsByUserId.computeIfAbsent(
+                      post.getCreatedBy().getId().toString(),
+                      userId -> computeTags(post.getCreatedBy(), negotiation));
+              dto.setTags(toDTOs(tags));
+              return dto;
+            })
         .collect(Collectors.toList());
+  }
+
+  private Set<PostTag> computeTags(Person author, Negotiation negotiation) {
+    Set<PostTag> tags = EnumSet.noneOf(PostTag.class);
+    if (negotiation.getCreatedBy() != null
+        && author.getId().equals(negotiation.getCreatedBy().getId())) {
+      tags.add(PostTag.AUTHOR);
+    }
+    if (author.getResources() != null && !author.getResources().isEmpty()) {
+      tags.add(PostTag.REPRESENTATIVE);
+    }
+    if (author.isAdmin()) {
+      tags.add(PostTag.ADMIN);
+    }
+    if (author.getNetworks() != null && !author.getNetworks().isEmpty()) {
+      tags.add(PostTag.NETWORK_MANAGER);
+    }
+    return tags;
+  }
+
+  private List<PostTagDTO> toDTOs(Set<PostTag> tags) {
+    return tags.stream().map(PostTag::toDTO).toList();
   }
 
   private void verifyReadAccess(String negotiationId) {
@@ -238,9 +273,12 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
+    Negotiation negotiation = getNegotiation(negotiationId);
     Post post = postRepository.findByIdAndNegotiationId(messageId, negotiationId);
     post.setText(request.getText());
     Post updatedPost = postRepository.save(post);
-    return modelMapper.map(updatedPost, PostDTO.class);
+    PostDTO postDTO = modelMapper.map(updatedPost, PostDTO.class);
+    postDTO.setTags(toDTOs(computeTags(updatedPost.getCreatedBy(), negotiation)));
+    return postDTO;
   }
 }

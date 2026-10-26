@@ -3,6 +3,8 @@ package eu.bbmri_eric.negotiator.post;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,4 +30,6 @@ public class PostDTO {
   private String organizationId;
 
   private PostType type = PostType.PUBLIC;
+
+  @Builder.Default private List<PostTagDTO> tags = new ArrayList<>();
 }
