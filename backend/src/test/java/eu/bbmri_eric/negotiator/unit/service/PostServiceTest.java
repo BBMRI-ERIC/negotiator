@@ -770,7 +770,8 @@ public class PostServiceTest {
     Network network = Network.builder().id(1L).externalId("network:1").name("Network 1").build();
     network.addManager(biobanker1);
     Post post =
-        TestUtils.createPost(negotiation, biobanker1, organization1, "network manager post", PostType.PUBLIC);
+        TestUtils.createPost(
+            negotiation, biobanker1, organization1, "network manager post", PostType.PUBLIC);
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(List.of(post));
     when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
 
