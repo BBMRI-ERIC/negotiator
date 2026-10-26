@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,7 +80,9 @@ public class PostControllerTests {
         .perform(get(NEGOTIATION_POSTS_URL.formatted(NEGOTIATION_1_ID)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON))
-        .andExpect(jsonPath("$._embedded.posts.length()", is(count)));
+        .andExpect(jsonPath("$._embedded.posts.length()", is(count)))
+        .andExpect(jsonPath("$._embedded.posts[0].tags").exists())
+        .andExpect(jsonPath("$._embedded.posts[*].tags[*].key", hasItem("author")));
   }
 
   @Test
@@ -116,6 +119,49 @@ public class PostControllerTests {
     Optional<Post> post = postRepository.findById(postId);
     assert post.isPresent();
     assertEquals("TheResearcher", post.get().getCreatedBy().getName());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void testCreatePost_ignoresTagsInBody_andReturnsComputedTags() throws Exception {
+    String requestBody =
+        "{\"text\":\"message\",\"type\":\"PUBLIC\","
+            + "\"tags\":[{\"key\":\"admin\",\"name\":\"Admin\",\"description\":\"spoofed\"}]}";
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.text", is("message")))
+        .andExpect(jsonPath("$.tags[*].key", hasItem("author")))
+        .andExpect(jsonPath("$.tags[?(@.key == 'admin')]").isEmpty());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void testUpdatePost_ignoresTagsInBody_andReturnsComputedTags() throws Exception {
+    String requestBody =
+        "{\"text\":\"edited message\",\"type\":\"PUBLIC\","
+            + "\"tags\":[{\"key\":\"admin\",\"name\":\"Admin\",\"description\":\"spoofed\"}]}";
+    String uri =
+        String.format(
+            "%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_1_RESEARCHER_ID);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(POST_1_RESEARCHER_ID))
+        .andExpect(jsonPath("$.text", is("edited message")))
+        .andExpect(jsonPath("$.tags[*].key", hasItem("author")))
+        .andExpect(jsonPath("$.tags[?(@.key == 'admin')]").isEmpty());
   }
 
   @Test
@@ -249,7 +295,8 @@ public class PostControllerTests {
         .andExpect(jsonPath("$.text").value("post-1-researcher-message"))
         .andExpect(jsonPath("$.type").value(PostType.PUBLIC.toString()))
         .andExpect(jsonPath("$.organizationId").doesNotExist())
-        .andExpect(jsonPath("$.createdBy.name").value("TheResearcher"));
+        .andExpect(jsonPath("$.createdBy.name").value("TheResearcher"))
+        .andExpect(jsonPath("$.tags[*].key", hasItem("author")));
   }
 
   @Test
