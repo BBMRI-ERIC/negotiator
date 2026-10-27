@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum PostTag {
   AUTHOR("author", "Author", "Author of this Request"),
-  REPRESENTATIVE("is-representative", "Representative", "Representative of a resource"),
+  REPRESENTATIVE("representative", "Representative", "Representative of a resource"),
   ADMIN("admin", "Admin", "Negotiator Administrator"),
   NETWORK_MANAGER(
       "network-manager",
