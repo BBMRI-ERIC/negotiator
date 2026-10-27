@@ -1432,8 +1432,12 @@ public class NegotiationControllerTests {
                         .writeValueAsString(
                             new UpdateResourcesDTO(
                                 resources.stream().map(Resource::getId).toList()))))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size() + count)));
+        .andExpect(status().isNoContent());
+
+    entityManager.clear();
+    Negotiation updatedNegotiation =
+        negotiationRepository.findById(negotiation.getId()).orElseThrow();
+    assertEquals(resources.size() + count, updatedNegotiation.getResources().size());
   }
 
   @Test
@@ -1442,25 +1446,28 @@ public class NegotiationControllerTests {
   void addResources_correctPayload_resourcesAddedAndWithStatus() throws Exception {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     List<Resource> resources = resourceRepository.findAll();
-    MvcResult result =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch(
-                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        new ObjectMapper()
-                            .writeValueAsString(
-                                new UpdateResourcesDTO(
-                                    resources.stream().map(Resource::getId).toList()))))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size())))
-            .andReturn();
-    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
-    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
-    for (JsonNode resourceAsJson : resourcesAsJson) {
-      assertNotNull(resourceAsJson.get("currentState"));
-    }
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    new ObjectMapper()
+                        .writeValueAsString(
+                            new UpdateResourcesDTO(
+                                resources.stream().map(Resource::getId).toList()))))
+        .andExpect(status().isNoContent());
+
+    entityManager.clear();
+    Negotiation updatedNegotiation =
+        negotiationRepository.findById(negotiation.getId()).orElseThrow();
+    assertEquals(resources.size(), updatedNegotiation.getResources().size());
+    updatedNegotiation
+        .getResources()
+        .forEach(
+            resource ->
+                assertNotNull(
+                    updatedNegotiation.getCurrentStateForResource(resource.getSourceId())));
   }
 
   @Test
@@ -1468,33 +1475,30 @@ public class NegotiationControllerTests {
   @Transactional
   void addResources_resourcesAlreadyPresent_noChange() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
+    Resource markedResource = negotiation.getResources().iterator().next();
     negotiation.setStateForResource(
-        negotiation.getResources().iterator().next().getSourceId(),
-        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
-    MvcResult result =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch(
-                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        new ObjectMapper()
-                            .writeValueAsString(
-                                new UpdateResourcesDTO(
-                                    negotiation.getResources().stream()
-                                        .map(Resource::getId)
-                                        .toList()))))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.resources.length()", is(negotiation.getResources().size())))
-            .andReturn();
-    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
-    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
-    for (JsonNode resourceAsJson : resourcesAsJson) {
-      assertEquals(
-          negotiation.getCurrentStateForResource(resourceAsJson.get("sourceId").asText()),
-          NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
-    }
+        markedResource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    new ObjectMapper()
+                        .writeValueAsString(
+                            new UpdateResourcesDTO(
+                                negotiation.getResources().stream()
+                                    .map(Resource::getId)
+                                    .toList()))))
+        .andExpect(status().isNoContent());
+
+    entityManager.clear();
+    Negotiation updatedNegotiation =
+        negotiationRepository.findById(negotiation.getId()).orElseThrow();
+    assertEquals(negotiation.getResources().size(), updatedNegotiation.getResources().size());
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
+        updatedNegotiation.getCurrentStateForResource(markedResource.getSourceId()));
   }
 
   /**
@@ -1577,24 +1581,24 @@ public class NegotiationControllerTests {
     NegotiationResourceState expectedState = NegotiationResourceState.RESOURCE_MADE_AVAILABLE;
     List<Long> resourceIds = negotiation.getResources().stream().map(Resource::getId).toList();
     UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds, expectedState);
-    MvcResult result =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch(
-                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
-            .andExpect(status().isOk())
-            .andExpect(
-                jsonPath("$._embedded.resources.length()", is(negotiation.getResources().size())))
-            .andReturn();
-    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
-    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
-    for (JsonNode resourceAsJson : resourcesAsJson) {
-      assertEquals(
-          expectedState,
-          NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
-    }
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+        .andExpect(status().isNoContent());
+
+    entityManager.clear();
+    Negotiation updatedNegotiation =
+        negotiationRepository.findById(negotiation.getId()).orElseThrow();
+    updatedNegotiation
+        .getResources()
+        .forEach(
+            resource ->
+                assertEquals(
+                    expectedState,
+                    updatedNegotiation.getCurrentStateForResource(resource.getSourceId())));
   }
 
   @Test
@@ -1668,10 +1672,8 @@ public class NegotiationControllerTests {
                     "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
-        .andExpect(status().isOk())
-        .andExpect(
-            jsonPath(
-                "$._embedded.resources.length()", is(initialResourceCount + newResources.size())));
+        .andExpect(status().isNoContent())
+        .andExpect(content().string(""));
 
     // Verify the resources were actually added
     Negotiation updatedNegotiation = negotiationRepository.findById(NEGOTIATION_1_ID).get();
@@ -2567,5 +2569,86 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/%s".formatted(NEGOTIATION_1_ID)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is(NEGOTIATION_1_ID)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void getNumberOfResourcesInNegotiation_validNegotiation_ok() throws Exception {
+    String negotiationId = NEGOTIATION_1_ID;
+    int expectedCount = resourceRepository.countDistinctByNegotiation(negotiationId);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/{id}/resources/info", negotiationId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.count", is(expectedCount)))
+        .andExpect(jsonPath("$._links.add_resources.href").exists());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void findResourcesForNegotiationAndOrgPaginated_validInput_ok() throws Exception {
+    String negotiationId = NEGOTIATION_1_ID;
+    String organizationExternalId =
+        resourceRepository.findByNegotiation(negotiationId).get(0).getOrganizationExternalId();
+
+    int expectedTotal =
+        resourceRepository
+            .findByNegotiationAndOrganizationPaginated(
+                negotiationId,
+                organizationExternalId,
+                org.springframework.data.domain.PageRequest.of(0, 20))
+            .getNumberOfElements();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/v3/negotiations/{id}/resources", negotiationId)
+                .param("page", "0")
+                .param("size", "20")
+                .param("organizationId", organizationExternalId))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(expectedTotal)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.resources[0].organization.externalId", is(organizationExternalId)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void findResourcesForNegotiationAndOrgPaginated_unknownOrganization_404() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/v3/negotiations/{id}/resources", NEGOTIATION_1_ID)
+                .param("page", "0")
+                .param("size", "20")
+                .param("organizationId", "organization-does-not-exist"))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void findOrganizationsForNegotiation_validNegotiation_ok() throws Exception {
+    String negotiationId = NEGOTIATION_1_ID;
+    int expectedOrganizations =
+        negotiationRepository.findAllOrganizationsLinkedToNegotiation(negotiationId).size();
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/{id}/organizations", negotiationId))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded.organizations.length()", is(expectedOrganizations)))
+        .andExpect(jsonPath("$._embedded.organizations[0].externalId").exists())
+        .andExpect(jsonPath("$._embedded.organizations[0].updatable").exists())
+        .andExpect(jsonPath("$._embedded.organizations[0].status").exists());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void findOrganizationsForNegotiation_unknownNegotiation_404() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/{id}/organizations", "unknown-negotiation"))
+        .andExpect(status().isNotFound());
   }
 }

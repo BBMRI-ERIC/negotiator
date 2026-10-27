@@ -31,12 +31,14 @@
 
   <!-- Organization Card Component -->
   <OrganizationCard
+    ref="organizationCardRef"
     :org-id="orgId"
     :org="org"
     :resource-states="resourceStates"
     :negotiation-id="negotiationId"
     :ui-configuration="uiConfiguration"
     :isAdmin="isAdmin"
+    :resources-last-updated="resourcesLastUpdated"
     @open-form-modal="openFormModal"
     @open-modal="openModal"
     @update-resource-state="updateResourceState"
@@ -62,13 +64,17 @@ const props = defineProps({
   resourceStates: { type: Array, default: () => [] },
   negotiationId: { type: String, default: undefined },
   isAdmin: { type: Boolean, default: false },
+  resourcesLastUpdated: { type: Number, default: 0 },
 })
-const emit = defineEmits(['reloadResources'])
+
+const emit = defineEmits(['reloadResourceInfo'])
 
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()
 const formsStore = useFormsStore()
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
+
+const organizationCardRef = ref(null)
 
 // Modal and Form Data
 const requirementId = ref(undefined)
@@ -84,6 +90,10 @@ const formSubmissionModalInstance = ref(null)
 const formViewModalRef = ref(null)
 const formViewModalInstance = ref(null)
 const isFormEditable = ref(false)
+
+async function reloadLocalCardResources() {
+  emit('reloadResourceInfo')
+}
 
 const openModal = async (href, resId) => {
   isFormEditable.value = false
@@ -103,19 +113,19 @@ async function openFormModal(href) {
 
 function hideFormSubmissionModal() {
   formSubmissionModalInstance.value.hide()
-  emit('reloadResources')
+  reloadLocalCardResources()
 }
 
 function hideFormSubmissionAndOpenView(payload) {
   submittedForm.value.payload = payload
   formSubmissionModalInstance.value.hide()
-  emit('reloadResources')
+  reloadLocalCardResources()
   formViewModalInstance.value.show()
 }
 
 async function updateResourceState(link) {
   await negotiationPageStore.updateResourceStatus(link)
-  emit('reloadResources')
+  reloadLocalCardResources()
 }
 
 const updateOrgStatus = (state, organization) => {
@@ -133,11 +143,14 @@ const getRepresentedResources = (resources) =>
 
 const updateOrganization = async () => {
   const data = {
-    resourceIds: getRepresentedResources(selectedOrganization.value.resources),
+    resourceIds: getRepresentedResources(organizationCardRef.value.resources),
     state: orgStatus.value.value,
   }
-  await negotiationPageStore.addResources(data, props.negotiationId)
-  emit('reloadResources')
+  const wasSuccessful = await negotiationPageStore.addResources(data, props.negotiationId)
+  if (!wasSuccessful) {
+    return
+  }
+  reloadLocalCardResources()
 }
 
 onMounted(() => {
