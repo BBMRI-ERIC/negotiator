@@ -40,8 +40,8 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
       case WellKnownNegotiationStates.SUBMITTED ->
           createConfirmationNotification(event.getNegotiationId());
       case WellKnownNegotiationStates.IN_PROGRESS,
-              WellKnownNegotiationStates.DECLINED,
-              WellKnownNegotiationStates.ABANDONED ->
+          WellKnownNegotiationStates.DECLINED,
+          WellKnownNegotiationStates.ABANDONED ->
           createStatusChangeNotification(event);
       default -> {
         // no notification for other states
