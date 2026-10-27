@@ -1,10 +1,9 @@
--- The Definition Version Pin: the Lifecycle Definition a piece of work resolved to when its
--- Lifecycle started, and which it then keeps for life so that publishing a new version never moves
--- work already in flight. Negotiations pin one, and each of a Negotiation's Resources pins its own.
+-- The Definition Version Pin records the Definition Version a Lifecycle resolved to when it
+-- started. The work keeps it for life, so publishing a new version never moves work already in
+-- flight. A Negotiation pins one, and each of its Resources pins its own.
 
--- Nullable, and with no default. Every existing row predates the pin and there is no value to
--- invent for it, so the column is added empty; the data cutover backfills it and only then sets
--- NOT NULL. That keeps this file additive and safe to land on its own.
+-- Nullable with no default, because existing rows predate the pin and there is no value to invent
+-- for them.
 ALTER TABLE negotiation
     ADD COLUMN lifecycle_definition_id BIGINT,
     ADD CONSTRAINT fk_negotiation_lifecycle_definition FOREIGN KEY (lifecycle_definition_id)

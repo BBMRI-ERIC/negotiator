@@ -1,11 +1,8 @@
--- The edges of a Lifecycle Definition's graph. A Transition names its definition, its from-State, its
--- to-State, its Event and its Required Authority.
-
--- A Transition must not straddle two Lifecycle Definitions: loading a graph by its Definition Version
--- id would otherwise return edges pointing out of it. That is expressible, as a composite foreign key
--- on (lifecycle_definition_id, id) — which PostgreSQL will only accept against a unique constraint, so
--- each vertex table gets one. Redundant as a uniqueness claim, since id alone is already the primary
--- key; its whole job is to be a referenceable pair.
+-- A Transition must not connect States or Events of two Definition Versions, or loading a graph by
+-- its Definition Version id would return edges that point out of it. A composite foreign key on
+-- (lifecycle_definition_id, id) prevents that, and PostgreSQL accepts one only against a unique
+-- constraint, so each vertex table gets one. id is already the primary key, so the constraint adds
+-- no uniqueness. It exists only so the pair can be referenced.
 ALTER TABLE state
     ADD CONSTRAINT uq_state_id_with_definition UNIQUE (lifecycle_definition_id, id);
 
@@ -37,13 +34,12 @@ CREATE TABLE transition
 ALTER TABLE transition
     ADD CONSTRAINT transition_required_authority_check CHECK (((required_authority)::text = ANY ((ARRAY['NONE'::character varying, 'IS_ADMIN'::character varying, 'IS_CREATOR'::character varying, 'IS_REPRESENTATIVE'::character varying, 'SYSTEM'::character varying])::text[])));
 
--- The evaluator's question is "which Transition leaves State X for Event Y", and its answer must be a
--- single row: a duplicate would be an ambiguity it has no way to resolve. The frozen graph dump has 0
--- duplicate (source, event) pairs across both live graphs, so this constrains nothing real.
+-- The Transition Evaluator asks which Transition leaves State X for Event Y, and the answer must be
+-- a single row, because it has no way to choose between duplicates.
 ALTER TABLE transition
     ADD CONSTRAINT uq_transition_definition_source_event
         UNIQUE (lifecycle_definition_id, from_state_id, event_id);
 
--- That constraint's index leads with the definition, so it cannot serve the lookup above. This one
--- does, and is the index the evaluator will live on.
+-- That constraint's index leads with the definition, so it cannot serve the lookup above. This
+-- index does.
 CREATE INDEX idx_transition_source_event ON transition (from_state_id, event_id);
