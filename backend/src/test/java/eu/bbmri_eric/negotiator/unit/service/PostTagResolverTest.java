@@ -65,6 +65,28 @@ class PostTagResolverTest {
   }
 
   @Test
+  void resolve_adminNegotiationCreator_getsOnlyAuthorTag() {
+    researcher.setAdmin(true);
+
+    List<PostTagDTO> tags = resolver.resolve(post(researcher));
+
+    assertEquals(List.of("author"), tags.stream().map(PostTagDTO::key).toList());
+  }
+
+  @Test
+  void resolve_adminNegotiationCreatorWithOtherRoles_keepsOtherTagsWithoutAdminTag() {
+    networkManager.setAdmin(true);
+    networkManager.setResources(Set.of(organization1.getResources().iterator().next()));
+    negotiation.setCreatedBy(networkManager);
+
+    List<PostTagDTO> tags = resolver.resolve(post(networkManager));
+
+    assertEquals(
+        List.of("author", "representative", "network-manager"),
+        tags.stream().map(PostTagDTO::key).toList());
+  }
+
+  @Test
   void resolve_resourceRepresentative_getsRepresentativeTag() {
     biobanker1.setResources(Set.of(organization1.getResources().iterator().next()));
 
@@ -79,6 +101,15 @@ class PostTagResolverTest {
     List<PostTagDTO> tags = resolver.resolve(post(admin));
 
     assertTrue(hasTag(tags, "admin"));
+  }
+
+  @Test
+  void resolve_adminWithoutNegotiationCreator_getsOnlyAdminTag() {
+    negotiation.setCreatedBy(null);
+
+    List<PostTagDTO> tags = resolver.resolve(post(admin));
+
+    assertEquals(List.of("admin"), tags.stream().map(PostTagDTO::key).toList());
   }
 
   @Test
