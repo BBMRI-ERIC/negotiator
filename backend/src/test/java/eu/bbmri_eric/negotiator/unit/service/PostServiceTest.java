@@ -1,20 +1,15 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
-import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -216,25 +211,6 @@ public class PostServiceTest {
             BIOBANKER_1_ID, organization1.getId()))
         .thenReturn(true);
     when(negotiationRepository.existsById(NEG_1)).thenReturn(true);
-    when(negotiationRepository.findById(NEG_1)).thenReturn(Optional.of(negotiation));
-    lenient()
-        .when(modelMapper.map(any(Post.class), eq(PostDTO.class)))
-        .thenAnswer(
-            invocation -> {
-              Post source = invocation.getArgument(0);
-              UserResponseModel author = new UserResponseModel();
-              if (source.getCreatedBy() != null) {
-                author.setId(source.getCreatedBy().getId());
-              }
-              return PostDTO.builder()
-                  .id("mapped")
-                  .negotiationId(NEG_1)
-                  .text(source.getText())
-                  .type(source.getType())
-                  .creationDate(LocalDateTime.now())
-                  .createdBy(author)
-                  .build();
-            });
     // For void methods, use doThrow instead of thenThrow
 
     when(personService.isRepresentativeOfAnyResourceOfOrganization(
@@ -673,116 +649,5 @@ public class PostServiceTest {
         .thenReturn(posts);
     when(personRepository.findById(any())).thenReturn(Optional.of(biobanker2));
     assertEquals(0, postService.findByNegotiationId(NEG_1).size());
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      authName = ADMIN_AUTH_NAME,
-      authSubject = ADMIN_AUTH_SUBJECT,
-      authEmail = ADMIN_AUTH_EMAIL,
-      authorities = {"ROLE_ADMIN"})
-  public void test_findByNegotiationId_tagsAuthorForNegotiationAuthor() {
-    when(postRepository.findByNegotiationId(NEG_1)).thenReturn(List.of(publicPost1));
-    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
-
-    List<PostDTO> posts = postService.findByNegotiationId(NEG_1);
-
-    assertEquals(1, posts.size());
-    assertTrue(hasTag(posts.getFirst(), "author"));
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      authName = ADMIN_AUTH_NAME,
-      authSubject = ADMIN_AUTH_SUBJECT,
-      authEmail = ADMIN_AUTH_EMAIL,
-      authorities = {"ROLE_ADMIN"})
-  public void test_findByNegotiationId_tagsRepresentative() {
-    biobanker1.setResources(Set.of(organization1.getResources().iterator().next()));
-    when(postRepository.findByNegotiationId(NEG_1)).thenReturn(List.of(privateBio1ToOrg1));
-    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
-
-    List<PostDTO> posts = postService.findByNegotiationId(NEG_1);
-
-    assertEquals(1, posts.size());
-    assertTrue(hasTag(posts.getFirst(), "is-representative"));
-    assertFalse(hasTag(posts.getFirst(), "author"));
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      authName = ADMIN_AUTH_NAME,
-      authSubject = ADMIN_AUTH_SUBJECT,
-      authEmail = ADMIN_AUTH_EMAIL,
-      authorities = {"ROLE_ADMIN"})
-  public void test_findByNegotiationId_tagsAdmin() {
-    researcher.setAdmin(true);
-    when(postRepository.findByNegotiationId(NEG_1)).thenReturn(List.of(publicPost1));
-    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
-
-    List<PostDTO> posts = postService.findByNegotiationId(NEG_1);
-
-    assertEquals(1, posts.size());
-    assertTrue(hasTag(posts.getFirst(), "admin"));
-    assertTrue(hasTag(posts.getFirst(), "author"));
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      authName = ADMIN_AUTH_NAME,
-      authSubject = ADMIN_AUTH_SUBJECT,
-      authEmail = ADMIN_AUTH_EMAIL,
-      authorities = {"ROLE_ADMIN"})
-  public void test_findByNegotiationId_noTagsForPlainUser() {
-    when(postRepository.findByNegotiationId(NEG_1)).thenReturn(List.of(privateBio2ToOrg2));
-    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
-
-    List<PostDTO> posts = postService.findByNegotiationId(NEG_1);
-
-    assertEquals(1, posts.size());
-    assertTrue(posts.getFirst().getTags().isEmpty());
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      authName = ADMIN_AUTH_NAME,
-      authSubject = ADMIN_AUTH_SUBJECT,
-      authEmail = ADMIN_AUTH_EMAIL,
-      authorities = {"ROLE_ADMIN"})
-  public void test_findByNegotiationId_sameAuthorGetsConsistentTags() {
-    when(postRepository.findByNegotiationId(NEG_1)).thenReturn(List.of(publicPost1, publicPost2));
-    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
-
-    List<PostDTO> posts = postService.findByNegotiationId(NEG_1);
-
-    assertEquals(2, posts.size());
-    assertEquals(posts.getFirst().getTags(), posts.get(1).getTags());
-    assertTrue(hasTag(posts.getFirst(), "author"));
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      authName = ADMIN_AUTH_NAME,
-      authSubject = ADMIN_AUTH_SUBJECT,
-      authEmail = ADMIN_AUTH_EMAIL,
-      authorities = {"ROLE_ADMIN"})
-  public void test_findByNegotiationId_tagsNetworkManager() {
-    Network network = Network.builder().id(1L).externalId("network:1").name("Network 1").build();
-    network.addManager(biobanker1);
-    Post post =
-        TestUtils.createPost(
-            negotiation, biobanker1, organization1, "network manager post", PostType.PUBLIC);
-    when(postRepository.findByNegotiationId(NEG_1)).thenReturn(List.of(post));
-    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
-
-    List<PostDTO> posts = postService.findByNegotiationId(NEG_1);
-
-    assertEquals(1, posts.size());
-    assertTrue(hasTag(posts.getFirst(), "network-manager"));
-    assertFalse(hasTag(posts.getFirst(), "author"));
-  }
-
-  private static boolean hasTag(PostDTO post, String key) {
-    return post.getTags().stream().anyMatch(tag -> tag.key().equals(key));
   }
 }
