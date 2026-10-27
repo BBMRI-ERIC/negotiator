@@ -27,12 +27,12 @@ public class PostTagResolver {
     if (negotiation.getCreatedBy() != null
         && author.getId().equals(negotiation.getCreatedBy().getId())) {
       tags.add(PostTag.AUTHOR);
+    } else if (author.isAdmin()) {
+      // Skip ADMIN tag if AUTHOR
+      tags.add(PostTag.ADMIN);
     }
     if (author.getResources() != null && !author.getResources().isEmpty()) {
       tags.add(PostTag.REPRESENTATIVE);
-    }
-    if (author.isAdmin()) {
-      tags.add(PostTag.ADMIN);
     }
     if (author.getNetworks() != null && !author.getNetworks().isEmpty()) {
       tags.add(PostTag.NETWORK_MANAGER);
