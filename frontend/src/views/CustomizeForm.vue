@@ -528,9 +528,11 @@ function addFormSection(name, label, description, elements) {
   initNegotiationCriteria()
   forceReRenderFormWizard.value += 1
 }
-async function getValueSet(id) {
-  await negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(id).then((res) => {
-    negotiationValueSets.value[id] = res
+async function getValueSet(element) {
+  const valueSetId = element.linkedValueSet?.id
+  if (valueSetId == null) return
+  await negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(valueSetId).then((res) => {
+    negotiationValueSets.value[element.id] = res
   })
 }
 async function addAccessForm() {
@@ -761,12 +763,12 @@ function initNegotiationCriteria() {
     for (const criteria of section.elements) {
       if (criteria.type === 'MULTIPLE_CHOICE') {
         negotiationCriteria.value[section.name][criteria.name] = []
-        getValueSet(criteria.id)
+        getValueSet(criteria)
       } else if (criteria.type === 'SINGLE_CHOICE_RADIO') {
-        getValueSet(criteria.id)
+        getValueSet(criteria)
       } else if (criteria.type === 'SINGLE_CHOICE_DROPDOWN') {
         negotiationCriteria.value[section.name][criteria.name] = ''
-        getValueSet(criteria.id)
+        getValueSet(criteria)
       } else {
         negotiationCriteria.value[section.name][criteria.name] = null
       }

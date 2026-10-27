@@ -3,6 +3,7 @@
     <button
       ref="openModal"
       class="btn btn-sm sm float-end"
+      data-test="new-request-open-modal-button"
       data-bs-toggle="modal"
       data-bs-target="#newRequestModal"
       :style="{ 'background-color': uiConfiguration?.buttonColor }"

@@ -9,6 +9,7 @@
       <button
         type="button"
         class="btn btn-secondary px-4"
+        data-test="new-request-modal-start-button"
         data-bs-dismiss="modal"
         @click="emitConfirm"
       >
