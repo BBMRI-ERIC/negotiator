@@ -143,8 +143,8 @@ const sendTooltipText = computed(() => {
   if (channelId.value === '') return 'Please select channel'
   if (!selectedChannelEnabled.value) {
     return channelId.value === 'public'
-      ? 'The public channel is currently disabled for this request'
-      : 'Private channels are currently disabled for this request'
+      ? 'The request-wide channel is currently disabled for this request'
+      : '1:1 channels are currently disabled for this request'
   }
   if (message.value === '' && attachment.value === undefined) return 'Message cannot be empty'
   return `Send (${sendShortcut})`
