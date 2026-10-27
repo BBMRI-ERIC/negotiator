@@ -52,7 +52,7 @@ what the parity number was there to check.
 
 | File | What |
 |---|---|
-| `backend/src/main/resources/db/migration/V37.4__add_definition_version_pin_columns.sql` | `lifecycle_definition_id BIGINT` added to `negotiation` and to `negotiation_resource_link`, nullable, no default, each with `ON DELETE RESTRICT` to `lifecycle_definition` |
+| `backend/src/main/resources/db/migration/V39.4__add_definition_version_pin_columns.sql` | `lifecycle_definition_id BIGINT` added to `negotiation` and to `negotiation_resource_link`, nullable, no default, each with `ON DELETE RESTRICT` to `lifecycle_definition` |
 | `.../negotiation/Negotiation.java` | Nullable immutable `Long lifecycleDefinitionId`; no association |
 | `.../negotiation/NegotiationResourceLink.java` | The same field, plus a four-argument public constructor taking the pin; the existing three-argument one delegates with null |
 | `backend/src/test/java/.../lifecycle/definition/DefinitionVersionPinRepositoryTest.java` | 9 tests against a real Postgres 16, with the test seed loaded |

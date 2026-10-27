@@ -63,7 +63,7 @@ table — the composite FK target, exactly as slice 03's handoff asked for.
 
 | File | What |
 |---|---|
-| `backend/src/main/resources/db/migration/V37.3__add_guard_and_action_wiring.sql` | `guard_wiring` (nullable `transition_id`, two partial unique indexes on `sort_order`, composite FK against cross-definition straddling), `action_wiring` (no definition FK, `UNIQUE (transition_id, sort_order)`), plus `UNIQUE (lifecycle_definition_id, id)` on `transition` so the pair is referenceable |
+| `backend/src/main/resources/db/migration/V39.3__add_guard_and_action_wiring.sql` | `guard_wiring` (nullable `transition_id`, two partial unique indexes on `sort_order`, composite FK against cross-definition straddling), `action_wiring` (no definition FK, `UNIQUE (transition_id, sort_order)`), plus `UNIQUE (lifecycle_definition_id, id)` on `transition` so the pair is referenceable |
 | `.../lifecycle/definition/GuardWiring.java` | Package-private entity, `typeKey` immutable |
 | `.../lifecycle/definition/GuardWiringRepository.java` | Package-private repository, no finders |
 | `.../lifecycle/definition/ActionWiring.java` | Package-private entity, `typeKey` immutable |

@@ -44,7 +44,7 @@ assessed there, not assumed here.
 ## Acceptance criteria
 
 - [x] Both tables are created by **this slice's own additive migration file** (one file per slice,
-      `V37.0` onward — never appended to an earlier slice's file), each with a foreign key to
+      `V39.0` onward — never appended to an earlier slice's file), each with a foreign key to
       `lifecycle_definition`.
 - [x] A partial unique index enforces at most one `initial` State per Lifecycle Definition; a test
       inserts a second one and asserts the write is refused.
@@ -70,7 +70,7 @@ assessed there, not assumed here.
 
 | File | What |
 |---|---|
-| `backend/src/main/resources/db/migration/V37.1__add_state_and_event_tables.sql` | Both tables, both FKs, both name-uniqueness constraints, the partial unique index |
+| `backend/src/main/resources/db/migration/V39.1__add_state_and_event_tables.sql` | Both tables, both FKs, both name-uniqueness constraints, the partial unique index |
 | `.../lifecycle/definition/State.java` | Package-private entity |
 | `.../lifecycle/definition/Event.java` | Package-private entity |
 | `.../lifecycle/definition/StateRepository.java`, `.../EventRepository.java` | Package-private repositories, no finders |

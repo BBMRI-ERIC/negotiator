@@ -58,7 +58,7 @@ this slice's migration does `ALTER` two of slice 02's tables — see the first d
 
 | File | What |
 |---|---|
-| `backend/src/main/resources/db/migration/V37.2__add_transition_table.sql` | The table, four FKs, the authority CHECK, the `(definition, from_state, event)` unique constraint, the `(from_state, event)` lookup index, and two UNIQUE constraints added to `state` and `event` |
+| `backend/src/main/resources/db/migration/V39.2__add_transition_table.sql` | The table, four FKs, the authority CHECK, the `(definition, from_state, event)` unique constraint, the `(from_state, event)` lookup index, and two UNIQUE constraints added to `state` and `event` |
 | `.../lifecycle/definition/RequiredAuthority.java` | Package-private enum, the five values, single-valued |
 | `.../lifecycle/definition/Transition.java` | Package-private entity |
 | `.../lifecycle/definition/TransitionRepository.java` | Package-private repository, no finders |
@@ -101,7 +101,7 @@ accepts a composite FK against a unique constraint, so `state` and `event` each 
 the primary key; its whole job is to be a referenceable pair.
 
 **This is why slice 03's migration alters slice 02's tables.** It is still one file per slice and still
-purely additive — nothing was appended to `V37.1` — but a reader looking for what constrains `state`
+purely additive — nothing was appended to `V39.1` — but a reader looking for what constrains `state`
 must now look in two files. The alternative was to leave a Transition able to straddle two graphs, so
 that loading a graph by its Definition Version id could return edges pointing out of it.
 

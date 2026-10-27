@@ -29,7 +29,7 @@ _Source ticket: [The global state and event metadata contract](../../../.scratch
 
 This ADR enumerated a `State` as carrying "a human label plus `initial` and `terminal` flags", and said nothing at all about what an `Event` carries. Both were written without noticing that four live REST endpoints already publish, for every State **and every Event**, a `label` *and* a `description` — and for every Resource State an ordering integer that the frontend computes an organization's rolled-up status from. Deleting the enums deletes the only source of all three, so the schema needs them.
 
-**Three columns are added, in `V37.5`.** `event.label` is NOT NULL; `state.description` and `event.description` are nullable; `state.progress_order` is an integer. ADR 0009's v1 seed populates all of them from the enum constructors it is already transcribing, with Progress Order taking the enum declaration order it reproduces exactly — 0–11 for Resource States, 0–7 for Negotiation States.
+**Three columns are added, in `V39.5`.** `event.label` is NOT NULL; `state.description` and `event.description` are nullable; `state.progress_order` is an integer. ADR 0009's v1 seed populates all of them from the enum constructors it is already transcribing, with Progress Order taking the enum declaration order it reproduces exactly — 0–11 for Resource States, 0–7 for Negotiation States.
 
 **Labels cannot be derived from names.** Doing so would render `Submitted` where the UI says "Under review", and cannot produce the comma in "Mark as Currently Unavailable, But Willing to Collect".
 

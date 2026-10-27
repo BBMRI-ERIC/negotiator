@@ -93,7 +93,7 @@ what `lifecycle_definition` costs. Not to be relitigated without new information
   a family-level fact with no family table to live on, so each version row carries it: the flag
   travels with the family across versions and publishing need not move it off the old row in the same
   statement. An inactive row keeping `true` is honest — it *was* the default while it was active.
-- **One migration file per slice, `V37.0`–`V37.5`, never one shared file.** Seven commits appending to
+- **One migration file per slice, `V39.0`–`V39.5`, never one shared file.** Seven commits appending to
   one file changes its checksum each time, failing Flyway validation on any database that already ran
   it; test contexts clean+migrate every build and would never notice, but a local dev database breaks
   at every slice. ADR 0009 is satisfied either way — it requires additive DDL to land before and
@@ -124,9 +124,9 @@ And **nothing reads any of it** — see the guard below. Parity: **255 tests in 
 failures, 0 errors, 1 skipped**, unchanged at every slice; intended deltas **8/0/0/0**; the full
 suite 1415/0/0/16.
 
-**What landed.** Five migrations, `V37.0`–`V37.4` (one per slice, never appending to an applied file —
+**What landed.** Five migrations, `V39.0`–`V39.4` (one per slice, never appending to an applied file —
 that changes its checksum and fails Flyway validation on any developer database that already ran it).
-`V37.5` is free. Six tables — `lifecycle_definition`, `state`, `event`, `transition`, `guard_wiring`,
+`V39.5` is free. Six tables — `lifecycle_definition`, `state`, `event`, `transition`, `guard_wiring`,
 `action_wiring` — plus the nullable `lifecycle_definition_id` pin on `negotiation` and
 `negotiation_resource_link`. Seventeen production files in
 `eu.bbmri_eric.negotiator.lifecycle.definition`, all package-private: seven entities and enums, six

@@ -103,7 +103,7 @@ parity gate must be green before and after with the same 255 tests.
 
 Six tables plus two columns, additive only, no drops, no CHECK removals, no data.
 
-**One migration file per slice, `V37.0` through `V37.5`** — the next free version onward. Not one
+**One migration file per slice, `V39.0` through `V39.5`** — the next free version onward. Not one
 shared file: seven commits appending to a single file changes its checksum every time, which fails
 Flyway validation on any database that already ran it. Test contexts clean+migrate on every build and
 so would never notice, but a developer's local database would break at every slice. ADR 0009 is
@@ -196,7 +196,7 @@ annotation. These are not behaviour tests, because this slab deliberately adds n
   `NegotiationRepositoryTest` (adds `@Import(MockUserDetailsService.class)`, needed if an entity
   extends `AuditEntity`), `OrganizationRepositoryTest` (`loadTestData = true`).
 - **The migration itself needs no dedicated test.** Test contexts run clean+migrate on every build
-  (`FlywayConfig.java:34-40`), so a broken `V37.0` fails every Testcontainers test in the suite. That
+  (`FlywayConfig.java:34-40`), so a broken `V39.0` fails every Testcontainers test in the suite. That
   is stronger coverage than a bespoke assertion, and it is free.
 - **Every partial unique index gets a test that violates it** and expects the write to be refused —
   one active version per family, one global default, one initial State per version, `sort_order`

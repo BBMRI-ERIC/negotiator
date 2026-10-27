@@ -10,7 +10,7 @@ Routed: carried on the map under [Stage 1 after the evaluator](../../state-machi
 
 ## What was chosen
 
-`V37.4` adds `lifecycle_definition_id` to `negotiation` and to `negotiation_resource_link`, each with
+`V39.4` adds `lifecycle_definition_id` to `negotiation` and to `negotiation_resource_link`, each with
 a foreign key to `lifecycle_definition` and **no index on the column**.
 
 Both are the *referencing* side of a foreign key, so PostgreSQL creates nothing for them
@@ -42,7 +42,7 @@ Any one of these turns the deferral into a bug:
 - **A Definition Version is ever deleted in an operational path** rather than superseded.
 
 The fix is a new additive migration with a plain `CREATE INDEX` on each column — never an edit to
-`V37.4`, which is applied.
+`V39.4`, which is applied.
 
 ## Related
 

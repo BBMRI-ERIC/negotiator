@@ -49,7 +49,7 @@ than a default. Slice 07's guard test would otherwise flag it.
 ## Outcome
 
 **Landed on `feat/state-machine-implementation`.** Java only: the resolver seam needs no DDL, so this
-slice adds no migration and `V37.5` stays free for whoever needs it next. Nothing outside
+slice adds no migration and `V39.5` stays free for whoever needs it next. Nothing outside
 `eu.bbmri_eric.negotiator.lifecycle.definition` was touched, and nothing inside it is reachable from
 outside — the interface, its implementation and its exception are all package private.
 
