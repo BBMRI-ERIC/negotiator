@@ -4,11 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
@@ -36,9 +39,9 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -74,6 +77,7 @@ public class PostServiceTest {
   private static final String ORG_1 = "Organization_1";
   private static final String ORG_2 = "Organization_2";
   private static final String NEG_1 = "negotiationId";
+  private static final String ORIGINAL_POST_ID = "originalPostId";
   @Mock PostRepository postRepository;
   @Mock NegotiationRepository negotiationRepository;
   @Mock OrganizationRepository organizationRepository;
@@ -153,6 +157,7 @@ public class PostServiceTest {
             .build();
     organization1.setResources(Set.of(resource1));
     organization2.setResources(Set.of(resource2));
+    biobanker1.setResources(Set.of(resource1));
 
     negotiation =
         Negotiation.builder()
@@ -211,6 +216,7 @@ public class PostServiceTest {
             BIOBANKER_1_ID, organization1.getId()))
         .thenReturn(true);
     when(negotiationRepository.existsById(NEG_1)).thenReturn(true);
+    when(personRepository.findById(BIOBANKER_1_ID)).thenReturn(Optional.of(biobanker1));
     // For void methods, use doThrow instead of thenThrow
 
     when(personService.isRepresentativeOfAnyResourceOfOrganization(
@@ -380,6 +386,126 @@ public class PostServiceTest {
     assertEquals(returnedPostDTO.getType(), PostType.PUBLIC);
   }
 
+  /** Tests that a reply to a public post is saved with the id of the post it answers */
+  @Test
+  @WithMockNegotiatorUser(id = BIOBANKER_1_ID)
+  public void test_createReply_toPublicPost_Ok() {
+    allowReplies();
+    when(postRepository.findByIdAndNegotiationId(ORIGINAL_POST_ID, NEG_1)).thenReturn(publicPost1);
+    postService.create(reply(PostType.PUBLIC, null), NEG_1);
+    assertEquals(ORIGINAL_POST_ID, savedPost().getReplyToId());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = BIOBANKER_1_ID)
+  public void test_createPrivateReply_toPublicPost_Ok() {
+    allowReplies();
+    when(postRepository.findByIdAndNegotiationId(ORIGINAL_POST_ID, NEG_1)).thenReturn(publicPost1);
+    postService.create(reply(PostType.PRIVATE, ORG_1), NEG_1);
+    assertEquals(ORIGINAL_POST_ID, savedPost().getReplyToId());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = BIOBANKER_1_ID)
+  public void test_createPrivateReply_toPrivatePostInSameChannel_Ok() {
+    allowReplies();
+    when(postRepository.findByIdAndNegotiationId(ORIGINAL_POST_ID, NEG_1))
+        .thenReturn(privateResToOrg1);
+    postService.create(reply(PostType.PRIVATE, ORG_1), NEG_1);
+    assertEquals(ORIGINAL_POST_ID, savedPost().getReplyToId());
+  }
+
+  /** The repository also returns nothing when the post belongs to another negotiation */
+  @Test
+  @WithMockNegotiatorUser(id = BIOBANKER_1_ID)
+  public void test_createReply_isWrongRequest_whenOriginalPostDoesNotExist() {
+    allowReplies();
+    assertThrows(
+        WrongRequestException.class, () -> postService.create(reply(PostType.PUBLIC, null), NEG_1));
+    verify(postRepository, never()).save(any());
+  }
+
+  /** Tests that a representative of organization 1 can't reply to a post sent to organization 2 */
+  @Test
+  @WithMockNegotiatorUser(id = BIOBANKER_1_ID)
+  public void test_createReply_isForbidden_whenOriginalPostIsNotReadable() {
+    allowReplies();
+    when(postRepository.findByIdAndNegotiationId(ORIGINAL_POST_ID, NEG_1))
+        .thenReturn(privateResToOrg2);
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> postService.create(reply(PostType.PRIVATE, ORG_2), NEG_1));
+    verify(postRepository, never()).save(any());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = BIOBANKER_1_ID)
+  public void test_createPublicReply_toPrivatePost_isWrongRequest() {
+    allowReplies();
+    when(postRepository.findByIdAndNegotiationId(ORIGINAL_POST_ID, NEG_1))
+        .thenReturn(privateResToOrg1);
+    assertThrows(
+        WrongRequestException.class, () -> postService.create(reply(PostType.PUBLIC, null), NEG_1));
+    verify(postRepository, never()).save(any());
+  }
+
+  /** Tests the channel rule with an editor, who can read every post */
+  @Test
+  @WithMockNegotiatorUser(id = RESEARCHER_ID)
+  public void test_createPrivateReply_toPrivatePostInOtherChannel_isWrongRequest() {
+    allowReplies();
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
+    when(postRepository.findByIdAndNegotiationId(ORIGINAL_POST_ID, NEG_1))
+        .thenReturn(privateResToOrg1);
+    assertThrows(
+        WrongRequestException.class,
+        () -> postService.create(reply(PostType.PRIVATE, ORG_2), NEG_1));
+    verify(postRepository, never()).save(any());
+  }
+
+  /** The API accepts private posts without an organization, so the original may have none */
+  @Test
+  @WithMockNegotiatorUser(id = RESEARCHER_ID)
+  public void test_createReply_toPrivatePostWithoutOrganization_isWrongRequest() {
+    allowReplies();
+    when(negotiationService.isNegotiationEditor(NEG_1)).thenReturn(true);
+    Post privatePostWithoutOrganization =
+        TestUtils.createPost(
+            negotiation, researcher, null, "private post without organization", PostType.PRIVATE);
+    when(postRepository.findByIdAndNegotiationId(ORIGINAL_POST_ID, NEG_1))
+        .thenReturn(privatePostWithoutOrganization);
+    assertThrows(
+        WrongRequestException.class,
+        () -> postService.create(reply(PostType.PRIVATE, ORG_1), NEG_1));
+    verify(postRepository, never()).save(any());
+  }
+
+  private void allowReplies() {
+    negotiation.setPublicPostsEnabled(true);
+    negotiation.setPrivatePostsEnabled(true);
+    when(negotiationRepository.findById(NEG_1)).thenReturn(Optional.of(negotiation));
+    when(negotiationService.isAuthorizedForNegotiation(NEG_1)).thenReturn(true);
+    when(organizationRepository.findByExternalId(ORG_1)).thenReturn(Optional.of(organization1));
+    when(organizationRepository.findByExternalId(ORG_2)).thenReturn(Optional.of(organization2));
+    when(personRepository.findById(RESEARCHER_ID)).thenReturn(Optional.of(researcher));
+    when(postRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+  }
+
+  private static PostCreateDTO reply(PostType type, String organizationId) {
+    return PostCreateDTO.builder()
+        .text("reply")
+        .type(type)
+        .organizationId(organizationId)
+        .replyToId(ORIGINAL_POST_ID)
+        .build();
+  }
+
+  private Post savedPost() {
+    ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
+    verify(postRepository).save(captor.capture());
+    return captor.getValue();
+  }
+
   @Test
   public void test_findByNegotiationId_NoResults() {
     when(postRepository.findByNegotiationId("fakeId")).thenReturn(Collections.emptyList());
@@ -437,7 +563,6 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  @Disabled
   public void test_findByNegotiationId_AsBiobanker_All() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(allPosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -445,7 +570,6 @@ public class PostServiceTest {
   }
 
   /** Tests that a person not involved in the negotiation, gets no posts */
-  @Disabled
   @Test
   @WithMockNegotiatorUser(
       id = BIOBANKER_3_ID,
@@ -499,7 +623,6 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  @Disabled
   public void test_findByNegotiationId_AsBiobanker_Public() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(publicPosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -560,7 +683,6 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  @Disabled
   public void test_findByNegotiationId_AsBiobanker_Private() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(privatePosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -625,7 +747,6 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  @Disabled
   public void test_findByNegotiationId_AsBiobanker_Private_withOrganizationId() {
     List<Post> posts = List.of(privateResToOrg1, privateBio1ToOrg1);
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(posts);
