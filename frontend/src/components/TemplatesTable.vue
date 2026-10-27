@@ -45,7 +45,7 @@
         </tr>
       </tbody>
     </table>
-    <div v-else class="alert alert-light my-3">No Other Templates Available!</div>
+    <div v-else class="alert alert-light my-3">No Templates Available!</div>
   </div>
 </template>
 
@@ -55,7 +55,7 @@ import { useTemplates } from '@/store/templates.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 
 const templateName = defineModel('templateName')
-const emailTemplateData = defineModel('templateData')
+const templateData = defineModel('templateData')
 const allTemplates = defineModel('alllTemplates')
 
 const templateStore = useTemplates()
@@ -74,7 +74,7 @@ function openResetTemplateModal(name) {
 function openTemplate(name) {
   templateName.value = name
   templateStore.retrieveTemplateByName(name).then((response) => {
-    emailTemplateData.value = response
+    templateData.value = response
   })
 }
 

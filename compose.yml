@@ -29,6 +29,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/negotiator
       - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
+      - NEGOTIATOR_FRONTEND_URL=http://localhost:8080
     network_mode: host
     volumes:
       - negotiator-templates:/app/config/templates

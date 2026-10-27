@@ -66,10 +66,10 @@ const navItems = [
     description: 'View and manage email notification settings.',
   },
   {
-    label: 'Email Templates',
-    to: { name: 'admin-email-templates' },
-    pathPrefix: '/settings/email-templates',
-    description: 'Create and edit email templates used for notifications.',
+    label: 'Templates',
+    to: { name: 'admin-templates' },
+    pathPrefix: '/settings/templates',
+    description: 'Edit and reset templates used for email notifications and PDF exports.',
   },
   {
     label: 'Access Forms',

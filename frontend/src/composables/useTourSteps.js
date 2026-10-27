@@ -125,12 +125,12 @@ const webhooksStep = {
   content:
     'The Negotiator uses a webhook system to allow external systems to be notified of events that occur within the Negotiator. This guide provides an overview of how to set up and use webhooks with the Negotiator.',
 }
-const emailsStep = {
+const emailNotificationsStep = {
   target: '.v-step-settings-3',
-  header: { title: 'Email Templates' },
+  header: { title: 'Email Notifications' },
   params: { enableScrolling: false },
   content:
-    'Search and manage all email templates used by the Negotiator for various notifications and communications with users.',
+    'View and manage email notifications sent by the Negotiator.',
 }
 const usersStep = {
   target: '.v-step-settings-2',
@@ -144,7 +144,7 @@ const templatesStep = {
   header: { title: 'Templates' },
   params: { enableScrolling: false },
   content:
-    'The Negotiator provides a set of customizable templates used for generating PDFs, emails, and more',
+    'Edit and reset templates used for email notifications and PDF exports, including shared fragments such as the logo.',
 }
 const accessFormsStep = {
   target: '.v-step-settings-5',
@@ -277,7 +277,7 @@ export function useTourSteps(tourName, props = {}) {
       adminConsoleStep,
       uiConfigurationStep,
       usersStep,
-      emailsStep,
+      emailNotificationsStep,
       templatesStep,
       accessFormsStep,
       formElementsStep,

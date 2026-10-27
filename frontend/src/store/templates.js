@@ -3,7 +3,7 @@ import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useTemplates = defineStore('emailTemplates', () => {
+export const useTemplates = defineStore('templates', () => {
   const notifications = useNotificationsStore()
 
   function retrieveTemplates() {
@@ -58,10 +58,10 @@ export const useTemplates = defineStore('emailTemplates', () => {
         },
       )
       .then(() => {
-        notifications.setNotification('Email template was successfully reset', 'success')
+        notifications.setNotification('Template was successfully reset', 'success')
       })
       .catch(() => {
-        notifications.setNotification('Error restarting template', 'danger')
+        notifications.setNotification('Error resetting template', 'danger')
         return null
       })
   }
