@@ -129,13 +129,23 @@ const sendShortcut = /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘+Enter' :
 const sendTooltipEl = ref(null)
 let sendTooltip
 
+const selectedChannelEnabled = computed(() => {
+  if (channelId.value === '') return false
+  return channelId.value === 'public'
+    ? props.negotiation.publicPostsEnabled
+    : props.negotiation.privatePostsEnabled
+})
+
 const sendTooltipText = computed(() => {
-  if (!props.negotiation.publicPostsEnabled) {
-    return props.negotiation.status === 'DRAFT'
-      ? 'Messaging is unavailable until you submit the request'
-      : 'Messaging is unavailable until the request has been reviewed.'
+  if (!props.negotiation.publicPostsEnabled && !props.negotiation.privatePostsEnabled) {
+    return 'Messaging is currently disabled for this request'
   }
   if (channelId.value === '') return 'Please select channel'
+  if (!selectedChannelEnabled.value) {
+    return channelId.value === 'public'
+      ? 'The public channel is currently disabled for this request'
+      : 'Private channels are currently disabled for this request'
+  }
   if (message.value === '' && attachment.value === undefined) return 'Message cannot be empty'
   return `Send (${sendShortcut})`
 })
@@ -152,8 +162,7 @@ onBeforeUnmount(() => {
 const readyToSend = computed(() => {
   return (
     (message.value !== '' || attachment.value !== undefined) &&
-    channelId.value !== '' &&
-    (props.negotiation.publicPostsEnabled || props.negotiation.privatePostsEnabled) &&
+    selectedChannelEnabled.value &&
     !props.isUploading
   )
 })
