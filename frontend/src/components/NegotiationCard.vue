@@ -6,7 +6,7 @@
         :style="{ color: 'var(--bs-card-title-text)' }"
       >
         <span class="h5 mb-0"><NegotiationTitle :title="title" /></span>
-        <h6 class="mb-0 flex-shrink-0">
+        <h6 class="mb-0 flex-shrink-0" data-cy="negotiation-card-status">
           <UiBadge :class="getBadgeColor(status)" :icon="getBadgeIcon(status)" width="125px">
             {{ transformStatus(status) }}
           </UiBadge>

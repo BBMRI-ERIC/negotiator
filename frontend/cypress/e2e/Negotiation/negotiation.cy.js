@@ -31,7 +31,7 @@ describe("Test access negotiations", () => {
             // First negotiation
             cy.get(":nth-child(1) > .card").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-header").should("be.visible")
-            cy.get(":nth-child(1) > .card > .card-header > .float-end").should("be.visible")
+            cy.get(":nth-child(1) > .card > .card-header > [data-cy=negotiation-card-status]").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(1)").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(3)").should("be.visible")
@@ -39,7 +39,7 @@ describe("Test access negotiations", () => {
             // Second negotiation
             cy.get(":nth-child(2) > .card").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-header").should("be.visible")
-            cy.get(":nth-child(2) > .card > .card-header > .float-end").should("be.visible")
+            cy.get(":nth-child(2) > .card > .card-header > [data-cy=negotiation-card-status]").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(1)").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(3)").should("be.visible")
@@ -101,11 +101,11 @@ describe("Test access negotiations", () => {
             cy.get(".order-1 > .list-group > :nth-child(2) > .fw-bold").should("be.visible")
             cy.get(".order-1 > .list-group > :nth-child(2) > span").should("be.visible")
             //  Negotiation ID:
-            cy.get(".order-1 > .list-group > :nth-child(3) > .fw-bold").should("be.visible")
-            cy.get(".order-1 > .list-group > :nth-child(3) > .d-flex").should("be.visible")
+            cy.get("[data-cy=sidebar-negotiation-id] > .fw-bold").should("be.visible")
+            cy.get("[data-cy=sidebar-negotiation-id] > .d-flex").should("be.visible")
             //  Submitted at:
-            cy.get(".order-1 > .list-group > :nth-child(4) > .fw-bold").should("be.visible")
-            cy.get(".order-1 > .list-group > :nth-child(4) > span").should("be.visible")
+            cy.get("[data-cy=sidebar-submitted-at] > .fw-bold").should("be.visible")
+            cy.get("[data-cy=sidebar-submitted-at] > span").should("be.visible")
             //  Status:
             cy.get(".list-group > .justify-content-between > :nth-child(1) > .fw-bold").should("be.visible")
             cy.get(".list-group > .justify-content-between > :nth-child(1) > span").should("be.visible")
