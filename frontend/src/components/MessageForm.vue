@@ -22,7 +22,7 @@
       />
       <NegotiationAttachment
         v-if="attachment"
-        class="ms-auto"
+        class="ms-auto mt-2"
         :name="attachment.name"
         :content-type="attachment.type"
         :size="attachment.size"
@@ -136,7 +136,7 @@ const sendTooltipText = computed(() => {
       : 'Messaging is unavailable until the request has been reviewed.'
   }
   if (channelId.value === '') return 'Please select channel'
-  if (message.value === '') return 'Message cannot be empty'
+  if (message.value === '' && attachment.value === undefined) return 'Message cannot be empty'
   return `Send (${sendShortcut})`
 })
 
