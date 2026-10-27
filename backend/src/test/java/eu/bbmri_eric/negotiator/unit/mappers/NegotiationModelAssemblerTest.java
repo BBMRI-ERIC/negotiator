@@ -100,7 +100,8 @@ public class NegotiationModelAssemblerTest {
 
   @Test
   void toModel_withEmptyFrontendUrl_uiLinkAbsent() {
-    NegotiationModelAssembler assemblerWithoutUrl = new NegotiationModelAssembler(null, null, null, "");
+    NegotiationModelAssembler assemblerWithoutUrl =
+        new NegotiationModelAssembler(null, null, null, "");
     assertTrue(
         assemblerWithoutUrl
             .toModel(NegotiationDTO.builder().id("1").build())
