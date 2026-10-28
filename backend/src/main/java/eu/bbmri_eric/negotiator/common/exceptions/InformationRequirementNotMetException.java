@@ -18,7 +18,7 @@ public class InformationRequirementNotMetException extends StateMachineException
   }
 }
 
-//public class InformationRequirementNotMetException extends StateMachineException {
+// public class InformationRequirementNotMetException extends StateMachineException {
 //
 //  public static final String ERROR_CODE = "INFORMATION_REQUIREMENT_NOT_MET";
 //
@@ -27,4 +27,4 @@ public class InformationRequirementNotMetException extends StateMachineException
 //            "The requirement for this operation was not met. "
 //                    + "Please make sure you have submitted the required form and try again.");
 //  }
-//}
+// }

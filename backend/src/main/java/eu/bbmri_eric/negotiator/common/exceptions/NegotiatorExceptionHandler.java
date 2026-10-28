@@ -449,16 +449,16 @@ public class NegotiatorExceptionHandler {
     return new ErrorResponseException(HttpStatus.BAD_REQUEST, detail, ex);
   }
 
-//  @ExceptionHandler(InformationRequirementNotMetException.class)
-//  @ResponseStatus(HttpStatus.BAD_REQUEST)
-//  public final ErrorResponse handleInformationRequirementNotMet(
-//          InformationRequirementNotMetException ex) {
-//    ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-//    detail.setTitle("Information requirement not met");
-//    detail.setDetail(ex.getMessage());
-//    detail.setProperty("errorCode", InformationRequirementNotMetException.ERROR_CODE);
-//    return new ErrorResponseException(HttpStatus.BAD_REQUEST, detail, ex);
-//  }
+  //  @ExceptionHandler(InformationRequirementNotMetException.class)
+  //  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  //  public final ErrorResponse handleInformationRequirementNotMet(
+  //          InformationRequirementNotMetException ex) {
+  //    ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+  //    detail.setTitle("Information requirement not met");
+  //    detail.setDetail(ex.getMessage());
+  //    detail.setProperty("errorCode", InformationRequirementNotMetException.ERROR_CODE);
+  //    return new ErrorResponseException(HttpStatus.BAD_REQUEST, detail, ex);
+  //  }
 
   // TODO: this handle method can be probably removed now
   @ExceptionHandler(StateMachineException.class)

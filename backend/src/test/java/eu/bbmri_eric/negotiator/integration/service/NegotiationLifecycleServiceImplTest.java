@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.common.exceptions.InformationRequirementNotMetException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
@@ -54,7 +55,6 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
-import eu.bbmri_eric.negotiator.common.exceptions.InformationRequirementNotMetException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
