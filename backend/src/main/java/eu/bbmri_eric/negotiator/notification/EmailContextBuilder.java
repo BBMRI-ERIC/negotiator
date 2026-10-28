@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.template.TemplateService;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class EmailContextBuilder {
     String emailButtonText = "Negotiator Login";
     variables.put("recipient", recipientName);
     variables.put("message", message);
+    variables.put("year", Year.now().getValue());
 
     if (negotiationId != null && negotiationTitle != null && negotiationCreationDate != null) {
       emailButtonLink = frontendUrl + "/negotiations/" + negotiationId;

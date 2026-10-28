@@ -727,7 +727,7 @@ public class InformationRequirementControllerTest {
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andExpect(status().isOk());
     String expectedResponse =
-        """
+"""
 resourceId,sample-type,num-of-subjects,num-of-samples,volume-per-sample
 biobank:1:collection:1,DNA,10,20,5
 """;

@@ -7,17 +7,17 @@
       :message-enabled="false"
       @confirm="updateTemplate()"
     />
-    <AdminSettingsPageHeader title="Email Templates">
+    <AdminSettingsPageHeader title="Templates">
       <template #description>
-        In this section, you can select an email template from the list and choose from the
-        following options:
+        Manage templates used for email notifications and PDF exports. Select a template from the
+        list and choose from the following options:
         <div class="mt-3">
           <span class="fw-bold">Edit Template: </span>
-          Modify the content or settings of the selected email template to suit your needs.
+          Modify the content of the selected template to suit your needs.
         </div>
         <div>
           <span class="fw-bold"> Reset Template:</span>
-          Revert the selected email template to its default state, discarding any changes made.
+          Revert the selected template to its default state, discarding any changes made.
         </div>
       </template>
     </AdminSettingsPageHeader>

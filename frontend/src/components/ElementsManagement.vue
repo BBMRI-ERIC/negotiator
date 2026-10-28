@@ -38,14 +38,14 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, index) in paginatedElements"
+              v-for="element in paginatedElements"
               :key="element.id"
               class="clickable-row"
               data-bs-toggle="modal"
               data-bs-target="#elementModal"
               @click="openEditModal(element)"
             >
-              <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+              <td>{{ element.id }}</td>
               <td>{{ element.label }}</td>
               <td class="text-truncate" style="max-width: 200px" :title="element.description">
                 {{ element.description }}

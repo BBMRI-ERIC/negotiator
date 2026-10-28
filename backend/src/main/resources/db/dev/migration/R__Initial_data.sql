@@ -6,7 +6,8 @@ insert into person (id, email, name, subject_id, password, organization, admin)
 values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false),
        (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false),
        (3, 'for-backwards-compatability', 'directory', '',
-        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, false)
+        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, false),
+       (4, 'alice.administrator@gmail.com', 'TheAdministrator', '1002@bbmri.eu', null, 'BBMRI', true)
 on conflict do nothing;
 
 insert into organization (ID, external_id, name)
@@ -79,7 +80,8 @@ insert into public.access_form_section_element_link (id, access_form_section_lin
                                                      is_required, element_order)
 values (100, 7, 100, true, 10),
        (101, 7, 101, true, 11),
-       (102, 7, 102, true, 12)
+       (102, 7, 102, true, 12),
+       (103, 7, 103, false, 13)
 on conflict do nothing;
 
 insert into negotiation (id, creation_date, modified_date, current_state, payload, public_posts_enabled, private_posts_enabled, created_by, modified_by, human_readable, discovery_service_id)

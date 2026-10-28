@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -31,12 +33,15 @@ public class NegotiationModelAssembler
     implements RepresentationModelAssembler<NegotiationDTO, EntityModel<NegotiationDTO>> {
   private final InformationRequirementService requirementService;
   private final NegotiationLifecycleService negotiationLifecycleService;
+  private final String frontendUrl;
 
   public NegotiationModelAssembler(
       InformationRequirementService requirementService,
-      NegotiationLifecycleService negotiationLifecycleService) {
+      NegotiationLifecycleService negotiationLifecycleService,
+      @Value("${negotiator.frontend-url:}") String frontendUrl) {
     this.requirementService = requirementService;
     this.negotiationLifecycleService = negotiationLifecycleService;
+    this.frontendUrl = frontendUrl;
   }
 
   public @NonNull EntityModel<NegotiationDTO> toModelWithRequirementLink(
@@ -89,6 +94,11 @@ public class NegotiationModelAssembler
     links.add(
         linkTo(methodOn(NegotiationController.class).findResourcesForNegotiation(entity.getId()))
             .withRel("resources"));
+    if (StringUtils.isNotBlank(frontendUrl)) {
+      String base = StringUtils.stripEnd(frontendUrl, "/");
+      String uiHref = base + "/negotiations/" + entity.getId();
+      links.add(Link.of(uiHref).withRel("ui"));
+    }
     return EntityModel.of(entity, links);
   }
 

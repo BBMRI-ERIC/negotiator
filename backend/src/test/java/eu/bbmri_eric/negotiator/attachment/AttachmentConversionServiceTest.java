@@ -24,7 +24,10 @@ class AttachmentConversionServiceTest {
 
   @BeforeEach
   void setUp() {
-    conversionService = new AttachmentConversionServiceImpl(attachmentService);
+    conversionService =
+        new AttachmentConversionServiceImpl(
+            attachmentService,
+            List.of(new DocConverter(), new DocxConverter(), new PDFConverter()));
   }
 
   @Test

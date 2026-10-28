@@ -14,7 +14,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
   negotiator:
     container_name: negotiator
-    image: bbmrieric/negotiator:latest
+    image: bbmrieric/negotiator:${BACKEND_TAG:-${NEGOTIATOR_TAG:-latest}}
     depends_on:
       postgres:
         condition: service_healthy
@@ -29,6 +29,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/negotiator
       - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
+      - NEGOTIATOR_FRONTEND_URL=http://localhost:8080
     network_mode: host
     volumes:
       - negotiator-templates:/app/config/templates
@@ -51,7 +52,7 @@ services:
     command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
   negotiator-frontend:
     container_name: negotiator-frontend
-    image: bbmrieric/negotiator-frontend:${FRONTEND_TAG:-latest}
+    image: bbmrieric/negotiator-frontend:${FRONTEND_TAG:-${NEGOTIATOR_TAG:-latest}}
     restart: always
     environment:
       - DEV_MODE=true

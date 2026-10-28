@@ -240,7 +240,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useNegotiationFormStore } from '../../store/negotiationForm'
+import { useFormsStore } from '../../store/forms'
 import { useNotificationsStore } from '../../store/notifications'
 
 import fileExtensions from '@/config/uploadFileExtensions.js'
@@ -249,7 +249,7 @@ import { capitalizeAllWords, isFileExtensionsSupported } from '../../composables
 const accessFormWithPayloadSection = defineModel('accessFormWithPayloadSection')
 const negotiationReplacedAttachmentsID = defineModel('negotiationReplacedAttachmentsID')
 
-const negotiationFormStore = useNegotiationFormStore()
+const formsStore = useFormsStore()
 const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
@@ -294,14 +294,16 @@ function loadValueSets() {
   valueSetsLoading.value = true
   const elements = accessFormWithPayloadSection.value?.elements || []
   const promises = elements
-    .filter((e) =>
-      ['MULTIPLE_CHOICE', 'SINGLE_CHOICE_RADIO', 'SINGLE_CHOICE_DROPDOWN'].includes(e.type),
+    .filter(
+      (e) =>
+        ['MULTIPLE_CHOICE', 'SINGLE_CHOICE_RADIO', 'SINGLE_CHOICE_DROPDOWN'].includes(e.type) &&
+        e._links?.['value-set'],
     )
     .map((e) =>
-      negotiationFormStore
-        .retrieveDynamicAccessFormsValueSetByID(e.id)
+      formsStore
+        .retrieveDynamicAccessFormsValueSetByLink(e._links['value-set'].href)
         .then((res) => {
-          negotiationValueSets.value[e.id] = res
+          negotiationValueSets.value[e.id] = res ?? { availableValues: [] }
         })
         .catch(() => {
           // Fallback to empty values on error
