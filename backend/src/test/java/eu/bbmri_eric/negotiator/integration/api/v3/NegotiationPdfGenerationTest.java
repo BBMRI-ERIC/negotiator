@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
@@ -20,7 +21,9 @@ import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Disabled;
@@ -71,6 +74,31 @@ class NegotiationPdfGenerationTest {
     assertNotNull(pdfContent);
     assertTrue(pdfContent.length > 0);
     assertTrue(new String(pdfContent).startsWith("%PDF"));
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void testGenerateNegotiationPdf_WithLaterSectionLongerThanOnePage_ReturnsMultiPagePdf()
+      throws Exception {
+    String longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n".repeat(200);
+    Map<String, Object> payload = new LinkedHashMap<>();
+    payload.put("project", Map.of("title", "Long"));
+    payload.put("request", Map.of("description", longText));
+    negotiationRepository
+        .findById(NEGOTIATION_1_ID)
+        .get()
+        .setPayload(new ObjectMapper().writeValueAsString(payload));
+    negotiationRepository.flush();
+
+    MvcResult result =
+        mockMvc
+            .perform(get(PDF_ENDPOINT, NEGOTIATION_1_ID))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andReturn();
+
+    assertTrue(countPages(result.getResponse().getContentAsByteArray()) > 4);
   }
 
   @Test
