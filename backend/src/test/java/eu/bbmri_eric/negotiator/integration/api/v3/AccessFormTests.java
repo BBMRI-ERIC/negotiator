@@ -34,6 +34,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -495,29 +496,7 @@ public class AccessFormTests {
   @WithMockUser(roles = "ADMIN")
   void renameExistingAccessForm_ok() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
-    MvcResult existingForm =
-        mockMvc
-            .perform(MockMvcRequestBuilders.get("%s/3".formatted(ACCESS_FORMS_ENDPOINT)))
-            .andExpect(status().isOk())
-            .andReturn();
-    JsonNode existingFormJson =
-        objectMapper.readTree(existingForm.getResponse().getContentAsString());
-    List<AccessFormUpdateSectionDTO> sections = new ArrayList<>();
-    for (JsonNode section : existingFormJson.get("sections")) {
-      List<AccessFormUpdateElementDTO> elements = new ArrayList<>();
-      for (JsonNode element : section.get("elements")) {
-        elements.add(
-            AccessFormUpdateElementDTO.builder()
-                .id(element.get("id").asLong())
-                .required(element.get("required").asBoolean())
-                .build());
-      }
-      sections.add(
-          AccessFormUpdateSectionDTO.builder()
-              .id(section.get("id").asLong())
-              .elements(elements)
-              .build());
-    }
+    List<AccessFormUpdateSectionDTO> sections = currentSections(3L);
     String newName = "Renamed BBMRI.cz Template";
     AccessFormUpdateDTO updateDTO =
         AccessFormUpdateDTO.builder().name(newName).sections(sections).build();
@@ -534,6 +513,67 @@ public class AccessFormTests {
         .perform(MockMvcRequestBuilders.get("%s/3".formatted(ACCESS_FORMS_ENDPOINT)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name", is(updateDTO.getName())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void updateAccessForm_removedElement_rebuildsForm() throws Exception {
+    List<AccessFormUpdateSectionDTO> sections = currentSections(201L);
+    List<AccessFormUpdateElementDTO> elements = sections.get(0).getElements();
+    elements.remove(elements.size() - 1);
+
+    putAccessForm(201L, sections)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.sections[0].elements", hasSize(elements.size())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void updateAccessForm_changedRequired_rebuildsForm() throws Exception {
+    List<AccessFormUpdateSectionDTO> sections = currentSections(201L);
+    AccessFormUpdateElementDTO element = sections.get(0).getElements().get(0);
+    element.setRequired(!element.getRequired());
+
+    putAccessForm(201L, sections)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.sections[0].elements[0].required", is(element.getRequired())));
+  }
+
+  private ResultActions putAccessForm(Long formId, List<AccessFormUpdateSectionDTO> sections)
+      throws Exception {
+    AccessFormUpdateDTO updateDTO =
+        AccessFormUpdateDTO.builder().name("Updated form").sections(sections).build();
+    return mockMvc.perform(
+        MockMvcRequestBuilders.put("%s/%s".formatted(ACCESS_FORMS_ENDPOINT, formId))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(updateDTO)));
+  }
+
+  private List<AccessFormUpdateSectionDTO> currentSections(Long formId) throws Exception {
+    MvcResult existingForm =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("%s/%s".formatted(ACCESS_FORMS_ENDPOINT, formId)))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode existingFormJson =
+        new ObjectMapper().readTree(existingForm.getResponse().getContentAsString());
+    List<AccessFormUpdateSectionDTO> sections = new ArrayList<>();
+    for (JsonNode section : existingFormJson.get("sections")) {
+      List<AccessFormUpdateElementDTO> elements = new ArrayList<>();
+      for (JsonNode element : section.get("elements")) {
+        elements.add(
+            AccessFormUpdateElementDTO.builder()
+                .id(element.get("id").asLong())
+                .required(element.get("required").asBoolean())
+                .build());
+      }
+      sections.add(
+          AccessFormUpdateSectionDTO.builder()
+              .id(section.get("id").asLong())
+              .elements(elements)
+              .build());
+    }
+    return sections;
   }
 
   @Test
