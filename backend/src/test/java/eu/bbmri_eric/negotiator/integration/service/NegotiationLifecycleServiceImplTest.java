@@ -54,7 +54,7 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.statemachine.StateMachineException;
+import eu.bbmri_eric.negotiator.common.exceptions.InformationRequirementNotMetException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
@@ -466,7 +466,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   @Transactional
-  void sendEventForResource_notFulfilledRequirement_throwsStateMachineException()
+  void sendEventForResource_notFulfilledRequirement_throwsInformationRequirementNotMetException()
       throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -475,7 +475,7 @@ public class NegotiationLifecycleServiceImplTest {
         new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
     assertTrue(requirementRepository.existsByForEvent(NegotiationResourceEvent.CONTACT));
     assertThrows(
-        StateMachineException.class,
+        InformationRequirementNotMetException.class,
         () ->
             resourceLifecycleService.sendEvent(
                 negotiationDTO.getId(),
