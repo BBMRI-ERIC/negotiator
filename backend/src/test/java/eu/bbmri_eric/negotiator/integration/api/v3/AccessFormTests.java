@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.form.FormElementType;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
@@ -22,6 +23,7 @@ import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSetCreateDTO;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -487,6 +489,51 @@ public class AccessFormTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", equalTo(id.intValue())))
         .andExpect(jsonPath("$.name", is(createDTO.getName())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void renameExistingAccessForm_ok() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+    MvcResult existingForm =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("%s/3".formatted(ACCESS_FORMS_ENDPOINT)))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode existingFormJson =
+        objectMapper.readTree(existingForm.getResponse().getContentAsString());
+    List<AccessFormUpdateSectionDTO> sections = new ArrayList<>();
+    for (JsonNode section : existingFormJson.get("sections")) {
+      List<AccessFormUpdateElementDTO> elements = new ArrayList<>();
+      for (JsonNode element : section.get("elements")) {
+        elements.add(
+            AccessFormUpdateElementDTO.builder()
+                .id(element.get("id").asLong())
+                .required(element.get("required").asBoolean())
+                .build());
+      }
+      sections.add(
+          AccessFormUpdateSectionDTO.builder()
+              .id(section.get("id").asLong())
+              .elements(elements)
+              .build());
+    }
+    String newName = "Renamed BBMRI.cz Template";
+    AccessFormUpdateDTO updateDTO =
+        AccessFormUpdateDTO.builder().name(newName).sections(sections).build();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("%s/3".formatted(ACCESS_FORMS_ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(updateDTO.getName())));
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("%s/3".formatted(ACCESS_FORMS_ENDPOINT)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(updateDTO.getName())));
   }
 
   @Test
