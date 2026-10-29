@@ -131,14 +131,9 @@ public class AccessFormServiceImpl implements AccessFormService {
         accessFormRepository
             .findById(formId)
             .orElseThrow(() -> new EntityNotFoundException(formId));
-    List<AccessFormUpdateSectionDTO> sectionsDTO = formUpdateDTO.getSections();
-    if (hasSameStructure(accessForm, sectionsDTO)) {
-      accessForm.setName(formUpdateDTO.getName());
-      return modelMapper.map(accessFormRepository.saveAndFlush(accessForm), AccessFormDTO.class);
-    }
-
     accessForm = resetForm(accessForm);
     accessForm.setName(formUpdateDTO.getName());
+    List<AccessFormUpdateSectionDTO> sectionsDTO = formUpdateDTO.getSections();
     for (int i = 0; i < sectionsDTO.size(); i++) {
       AccessFormUpdateSectionDTO sectionDTO = sectionsDTO.get(i);
       AccessFormSection section =
@@ -158,38 +153,6 @@ public class AccessFormServiceImpl implements AccessFormService {
       }
     }
     return modelMapper.map(accessFormRepository.saveAndFlush(accessForm), AccessFormDTO.class);
-  }
-
-  private boolean hasSameStructure(
-      AccessForm accessForm, List<AccessFormUpdateSectionDTO> sectionsDTO) {
-    List<AccessFormSection> currentSections = List.copyOf(accessForm.getLinkedSections());
-    if (currentSections.size() != sectionsDTO.size()) {
-      return false;
-    }
-
-    for (int i = 0; i < sectionsDTO.size(); i++) {
-      AccessFormSection currentSection = currentSections.get(i);
-      AccessFormUpdateSectionDTO sectionDTO = sectionsDTO.get(i);
-      if (!currentSection.getId().equals(sectionDTO.getId())) {
-        return false;
-      }
-
-      List<AccessFormElement> currentElements = List.copyOf(currentSection.getAccessFormElements());
-      List<AccessFormUpdateElementDTO> elementsDTO = sectionDTO.getElements();
-      if (currentElements.size() != elementsDTO.size()) {
-        return false;
-      }
-
-      for (int j = 0; j < elementsDTO.size(); j++) {
-        AccessFormElement currentElement = currentElements.get(j);
-        AccessFormUpdateElementDTO elementDTO = elementsDTO.get(j);
-        if (!currentElement.getId().equals(elementDTO.getId())
-            || currentElement.isRequired() != elementDTO.getRequired()) {
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
   @Override

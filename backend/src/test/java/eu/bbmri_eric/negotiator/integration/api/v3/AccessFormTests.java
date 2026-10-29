@@ -509,10 +509,12 @@ public class AccessFormTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name", is(updateDTO.getName())));
 
+    // section 1 of form 3 has 7 elements in seed data, two sharing element_order 2
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s/3".formatted(ACCESS_FORMS_ENDPOINT)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.name", is(updateDTO.getName())));
+        .andExpect(jsonPath("$.name", is(updateDTO.getName())))
+        .andExpect(jsonPath("$.sections[0].elements", hasSize(7)));
   }
 
   @Test

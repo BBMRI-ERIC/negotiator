@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
+import java.util.Comparator;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -63,7 +64,11 @@ class AccessFormSectionElementLink implements Comparable<AccessFormSectionElemen
 
   @Override
   public int compareTo(AccessFormSectionElementLink o) {
-    return Integer.compare(this.elementOrder, o.elementOrder);
+    int byOrder = Integer.compare(this.elementOrder, o.elementOrder);
+    // tie-break on id: links sharing an order must not collapse in the SortedSet
+    return byOrder != 0
+        ? byOrder
+        : Comparator.nullsLast(Comparator.<Long>naturalOrder()).compare(this.id, o.id);
   }
 
   @Override
