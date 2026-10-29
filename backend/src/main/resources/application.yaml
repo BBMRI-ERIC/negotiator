@@ -119,6 +119,7 @@ logging:
     level: "%p"
   level:
     root: info
+    com.itextpdf: error
 springdoc:
   show-actuator: true
   oAuthFlow:

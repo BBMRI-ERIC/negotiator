@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -9,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
@@ -20,13 +22,19 @@ import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -35,6 +43,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 @IntegrationTest(loadTestData = true)
 @AutoConfigureMockMvc
+@ExtendWith(OutputCaptureExtension.class)
 class NegotiationPdfGenerationTest {
 
   private static final String NEGOTIATION_1_ID = "negotiation-1";
@@ -71,6 +80,31 @@ class NegotiationPdfGenerationTest {
     assertNotNull(pdfContent);
     assertTrue(pdfContent.length > 0);
     assertTrue(new String(pdfContent).startsWith("%PDF"));
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void testGenerateNegotiationPdf_WithLaterSectionLongerThanOnePage_ReturnsMultiPagePdf()
+      throws Exception {
+    String longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n".repeat(200);
+    Map<String, Object> payload = new LinkedHashMap<>();
+    payload.put("project", Map.of("title", "Long"));
+    payload.put("request", Map.of("description", longText));
+    negotiationRepository
+        .findById(NEGOTIATION_1_ID)
+        .get()
+        .setPayload(new ObjectMapper().writeValueAsString(payload));
+    negotiationRepository.flush();
+
+    MvcResult result =
+        mockMvc
+            .perform(get(PDF_ENDPOINT, NEGOTIATION_1_ID))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andReturn();
+
+    assertTrue(countPages(result.getResponse().getContentAsByteArray()) > 4);
   }
 
   @Test
@@ -282,6 +316,26 @@ class NegotiationPdfGenerationTest {
     assertTrue(
         countPages(mergedPdf) > countPages(summaryPdf),
         "The converted attachment should add pages to the negotiation summary");
+  }
+
+  @Test
+  void iTextLogs_OnlyErrorsAreForwardedToPdfServiceLogger(CapturedOutput output) {
+    org.slf4j.Logger iTextLogger = LoggerFactory.getLogger("com.itextpdf.layout.SomeRenderer");
+    iTextLogger.info("internal iText info");
+    iTextLogger.warn("internal iText warning");
+    iTextLogger.error("internal iText error");
+
+    assertFalse(output.getOut().contains("internal iText info"));
+    assertFalse(output.getOut().contains("internal iText warning"));
+    String errorLine =
+        output
+            .getOut()
+            .lines()
+            .filter(line -> line.contains("iText (SomeRenderer): internal iText error"))
+            .findFirst()
+            .orElseThrow();
+    assertTrue(errorLine.contains("NegotiationPdfServiceImpl"));
+    assertFalse(errorLine.contains("com.itextpdf"));
   }
 
   private int countPages(byte[] pdf) throws IOException {

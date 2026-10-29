@@ -13,18 +13,10 @@
                 font-size: 10px;
                 color: #666;
             }
-            @top-right {
-                content: "";
-                background: url('data:image/svg+xml;base64,') no-repeat;
-                background-size: 60px 30px;
-                width: 60px;
-                height: 30px;
-            }
         }
 
         @page :first {
             @bottom-right { content: none; }
-            @top-right { content: none; }
         }
 
         body {
@@ -133,7 +125,6 @@
             margin-bottom: 2em;
             padding: 1em;
             border: 1px solid #e8ecef;
-            page-break-inside: avoid;
         }
 
         .summary-table {
@@ -226,7 +217,7 @@
             display: inline-block;
             width: 30%;
             vertical-align: top;
-            margin-right: 3%;
+            margin-right: 0.5cm;
         }
 
         .contact-header {
