@@ -129,8 +129,7 @@ const emailNotificationsStep = {
   target: '.v-step-settings-3',
   header: { title: 'Email Notifications' },
   params: { enableScrolling: false },
-  content:
-    'View and manage email notifications sent by the Negotiator.',
+  content: 'View and manage email notifications sent by the Negotiator.',
 }
 const usersStep = {
   target: '.v-step-settings-2',
