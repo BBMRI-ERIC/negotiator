@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Routes errors logged by iText through the PDF service logger, so they show up as
- * part of the negotiator's own logs instead of as internal library output.
+ * Routes errors logged by iText through the PDF service logger, so they show up as part of the
+ * negotiator's own logs instead of as internal library output.
  */
 @Component
 class ITextLogForwarder {
