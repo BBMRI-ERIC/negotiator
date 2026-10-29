@@ -31,7 +31,7 @@ describe("Test negotiation message", () => {
         })
 
         it("test send a message with Ctrl+Enter", () => {
-            cy.get("#recipient").select("Public channel")
+            cy.get("#recipient").select("public")
             cy.get('[data-cy="message-input"]').type("First line{enter}second line")
             cy.get('[data-cy="message-input"]').should("have.value", "First line\nsecond line")
             cy.get('[data-cy="message-input"]').type("{ctrl}{enter}")
@@ -39,7 +39,7 @@ describe("Test negotiation message", () => {
         })
 
         it("test send a message with Cmd+Enter", () => {
-            cy.get("#recipient").select("Public channel")
+            cy.get("#recipient").select("public")
             cy.get('[data-cy="message-input"]').type("Sent with Cmd+Enter")
             cy.get('[data-cy="message-input"]').type("{cmd}{enter}")
             cy.get('[data-cy="message-input"]').should("have.value", "")
