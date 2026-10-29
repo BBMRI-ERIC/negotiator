@@ -31,14 +31,15 @@ describe("Test create negotiation", () => {
 
             //  form input
             // page 2
-            cy.get(":nth-child(2) > .access-form-section-elements > div > .form-control").type("Test e2e negotiation", {force: true})
-            cy.get(":nth-child(3) > .access-form-section-elements > div > .form-control").type("C92.1", {force: true})
-            cy.get(":nth-child(4) > .access-form-section-elements > div > .form-control").type("Innovative method to detect BCR::ABL1")
-            cy.get(":nth-child(5) > .access-form-section-elements > div > .form-control").type("Masaryk memorial cancer institute")
+            cy.contains(".form-label", /^Title$/).parent().find(".form-control").type("Test e2e negotiation")
+            cy.contains(".form-label", /^Description$/).parent().find(".form-control").type("Research on BCR::ABL1 detection")
+            cy.contains(".form-label", /^Disease Code$/).parent().find(".form-control").type("C92.1")
+            cy.contains(".form-label", /^Study Objective$/).parent().find(".form-control").type("Innovative method to detect BCR::ABL1")
+            cy.contains(".form-label", /^Organization$/).parent().find(".form-control").type("Masaryk memorial cancer institute")
 
             cy.get("#boolean-7-yes").check()
 
-            cy.get(":nth-child(7) > .access-form-section-elements > div > .form-control").type("OPJAK")
+            cy.contains(".form-label", /^Acknowledgment$/).parent().find(".form-control").type("OPJAK")
 
             cy.get("#inlineCheckbox-100-1").check()
             cy.get("#inlineRadio-101-1").check()
@@ -113,14 +114,15 @@ describe("Test create negotiation", () => {
 
           //  form input
           // page 2
-          cy.get(":nth-child(2) > .access-form-section-elements > div > .form-control").type("Test e2e negotiation", {force: true})
-          cy.get(":nth-child(3) > .access-form-section-elements > div > .form-control").type("C92.1", {force: true})
-          cy.get(":nth-child(4) > .access-form-section-elements > div > .form-control").type("Innovative method to detect BCR::ABL1")
-          cy.get(":nth-child(5) > .access-form-section-elements > div > .form-control").type("Masaryk memorial cancer institute")
+          cy.contains(".form-label", /^Title$/).parent().find(".form-control").type("Test e2e negotiation")
+          cy.contains(".form-label", /^Description$/).parent().find(".form-control").type("Research on BCR::ABL1 detection")
+          cy.contains(".form-label", /^Disease Code$/).parent().find(".form-control").type("C92.1")
+          cy.contains(".form-label", /^Study Objective$/).parent().find(".form-control").type("Innovative method to detect BCR::ABL1")
+          cy.contains(".form-label", /^Organization$/).parent().find(".form-control").type("Masaryk memorial cancer institute")
 
           cy.get("#boolean-7-yes").check()
 
-          cy.get(":nth-child(7) > .access-form-section-elements > div > .form-control").type("OPJAK")
+          cy.contains(".form-label", /^Acknowledgment$/).parent().find(".form-control").type("OPJAK")
 
           cy.get("#inlineCheckbox-100-1").check()
           cy.get("#inlineRadio-101-1").check()
