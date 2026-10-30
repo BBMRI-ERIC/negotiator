@@ -64,11 +64,10 @@ class AccessFormSectionElementLink implements Comparable<AccessFormSectionElemen
 
   @Override
   public int compareTo(AccessFormSectionElementLink o) {
-    int byOrder = Integer.compare(this.elementOrder, o.elementOrder);
     // tie-break on id: links sharing an order must not collapse in the SortedSet
-    return byOrder != 0
-        ? byOrder
-        : Comparator.nullsLast(Comparator.<Long>naturalOrder()).compare(this.id, o.id);
+    return Comparator.comparingInt((AccessFormSectionElementLink link) -> link.elementOrder)
+        .thenComparing(link -> link.id, Comparator.nullsLast(Comparator.naturalOrder()))
+        .compare(this, o);
   }
 
   @Override
