@@ -74,8 +74,8 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 cy.contains("label", "Form Name").should("be.visible")
 
                 // Find the form name input field and update it
-                cy.get("input[type='TEXT'][placeholder='Give a form name']").should("be.visible").clear()
-                cy.get("input[type='TEXT'][placeholder='Give a form name']").type(newName)
+                cy.get("[data-test=form-name-input]").should("be.visible").clear()
+                cy.get("[data-test=form-name-input]").type(newName)
 
                 // Step through the wizard to the final step (auto-scrolls before each click)
                 completeWizard()
@@ -117,12 +117,12 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
                 // cy.url().should("contain", `/settings/editAccessForm/${formId}`, { timeout: 1000 })
 
                 // Wait for the form to load and check that the form name field has content
-                cy.get("input[type='TEXT'][placeholder='Give a form name']")
+                cy.get("[data-test=form-name-input]")
                     .should("be.visible")
                     .should("not.have.value", "")
 
                 // Get current name value
-                cy.get("input[type='TEXT'][placeholder='Give a form name']").invoke("val").then((currentName) => {
+                cy.get("[data-test=form-name-input]").invoke("val").then((currentName) => {
                     // Submit without changing the name (step through the whole wizard)
                     completeWizard()
 
