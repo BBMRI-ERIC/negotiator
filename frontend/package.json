@@ -35,7 +35,7 @@
     "lodash-es": "^4.17.23",
     "moment": "^2.31.0",
     "oidc-client-ts": "^3.5.0",
-    "pinia": "^3.0.3",
+    "pinia": "^4.1.0",
     "pinia-oidc": "^1.0.10",
     "sass-loader": "^16.0.5",
     "vue": "^3.5.28",
