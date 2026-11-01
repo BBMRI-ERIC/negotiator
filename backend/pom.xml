@@ -30,7 +30,7 @@
         <itext.version>9.8.0</itext.version>
         <itext.html2pdf.version>6.3.4</itext.html2pdf.version>
         <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
-        <modelmapper.version>3.2.4</modelmapper.version>
+        <modelmapper.version>3.2.8</modelmapper.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <poi.version>5.4.1</poi.version>
         <standardwebhooks.version>1.1.1</standardwebhooks.version>
