@@ -21,17 +21,16 @@ import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * The whole Evaluation Pipeline: Required Authority, the Information Requirement stage, then the
  * Guard chain. It runs without Spring or a database. The only stub is the Information Requirement
  * port, because it is the only part that reads data.
  *
- * <p>The graph puts all five Required Authority values on Transitions leaving one State, so a
- * single context can be asked about every rule at once and {@link
- * #possibleEvents_offersExactlyWhatEvaluateWouldPermit} can compare the two entry points over the
- * whole fan-out rather than one edge at a time.
+ * <p>The graph puts all four Required Authority values and an empty set on Transitions leaving one
+ * State, so {@link #possibleEvents_offersExactlyWhatEvaluateWouldPermit} can compare both entry
+ * points over every Transition from one context.
  *
  * <p>Three tests cover the pipeline's order: a caller who fails two stages is told about the
  * earlier one, so the failure category a caller sees stays stable.
@@ -57,11 +56,12 @@ class TransitionEvaluatorTest {
         .state("BY_CREATOR")
         .state("BY_REPRESENTATIVE")
         .state("BY_SYSTEM")
-        .transition("OPEN", "ANYONE", "BY_ANYONE", RequiredAuthority.NONE)
-        .transition("OPEN", "ADMIN_ONLY", "BY_ADMIN", RequiredAuthority.IS_ADMIN)
-        .transition("OPEN", "CREATOR_ONLY", "BY_CREATOR", RequiredAuthority.IS_CREATOR)
-        .transition("OPEN", "REP_ONLY", "BY_REPRESENTATIVE", RequiredAuthority.IS_REPRESENTATIVE)
-        .transition("OPEN", "CONCLUDE", "BY_SYSTEM", RequiredAuthority.SYSTEM)
+        .transition("OPEN", "ANYONE", "BY_ANYONE", Set.of())
+        .transition("OPEN", "ADMIN_ONLY", "BY_ADMIN", Set.of(RequiredAuthority.IS_ADMIN))
+        .transition("OPEN", "CREATOR_ONLY", "BY_CREATOR", Set.of(RequiredAuthority.IS_CREATOR))
+        .transition(
+            "OPEN", "REP_ONLY", "BY_REPRESENTATIVE", Set.of(RequiredAuthority.IS_REPRESENTATIVE))
+        .transition("OPEN", "CONCLUDE", "BY_SYSTEM", Set.of(RequiredAuthority.SYSTEM))
         .eventWithoutTransition("OVERRIDE")
         .build();
   }
@@ -99,12 +99,12 @@ class TransitionEvaluatorTest {
   }
 
   @Test
-  @DisplayName("an Event requiring no authority is permitted to any human caller")
-  void evaluate_whenTheAuthorityIsNone_permitsAnyHuman() {
+  @DisplayName("an Event with an empty Required Authority is permitted to any person")
+  void evaluate_whenTheAuthorityIsEmpty_permitsAnyPerson() {
     assertThat(evaluator.evaluate(graph(), "ANYONE", contextFor(stranger())))
         .isEqualTo(
             new EvaluationOutcome.Permitted(
-                new CompiledTransition("OPEN", "ANYONE", "BY_ANYONE", RequiredAuthority.NONE)));
+                new CompiledTransition("OPEN", "ANYONE", "BY_ANYONE", Set.of())));
   }
 
   @Test
@@ -153,20 +153,60 @@ class TransitionEvaluatorTest {
             refused -> {
               assertThat(refused.category()).isEqualTo(FailureCategory.AUTHORIZATION);
               assertThat(refused.reasonCode()).isEqualTo("REQUIRED_AUTHORITY_NOT_HELD");
-              assertThat(refused.details()).containsEntry("requiredAuthority", "IS_ADMIN");
+              assertThat(refused.details()).containsEntry("requiredAuthority", List.of("IS_ADMIN"));
             });
   }
 
+  /** The shape of the Negotiation Transitions that an admin or the creator may fire. */
+  private static CompiledGraph adminOrCreatorGraph() {
+    return CompiledGraph.builder(VERSION_ID)
+        .initialState("OPEN")
+        .state("MOVED")
+        .transition(
+            "OPEN", "GO", "MOVED", Set.of(RequiredAuthority.IS_ADMIN, RequiredAuthority.IS_CREATOR))
+        .build();
+  }
+
+  @Test
+  @DisplayName("a caller holding any one value of the Required Authority set is permitted")
+  void evaluate_whenTheCallerHoldsAnyOneValueOfTheSet_permits() {
+    assertThat(evaluator.evaluate(adminOrCreatorGraph(), "GO", contextFor(admin())).permitted())
+        .isTrue();
+    assertThat(evaluator.evaluate(adminOrCreatorGraph(), "GO", contextFor(creator())).permitted())
+        .isTrue();
+  }
+
+  @Test
+  @DisplayName("a caller holding no value of the Required Authority set is refused")
+  void evaluate_whenTheCallerHoldsNoValueOfTheSet_refuses() {
+    for (Caller caller : List.of(representative(), stranger(), Caller.system())) {
+      assertThat(evaluator.evaluate(adminOrCreatorGraph(), "GO", contextFor(caller)).permitted())
+          .isFalse();
+    }
+  }
+
+  @Test
+  @DisplayName("a refusal on authority names every value of the set, in declaration order")
+  void evaluate_whenRefusedOnASetOfAuthorities_namesTheWholeSet() {
+    EvaluationOutcome outcome =
+        evaluator.evaluate(adminOrCreatorGraph(), "GO", contextFor(stranger()));
+
+    assertThat(outcome)
+        .asInstanceOf(
+            org.assertj.core.api.InstanceOfAssertFactories.type(EvaluationOutcome.Refused.class))
+        .extracting(EvaluationOutcome.Refused::details)
+        .isEqualTo(Map.of("requiredAuthority", List.of("IS_ADMIN", "IS_CREATOR")));
+  }
+
   /**
-   * ADR 0007: an Event is machine-fired if and only if its authority is {@code SYSTEM}. Walked over
-   * every human caller shape the fixture has, so "no human at all" is a claim about the rule rather
-   * than about one caller.
+   * Only the system fires an Event whose authority is {@code SYSTEM}. The test tries every person
+   * in the fixture, so it checks the rule and not one caller.
    */
   @Test
-  @DisplayName("no human caller of any shape satisfies SYSTEM")
-  void evaluate_whenTheAuthorityIsSystem_isRefusedForEveryHumanCaller() {
-    for (Caller human : List.of(admin(), creator(), representative(), stranger())) {
-      assertThat(evaluator.evaluate(graph(), "CONCLUDE", contextFor(human)).permitted()).isFalse();
+  @DisplayName("no person of any shape satisfies SYSTEM")
+  void evaluate_whenTheAuthorityIsSystem_isRefusedForEveryPerson() {
+    for (Caller person : List.of(admin(), creator(), representative(), stranger())) {
+      assertThat(evaluator.evaluate(graph(), "CONCLUDE", contextFor(person)).permitted()).isFalse();
     }
   }
 
@@ -178,25 +218,30 @@ class TransitionEvaluatorTest {
   }
 
   /**
-   * The other direction, which is the less obvious half: reading {@code NONE} as "including the
-   * system" would make every open Event machine-fireable, and that overload is exactly what {@code
-   * SYSTEM} exists to prevent.
+   * If an empty set admitted the system, the system could fire every Transition that requires no
+   * authority. {@code SYSTEM} exists to prevent that.
    */
   @ParameterizedTest
-  @EnumSource(
-      value = RequiredAuthority.class,
-      names = {"NONE", "IS_ADMIN", "IS_CREATOR", "IS_REPRESENTATIVE"})
-  @DisplayName(
-      "the system caller satisfies no human authority, so an open Event is not machine-fireable")
-  void evaluate_whenTheCallerIsTheSystem_satisfiesNoHumanAuthority(RequiredAuthority authority) {
+  @MethodSource("personAuthorities")
+  @DisplayName("the system caller satisfies no person authority and no empty set")
+  void evaluate_whenTheCallerIsTheSystem_satisfiesNoPersonAuthority(
+      Set<RequiredAuthority> required) {
     CompiledGraph graph =
         CompiledGraph.builder(1L)
             .initialState("OPEN")
             .state("MOVED")
-            .transition("OPEN", "GO", "MOVED", authority)
+            .transition("OPEN", "GO", "MOVED", required)
             .build();
 
     assertThat(evaluator.evaluate(graph, "GO", contextFor(Caller.system())).permitted()).isFalse();
+  }
+
+  private static List<Set<RequiredAuthority>> personAuthorities() {
+    return List.of(
+        Set.of(),
+        Set.of(RequiredAuthority.IS_ADMIN),
+        Set.of(RequiredAuthority.IS_CREATOR),
+        Set.of(RequiredAuthority.IS_REPRESENTATIVE));
   }
 
   /**
@@ -274,6 +319,12 @@ class TransitionEvaluatorTest {
   void possibleEvents_omitsBlockedEventsRatherThanListingThemAsUnavailable() {
     assertThat(evaluator.possibleEvents(graph(), contextFor(creator())))
         .containsExactlyInAnyOrder("ANYONE", "CREATOR_ONLY");
+  }
+
+  @Test
+  @DisplayName("the listing offers an Event with an empty Required Authority to any person")
+  void possibleEvents_whenTheAuthorityIsEmpty_offersItToAnyPerson() {
+    assertThat(evaluator.possibleEvents(graph(), contextFor(stranger()))).containsExactly("ANYONE");
   }
 
   @Test
@@ -397,11 +448,7 @@ class TransitionEvaluatorTest {
             .state("MOVED")
             .transition(
                 new CompiledTransition(
-                    "OPEN",
-                    "GO",
-                    "MOVED",
-                    RequiredAuthority.NONE,
-                    List.of(alwaysFailing("ALWAYS_NO"))))
+                    "OPEN", "GO", "MOVED", Set.of(), List.of(alwaysFailing("ALWAYS_NO"))))
             .build();
 
     EvaluationOutcome outcome = evaluator.evaluate(guarded, "GO", contextFor(stranger()));
@@ -427,7 +474,7 @@ class TransitionEvaluatorTest {
                     "OPEN",
                     "GO",
                     "MOVED",
-                    RequiredAuthority.NONE,
+                    Set.of(),
                     List.of(alwaysFailing("TERMINAL_AGGREGATION"))))
             .build();
 
@@ -457,7 +504,7 @@ class TransitionEvaluatorTest {
                     "OPEN",
                     "GO",
                     "MOVED",
-                    RequiredAuthority.NONE,
+                    Set.of(),
                     List.of(
                         recording("FIRST", ran, GuardVerdict.pass()),
                         recording("SECOND", ran, GuardVerdict.fail("NOPE")),
@@ -490,7 +537,7 @@ class TransitionEvaluatorTest {
                     "OPEN",
                     "GO",
                     "MOVED",
-                    RequiredAuthority.NONE,
+                    Set.of(),
                     List.of(),
                     List.of(
                         recordingAction("FIRST", ran),
@@ -525,7 +572,7 @@ class TransitionEvaluatorTest {
                     "OPEN",
                     "GO",
                     "MOVED",
-                    RequiredAuthority.NONE,
+                    Set.of(),
                     List.of(),
                     List.of(recordingAction("ON_GO", ran))))
             .transition(
@@ -533,7 +580,7 @@ class TransitionEvaluatorTest {
                     "OPEN",
                     "ALSO_GO",
                     "ALSO_MOVED",
-                    RequiredAuthority.NONE,
+                    Set.of(),
                     List.of(),
                     List.of(recordingAction("ON_ALSO_GO", ran))))
             .build();
@@ -554,9 +601,12 @@ class TransitionEvaluatorTest {
         CompiledGraph.builder(VERSION_ID)
             .initialState("SUBMITTED")
             .state("IN_PROGRESS")
-            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN)
+            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", Set.of(RequiredAuthority.IS_ADMIN))
             .transition(
-                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN)
+                "IN_PROGRESS",
+                "RETURN_FOR_RESUBMISSION",
+                "SUBMITTED",
+                Set.of(RequiredAuthority.IS_ADMIN))
             .build();
 
     assertThat(evaluator.evaluate(cyclic, "APPROVE", contextIn("SUBMITTED", admin())).permitted())

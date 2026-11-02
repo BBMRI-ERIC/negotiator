@@ -11,16 +11,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
- * One edge of a Lifecycle Definition's graph: firing {@code event} while in {@code fromState} moves
- * to {@code toState}, if the caller holds {@code requiredAuthority} and the Guard chain permits it.
+ * One edge of a Definition Version's graph. Firing {@code event} in {@code fromState} moves to
+ * {@code toState} if the caller holds any one of {@code requiredAuthority} and the Guards allow it.
  *
  * <p>The four references are immutable, so changing one makes a new Transition. Only {@code
  * requiredAuthority} is editable.
@@ -62,8 +65,13 @@ class Transition {
   @JoinColumn(name = "event_id", nullable = false, updatable = false)
   private Event event;
 
-  /** Never null: {@link RequiredAuthority#NONE} is how "anyone may fire this" is spelled. */
+  /**
+   * Never null. An empty set admits any person. Holding any one value is enough, and {@code SYSTEM}
+   * stands alone. It is a {@code VARCHAR} array rather than a join table because nothing queries it
+   * by element, and the array keeps the CHECK on one table.
+   */
   @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.ARRAY)
   @Column(nullable = false)
-  private RequiredAuthority requiredAuthority;
+  private Set<RequiredAuthority> requiredAuthority;
 }

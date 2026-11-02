@@ -71,19 +71,19 @@ final class DefinitionRows {
   }
 
   long writeTransition(
-      long versionId, long fromStateId, long eventId, long toStateId, String requiredAuthority) {
+      long versionId, long fromStateId, long eventId, long toStateId, String... requiredAuthority) {
     return jdbc.queryForObject(
         """
         INSERT INTO transition (lifecycle_definition_id, from_state_id, event_id, to_state_id,
                                 required_authority)
-        VALUES (?, ?, ?, ?, ?) RETURNING id
+        VALUES (?, ?, ?, ?, string_to_array(?, ',')) RETURNING id
         """,
         Long.class,
         versionId,
         fromStateId,
         eventId,
         toStateId,
-        requiredAuthority);
+        String.join(",", requiredAuthority));
   }
 
   /**

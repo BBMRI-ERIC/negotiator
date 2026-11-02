@@ -14,8 +14,11 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -67,7 +70,7 @@ class TransitionRepositoryTest {
                 .fromState(draft)
                 .toState(submitted)
                 .event(submit)
-                .requiredAuthority(RequiredAuthority.IS_CREATOR)
+                .requiredAuthority(Set.of(RequiredAuthority.IS_CREATOR))
                 .build());
     entityManager.clear();
 
@@ -77,29 +80,70 @@ class TransitionRepositoryTest {
     assertEquals(draft.getId(), found.getFromState().getId());
     assertEquals(submitted.getId(), found.getToState().getId());
     assertEquals(submit.getId(), found.getEvent().getId());
-    assertEquals(RequiredAuthority.IS_CREATOR, found.getRequiredAuthority());
+    assertEquals(Set.of(RequiredAuthority.IS_CREATOR), found.getRequiredAuthority());
   }
 
   /**
-   * The column holds the enum's name, not its ordinal. Read back through {@link JdbcTemplate}
-   * rather than through the mapping, because {@code @Enumerated(ORDINAL)} would round-trip through
-   * Hibernate just as happily and the seed is SQL that has to write the same spelling.
+   * The column holds the enum's names, not its ordinals. The test reads it through {@link
+   * JdbcTemplate} because an ordinal mapping would also round-trip through Hibernate, and the SQL
+   * seed has to write the same spelling.
    */
   @Test
   void save_storesTheAuthorityAsItsName() {
     Transition transition = transitions.saveAndFlush(transitionOn(draft, submit, submitted));
 
-    String stored =
-        jdbcTemplate.queryForObject(
-            "SELECT required_authority FROM transition WHERE id = ?",
+    List<String> stored =
+        jdbcTemplate.queryForList(
+            "SELECT unnest(required_authority) FROM transition WHERE id = ?",
             String.class,
             transition.getId());
-    assertEquals("IS_REPRESENTATIVE", stored);
+    assertEquals(List.of("IS_REPRESENTATIVE"), stored);
   }
 
-  /** All five values of the enum are accepted, so the whitelist below is not narrower than it. */
+  /** An empty set admits any person, and it comes back empty rather than null. */
   @Test
-  void save_withEachOfTheFiveAuthorities_isAccepted() {
+  void save_withAnEmptySet_roundTripsTheEmptySet() {
+    Long id =
+        transitions
+            .saveAndFlush(
+                Transition.builder()
+                    .lifecycleDefinition(definition)
+                    .fromState(draft)
+                    .toState(submitted)
+                    .event(submit)
+                    .requiredAuthority(Set.of())
+                    .build())
+            .getId();
+    entityManager.clear();
+
+    assertEquals(Set.of(), transitions.findById(id).orElseThrow().getRequiredAuthority());
+  }
+
+  /** A set of more than one value, such as admin or creator, survives a round trip whole. */
+  @Test
+  void save_withASetOfTwoAuthorities_roundTripsTheSet() {
+    Long id =
+        transitions
+            .saveAndFlush(
+                Transition.builder()
+                    .lifecycleDefinition(definition)
+                    .fromState(draft)
+                    .toState(submitted)
+                    .event(submit)
+                    .requiredAuthority(
+                        Set.of(RequiredAuthority.IS_ADMIN, RequiredAuthority.IS_CREATOR))
+                    .build())
+            .getId();
+    entityManager.clear();
+
+    assertEquals(
+        Set.of(RequiredAuthority.IS_ADMIN, RequiredAuthority.IS_CREATOR),
+        transitions.findById(id).orElseThrow().getRequiredAuthority());
+  }
+
+  /** All four values of the enum are accepted, so the whitelist below is not narrower than it. */
+  @Test
+  void save_withEachOfTheFourAuthorities_isAccepted() {
     for (RequiredAuthority authority : RequiredAuthority.values()) {
       Event event = events.saveAndFlush(eventIn(definition, "EVENT_" + authority));
       Transition transition =
@@ -109,25 +153,24 @@ class TransitionRepositoryTest {
                   .fromState(draft)
                   .toState(submitted)
                   .event(event)
-                  .requiredAuthority(authority)
+                  .requiredAuthority(Set.of(authority))
                   .build());
       assertNotNull(transition.getId());
     }
   }
 
   /**
-   * A sixth authority is refused. Inserted through {@link JdbcTemplate} because the Java enum makes
-   * the value unrepresentable through the mapping, and the v1 seed is SQL that bypasses the mapping
-   * entirely — so the refusal has to come from the column itself.
+   * The column refuses a fifth authority. The Java enum cannot represent one and the SQL seed
+   * bypasses the mapping, so the refusal has to come from the column itself.
    */
   @Test
-  void insert_withAnAuthorityOutsideTheFive_isRefusedByTheDatabase() {
+  void insert_withAnAuthorityOutsideTheFour_isRefusedByTheDatabase() {
     assertThrows(
         DataIntegrityViolationException.class,
         () ->
             jdbcTemplate.update(
                 "INSERT INTO transition (lifecycle_definition_id, from_state_id, to_state_id,"
-                    + " event_id, required_authority) VALUES (?, ?, ?, ?, 'IS_MODERATOR')",
+                    + " event_id, required_authority) VALUES (?, ?, ?, ?, '{IS_MODERATOR}')",
                 definition.getId(),
                 draft.getId(),
                 submitted.getId(),
@@ -135,11 +178,9 @@ class TransitionRepositoryTest {
   }
 
   /**
-   * {@code required_authority} is NOT NULL: {@link RequiredAuthority#NONE} is the spelling for
-   * "anyone may fire this", so a null would be a second, silent way to say the same thing. Inserted
-   * through {@link JdbcTemplate} for the same reason as the test above — the v1 seed is SQL and
-   * bypasses the mapping, so Hibernate's {@code nullable = false} would otherwise mask whether the
-   * column itself carries the constraint.
+   * {@code required_authority} is NOT NULL because an empty set already means any person may fire
+   * the Event. The test inserts through {@link JdbcTemplate} so that Hibernate's {@code nullable =
+   * false} cannot hide a missing column constraint.
    */
   @Test
   void insert_withoutAnAuthority_isRefusedByTheDatabase() {
@@ -156,9 +197,46 @@ class TransitionRepositoryTest {
   }
 
   /**
-   * The evaluator's answer to "which Transition leaves State X for Event Y" must be a single row.
-   * The frozen graph dump has 0 duplicate {@code (source, event)} pairs across both live graphs, so
-   * this constrains nothing real and forecloses an ambiguity the evaluator could not resolve.
+   * The rest of the CHECK, each written as the SQL seed would write it. {@code NONE} is not a
+   * value, {@code SYSTEM} only stands alone, and a NULL element or a nested array is not a set of
+   * the four values.
+   */
+  @ParameterizedTest
+  @ValueSource(
+      strings = {"{NONE}", "{SYSTEM,IS_ADMIN}", "{IS_ADMIN,NULL}", "{{IS_ADMIN},{IS_CREATOR}}"})
+  void insert_withAnAuthoritySetTheCheckForbids_isRefusedByTheDatabase(String authorities) {
+    assertThrows(
+        DataIntegrityViolationException.class,
+        () ->
+            jdbcTemplate.update(
+                "INSERT INTO transition (lifecycle_definition_id, from_state_id, to_state_id,"
+                    + " event_id, required_authority) VALUES (?, ?, ?, ?, ?::VARCHAR[])",
+                definition.getId(),
+                draft.getId(),
+                submitted.getId(),
+                submit.getId(),
+                authorities));
+  }
+
+  /** The control for the test above: the same insert, with a set the CHECK permits. */
+  @ParameterizedTest
+  @ValueSource(strings = {"{IS_ADMIN,IS_CREATOR,IS_REPRESENTATIVE}", "{SYSTEM}", "{}"})
+  void insert_withASetTheCheckPermits_isAccepted(String authorities) {
+    assertEquals(
+        1,
+        jdbcTemplate.update(
+            "INSERT INTO transition (lifecycle_definition_id, from_state_id, to_state_id,"
+                + " event_id, required_authority) VALUES (?, ?, ?, ?, ?::VARCHAR[])",
+            definition.getId(),
+            draft.getId(),
+            submitted.getId(),
+            submit.getId(),
+            authorities));
+  }
+
+  /**
+   * One {@code (source, event)} pair has at most one Transition, because the Transition Evaluator
+   * cannot choose between two. The live graphs have no duplicate pairs.
    */
   @Test
   void save_withASourceAndEventAlreadyUsed_isRefused() {
@@ -193,7 +271,7 @@ class TransitionRepositoryTest {
             .fromState(otherDraft)
             .toState(submitted)
             .event(submit)
-            .requiredAuthority(RequiredAuthority.NONE)
+            .requiredAuthority(Set.of(RequiredAuthority.IS_CREATOR))
             .build();
     assertThrows(DataIntegrityViolationException.class, () -> transitions.saveAndFlush(straddling));
   }
@@ -206,7 +284,7 @@ class TransitionRepositoryTest {
             .fromState(draft)
             .toState(otherDraft)
             .event(submit)
-            .requiredAuthority(RequiredAuthority.NONE)
+            .requiredAuthority(Set.of(RequiredAuthority.IS_CREATOR))
             .build();
     assertThrows(DataIntegrityViolationException.class, () -> transitions.saveAndFlush(straddling));
   }
@@ -219,7 +297,7 @@ class TransitionRepositoryTest {
             .fromState(draft)
             .toState(submitted)
             .event(otherSubmit)
-            .requiredAuthority(RequiredAuthority.NONE)
+            .requiredAuthority(Set.of(RequiredAuthority.IS_CREATOR))
             .build();
     assertThrows(DataIntegrityViolationException.class, () -> transitions.saveAndFlush(straddling));
   }
@@ -275,12 +353,12 @@ class TransitionRepositoryTest {
     entityManager.clear();
 
     Transition stored = transitions.findById(id).orElseThrow();
-    stored.setRequiredAuthority(RequiredAuthority.IS_ADMIN);
+    stored.setRequiredAuthority(Set.of(RequiredAuthority.IS_ADMIN));
     transitions.saveAndFlush(stored);
     entityManager.clear();
 
     Transition reloaded = transitions.findById(id).orElseThrow();
-    assertEquals(RequiredAuthority.IS_ADMIN, reloaded.getRequiredAuthority());
+    assertEquals(Set.of(RequiredAuthority.IS_ADMIN), reloaded.getRequiredAuthority());
     assertEquals(definition.getId(), reloaded.getLifecycleDefinition().getId());
     assertEquals(draft.getId(), reloaded.getFromState().getId());
     assertEquals(submitted.getId(), reloaded.getToState().getId());
@@ -309,7 +387,7 @@ class TransitionRepositoryTest {
         .fromState(fromState)
         .toState(toState)
         .event(event)
-        .requiredAuthority(RequiredAuthority.IS_REPRESENTATIVE)
+        .requiredAuthority(Set.of(RequiredAuthority.IS_REPRESENTATIVE))
         .build();
   }
 }

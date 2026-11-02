@@ -511,9 +511,10 @@ class EventFiringIntegrationTest {
     long adminOnly = rows.writeEvent(version, ADMIN_ONLY);
     long guarded = rows.writeEvent(version, GUARDED);
 
-    long contacting = rows.writeTransition(version, submitted, contact, contacted, "NONE");
+    long contacting =
+        rows.writeTransition(version, submitted, contact, contacted, "IS_REPRESENTATIVE");
     rows.writeTransition(version, submitted, adminOnly, checking, "IS_ADMIN");
-    long locking = rows.writeTransition(version, submitted, guarded, checking, "NONE");
+    long locking = rows.writeTransition(version, submitted, guarded, checking, "IS_REPRESENTATIVE");
 
     rows.writeGuardWiring(version, null, FiringTestStrategies.DEFINITION_WIDE, 1);
     rows.writeGuardWiring(version, contacting, FiringTestStrategies.TRANSITION_SCOPED, 1);

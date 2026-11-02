@@ -40,11 +40,8 @@ public record EvaluationContext(
   }
 
   /**
-   * Who is firing. A Person and the system are two <em>kinds</em> of caller rather than one kind
-   * with a flag's worth of difference, and the type says so: ADR 0007 makes an Event machine-fired
-   * if and only if its authority is {@code SYSTEM}, so the two must not overlap in either direction
-   * — a human may never satisfy {@code SYSTEM}, and an Orchestration Trigger may never satisfy
-   * {@code NONE}.
+   * Who is firing. A person never satisfies {@code SYSTEM}, and the Orchestration Trigger never
+   * satisfies an empty set.
    *
    * <p>The interface is sealed so that an authority rule switching over it fails to compile if it
    * forgets a case. A boolean flag could fall through to the person branch unnoticed.

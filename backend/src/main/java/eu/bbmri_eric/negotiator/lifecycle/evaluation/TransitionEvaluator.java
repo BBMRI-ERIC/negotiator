@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.GuardVerdict;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -92,7 +93,7 @@ public final class TransitionEvaluator {
       return new EvaluationOutcome.Refused(
           FailureCategory.AUTHORIZATION,
           "REQUIRED_AUTHORITY_NOT_HELD",
-          Map.of("requiredAuthority", transition.requiredAuthority().name()));
+          Map.of("requiredAuthority", namesOf(transition.requiredAuthority())));
     }
     GuardVerdict requirement = requirements.check(transition.event(), context);
     if (!requirement.passed()) {
@@ -120,34 +121,42 @@ public final class TransitionEvaluator {
   }
 
   /**
-   * Asks <em>who is firing</em>, and nothing about whether the domain permits the move.
+   * Asks who is firing, not whether the domain permits the move. Holding any one value of the set
+   * is enough, so {@code {IS_ADMIN, IS_CREATOR}} means "admin or creator". An empty set admits any
+   * person.
    *
-   * <p>{@code SYSTEM} and the human authorities are mutually exclusive in both directions. ADR 0007
-   * says an Event is machine-fired if and only if its authority is {@code SYSTEM}, so a human
-   * caller can never satisfy it — the Event never appears in Possible Events and can never be fired
-   * over REST — and, less obviously, the Orchestration Trigger can never satisfy {@code NONE}.
-   * Reading {@code NONE} as "including the system" would have made every open Event
-   * machine-fireable, which is exactly the overload ADR 0007 introduced {@code SYSTEM} to avoid.
-   *
-   * <p>Both halves of that are held by the type rather than by this code. {@code Caller} is sealed,
-   * so the outer switch cannot compile while it has forgotten one of the two kinds, and there is no
-   * fall-through from the machine case into the human rules for a later edit to introduce.
+   * <p>The system and people never share a Transition. A person never holds {@code SYSTEM}, so a
+   * System Event never appears in Possible Events or fires over REST. The Orchestration Trigger
+   * holds only {@code SYSTEM}, so an empty set does not admit it. Otherwise it could fire every
+   * Transition that requires no authority.
    */
   private static boolean holdsRequiredAuthority(
-      RequiredAuthority required, EvaluationContext context) {
+      Set<RequiredAuthority> required, EvaluationContext context) {
     return switch (context.caller()) {
-      case EvaluationContext.Caller.TheSystem ignored -> required == RequiredAuthority.SYSTEM;
+      case EvaluationContext.Caller.TheSystem ignored ->
+          required.contains(RequiredAuthority.SYSTEM);
       case EvaluationContext.Caller.Person person ->
-          switch (required) {
-            case NONE -> true;
-            case IS_ADMIN -> person.authorities().contains(ROLE_ADMIN);
-            case IS_CREATOR ->
-                Long.valueOf(person.personId()).equals(context.subject().negotiationCreatorId());
-            case IS_REPRESENTATIVE ->
-                context.subject().representativeIds().contains(person.personId());
-            case SYSTEM -> false;
-          };
+          required.isEmpty()
+              || required.stream().anyMatch(authority -> personHolds(authority, person, context));
     };
+  }
+
+  private static boolean personHolds(
+      RequiredAuthority authority,
+      EvaluationContext.Caller.Person person,
+      EvaluationContext context) {
+    return switch (authority) {
+      case IS_ADMIN -> person.authorities().contains(ROLE_ADMIN);
+      case IS_CREATOR ->
+          Long.valueOf(person.personId()).equals(context.subject().negotiationCreatorId());
+      case IS_REPRESENTATIVE -> context.subject().representativeIds().contains(person.personId());
+      case SYSTEM -> false;
+    };
+  }
+
+  /** In declaration order, so the same set is always reported the same way. */
+  private static List<String> namesOf(Set<RequiredAuthority> authorities) {
+    return authorities.stream().sorted().map(RequiredAuthority::name).toList();
   }
 
   /**

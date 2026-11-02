@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.Set;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
@@ -172,7 +173,7 @@ class DefinitionVersionLoaderTest {
 
     var concluding = graph.transition("SUBMITTED", "CONCLUDE").orElseThrow();
     assertThat(concluding.toState()).isEqualTo("CONCLUDED");
-    assertThat(concluding.requiredAuthority()).isEqualTo(RequiredAuthority.IS_ADMIN);
+    assertThat(concluding.requiredAuthority()).isEqualTo(Set.of(RequiredAuthority.IS_ADMIN));
     assertThat(concluding.guards())
         .withFailMessage("the definition-wide Guard comes first, and both are bound")
         .extracting(GuardStep::typeKey)
@@ -207,7 +208,8 @@ class DefinitionVersionLoaderTest {
     events.save(eventIn(version, "OVERRIDE"));
     Transition concluding =
         transitions.save(
-            transitionOf(version, submitted, conclude, concluded, RequiredAuthority.IS_ADMIN));
+            transitionOf(
+                version, submitted, conclude, concluded, Set.of(RequiredAuthority.IS_ADMIN)));
     guardWirings.save(guardWiring(version, null, APPROVED_GUARD, 1));
     guardWirings.save(guardWiring(version, concluding, TERMINAL_GUARD, 1));
     actionWirings.save(
@@ -230,7 +232,7 @@ class DefinitionVersionLoaderTest {
     State only = states.save(stateIn(other, "ELSEWHERE"));
     Event loop = events.save(eventIn(other, "LOOP"));
     Transition selfLoop =
-        transitions.save(transitionOf(other, only, loop, only, RequiredAuthority.NONE));
+        transitions.save(transitionOf(other, only, loop, only, Set.of(RequiredAuthority.IS_ADMIN)));
     guardWirings.save(guardWiring(other, null, TERMINAL_GUARD, 1));
     actionWirings.save(
         ActionWiring.builder()
@@ -245,7 +247,7 @@ class DefinitionVersionLoaderTest {
       State from,
       Event event,
       State to,
-      RequiredAuthority requiredAuthority) {
+      Set<RequiredAuthority> requiredAuthority) {
     return Transition.builder()
         .lifecycleDefinition(version)
         .fromState(from)

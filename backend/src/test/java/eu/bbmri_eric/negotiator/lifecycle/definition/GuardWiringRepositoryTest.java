@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.persistence.EntityManager;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ class GuardWiringRepositoryTest {
                 .fromState(draft)
                 .toState(submitted)
                 .event(submit)
-                .requiredAuthority(RequiredAuthority.NONE)
+                .requiredAuthority(Set.of(RequiredAuthority.IS_ADMIN))
                 .build());
     secondTransition =
         transitions.saveAndFlush(
@@ -74,7 +75,7 @@ class GuardWiringRepositoryTest {
                 .fromState(submitted)
                 .toState(draft)
                 .event(abandon)
-                .requiredAuthority(RequiredAuthority.NONE)
+                .requiredAuthority(Set.of(RequiredAuthority.IS_ADMIN))
                 .build());
     otherDefinition = definitions.saveAndFlush(definitionIn(OTHER_FAMILY));
     State otherDraft = states.saveAndFlush(stateIn(otherDefinition, "DRAFT"));
@@ -87,7 +88,7 @@ class GuardWiringRepositoryTest {
                 .fromState(otherDraft)
                 .toState(otherSubmitted)
                 .event(otherSubmit)
-                .requiredAuthority(RequiredAuthority.NONE)
+                .requiredAuthority(Set.of(RequiredAuthority.IS_ADMIN))
                 .build());
   }
 

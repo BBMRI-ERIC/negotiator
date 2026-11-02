@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.Set;
 import java.util.stream.Stream;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
@@ -34,10 +36,14 @@ class CompiledGraphTest {
         .state("IN_PROGRESS")
         .terminalState("ABANDONED")
         .state("APPROVED")
-        .transition("DRAFT", "SUBMIT", "SUBMITTED", RequiredAuthority.IS_CREATOR)
-        .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN)
-        .transition("SUBMITTED", "DECLINE", "ABANDONED", RequiredAuthority.IS_ADMIN)
-        .transition("IN_PROGRESS", "ABANDON", "ABANDONED", RequiredAuthority.NONE)
+        .transition("DRAFT", "SUBMIT", "SUBMITTED", Set.of(RequiredAuthority.IS_CREATOR))
+        .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", Set.of(RequiredAuthority.IS_ADMIN))
+        .transition("SUBMITTED", "DECLINE", "ABANDONED", Set.of(RequiredAuthority.IS_ADMIN))
+        .transition(
+            "IN_PROGRESS",
+            "ABANDON",
+            "ABANDONED",
+            Set.of(RequiredAuthority.IS_ADMIN, RequiredAuthority.IS_CREATOR))
         .eventWithoutTransition("START")
         .build();
   }
@@ -67,7 +73,7 @@ class CompiledGraphTest {
     assertThat(graph().transition("SUBMITTED", "APPROVE"))
         .contains(
             new CompiledTransition(
-                "SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN));
+                "SUBMITTED", "APPROVE", "IN_PROGRESS", Set.of(RequiredAuthority.IS_ADMIN)));
   }
 
   @Test
@@ -218,7 +224,7 @@ class CompiledGraphTest {
     CompiledGraph.Builder builder =
         CompiledGraph.builder(VERSION_ID)
             .initialState("SUBMITTED")
-            .transition("NOWHERE", "SUBMIT", "SUBMITTED", RequiredAuthority.NONE);
+            .transition("NOWHERE", "SUBMIT", "SUBMITTED", Set.of(RequiredAuthority.IS_CREATOR));
 
     assertThatThrownBy(builder::build)
         .isInstanceOf(InvalidGraphException.class)
@@ -231,7 +237,7 @@ class CompiledGraphTest {
     CompiledGraph.Builder builder =
         CompiledGraph.builder(VERSION_ID)
             .initialState("SUBMITTED")
-            .transition("SUBMITTED", "APPROVE", "NOWHERE", RequiredAuthority.NONE);
+            .transition("SUBMITTED", "APPROVE", "NOWHERE", Set.of(RequiredAuthority.IS_ADMIN));
 
     assertThatThrownBy(builder::build)
         .isInstanceOf(InvalidGraphException.class)
@@ -251,8 +257,8 @@ class CompiledGraphTest {
             .initialState("SUBMITTED")
             .state("IN_PROGRESS")
             .state("ABANDONED")
-            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN)
-            .transition("SUBMITTED", "APPROVE", "ABANDONED", RequiredAuthority.IS_ADMIN);
+            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", Set.of(RequiredAuthority.IS_ADMIN))
+            .transition("SUBMITTED", "APPROVE", "ABANDONED", Set.of(RequiredAuthority.IS_ADMIN));
 
     assertThatThrownBy(builder::build)
         .isInstanceOf(InvalidGraphException.class)
@@ -270,8 +276,16 @@ class CompiledGraphTest {
             .initialState("IN_PROGRESS")
             .state("PAUSED")
             .terminalState("ABANDONED")
-            .transition("IN_PROGRESS", "ABANDON", "ABANDONED", RequiredAuthority.NONE)
-            .transition("PAUSED", "ABANDON", "ABANDONED", RequiredAuthority.NONE)
+            .transition(
+                "IN_PROGRESS",
+                "ABANDON",
+                "ABANDONED",
+                Set.of(RequiredAuthority.IS_ADMIN, RequiredAuthority.IS_CREATOR))
+            .transition(
+                "PAUSED",
+                "ABANDON",
+                "ABANDONED",
+                Set.of(RequiredAuthority.IS_ADMIN, RequiredAuthority.IS_CREATOR))
             .build();
 
     assertThat(graph.transition("IN_PROGRESS", "ABANDON")).isPresent();
@@ -289,19 +303,25 @@ class CompiledGraphTest {
         CompiledGraph.builder(VERSION_ID)
             .initialState("SUBMITTED")
             .state("IN_PROGRESS")
-            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN)
+            .transition("SUBMITTED", "APPROVE", "IN_PROGRESS", Set.of(RequiredAuthority.IS_ADMIN))
             .transition(
-                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN)
+                "IN_PROGRESS",
+                "RETURN_FOR_RESUBMISSION",
+                "SUBMITTED",
+                Set.of(RequiredAuthority.IS_ADMIN))
             .build();
 
     assertThat(graph.transition("SUBMITTED", "APPROVE"))
         .contains(
             new CompiledTransition(
-                "SUBMITTED", "APPROVE", "IN_PROGRESS", RequiredAuthority.IS_ADMIN));
+                "SUBMITTED", "APPROVE", "IN_PROGRESS", Set.of(RequiredAuthority.IS_ADMIN)));
     assertThat(graph.transition("IN_PROGRESS", "RETURN_FOR_RESUBMISSION"))
         .contains(
             new CompiledTransition(
-                "IN_PROGRESS", "RETURN_FOR_RESUBMISSION", "SUBMITTED", RequiredAuthority.IS_ADMIN));
+                "IN_PROGRESS",
+                "RETURN_FOR_RESUBMISSION",
+                "SUBMITTED",
+                Set.of(RequiredAuthority.IS_ADMIN)));
   }
 
   /**
@@ -317,7 +337,7 @@ class CompiledGraphTest {
             .initialState("SUBMITTED")
             .terminalState("ABANDONED")
             .state("APPROVED")
-            .transition("SUBMITTED", "DECLINE", "ABANDONED", RequiredAuthority.IS_ADMIN)
+            .transition("SUBMITTED", "DECLINE", "ABANDONED", Set.of(RequiredAuthority.IS_ADMIN))
             .build();
 
     assertThat(graph.states()).contains("APPROVED");
@@ -337,7 +357,7 @@ class CompiledGraphTest {
         CompiledGraph.builder(VERSION_ID)
             .initialState("DRAFT")
             .state("SUBMITTED")
-            .transition("DRAFT", "SUBMIT", "SUBMITTED", RequiredAuthority.IS_CREATOR)
+            .transition("DRAFT", "SUBMIT", "SUBMITTED", Set.of(RequiredAuthority.IS_CREATOR))
             .build();
 
     assertThat(graph.states()).containsExactlyInAnyOrder("DRAFT", "SUBMITTED");
@@ -351,5 +371,56 @@ class CompiledGraphTest {
     assertThatThrownBy(() -> new CompiledTransition("A", "E", "B", null))
         .isInstanceOf(NullPointerException.class)
         .hasMessageContaining("requiredAuthority");
+  }
+
+  @Test
+  @DisplayName("an empty Required Authority set builds, and the edge keeps it empty")
+  void build_whenAnEdgeRequiresNoAuthority_keepsTheEmptySet() {
+    CompiledGraph graph =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("OPEN")
+            .state("MOVED")
+            .transition("OPEN", "GO", "MOVED", Set.of())
+            .build();
+
+    assertThat(graph.transition("OPEN", "GO"))
+        .hasValueSatisfying(edge -> assertThat(edge.requiredAuthority()).isEmpty());
+  }
+
+  /**
+   * {@code SYSTEM} beside a person value would make an Event both system-fired and offered to a
+   * person. The Transition itself refuses it, so no graph can hold one however it was built.
+   */
+  @ParameterizedTest
+  @EnumSource(
+      value = RequiredAuthority.class,
+      names = {"SYSTEM"},
+      mode = EnumSource.Mode.EXCLUDE)
+  @DisplayName("SYSTEM beside any other value is refused at construction")
+  void transition_whenSystemSharesASet_isRefusedAtConstruction(RequiredAuthority other) {
+    assertThatThrownBy(
+            () -> new CompiledTransition("A", "E", "B", Set.of(RequiredAuthority.SYSTEM, other)))
+        .isInstanceOf(InvalidGraphException.class)
+        .hasMessageContaining("SYSTEM must stand alone");
+  }
+
+  @Test
+  @DisplayName("a set of person authorities builds, and the edge carries the whole set")
+  void build_whenAnEdgeRequiresSeveralPersonAuthorities_keepsTheSet() {
+    CompiledGraph graph =
+        CompiledGraph.builder(VERSION_ID)
+            .initialState("DRAFT")
+            .state("SUBMITTED")
+            .transition(
+                "DRAFT",
+                "SUBMIT",
+                "SUBMITTED",
+                Set.of(RequiredAuthority.IS_ADMIN, RequiredAuthority.IS_CREATOR))
+            .build();
+
+    assertThat(graph.transition("DRAFT", "SUBMIT"))
+        .get()
+        .extracting(CompiledTransition::requiredAuthority)
+        .isEqualTo(Set.of(RequiredAuthority.IS_ADMIN, RequiredAuthority.IS_CREATOR));
   }
 }
