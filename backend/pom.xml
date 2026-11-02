@@ -25,7 +25,7 @@
         <commons-csv.version>1.14.0</commons-csv.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-validator.version>1.10.1</commons-validator.version>
-        <docx4j.version>11.5.14</docx4j.version>
+        <docx4j.version>17.3.4</docx4j.version>
         <hypersistence.version>3.9.10</hypersistence.version>
         <itext.version>9.8.0</itext.version>
         <itext.html2pdf.version>6.3.4</itext.html2pdf.version>
