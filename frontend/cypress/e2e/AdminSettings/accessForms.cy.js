@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-describe("Test access form renaming functionality (Issue #1170)", () => {
+describe("Test access form admin interface", () => {
     beforeEach(() => {
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
@@ -30,7 +30,7 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
         })
     }
 
-    context("Access form name update - Bug Fix Verification", () => {
+    context("Access form name update", () => {
         it("should navigate to access forms admin section", () => {
             // Check that the access forms section heading is visible
             cy.contains("h2", "Access Forms").should("be.visible")
@@ -57,19 +57,14 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
 
             // Get the first access form in the table
             cy.get("tbody tr").first().then(($row) => {
-                // Extract the form ID and original name
+                // Extract the original name
                 const cells = $row.find("td")
-                const formId = cells.eq(0).text().trim()
                 const originalName = cells.eq(1).text().trim()
                 const newName = `${originalName}-CypressTest-${Date.now()}`
                 
                 // Click on the form to edit it
                 cy.wrap($row).click()
                 
-                // Commented out because of cache error in git CI
-                // Wait for navigation to the edit page (flat routing)
-                // cy.url().should("contain", `/settings/editAccessForm/${formId}`, { timeout: 1000 })
-
                 // Check that the form name input is visible
                 cy.contains("label", "Form Name").should("be.visible")
 
@@ -109,12 +104,8 @@ describe("Test access form renaming functionality (Issue #1170)", () => {
 
             // Get the first access form
             cy.get("tbody tr").first().then(($row) => {
-                const formId = $row.find("td").eq(0).text().trim()
-                
                 // Click to edit (flat routing)
                 cy.wrap($row).click()
-                // Commented out because of cache error in git CI
-                // cy.url().should("contain", `/settings/editAccessForm/${formId}`, { timeout: 1000 })
 
                 // Wait for the form to load and check that the form name field has content
                 cy.get("[data-test=form-name-input]")
