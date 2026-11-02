@@ -12,6 +12,10 @@ updates:
       - "radovantomik"
     schedule:
       interval: "monthly"
+    groups:
+      itext:
+        patterns:
+          - "com.itextpdf:*"
   - package-ecosystem: "npm"
     directories:
       - "/frontend"
