@@ -183,7 +183,7 @@ class LifecycleStrategiesTest {
             Caller.person(CREATOR, Set.of()),
             Subject.negotiation("negotiation-1", "DRAFT", CREATOR),
             List.of()),
-        new CompiledTransition("DRAFT", event, "SUBMITTED", RequiredAuthority.IS_CREATOR));
+        new CompiledTransition("DRAFT", event, "SUBMITTED", Set.of(RequiredAuthority.IS_CREATOR)));
   }
 
   /**

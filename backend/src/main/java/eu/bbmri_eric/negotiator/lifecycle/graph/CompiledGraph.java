@@ -202,7 +202,7 @@ public final class CompiledGraph {
     }
 
     public Builder transition(
-        String fromState, String event, String toState, RequiredAuthority requiredAuthority) {
+        String fromState, String event, String toState, Set<RequiredAuthority> requiredAuthority) {
       return transition(new CompiledTransition(fromState, event, toState, requiredAuthority));
     }
 

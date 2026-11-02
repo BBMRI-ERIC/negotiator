@@ -1,40 +1,53 @@
 package eu.bbmri_eric.negotiator.lifecycle.graph;
 
 import java.util.List;
+import java.util.Set;
 import lombok.NonNull;
 
 /**
- * One edge of a compiled graph: firing {@code event} while in {@code fromState} moves to {@code
- * toState}, if the caller holds {@code requiredAuthority} and the Guard chain permits it.
+ * One Transition of a Compiled Graph: firing {@code event} in {@code fromState} moves to {@code
+ * toState} if the caller holds any one of {@code requiredAuthority} and the Guard chain permits it.
  *
  * <p>States and Events are identified by name, because callers hold names from a {@code
  * current_state} column or a REST path. Row ids stay in the definition package.
  *
- * @param guards the <b>effective</b> Guard chain, in the order it runs. Definition-level Wiring
- *     entries have already been folded in ahead of this Transition's own, each group in its
- *     configured {@code sort_order}. ADR 0002 calls the effective chain "one query" for admin
- *     tooling; here it is one list, so the evaluator runs a single loop and never learns that
- *     Guards have two scopes. A chain assembled at fire time would have to know.
- * @param actions the Action chain, in {@code sort_order}. Transition-scoped only — there is no
- *     definition-wide Action wiring, and {@code action_wiring} has no definition column to express
- *     one with. Reported by a permitted outcome and run by the service that commits the move.
+ * @param requiredAuthority who may fire the Event; holding any one value is enough, and an empty
+ *     set admits any person. {@code SYSTEM} stands alone, because beside a person value it would
+ *     make a System Event appear in Possible Events. The constructor checks this because the
+ *     compiler receives rows, not the table's CHECK.
+ * @param guards the effective Guard chain in run order, with definition-level Wiring ahead of this
+ *     Transition's own, each group in {@code sort_order}. The Transition Evaluator runs one loop
+ *     and never sees the two Guard scopes.
+ * @param actions the Action chain in {@code sort_order}. Actions are wired only per Transition.
+ *     Event Firing runs them after a permitted move.
  */
 public record CompiledTransition(
     @NonNull String fromState,
     @NonNull String event,
     @NonNull String toState,
-    @NonNull RequiredAuthority requiredAuthority,
+    @NonNull Set<RequiredAuthority> requiredAuthority,
     List<GuardStep> guards,
     List<ActionStep> actions) {
 
   public CompiledTransition {
+    requiredAuthority = Set.copyOf(requiredAuthority);
+    requireWellFormed(fromState, event, toState, requiredAuthority);
     guards = List.copyOf(guards);
     actions = List.copyOf(actions);
   }
 
-  /** An edge nothing guards, which is what all 21 Transitions of both v1 graphs are today. */
+  private static void requireWellFormed(
+      String fromState, String event, String toState, Set<RequiredAuthority> required) {
+    if (required.size() > 1 && required.contains(RequiredAuthority.SYSTEM)) {
+      throw new InvalidGraphException(
+          "Transition %s --%s--> %s requires %s. SYSTEM must stand alone."
+              .formatted(fromState, event, toState, required.stream().sorted().toList()));
+    }
+  }
+
+  /** A Transition with no Guards and no Actions. */
   public CompiledTransition(
-      String fromState, String event, String toState, RequiredAuthority requiredAuthority) {
+      String fromState, String event, String toState, Set<RequiredAuthority> requiredAuthority) {
     this(fromState, event, toState, requiredAuthority, List.of(), List.of());
   }
 
@@ -43,7 +56,7 @@ public record CompiledTransition(
       String fromState,
       String event,
       String toState,
-      RequiredAuthority requiredAuthority,
+      Set<RequiredAuthority> requiredAuthority,
       List<GuardStep> guards) {
     this(fromState, event, toState, requiredAuthority, guards, List.of());
   }

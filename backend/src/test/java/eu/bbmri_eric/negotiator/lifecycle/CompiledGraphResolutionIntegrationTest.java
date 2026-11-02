@@ -14,6 +14,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -93,7 +94,7 @@ class CompiledGraphResolutionIntegrationTest {
 
     CompiledTransition approve = graph.transition("SUBMITTED", "APPROVE").orElseThrow();
     assertThat(approve.toState()).isEqualTo("IN_PROGRESS");
-    assertThat(approve.requiredAuthority()).isEqualTo(RequiredAuthority.IS_ADMIN);
+    assertThat(approve.requiredAuthority()).isEqualTo(Set.of(RequiredAuthority.IS_ADMIN));
     assertThat(approve.actions())
         .extracting(ActionStep::typeKey)
         .containsExactly(VISIBILITY_ACTION);

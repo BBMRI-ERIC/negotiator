@@ -9,10 +9,13 @@ ALTER TABLE state
 ALTER TABLE event
     ADD CONSTRAINT uq_event_id_with_definition UNIQUE (lifecycle_definition_id, id);
 
--- required_authority is a column of its own and not a Guard, deliberately: asking who is firing and
--- asking whether the move is currently legal fail differently, so they must not be expressible as the
--- same kind of row. Single-valued: the six Transitions that behave like "admin or creator" have no
--- spelling here, and inventing one is a decision of its own.
+-- required_authority is its own column and not a Guard. Asking who is firing and asking whether the
+-- domain permits the move fail differently, so they must not be the same kind of row.
+--
+-- A caller holding any one value of the set may fire the Transition. Six of the eight Negotiation
+-- Transitions allow an admin or the creator, which is {IS_ADMIN, IS_CREATOR}. The set is an array
+-- and not a join table because code reads it whole with its Transition and never queries it by
+-- element, and an array keeps the CHECK below on the one table it constrains.
 CREATE TABLE transition
 (
     id                      BIGSERIAL PRIMARY KEY,
@@ -20,7 +23,7 @@ CREATE TABLE transition
     from_state_id           BIGINT       NOT NULL,
     to_state_id             BIGINT       NOT NULL,
     event_id                BIGINT       NOT NULL,
-    required_authority      VARCHAR(255) NOT NULL,
+    required_authority      VARCHAR(255)[] NOT NULL,
     CONSTRAINT fk_transition_lifecycle_definition FOREIGN KEY (lifecycle_definition_id)
         REFERENCES lifecycle_definition (id) ON DELETE RESTRICT,
     CONSTRAINT fk_transition_from_state FOREIGN KEY (lifecycle_definition_id, from_state_id)
@@ -31,8 +34,19 @@ CREATE TABLE transition
         REFERENCES event (lifecycle_definition_id, id) ON DELETE RESTRICT
 );
 
+-- Every element is one of the four values, the array is one-dimensional with no NULL element, and
+-- SYSTEM only appears alone. An empty array is allowed and admits any person. Only the system may
+-- fire a System Event and no person is ever offered one, so SYSTEM beside a person value would
+-- contradict itself. Definition Compilation checks the same rules again, because it reads rows and
+-- does not trust this constraint.
 ALTER TABLE transition
-    ADD CONSTRAINT transition_required_authority_check CHECK (((required_authority)::text = ANY ((ARRAY['NONE'::character varying, 'IS_ADMIN'::character varying, 'IS_CREATOR'::character varying, 'IS_REPRESENTATIVE'::character varying, 'SYSTEM'::character varying])::text[])));
+    ADD CONSTRAINT transition_required_authority_check CHECK (
+        array_ndims(required_authority) = 1
+            AND array_position(required_authority, NULL) IS NULL
+            AND required_authority <@ ARRAY ['IS_ADMIN', 'IS_CREATOR', 'IS_REPRESENTATIVE', 'SYSTEM']::VARCHAR[]
+            AND (cardinality(required_authority) <= 1
+            OR NOT 'SYSTEM' = ANY (required_authority))
+        );
 
 -- The Transition Evaluator asks which Transition leaves State X for Event Y, and the answer must be
 -- a single row, because it has no way to choose between duplicates.

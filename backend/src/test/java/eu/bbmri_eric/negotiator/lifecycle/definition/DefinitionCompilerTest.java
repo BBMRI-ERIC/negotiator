@@ -82,14 +82,14 @@ class DefinitionCompilerTest {
   private final Event override = eventNamed("OVERRIDE");
 
   private final Transition deliverTransition =
-      transition(submitted, deliver, available, RequiredAuthority.IS_REPRESENTATIVE);
+      transition(submitted, deliver, available, Set.of(RequiredAuthority.IS_REPRESENTATIVE));
 
   private Event eventNamed(String name) {
     return Event.builder().lifecycleDefinition(version).name(name).build();
   }
 
   private Transition transition(
-      State from, Event event, State to, RequiredAuthority requiredAuthority) {
+      State from, Event event, State to, Set<RequiredAuthority> requiredAuthority) {
     return Transition.builder()
         .lifecycleDefinition(version)
         .fromState(from)
@@ -190,7 +190,38 @@ class DefinitionCompilerTest {
     assertThat(graph.transition("SUBMITTED", "DELIVER"))
         .get()
         .extracting(CompiledTransition::requiredAuthority)
-        .isEqualTo(RequiredAuthority.IS_REPRESENTATIVE);
+        .isEqualTo(Set.of(RequiredAuthority.IS_REPRESENTATIVE));
+  }
+
+  /**
+   * The CHECK on {@code transition} refuses this row too, but the compiler cannot assume where its
+   * rows came from.
+   */
+  @Test
+  @DisplayName("a row mixing SYSTEM with a person authority does not compile")
+  void compile_whenARowMixesSystemWithAPersonAuthority_isRefused() {
+    Transition mixed =
+        transition(
+            submitted,
+            deliver,
+            available,
+            Set.of(RequiredAuthority.SYSTEM, RequiredAuthority.IS_ADMIN));
+
+    assertThatThrownBy(() -> compiler.compile(rows(List.of(mixed), List.of())))
+        .isInstanceOf(InvalidGraphException.class);
+  }
+
+  @Test
+  @DisplayName("a row with an empty Required Authority set compiles to an empty set")
+  void compile_whenARowRequiresNoAuthorityAtAll_keepsTheEmptySet() {
+    Transition empty = transition(submitted, deliver, available, Set.of());
+
+    CompiledGraph graph = compiler.compile(rows(List.of(empty), List.of()));
+
+    assertThat(graph.transition("SUBMITTED", "DELIVER"))
+        .get()
+        .extracting(CompiledTransition::requiredAuthority)
+        .isEqualTo(Set.of());
   }
 
   /**
@@ -269,7 +300,7 @@ class DefinitionCompilerTest {
   @Test
   @DisplayName("a definition-wide Guard reaches every Transition of the version")
   void compile_appliesADefinitionWideGuardToEveryTransition() {
-    Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
+    Transition second = transition(submitted, override, legacy, Set.of(RequiredAuthority.IS_ADMIN));
     CompiledGraph graph =
         compiler.compile(
             rows(
@@ -283,7 +314,7 @@ class DefinitionCompilerTest {
   @Test
   @DisplayName("a Transition-scoped Guard stays off every other Transition")
   void compile_keepsATransitionScopedGuardOffEveryOtherTransition() {
-    Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
+    Transition second = transition(submitted, override, legacy, Set.of(RequiredAuthority.IS_ADMIN));
     CompiledGraph graph =
         compiler.compile(
             rows(
@@ -313,7 +344,7 @@ class DefinitionCompilerTest {
   @Test
   @DisplayName("a definition-wide Wiring row is bound once however many Transitions carry it")
   void compile_bindsADefinitionWideWiringOnceHoweverManyTransitionsCarryIt() {
-    Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
+    Transition second = transition(submitted, override, legacy, Set.of(RequiredAuthority.IS_ADMIN));
 
     compiler.compile(
         rows(
@@ -383,7 +414,7 @@ class DefinitionCompilerTest {
   @Test
   @DisplayName("a Transition's Actions stay off every other Transition")
   void compile_keepsATransitionsActionsOffEveryOtherTransition() {
-    Transition second = transition(submitted, override, legacy, RequiredAuthority.IS_ADMIN);
+    Transition second = transition(submitted, override, legacy, Set.of(RequiredAuthority.IS_ADMIN));
     CompiledGraph graph =
         compiler.compile(
             rows(

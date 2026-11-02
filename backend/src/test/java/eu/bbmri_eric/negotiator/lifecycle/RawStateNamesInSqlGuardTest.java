@@ -256,7 +256,7 @@ class RawStateNamesInSqlGuardTest {
               "getMedianResponseForNetwork, native, audit column, second half of that filter."),
           new PinnedName(
               NEGOTIATION_REPOSITORY,
-              71,
+              73,
               "DRAFT",
               Spelling.QUOTED,
               "countAllNotDraftForNetwork, JPQL, excluding drafts from the network's total. The"

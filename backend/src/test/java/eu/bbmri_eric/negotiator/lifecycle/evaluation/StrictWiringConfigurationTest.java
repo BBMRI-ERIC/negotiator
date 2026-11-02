@@ -18,6 +18,7 @@ import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -177,7 +178,8 @@ class StrictWiringConfigurationTest {
     return new ActionContext(
         EvaluationContext.forNegotiation(
             Caller.system(), Subject.negotiation("negotiation-1", "IN_PROGRESS", 101L), List.of()),
-        new CompiledTransition("IN_PROGRESS", "ABANDON", "ABANDONED", RequiredAuthority.IS_ADMIN));
+        new CompiledTransition(
+            "IN_PROGRESS", "ABANDON", "ABANDONED", Set.of(RequiredAuthority.IS_ADMIN)));
   }
 
   /** Fails always, and echoes its params into the details so binding is observable. */

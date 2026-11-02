@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import eu.bbmri_eric.negotiator.lifecycle.graph.RequiredAuthority;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.persistence.EntityManager;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ class ActionWiringRepositoryTest {
                 .fromState(draft)
                 .toState(submitted)
                 .event(submit)
-                .requiredAuthority(RequiredAuthority.NONE)
+                .requiredAuthority(Set.of(RequiredAuthority.IS_ADMIN))
                 .build());
   }
 
@@ -173,7 +174,7 @@ class ActionWiringRepositoryTest {
                 .fromState(transition.getToState())
                 .toState(transition.getFromState())
                 .event(events.saveAndFlush(eventIn(transition.getLifecycleDefinition(), "ABANDON")))
-                .requiredAuthority(RequiredAuthority.NONE)
+                .requiredAuthority(Set.of(RequiredAuthority.IS_ADMIN))
                 .build());
     ActionWiring elsewhere =
         ActionWiring.builder()
