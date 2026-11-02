@@ -319,7 +319,7 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  void iTextLogs_OnlyErrorsAreForwardedToPdfServiceLogger(CapturedOutput output) {
+  void iTextLogs_OnlyErrorsAreLoggedAtTheirSource(CapturedOutput output) {
     org.slf4j.Logger iTextLogger = LoggerFactory.getLogger("com.itextpdf.layout.SomeRenderer");
     iTextLogger.info("internal iText info");
     iTextLogger.warn("internal iText warning");
@@ -331,11 +331,10 @@ class NegotiationPdfGenerationTest {
         output
             .getOut()
             .lines()
-            .filter(line -> line.contains("iText (SomeRenderer): internal iText error"))
+            .filter(line -> line.contains("internal iText error"))
             .findFirst()
             .orElseThrow();
-    assertTrue(errorLine.contains("NegotiationPdfServiceImpl"));
-    assertFalse(errorLine.contains("com.itextpdf"));
+    assertTrue(errorLine.contains("SomeRenderer"));
   }
 
   private int countPages(byte[] pdf) throws IOException {
