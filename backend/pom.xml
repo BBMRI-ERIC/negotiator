@@ -28,7 +28,7 @@
         <docx4j.version>11.5.14</docx4j.version>
         <hypersistence.version>3.9.10</hypersistence.version>
         <itext.version>9.8.0</itext.version>
-        <itext.html2pdf.version>6.3.3</itext.html2pdf.version>
+        <itext.html2pdf.version>6.3.4</itext.html2pdf.version>
         <jackson-databind-nullable.version>0.2.10</jackson-databind-nullable.version>
         <modelmapper.version>3.2.4</modelmapper.version>
         <pdfbox.version>3.0.8</pdfbox.version>
