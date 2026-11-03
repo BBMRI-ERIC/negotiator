@@ -33,7 +33,7 @@
         <modelmapper.version>3.2.8</modelmapper.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <poi.version>5.4.1</poi.version>
-        <standardwebhooks.version>1.1.1</standardwebhooks.version>
+        <standardwebhooks.version>1.2.0</standardwebhooks.version>
         <springdoc.version>2.10.0</springdoc.version>
         <tika.version>3.3.0</tika.version>
         <wiremock.version>3.13.2</wiremock.version>
