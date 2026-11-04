@@ -1,0 +1,110 @@
+{
+  "_embedded" : {
+    "states" : [
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states/ABANDONED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states"
+          }
+        },
+        "description" : "The negotiation has been abandoned",
+        "label" : "Abandoned",
+        "value" : "ABANDONED"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states/APPROVED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states"
+          }
+        },
+        "description" : "The negotiation has been approved",
+        "label" : "Approved",
+        "value" : "APPROVED"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states/CONCLUDED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states"
+          }
+        },
+        "description" : "The negotiation has been concluded",
+        "label" : "Concluded",
+        "value" : "CONCLUDED"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states/DECLINED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states"
+          }
+        },
+        "description" : "The negotiation has been declined",
+        "label" : "Declined",
+        "value" : "DECLINED"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states/DRAFT"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states"
+          }
+        },
+        "description" : "The negotiation request has been drafted. The requester has to complete the request before submitting it for review",
+        "label" : "Draft",
+        "value" : "DRAFT"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states/IN_PROGRESS"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states"
+          }
+        },
+        "description" : "The negotiation is currently in progress",
+        "label" : "In Progress",
+        "value" : "IN_PROGRESS"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states/PAUSED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states"
+          }
+        },
+        "description" : "The negotiation is paused",
+        "label" : "Paused",
+        "value" : "PAUSED"
+      },
+      {
+        "_links" : {
+          "self" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states/SUBMITTED"
+          },
+          "states" : {
+            "href" : "http://localhost/v3/negotiation-lifecycle/states"
+          }
+        },
+        "description" : "The negotiation has been submitted for review",
+        "label" : "Under review",
+        "value" : "SUBMITTED"
+      }
+    ]
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "_embedded" : {
+    "events" : [
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/ACCEPT_ACCESS_CONDITIONS"
+          }
+        },
+        "description" : "Accept access conditions for the resource",
+        "label" : "Accept Access Conditions",
+        "value" : "ACCEPT_ACCESS_CONDITIONS"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/CONTACT"
+          }
+        },
+        "description" : "Contact representatives",
+        "label" : "Contact",
+        "value" : "CONTACT"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/DECLINE_ACCESS_CONDITIONS"
+          }
+        },
+        "description" : "Decline access conditions for the resource",
+        "label" : "Decline Access Conditions",
+        "value" : "DECLINE_ACCESS_CONDITIONS"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/GRANT_ACCESS_TO_RESOURCE"
+          }
+        },
+        "description" : "Grant access to the resource",
+        "label" : "Grant Access to Resource",
+        "value" : "GRANT_ACCESS_TO_RESOURCE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/INDICATE_ACCESS_CONDITIONS"
+          }
+        },
+        "description" : "Indicate access conditions for the resource",
+        "label" : "Indicate Access Conditions",
+        "value" : "INDICATE_ACCESS_CONDITIONS"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/MARK_AS_AVAILABLE"
+          }
+        },
+        "description" : "Mark the resource as available for access",
+        "label" : "Mark as Available",
+        "value" : "MARK_AS_AVAILABLE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/MARK_AS_CHECKING_AVAILABILITY"
+          }
+        },
+        "description" : "Mark as checking availability",
+        "label" : "Mark as Checking Availability",
+        "value" : "MARK_AS_CHECKING_AVAILABILITY"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT"
+          }
+        },
+        "description" : "Mark the resource as currently unavailable, but willing to collect",
+        "label" : "Mark as Currently Unavailable, But Willing to Collect",
+        "value" : "MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/MARK_AS_UNAVAILABLE"
+          }
+        },
+        "description" : "Mark the resource as unavailable for access",
+        "label" : "Mark as Unavailable",
+        "value" : "MARK_AS_UNAVAILABLE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/MARK_AS_UNREACHABLE"
+          }
+        },
+        "description" : "Mark representatives as unreachable",
+        "label" : "Mark as Unreachable",
+        "value" : "MARK_AS_UNREACHABLE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/OVERRIDE"
+          }
+        },
+        "description" : "Override current state, ignoring state machine guards",
+        "label" : "Override current state",
+        "value" : "OVERRIDE"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/RETURN_FOR_RESUBMISSION"
+          }
+        },
+        "description" : "Ask for further clarification",
+        "label" : "Return for Resubmission",
+        "value" : "RETURN_FOR_RESUBMISSION"
+      },
+      {
+        "_links" : {
+          "events" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events"
+          },
+          "self" : {
+            "href" : "http://localhost/v3/resource-lifecycle/events/STEP_AWAY"
+          }
+        },
+        "description" : "Step away. Not interested in collaboration",
+        "label" : "Step Away",
+        "value" : "STEP_AWAY"
+      }
+    ]
+  }
+}

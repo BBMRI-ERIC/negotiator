@@ -1,0 +1,230 @@
+{
+  "graph" : "resource",
+  "beanName" : "resourceStateMachine",
+  "initialState" : "SUBMITTED",
+  "states" : [
+    "ACCESS_CONDITIONS_INDICATED",
+    "ACCESS_CONDITIONS_MET",
+    "CHECKING_AVAILABILITY",
+    "REPRESENTATIVE_CONTACTED",
+    "REPRESENTATIVE_UNREACHABLE",
+    "RESOURCE_AVAILABLE",
+    "RESOURCE_MADE_AVAILABLE",
+    "RESOURCE_NOT_MADE_AVAILABLE",
+    "RESOURCE_UNAVAILABLE",
+    "RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT",
+    "RETURNED_FOR_RESUBMISSION",
+    "SUBMITTED"
+  ],
+  "events" : [
+    "ACCEPT_ACCESS_CONDITIONS",
+    "CONTACT",
+    "DECLINE_ACCESS_CONDITIONS",
+    "GRANT_ACCESS_TO_RESOURCE",
+    "INDICATE_ACCESS_CONDITIONS",
+    "MARK_AS_AVAILABLE",
+    "MARK_AS_CHECKING_AVAILABILITY",
+    "MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT",
+    "MARK_AS_UNAVAILABLE",
+    "MARK_AS_UNREACHABLE",
+    "STEP_AWAY"
+  ],
+  "transitionCount" : 13,
+  "transitions" : [
+    {
+      "source" : "ACCESS_CONDITIONS_INDICATED",
+      "event" : "ACCEPT_ACCESS_CONDITIONS",
+      "target" : "ACCESS_CONDITIONS_MET",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isCreator"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "ACCESS_CONDITIONS_INDICATED",
+      "event" : "DECLINE_ACCESS_CONDITIONS",
+      "target" : "RESOURCE_NOT_MADE_AVAILABLE",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isCreator"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "ACCESS_CONDITIONS_MET",
+      "event" : "GRANT_ACCESS_TO_RESOURCE",
+      "target" : "RESOURCE_MADE_AVAILABLE",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isRepresentative"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "CHECKING_AVAILABILITY",
+      "event" : "MARK_AS_AVAILABLE",
+      "target" : "RESOURCE_AVAILABLE",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isRepresentative"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "CHECKING_AVAILABILITY",
+      "event" : "MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT",
+      "target" : "RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isRepresentative"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "CHECKING_AVAILABILITY",
+      "event" : "MARK_AS_UNAVAILABLE",
+      "target" : "RESOURCE_UNAVAILABLE",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isRepresentative"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "REPRESENTATIVE_CONTACTED",
+      "event" : "MARK_AS_CHECKING_AVAILABILITY",
+      "target" : "CHECKING_AVAILABILITY",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isRepresentative"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "REPRESENTATIVE_CONTACTED",
+      "event" : "STEP_AWAY",
+      "target" : "RESOURCE_UNAVAILABLE",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isRepresentative"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "REPRESENTATIVE_UNREACHABLE",
+      "event" : "CONTACT",
+      "target" : "REPRESENTATIVE_CONTACTED",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isAdmin"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "RESOURCE_AVAILABLE",
+      "event" : "INDICATE_ACCESS_CONDITIONS",
+      "target" : "ACCESS_CONDITIONS_INDICATED",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isRepresentative"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT",
+      "event" : "INDICATE_ACCESS_CONDITIONS",
+      "target" : "ACCESS_CONDITIONS_INDICATED",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isRepresentative"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "SUBMITTED",
+      "event" : "CONTACT",
+      "target" : "REPRESENTATIVE_CONTACTED",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isAdmin"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    },
+    {
+      "source" : "SUBMITTED",
+      "event" : "MARK_AS_UNREACHABLE",
+      "target" : "REPRESENTATIVE_UNREACHABLE",
+      "kind" : "EXTERNAL",
+      "securityRule" : {
+        "attributes" : [
+          "isAdmin"
+        ],
+        "comparisonType" : "ANY",
+        "expression" : null
+      },
+      "guard" : null,
+      "actions" : [ ]
+    }
+  ]
+}
