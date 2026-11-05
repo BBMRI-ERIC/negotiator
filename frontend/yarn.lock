@@ -3350,7 +3350,7 @@ __metadata:
     vue-i18n: "npm:^11.4.14"
     vue-matomo: "npm:^4.2.0"
     vue-router: "npm:^5.4.0"
-    vue3-form-wizard: "npm:1.1.1"
+    vue3-form-wizard: "npm:^1.2.0"
     vue3-tour: "npm:^1.0.3"
     vuedraggable: "npm:4.1.0"
   languageName: unknown
@@ -4699,10 +4699,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue3-form-wizard@npm:1.1.1":
-  version: 1.1.1
-  resolution: "vue3-form-wizard@npm:1.1.1"
-  checksum: 10c0/280e8a77ecff3399d010c9b213290e938243170bcb60154fa55130e8886bf87c6db698a22e44577cfb4d2141bd9cdb09ac5e92c110f1b96b783390e8bd752e9b
+"vue3-form-wizard@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "vue3-form-wizard@npm:1.2.0"
+  checksum: 10c0/ac679b8f086331bccd644a0a841427ce9d15fc290e33ccbb9ddd63c6604988ecdc68686e59857040552cc3828777e2399107f2227905c396cbe24ee1750a904e
   languageName: node
   linkType: hard
 
