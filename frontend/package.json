@@ -24,7 +24,7 @@
     "axios": "^1.13.6",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
-    "chart.js": "^4.4.7",
+    "chart.js": "^4.6.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "codemirror": "^6.0.2",
     "core-js": "^3.48.0",
