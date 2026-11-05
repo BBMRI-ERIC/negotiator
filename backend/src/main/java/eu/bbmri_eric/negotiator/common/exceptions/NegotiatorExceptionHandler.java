@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @ControllerAdvice
 @CommonsLog
@@ -557,6 +558,19 @@ public class NegotiatorExceptionHandler {
     problemDetail.setDetail(exception.getMessage());
     problemDetail.setType(
         URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409"));
+    return problemDetail;
+  }
+
+  @ExceptionHandler(LifecycleConflictException.class)
+  public final ProblemDetail handleLifecycleConflictException(LifecycleConflictException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+    problemDetail.setType(
+        ServletUriComponentsBuilder.fromCurrentContextPath()
+            .path(LifecycleProblemType.TYPE_PATH + ex.getType().getSlug())
+            .build()
+            .toUri());
+    problemDetail.setTitle(ex.getType().getTitle());
+    problemDetail.setDetail(ex.getMessage());
     return problemDetail;
   }
 

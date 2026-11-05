@@ -24,10 +24,14 @@ import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.form.AccessForm;
+import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
+import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
+import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
@@ -35,6 +39,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
@@ -82,6 +87,7 @@ public class NegotiationControllerTests {
   private static final String NEGOTIATION_6_ID = "negotiation-6";
   private static final String NEGOTIATION_1_CREATION_DATE = "2024-10-12T00:00:00";
   private static final String NEGOTIATIONS_URL = "/v3/negotiations";
+  private static final String LIFECYCLE_PROBLEMS_URL = "http://localhost/v3/problems/lifecycle/";
   private static final String SELF_LINK_TPL = "http://localhost/v3/negotiations/%s";
   private static final String POSTS_LINK_TPL = "http://localhost/v3/negotiations/%s/posts";
   private static final String ATTACHMENTS_LINK_TPL =
@@ -94,6 +100,8 @@ public class NegotiationControllerTests {
   @Autowired PostRepository postRepository;
   @Autowired AttachmentRepository attachmentRepository;
   @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired private AccessFormRepository accessFormRepository;
+  @Autowired private InformationRequirementRepository informationRequirementRepository;
   @Autowired private MockMvc mockMvc;
   @Autowired private AttachmentService attachmentService;
 
@@ -1363,7 +1371,8 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheBiobanker")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void sendEvent_ValidResourceEvent_ReturnResourceLifecycleState() throws Exception {
     mockMvc
         .perform(
@@ -1375,7 +1384,8 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheBiobanker")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void sendEvent_ValidLowerCaseResourceEvent_ReturnResourceLifecycleState() throws Exception {
     mockMvc
         .perform(
@@ -1384,6 +1394,96 @@ public class NegotiationControllerTests {
                     .formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is("negotiation-1")));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  void sendEvent_NoTransitionFromCurrentState_ConflictNoTransition() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/lifecycle/SUBMIT".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isConflict())
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.status", is(409)))
+        .andExpect(jsonPath("$.type", is(LIFECYCLE_PROBLEMS_URL + "no-transition")))
+        .andExpect(jsonPath("$.title", is("No Transition for this Event")));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 108L)
+  void sendEvent_CreatorLacksRequiredAuthority_Forbidden() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-5/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  @Transactional
+  void sendEvent_ResourceEventWithUnmetRequirement_ConflictUnmetRequirement() throws Exception {
+    AccessForm accessForm = accessFormRepository.findAll().get(0);
+    informationRequirementRepository.saveAndFlush(
+        new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/CONTACT"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isConflict())
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.status", is(409)))
+        .andExpect(jsonPath("$.type", is(LIFECYCLE_PROBLEMS_URL + "unmet-requirement")))
+        .andExpect(jsonPath("$.title", is("Information Requirement not met")));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  void sendEvent_ResourceEventWithNoTransitionFromCurrentState_ConflictNoTransition()
+      throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/INDICATE_ACCESS_CONDITIONS"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isConflict())
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.status", is(409)))
+        .andExpect(jsonPath("$.type", is(LIFECYCLE_PROBLEMS_URL + "no-transition")))
+        .andExpect(jsonPath("$.title", is("No Transition for this Event")));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  void sendEvent_ResourceEventCallerLacksRequiredAuthority_Forbidden() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/CONTACT"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void sendEvent_ResourceEventWhileNegotiationPaused_ConflictDomainStateConflict()
+      throws Exception {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").orElseThrow();
+    negotiation.setCurrentState(NegotiationState.PAUSED);
+    negotiationRepository.saveAndFlush(negotiation);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/CONTACT"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isConflict())
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.status", is(409)))
+        .andExpect(jsonPath("$.type", is(LIFECYCLE_PROBLEMS_URL + "domain-state-conflict")))
+        .andExpect(jsonPath("$.title", is("A Guard blocks this Transition")));
   }
 
   @Test

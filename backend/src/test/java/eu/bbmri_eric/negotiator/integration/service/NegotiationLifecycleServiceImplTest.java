@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.common.exceptions.LifecycleConflictException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
@@ -53,8 +54,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.statemachine.StateMachineException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
@@ -213,7 +214,7 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEvent_wrongEvent_noChangeInState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertThrows(
-        ForbiddenRequestException.class,
+        LifecycleConflictException.class,
         () ->
             negotiationLifecycleService.sendEvent(
                 negotiationDTO.getId(), NegotiationEvent.ABANDON, "not acceptable"));
@@ -340,14 +341,15 @@ public class NegotiationLifecycleServiceImplTest {
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Thread.sleep(1000);
     assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        NegotiationResourceState.CHECKING_AVAILABILITY,
         resourceLifecycleService.sendEvent(
-            negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
+            negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
     transactionTemplate.executeWithoutResult(
         status ->
             checkNegotiationResourceRecordPresenceWithAssignedState(
-                negotiationDTO.getId(),
-                NegotiationResourceState.valueOf("REPRESENTATIVE_CONTACTED")));
+                negotiationDTO.getId(), NegotiationResourceState.CHECKING_AVAILABILITY));
   }
 
   @Test
@@ -357,12 +359,18 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Thread.sleep(1000);
+    assertThrows(
+        LifecycleConflictException.class,
+        () ->
+            resourceLifecycleService.sendEvent(
+                negotiationDTO.getId(),
+                "biobank:1:collection:2",
+                NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        resourceLifecycleService.sendEvent(
-            negotiationDTO.getId(),
-            "biobank:1:collection:2",
-            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+        negotiationRepository
+            .findNegotiationResourceStateById(negotiationDTO.getId(), "biobank:1:collection:2")
+            .orElseThrow());
   }
 
   @Test
@@ -373,10 +381,6 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationState state =
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Thread.sleep(1000);
-    assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        resourceLifecycleService.sendEvent(
-            negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
     assertEquals(
         NegotiationResourceState.CHECKING_AVAILABILITY,
         resourceLifecycleService.sendEvent(
@@ -404,12 +408,25 @@ public class NegotiationLifecycleServiceImplTest {
   @Transactional
   void sendEventForResource_notAuthorized_noChange() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    NegotiationResourceState before =
+        negotiation.getCurrentStateForResource("biobank:1:collection:1");
+    assertThrows(
+        ForbiddenRequestException.class,
+        () ->
+            resourceLifecycleService.sendEvent(
+                negotiation.getId(), "biobank:1:collection:1", NegotiationResourceEvent.CONTACT));
     assertEquals(
-        negotiation.getCurrentStateForResource("biobank:1:collection:1"),
-        resourceLifecycleService.sendEvent(
-            negotiation.getId(),
-            "biobank:1:collection:1",
-            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+        before,
+        negotiationRepository
+            .findNegotiationResourceStateById(negotiation.getId(), "biobank:1:collection:1")
+            .orElseThrow());
+  }
+
+  @Test
+  void getPossibleEvents_noAuthenticatedCaller_credentialsNotFound() {
+    assertThrows(
+        AuthenticationCredentialsNotFoundException.class,
+        () -> negotiationLifecycleService.getPossibleEvents("negotiation-2"));
   }
 
   @Test
@@ -421,7 +438,7 @@ public class NegotiationLifecycleServiceImplTest {
         ForbiddenRequestException.class,
         () ->
             negotiationLifecycleService.sendEvent(
-                negotiationDTO.getId(), NegotiationEvent.ABANDON, "not acceptable"));
+                negotiationDTO.getId(), NegotiationEvent.APPROVE, "not acceptable"));
     assertEquals(
         NegotiationState.SUBMITTED,
         NegotiationState.valueOf(
@@ -466,7 +483,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   @Transactional
-  void sendEventForResource_notFulfilledRequirement_throwsStateMachineException()
+  void sendEventForResource_notFulfilledRequirement_throwsLifecycleConflictException()
       throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -475,7 +492,7 @@ public class NegotiationLifecycleServiceImplTest {
         new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
     assertTrue(requirementRepository.existsByForEvent(NegotiationResourceEvent.CONTACT));
     assertThrows(
-        StateMachineException.class,
+        LifecycleConflictException.class,
         () ->
             resourceLifecycleService.sendEvent(
                 negotiationDTO.getId(),
