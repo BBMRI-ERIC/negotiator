@@ -530,7 +530,6 @@ async function updateNegotiation(message) {
       negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
     })
   await reloadResources()
-  await reloadStates()
 
   negotiationPosts.value.retrievePostsByNegotiationId()
 }
@@ -566,6 +565,9 @@ async function reloadResources() {
   }
   negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
   timelineEvents.value = await negotiationPageStore.retrieveNegotiationTimeline(props.negotiationId)
+  // Resource state changes can move the negotiation itself (e.g. auto-conclude), so its
+  // possible lifecycle events have to be refetched as well
+  await reloadStates()
 }
 
 async function reloadStates() {
