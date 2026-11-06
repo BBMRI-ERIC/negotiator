@@ -151,17 +151,6 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     }
   }
 
-  async function retrieveUserIdRepresentedResources(userId) {
-    return await axios
-      .get(`${apiPaths.BASE_API_PATH}/users/${userId}/resources`, { headers: getBearerHeaders() })
-      .then((response) => {
-        return response.data._embedded?.resources
-      })
-      .catch(() => {
-        notifications.setNotification('Error getting User Represented Resources data from server')
-      })
-  }
-
   function downloadAttachment(id, name) {
     return axios
       .get(`${apiPaths.ATTACHMENTS_PATH}/${id}`, {
@@ -210,30 +199,35 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   function downloadAttachmentFromLink(href) {
     // Convert absolute URLs to relative paths for proper proxy handling in dev
     const url = href.startsWith('http') ? new URL(href).pathname : href
-    axios.get(url, { headers: getBearerHeaders(), responseType: 'blob' }).then((response) => {
-      const disposition =
-        response.headers['content-disposition'] || response.headers['Content-Disposition']
-      let filename = 'summary.csv'
-      console.log(response.headers)
-      if (disposition) {
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-        const matches = filenameRegex.exec(disposition)
-        if (matches != null && matches[1]) {
-          filename = matches[1].replace(/['"]/g, '')
+    axios
+      .get(url, { headers: getBearerHeaders(), responseType: 'blob' })
+      .then((response) => {
+        const disposition =
+          response.headers['content-disposition'] || response.headers['Content-Disposition']
+        let filename = 'summary.csv'
+        console.log(response.headers)
+        if (disposition) {
+          const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+          const matches = filenameRegex.exec(disposition)
+          if (matches != null && matches[1]) {
+            filename = matches[1].replace(/['"]/g, '')
+          }
         }
-      }
-      const href = window.URL.createObjectURL(response.data)
+        const href = window.URL.createObjectURL(response.data)
 
-      const anchorElement = document.createElement('a')
-      anchorElement.href = href
-      anchorElement.download = filename
+        const anchorElement = document.createElement('a')
+        anchorElement.href = href
+        anchorElement.download = filename
 
-      document.body.appendChild(anchorElement)
-      anchorElement.click()
+        document.body.appendChild(anchorElement)
+        anchorElement.click()
 
-      document.body.removeChild(anchorElement)
-      window.URL.revokeObjectURL(href)
-    })
+        document.body.removeChild(anchorElement)
+        window.URL.revokeObjectURL(href)
+      })
+      .catch(() => {
+        notifications.setNotification('Error downloading file', 'danger')
+      })
   }
 
   function retrieveInfoRequirement(link) {
@@ -402,7 +396,6 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     retrieveAttachmentsByNegotiationId,
     addMessageToNegotiation,
     addAttachmentToNegotiation,
-    retrieveUserIdRepresentedResources,
     downloadAttachment,
     retrieveResourcesByNegotiationId,
     retrieveResourcesByNegotiationIdLinks,

@@ -328,7 +328,6 @@ const props = defineProps({
 const uiConfigurationStore = useUiConfiguration()
 const negotiation = ref(undefined)
 const resources = ref([])
-const representedResourcesIds = ref([])
 const possibleEvents = ref([])
 const selectedStatus = ref(undefined)
 const selectedOrganization = ref(undefined)
@@ -469,30 +468,15 @@ const loading = computed(() => {
 })
 
 onBeforeMount(async () => {
-  negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
-  const resourceResponse = await negotiationPageStore.retrieveResourcesByNegotiationId(
-    props.negotiationId,
-  )
-  if (resourceResponse !== undefined) {
-    resources.value = resourceResponse
-    const resourceResponseLinks = await negotiationPageStore.retrieveResourcesByNegotiationIdLinks(
-      props.negotiationId,
-    )
-    isAddResourcesButtonVisible.value = hasRightsToAddResources(resourceResponseLinks._links)
-  }
-  await negotiationPageStore
-    .retrieveUserIdRepresentedResources(userStore.userInfo?.id)
-    .then((resp) => {
-      if (resp) {
-        representedResourcesIds.value = resp.map((a) => a.sourceId)
-      }
-    })
-  possibleEvents.value = await negotiationPageStore.retrievePossibleEvents(props.negotiationId)
-  resourceStates.value = await negotiationPageStore.retrieveResourceAllStates()
-  timelineEvents.value = await negotiationPageStore.retrieveNegotiationTimeline(props.negotiationId)
+  await Promise.all([
+    loadNegotiation(),
+    loadResources(),
+    reloadStates(),
+    loadResourceStates(),
+    loadTimeline(),
+    retrieveAttachments(),
+  ])
 })
-
-void retrieveAttachments()
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
@@ -524,11 +508,11 @@ function isAttachment(value) {
 }
 
 async function updateNegotiation(message) {
-  await negotiationPageStore
-    .updateNegotiationStatus(negotiation.value.id, selectedStatus.value.value, message)
-    .then(async () => {
-      negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
-    })
+  await negotiationPageStore.updateNegotiationStatus(
+    negotiation.value.id,
+    selectedStatus.value.value,
+    message,
+  )
   await reloadResources()
 
   negotiationPosts.value.retrievePostsByNegotiationId()
@@ -556,18 +540,33 @@ function translateTrueFalse(value) {
   return value
 }
 
-async function reloadResources() {
-  const resourceResponse = await negotiationPageStore.retrieveResourcesByNegotiationId(
+async function loadNegotiation() {
+  negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
+}
+
+async function loadResources() {
+  const response = await negotiationPageStore.retrieveResourcesByNegotiationIdLinks(
     props.negotiationId,
   )
-  if (resourceResponse !== undefined) {
-    resources.value = resourceResponse
+  const resourceList = response?._embedded?.resources
+  if (resourceList !== undefined) {
+    resources.value = resourceList
+    isAddResourcesButtonVisible.value = hasRightsToAddResources(response._links)
   }
-  negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
+}
+
+async function loadResourceStates() {
+  resourceStates.value = (await negotiationPageStore.retrieveResourceAllStates()) ?? []
+}
+
+async function loadTimeline() {
   timelineEvents.value = await negotiationPageStore.retrieveNegotiationTimeline(props.negotiationId)
+}
+
+async function reloadResources() {
   // Resource state changes can move the negotiation itself (e.g. auto-conclude), so its
   // possible lifecycle events have to be refetched as well
-  await reloadStates()
+  await Promise.all([loadResources(), loadNegotiation(), loadTimeline(), reloadStates()])
 }
 
 async function reloadStates() {
