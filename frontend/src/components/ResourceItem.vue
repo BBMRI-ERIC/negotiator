@@ -12,7 +12,7 @@
             <i class="bi bi-box-seam" />
             {{ resource.name }}
           </label>
-          <UiBadge :class="'bg-status-badge rounded-pill ms-2'">{{
+          <UiBadge :class="'bg-status-badge rounded-pill ms-2'" data-test="resource-status-badge">{{
             getStatusForResource()
           }}</UiBadge>
         </div>
@@ -38,7 +38,11 @@
               :key="index"
               class="lifecycle-links d-inline-block ms-2"
             >
-              <a class="lifecycle-text cursor-pointer" @click="onUpdateResourceState(link.href)">
+              <a
+                class="lifecycle-text cursor-pointer"
+                data-test="resource-lifecycle-link"
+                @click="onUpdateResourceState(link.href)"
+              >
                 <i class="bi bi-patch-check" /> {{ link.name }}
               </a>
             </div>
