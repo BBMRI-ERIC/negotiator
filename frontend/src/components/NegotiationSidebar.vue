@@ -332,9 +332,9 @@ function handleTransferNegotiation(subjectId) {
   emit('transfer-negotiation', subjectId)
 }
 
-function handleCollaboratorAdded(user) {
+async function handleCollaboratorAdded(user) {
   emit('collaborator-added', user)
-  fetchCollaborators()
+  await fetchCollaborators()
 }
 
 function startEditDisplayId() {
