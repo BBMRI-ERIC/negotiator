@@ -457,7 +457,7 @@ async function updateOrganizationStatus() {
     state: selectedOrgStatus.value.value,
   }
   await negotiationPageStore.addResources(data, props.negotiationId)
-  reloadResources()
+  await reloadResources()
 }
 
 const author = computed(() => {
@@ -492,7 +492,7 @@ onBeforeMount(async () => {
   timelineEvents.value = await negotiationPageStore.retrieveNegotiationTimeline(props.negotiationId)
 })
 
-retrieveAttachments()
+void retrieveAttachments()
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {

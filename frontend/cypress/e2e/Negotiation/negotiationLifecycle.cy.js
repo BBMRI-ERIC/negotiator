@@ -1,12 +1,39 @@
 /// <reference types="cypress" />
 
-// SUBMITTED negotiation from the dev seed data whose only resource is "Test collection 2" (id 2)
-const negotiationId = "550e8400-e29b-41d4-a716-446655440003"
+const apiUrl = "http://localhost:8080/api/v3"
+// "Test collection 2" from the dev seed data
+const resource = {
+    id: "bbmri-eric:ID:CZ_MMCI:collection:LTS",
+    name: "Test collection 2",
+    description: "This is the second test collection",
+}
 const resourceId = 2
+const payload = {
+    project: {
+        title: "Test e2e negotiation lifecycle",
+        "disease-code": "C34.9",
+        objective: "Test negotiation lifecycle actions",
+        organization: "Masaryk Memorial Cancer Institute",
+        profit: "No",
+        acknowledgment: "TEST",
+        "Multichoice test": ["second_choice"],
+        "Single test": "second_choice",
+        "Bool test": "Yes",
+    },
+    request: {
+        description: "TEST",
+        collection: "",
+        donors: "100",
+        samples: "tissue",
+        specifics: "TEST",
+    },
+    "ethics-vote": { "ethics-vote": "Approved", "ethics-vote-attachment": null },
+}
 
 describe("Test negotiation lifecycle actions", () => {
     let authHeader
     let userId
+    let negotiationId
 
     beforeEach(() => {
         cy.intercept("GET", "**/api/v3/userinfo").as("userInfo")
@@ -18,9 +45,24 @@ describe("Test negotiation lifecycle actions", () => {
             // Make the admin a representative, so the resource state can be updated from the page
             cy.request({
                 method: "PATCH",
-                url: `http://localhost:8080/api/v3/users/${userId}/resources`,
+                url: `${apiUrl}/users/${userId}/resources`,
                 headers: { Authorization: authHeader },
                 body: { id: resourceId },
+            })
+            // Every attempt gets its own submitted negotiation, as the test moves it to a final state
+            cy.request("POST", `${apiUrl}/requests`, {
+                url: "https://bbmritestnn.gcc.rug.nl",
+                humanReadable: "Test e2e negotiation lifecycle",
+                resources: [resource],
+            }).then(({ body: req }) => {
+                cy.request({
+                    method: "POST",
+                    url: `${apiUrl}/negotiations`,
+                    headers: { Authorization: authHeader },
+                    body: { request: req.id, payload },
+                }).then(({ body: negotiation }) => {
+                    negotiationId = negotiation.id
+                })
             })
         })
     })
@@ -29,7 +71,7 @@ describe("Test negotiation lifecycle actions", () => {
         if (userId === undefined) return
         cy.request({
             method: "DELETE",
-            url: `http://localhost:8080/api/v3/users/${userId}/resources/${resourceId}`,
+            url: `${apiUrl}/users/${userId}/resources/${resourceId}`,
             headers: { Authorization: authHeader },
         })
     })
@@ -47,9 +89,9 @@ describe("Test negotiation lifecycle actions", () => {
             cy.get("#abandonModal").should("not.be.visible")
             cy.contains("button", "Conclude").should("be.visible")
 
-            // Bring the only resource to a final state, which auto-concludes the negotiation
+            // Approving contacts the representative. Stepping away brings the only resource to a final
+            // state, which auto-concludes the negotiation
             cy.contains(".collapse-organization", "Masaryk Memorial Cancer Institute").click()
-            cy.contains(".lifecycle-text", "Contact").click()
             cy.contains(".lifecycle-text", "Step Away").click()
 
             cy.contains(".bg-status-badge", "RESOURCE UNAVAILABLE").should("exist")
