@@ -2,6 +2,9 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.common.exceptions.LifecycleConflictException;
+import eu.bbmri_eric.negotiator.common.exceptions.LifecycleProblemType;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
@@ -20,7 +23,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
@@ -110,11 +112,38 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     if (requirementRepository.existsByForEvent(negotiationResourceEvent)
         && !requirementSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resourceId, negotiationId)) {
-      throw new StateMachineException(
-          "The requirement for this operation was not met. Please make sure you have submitted the required form and try again.");
+      throw new LifecycleConflictException(
+          LifecycleProblemType.UNMET_REQUIREMENT,
+          "%s cannot fire for this Resource until its Information Requirement form is submitted."
+              .formatted(negotiationResourceEvent.getLabel()));
     }
-    if (!getPossibleEvents(negotiationId, resourceId).contains(negotiationResourceEvent)) {
-      return getCurrentStateForResource(negotiationId, resourceId);
+    NegotiationResourceState currentState = getCurrentStateForResource(negotiationId, resourceId);
+    Transition<String, String> transition =
+        stateMachine.getTransitions().stream()
+            .filter(t -> t.getSource().getId().equals(currentState.name()))
+            .filter(t -> t.getTrigger().getEvent().equals(negotiationResourceEvent.name()))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new LifecycleConflictException(
+                        LifecycleProblemType.NO_TRANSITION,
+                        "The Resource is %s, and no Transition leaves that State on %s."
+                            .formatted(
+                                currentState.getLabel(), negotiationResourceEvent.getLabel())));
+    if (!isSecurityRuleMet(transition.getSecurityRule(), negotiationId, resourceId)) {
+      throw new ForbiddenRequestException(
+          "You are not allowed to %s for this Resource"
+              .formatted(negotiationResourceEvent.getLabel().toLowerCase()));
+    }
+    NegotiationState negotiationState = getNegotiation(negotiationId).getCurrentState();
+    if (!negotiationState.equals(NegotiationState.IN_PROGRESS)) {
+      throw new LifecycleConflictException(
+          LifecycleProblemType.DOMAIN_STATE_CONFLICT,
+          "%s cannot fire while the Negotiation is %s, only while it is %s."
+              .formatted(
+                  negotiationResourceEvent.getLabel(),
+                  negotiationState.getLabel(),
+                  NegotiationState.IN_PROGRESS.getLabel()));
     }
     persistStateMachineHandler
         .handleEventWithStateReactively(
@@ -122,7 +151,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
                 .setHeader("negotiationId", negotiationId)
                 .setHeader("resourceId", resourceId)
                 .build(),
-            getCurrentStateForResource(negotiationId, resourceId).name())
+            currentState.name())
         .subscribe();
     return getCurrentStateForResource(negotiationId, resourceId);
   }
@@ -136,10 +165,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
       String negotiationId, String resourceId, NegotiationResourceState resourceState) {
-    Negotiation negotiation =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    Negotiation negotiation = getNegotiation(negotiationId);
     if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       return Set.of();
     }
@@ -151,6 +177,12 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
         .map(transition -> transition.getTrigger().getEvent())
         .map(NegotiationResourceEvent::valueOf)
         .collect(Collectors.toSet());
+  }
+
+  private Negotiation getNegotiation(String negotiationId) {
+    return negotiationRepository
+        .findById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
   private boolean isSecurityRuleMet(
