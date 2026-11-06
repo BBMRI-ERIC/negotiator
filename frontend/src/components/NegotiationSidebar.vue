@@ -39,7 +39,7 @@
           </li>
         </ul>
       </li>
-      <li class="list-group-item p-2 v-step-negotiation-4">
+      <li class="list-group-item p-2 v-step-negotiation-4" data-cy="sidebar-negotiation-id">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           {{ $t('negotiationPage.displayId') }}:
         </div>
@@ -86,7 +86,7 @@
           {{ negotiation ? negotiation.id : '' }}</span
         >
       </li>
-      <li class="list-group-item p-2 v-step-negotiation-5">
+      <li class="list-group-item p-2 v-step-negotiation-5" data-cy="sidebar-submitted-at">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Submitted at:
         </div>
