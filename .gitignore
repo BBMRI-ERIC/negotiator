@@ -59,3 +59,12 @@ frontend/.yarn/cache
 frontend/.yarn/unplugged
 frontend/.yarn/install-state.gz
 frontend/.pnp.*
+docs/.yarn/*
+!docs/.yarn/releases
+!docs/.yarn/plugins
+!docs/.yarn/patches
+!docs/.yarn/sdks
+docs/.yarn/cache
+docs/.yarn/unplugged
+docs/.yarn/install-state.gz
+docs/.pnp.*
