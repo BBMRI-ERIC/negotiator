@@ -98,6 +98,7 @@
           <UiBadge
             :class="getBadgeColor(negotiation.status) + ' py-2 rounded-pill bg'"
             :icon="getBadgeIcon(negotiation.status)"
+            data-test="negotiation-status-badge"
           >
             {{ negotiation ? transformStatus(negotiation.status) : '' }}
           </UiBadge>
@@ -116,6 +117,7 @@
               class="mb-1 d-flex text-left w-100"
               data-bs-toggle="modal"
               data-bs-target="#abandonModal"
+              data-test="negotiation-lifecycle-button"
               @click="assignStatus(event)"
             >
               <i :class="getButtonIcon(event.label)" />

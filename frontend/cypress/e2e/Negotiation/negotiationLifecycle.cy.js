@@ -81,24 +81,22 @@ describe("Test negotiation lifecycle actions", () => {
             cy.visit(`http://localhost:8080/negotiations/${negotiationId}/ROLE_ADMIN`)
 
             // Approve the negotiation
-            cy.contains("button", "Approve").click()
+            cy.contains("[data-test=negotiation-lifecycle-button]", "Approve").click()
             // Bootstrap ignores the dismiss while the modal is still fading in
-            cy.get("#abandonModal .btn-danger").should("be.visible")
+            cy.get("#abandonModal [data-test=modal-button-confirm]").should("be.visible")
             cy.wait(500)
-            cy.get("#abandonModal .btn-danger").click()
+            cy.get("#abandonModal [data-test=modal-button-confirm]").click()
             cy.get("#abandonModal").should("not.be.visible")
-            cy.contains("button", "Conclude").should("be.visible")
+            cy.contains("[data-test=negotiation-lifecycle-button]", "Conclude").should("be.visible")
 
             // Approving contacts the representative. Stepping away brings the only resource to a final
             // state, which auto-concludes the negotiation
-            cy.contains(".collapse-organization", "Masaryk Memorial Cancer Institute").click()
-            cy.contains(".lifecycle-text", "Step Away").click()
+            cy.contains("[data-test=organization-header]", "Masaryk Memorial Cancer Institute").click()
+            cy.contains("[data-test=resource-lifecycle-link]", "Step Away").click()
 
-            cy.contains(".bg-status-badge", "RESOURCE UNAVAILABLE").should("exist")
-            cy.contains("CONCLUDED").should("be.visible")
-            cy.contains("button", "Conclude").should("not.exist")
-            cy.contains("button", "Pause").should("not.exist")
-            cy.contains("button", "Abandon").should("not.exist")
+            cy.contains("[data-test=resource-status-badge]", "RESOURCE UNAVAILABLE").should("exist")
+            cy.get("[data-test=negotiation-status-badge]").should("contain", "CONCLUDED")
+            cy.get("[data-test=negotiation-lifecycle-button]").should("not.exist")
         })
     })
 })

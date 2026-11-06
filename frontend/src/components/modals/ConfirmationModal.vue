@@ -10,7 +10,13 @@
       <button type="button" class="btn btn-dark" data-bs-dismiss="modal" @click="message = ''">
         Cancel
       </button>
-      <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="emitConfirm">
+      <button
+        type="button"
+        class="btn btn-danger"
+        data-bs-dismiss="modal"
+        data-test="modal-button-confirm"
+        @click="emitConfirm"
+      >
         Confirm
       </button>
     </template>

@@ -8,6 +8,7 @@
         aria-expanded="false"
         :data-bs-target="`#card-body-block-${sanitizeId(orgId)}`"
         :aria-controls="`card-body-block-${sanitizeId(orgId)}`"
+        data-test="organization-header"
         @click="onToggleCollapse"
       >
         <i class="bi" :class="isCollapsed ? 'bi-chevron-right' : 'bi-chevron-down'" />
