@@ -195,7 +195,9 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       fontProvider.addFont(fontUrl.toString());
 
       HtmlConverter.convertToPdf(
-          html, outputStream, new ConverterProperties().setFontProvider(fontProvider));
+          html,
+          outputStream,
+          new ConverterProperties().setFontProvider(fontProvider).setImmediateFlush(false));
       return outputStream.toByteArray();
     } catch (Exception e) {
       log.error("Error rendering PDF", e);
