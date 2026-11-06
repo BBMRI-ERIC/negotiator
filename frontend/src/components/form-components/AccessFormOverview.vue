@@ -37,17 +37,10 @@
           "
         >
           <p class="element-text mb-0">
-            <span class="fw-bold">{{ element.label }}: </span>
-
-            <span
-              v-if="
-                element.required &&
-                (element.value === '' ||
-                  element.value === null ||
-                  (Array.isArray(element.value) && element.value.length === 0))
-              "
-              class="invalid-text"
-            >
+            <span class="fw-bold"
+              >{{ element.label }}{{ element.required || !isEmpty(element.value) ? ': ' : '' }}
+            </span>
+            <span v-if="element.required && isEmpty(element.value)" class="invalid-text">
               this field is required <i class="bi bi-exclamation-circle"></i>
             </span>
             <span v-else-if="isAttachment(element.value)" class="text-truncate">
@@ -84,6 +77,10 @@ defineProps({
     default: true,
   },
 })
+
+function isEmpty(value) {
+  return value === '' || value === null || (Array.isArray(value) && value.length === 0)
+}
 
 function isAttachment(value) {
   return value instanceof File || value instanceof Object
