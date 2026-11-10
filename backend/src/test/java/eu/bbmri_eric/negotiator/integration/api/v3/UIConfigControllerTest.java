@@ -41,6 +41,8 @@ public class UIConfigControllerTest {
         .andExpect(jsonPath("$.theme.activeLogosFiles").value("default"))
         .andExpect(jsonPath("$.footer.isFooterStatusPageVisible").value(true))
         .andExpect(jsonPath("$.footer.footerHeight").value(50))
+        .andExpect(jsonPath("$.footer.isFooterCopyRightVisible").value(true))
+        .andExpect(jsonPath("$.footer.footerCopyRightText").value("© {year} BBMRI-ERIC"))
         .andExpect(jsonPath("$.login.loginProviderHeader").value(""))
         .andExpect(jsonPath("$.login.loginProviderText").value("Life Science Login"))
         .andExpect(jsonPath("$.login.loginProviderLogoUrl").value("/ls-aai-logo.png"));

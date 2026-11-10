@@ -31,7 +31,11 @@
               {{ uiConfigurationLogin.loginProviderHeader }}
             </h4>
             <div class="d-grid mx-3 mb-5">
-              <button class="btn btn-outline-light" @click.stop.prevent="authenticateOidc">
+              <button
+                class="btn btn-outline-light"
+                data-test="login-button"
+                @click.stop.prevent="authenticateOidc"
+              >
                 <img
                   v-if="uiConfigurationLogin?.loginProviderLogoUrl"
                   height="23"
