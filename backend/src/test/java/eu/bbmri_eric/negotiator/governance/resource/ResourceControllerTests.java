@@ -106,6 +106,19 @@ public class ResourceControllerTests {
         .build();
   }
 
+  private Resource createResourceInOrganization(Organization organization, String sourceId) {
+    DiscoveryService discoveryService =
+        discoveryServiceRepository.findById(DEFAULT_DISCOVERY_SERVICE_ID).orElseThrow();
+    return repository.save(
+        Resource.builder()
+            .organization(organization)
+            .discoveryService(discoveryService)
+            .sourceId(sourceId)
+            .name("Resource " + sourceId)
+            .description("Resource " + sourceId)
+            .build());
+  }
+
   @Test
   @WithMockUser("researcher")
   void getResourceById_validId_ok() throws Exception {
@@ -847,5 +860,99 @@ public class ResourceControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @Transactional
+  @WithUserDetails("admin")
+  void updateResource_changeOrganization_ok() throws Exception {
+    Organization oldOrganization = organizationRepository.save(createOrganization("move_old"));
+    Organization newOrganization = organizationRepository.save(createOrganization("move_new"));
+    Resource resource = createResourceInOrganization(oldOrganization, "collection:move:1");
+    Long resourceId = resource.getId();
+    Long oldOrganizationId = oldOrganization.getId();
+
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().organizationId(newOrganization.getId()).build();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCE_ENDPOINT.formatted(resourceId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id", is(resourceId.intValue())))
+        .andExpect(jsonPath("$.sourceId", is("collection:move:1")))
+        .andExpect(jsonPath("$.organization.id", is(newOrganization.getId().intValue())))
+        .andExpect(jsonPath("$.organization.externalId", is(newOrganization.getExternalId())));
+
+    Resource updated = repository.findById(resourceId).orElseThrow();
+    assertEquals(newOrganization.getId(), updated.getOrganization().getId());
+    // The previous organization must be left untouched (ModelMapper must not rewrite its id)
+    Organization previous = organizationRepository.findById(oldOrganizationId).orElseThrow();
+    assertEquals("test_organization_move_old", previous.getExternalId());
+  }
+
+  @Test
+  @Transactional
+  @WithUserDetails("admin")
+  void updateResource_sameOrganizationId_noChange() throws Exception {
+    Organization organization = organizationRepository.save(createOrganization("move_same"));
+    Resource resource = createResourceInOrganization(organization, "collection:move:2");
+
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().organizationId(organization.getId()).build();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCE_ENDPOINT.formatted(resource.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.organization.id", is(organization.getId().intValue())));
+  }
+
+  @Test
+  @Transactional
+  @WithUserDetails("admin")
+  void updateResource_withoutOrganizationId_organizationUnchanged() throws Exception {
+    Organization organization = organizationRepository.save(createOrganization("move_none"));
+    Resource resource = createResourceInOrganization(organization, "collection:move:3");
+
+    ResourceUpdateDTO updateDTO = ResourceUpdateDTO.builder().name("Renamed only").build();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCE_ENDPOINT.formatted(resource.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name", is("Renamed only")))
+        .andExpect(jsonPath("$.organization.id", is(organization.getId().intValue())));
+
+    Resource updated = repository.findById(resource.getId()).orElseThrow();
+    assertEquals(organization.getId(), updated.getOrganization().getId());
+  }
+
+  @Test
+  @Transactional
+  @WithUserDetails("admin")
+  void updateResource_nonExistentOrganization_notFound() throws Exception {
+    Organization organization = organizationRepository.save(createOrganization("move_404"));
+    Resource resource = createResourceInOrganization(organization, "collection:move:4");
+
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().name("Should not be saved").organizationId(99999L).build();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCE_ENDPOINT.formatted(resource.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isNotFound());
+
+    Resource unchanged = repository.findById(resource.getId()).orElseThrow();
+    assertEquals(organization.getId(), unchanged.getOrganization().getId());
+    assertEquals("Resource collection:move:4", unchanged.getName());
   }
 }
