@@ -35,4 +35,10 @@ public class ResourceUpdateDTO {
 
   @Schema(description = "Updated URI of the resource", example = "https://updated.resource.org")
   private String uri;
+
+  @Schema(
+      description =
+          "Id of the Organization the resource has to be moved to. If omitted, the organization is not changed",
+      example = "1")
+  private Long organizationId;
 }
