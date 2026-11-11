@@ -75,4 +75,14 @@ describe("Test configurable copyright text", () => {
         cy.get("[data-test=login-button]").should("be.visible")
         cy.get("[data-test=copyright-text]").should("not.exist")
     })
+
+    it("hides the text when the configured text is empty", () => {
+        updateFooterConfig({
+            footerCopyRightText: "",
+            isFooterCopyRightVisible: true,
+        })
+        cy.visit("http://localhost:8080")
+        cy.get("[data-test=login-button]").should("be.visible")
+        cy.get("[data-test=copyright-text]").should("not.exist")
+    })
 })
