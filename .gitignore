@@ -50,21 +50,9 @@ compose.dev.yml
 /.env
 
 ### Yarn ###
-frontend/.yarn/*
-!frontend/.yarn/releases
-!frontend/.yarn/plugins
-!frontend/.yarn/patches
-!frontend/.yarn/sdks
-frontend/.yarn/cache
-frontend/.yarn/unplugged
-frontend/.yarn/install-state.gz
-frontend/.pnp.*
-docs/.yarn/*
-!docs/.yarn/releases
-!docs/.yarn/plugins
-!docs/.yarn/patches
-!docs/.yarn/sdks
-docs/.yarn/cache
-docs/.yarn/unplugged
-docs/.yarn/install-state.gz
-docs/.pnp.*
+**/.yarn/*
+!**/.yarn/releases
+!**/.yarn/plugins
+!**/.yarn/patches
+!**/.yarn/sdks
+**/.pnp.*
