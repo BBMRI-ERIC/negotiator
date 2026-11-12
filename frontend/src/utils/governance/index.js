@@ -12,7 +12,7 @@ export function getGovernanceClient() {
         getGovernanceClient.client = PerunClient()
         break
       default:
-        throw new Error(`Unknown provider type: ${governanceSettings.client}`)
+        throw new Error(`Unknown governance provider: ${governanceSettings.client}`)
     }
   }
   return getGovernanceClient.client
