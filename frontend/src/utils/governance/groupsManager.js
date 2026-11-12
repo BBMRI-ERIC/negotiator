@@ -180,6 +180,12 @@ function PerunGroupsManager(idsPrefix) {
     return Object.keys(groupsTree).length > 0
   }
 
+  const reset = () => {
+    for (const perunGroupId of Object.keys(groupsTree)) {
+      delete groupsTree[perunGroupId]
+    }
+  }
+
   const init = (perunGroups) => {
     if (!isInitialized()) {
       for (const perunGroup of perunGroups.data) {
@@ -212,6 +218,7 @@ function PerunGroupsManager(idsPrefix) {
   return {
     isInitialized,
     init,
+    reset,
     getOrganizationsRepresentativesGroups,
     getResourcesRepresentativesGroupsForOrganization,
     getNegotiatorOrganizations,

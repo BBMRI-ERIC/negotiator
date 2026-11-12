@@ -75,8 +75,7 @@ export function PerunClient() {
       perunGroupsManager.init(await getGroupsFromPerun())
 
       const orgReprGroups = perunGroupsManager.getOrganizationsRepresentativesGroups()
-      console.log(orgReprGroups)
-      await Promise.all(
+      const resolutionResults = await Promise.allSettled(
         orgReprGroups.map(async (orgReprGroup) => {
           const negotiatorOrgData = await negotiatorClient.getOrganizationByExternalId(
             orgReprGroup.getNegotiatorId(),
@@ -89,6 +88,16 @@ export function PerunClient() {
           }
         }),
       )
+      
+      // If some error occurred when getting one or more organization data, an error
+      // is shown in the notifications
+      const failures = resolutionResults.filter((result) => result.status === 'rejected')
+      if (failures.length > 0) {
+        perunGroupsManager.reset()
+        throw new Error('Could not resolve negotiator data for all organizations', {
+          cause: failures[0].reason,
+        })
+      }
     }
     return perunGroupsManager.getNegotiatorOrganizations()
   }
