@@ -20,6 +20,7 @@ import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceCreateModelMapper;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelMapper;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceServiceImpl;
@@ -39,6 +40,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 
 public class ResourceServiceTest {
 
@@ -66,6 +68,9 @@ public class ResourceServiceTest {
   void before() {
     closeable = MockitoAnnotations.openMocks(this);
     new ResourceModelMapper(modelMapper).addMappings();
+    ResourceCreateModelMapper createModelMapper = new ResourceCreateModelMapper();
+    ReflectionTestUtils.setField(createModelMapper, "modelMapper", modelMapper);
+    createModelMapper.addMappings();
     resource =
         Resource.builder().id(1L).sourceId("res").name("Original").organization(currentOrg).build();
     when(resourceRepository.findById(1L)).thenReturn(Optional.of(resource));
