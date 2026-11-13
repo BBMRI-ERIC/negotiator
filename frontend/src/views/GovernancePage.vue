@@ -47,7 +47,7 @@
           role="tabpanel"
           aria-labelledby="organizations-tab"
         >
-          <OrganizationsSection :is-admin="isManager" />
+          <OrganizationsSection :is-admin="isAdmin" />
         </div>
 
         <!-- Networks Tab -->
