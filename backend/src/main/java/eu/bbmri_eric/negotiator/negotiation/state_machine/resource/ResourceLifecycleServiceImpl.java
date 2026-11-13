@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.InformationRequirementNotMetException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
@@ -20,7 +21,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
@@ -110,8 +110,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     if (requirementRepository.existsByForEvent(negotiationResourceEvent)
         && !requirementSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resourceId, negotiationId)) {
-      throw new StateMachineException(
-          "The requirement for this operation was not met. Please make sure you have submitted the required form and try again.");
+      throw new InformationRequirementNotMetException();
     }
     if (!getPossibleEvents(negotiationId, resourceId).contains(negotiationResourceEvent)) {
       return getCurrentStateForResource(negotiationId, resourceId);
