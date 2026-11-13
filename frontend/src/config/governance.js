@@ -1,12 +1,7 @@
 import { ROLES } from './consts'
 
-const managerRoles =
-  import.meta.env.VITE_GOVERNANCE_CLIENT == 'NEGOTIATOR'
-    ? [ROLES.ADMINISTRATOR]
-    : [ROLES.ADMINISTRATOR, ROLES.NETWORK_MANAGER]
 
 const devSettings = {
-  managerRoles: managerRoles,
   client: import.meta.env.VITE_GOVERNANCE_CLIENT,
   apiUrl: import.meta.env.VITE_PERUN_API_URL,
   virtualOrganizationId: import.meta.env.VITE_PERUN_VO_ID,
@@ -21,7 +16,6 @@ const devSettings = {
 }
 
 const prodSettings = {
-  managerRoles: managerRoles,
   client: 'GOVERNANCE_CLIENT_PLACEHOLDER',
   apiUrl: 'OIDC_API_PLACEHOLDER',
   virtualOrganizationId: 'VIRTUAL_ORGANIZATION_PLACEHOLDER',
@@ -37,4 +31,9 @@ const prodSettings = {
 
 const governanceSettings = import.meta.env.DEV ? devSettings : prodSettings
 
-export default governanceSettings
+export default {
+  ...governanceSettings,
+  managerRoles: governanceSettings.client === 'NEGOTIATOR'
+    ? [ROLES.ADMINISTRATOR]
+    : [ROLES.ADMINISTRATOR, ROLES.NETWORK_MANAGER],
+}
