@@ -72,13 +72,23 @@ public class AccessForm extends AuditEntity {
   }
 
   /**
-   * Link a section to the form.
+   * Link a section to the form. If the section is already linked, the method updates its order.
    *
    * @param section that should be linked.
    * @param sectionOrder the order of the section.
    */
   public void linkSection(AccessFormSection section, int sectionOrder) {
-    formLinks.add(new AccessFormSectionLink(this, section, sectionOrder));
+    formLinks.stream()
+        .filter(link -> link.getAccessFormSection().equals(section))
+        .findFirst()
+        .ifPresentOrElse(
+            link -> {
+              // re-insert so the SortedSet re-sorts on the new order
+              formLinks.remove(link);
+              link.setSectionOrder(sectionOrder);
+              formLinks.add(link);
+            },
+            () -> formLinks.add(new AccessFormSectionLink(this, section, sectionOrder)));
   }
 
   /**

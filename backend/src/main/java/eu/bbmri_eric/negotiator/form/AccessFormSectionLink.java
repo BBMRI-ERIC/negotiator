@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -65,7 +66,10 @@ public class AccessFormSectionLink implements Comparable<AccessFormSectionLink> 
 
   @Override
   public int compareTo(AccessFormSectionLink o) {
-    return Integer.compare(this.sectionOrder, o.sectionOrder);
+    // tie-break on id: links sharing an order must not collapse in the SortedSet
+    return Comparator.comparingInt((AccessFormSectionLink link) -> link.sectionOrder)
+        .thenComparing(link -> link.id, Comparator.nullsLast(Comparator.naturalOrder()))
+        .compare(this, o);
   }
 
   @Override
