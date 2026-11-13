@@ -18,18 +18,13 @@ const prodSettings = {
   scope: 'SCOPES_PLACEHOLDER',
   post_logout_redirect_uri: 'LOGOUT_URI_PLACEHOLDER',
   response_type: 'code',
-  automaticSilentRenew: 'AUTOMATIC_SILENT_RENEW_PLACEHOLDER' === 'true',
+  automaticSilentRenew: 'AUTOMATIC_SILENT_RENEW_PLACEHOLDER',
   silentRedirectUri: 'SILENT_REDIRECT_URL_PLACEHOLDER',
 }
 
-let oidcSettings
+const oidcSettings = import.meta.env.DEV ? devSettings : prodSettings
 
-if (import.meta.env.DEV) {
-  oidcSettings = devSettings
-} else {
-  oidcSettings = prodSettings
+export default {
+  ...oidcSettings,
+  automaticSilentRenew: oidcSettings.automaticSilentRenew === 'true',
 }
-
-export default oidcSettings
-
-console.debug('oidcSettings:', oidcSettings)
