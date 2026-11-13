@@ -130,9 +130,10 @@ public class ResourceServiceTest {
   void findAllForNetwork_unknownNetwork_throwsEntityNotFound() {
     when(networkRepository.findById(5L)).thenReturn(Optional.empty());
 
+    Pageable pageable = Pageable.unpaged();
+
     assertThrows(
-        EntityNotFoundException.class,
-        () -> resourceService.findAllForNetwork(Pageable.unpaged(), 5L));
+        EntityNotFoundException.class, () -> resourceService.findAllForNetwork(pageable, 5L));
   }
 
   @Test
@@ -204,9 +205,9 @@ public class ResourceServiceTest {
   void addResources_unknownDiscoveryService_throwsAndSavesNothing() {
     when(discoveryServiceRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(
-        DiscoveryServiceNotFoundException.class,
-        () -> resourceService.addResources(List.of(createDTO(null))));
+    List<ResourceCreateDTO> dtos = List.of(createDTO(null));
+
+    assertThrows(DiscoveryServiceNotFoundException.class, () -> resourceService.addResources(dtos));
 
     verify(resourceRepository, never()).saveAll(anyList());
   }
