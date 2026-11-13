@@ -158,7 +158,7 @@ export function PerunClient() {
       vo: VIRTUAL_ORGANIZATION_ID,
       attrNames: [`${USER_ATTR_DEF}${EMAIL_ATTR_ID}`],
       query: {
-        pageSize: 5,
+        pageSize: size,
         offset: page * size,
         order: 'ASCENDING',
         sortColumn: 'NAME',
@@ -178,7 +178,7 @@ export function PerunClient() {
           size: response.data.pageSize,
           totalElements: response.data.totalCount,
           totalPages: Math.ceil(response.data.totalCount / response.data.pageSize),
-          number: response.data.offset,
+          number: response.data.offset / response.data.pageSize,
         },
         _embedded: {
           users: response.data.data.map((perunUser) => {
