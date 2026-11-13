@@ -88,7 +88,7 @@ export function PerunClient() {
           }
         }),
       )
-      
+
       // If some error occurred when getting one or more organization data, an error
       // is shown in the notifications
       const failures = resolutionResults.filter((result) => result.status === 'rejected')
@@ -104,7 +104,7 @@ export function PerunClient() {
 
   const retrieveOrganizationsPaginated = async (page = 0, size = 20, filters = {}) => {
     const organizations = filterOrganizations(await getAllOrganizations(), filters)
-    
+
     return {
       data: {
         _embedded: {
@@ -122,17 +122,22 @@ export function PerunClient() {
   }
 
   const getOrganizationById = async (organizationId) => {
-    const negotiatorResources = await Promise.all(
-      perunGroupsManager
-        .getResourcesRepresentativesGroupsForOrganization(organizationId)
-        .map(async (resourceGroup) => {
-          const negotiatorData = await negotiatorClient.getResourceBySourceId(
-            resourceGroup.getNegotiatorId(),
-          )
-          const representatives = await getRepresentativesOfResource(resourceGroup.getPerunId())
-          return NegotiatorResource(resourceGroup, negotiatorData, representatives)
-        }),
-    )
+    const negotiatorResources = (
+      await Promise.all(
+        perunGroupsManager
+          .getResourcesRepresentativesGroupsForOrganization(organizationId)
+          .map(async (resourceGroup) => {
+            const negotiatorData = await negotiatorClient.getResourceBySourceId(
+              resourceGroup.getNegotiatorId(),
+            )
+            if (!negotiatorData) {
+              return null
+            }
+            const representatives = await getRepresentativesOfResource(resourceGroup.getPerunId())
+            return NegotiatorResource(resourceGroup, negotiatorData, representatives)
+          }),
+      )
+    ).filter((resource) => resource !== null)
     return {
       data: {
         _embedded: {
