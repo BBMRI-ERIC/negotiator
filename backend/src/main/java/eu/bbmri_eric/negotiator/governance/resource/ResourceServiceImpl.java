@@ -207,10 +207,32 @@ public class ResourceServiceImpl implements ResourceService {
   @Transactional
   public ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO updateDTO) {
     Resource resource = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    Organization newOrganization = resolveNewOrganization(resource, updateDTO.getOrganizationId());
     modelMapper.getConfiguration().setSkipNullEnabled(true);
     modelMapper.map(updateDTO, resource);
+    if (newOrganization != null) {
+      log.info(
+          "Moving resource %s from organization %s to organization %s"
+              .formatted(
+                  resource.getSourceId(),
+                  resource.getOrganization().getExternalId(),
+                  newOrganization.getExternalId()));
+      resource.setOrganization(newOrganization);
+    }
     resource = repository.saveAndFlush(resource);
     return modelMapper.map(resource, ResourceWithOrgDTO.class);
+  }
+
+  /**
+   * Returns the Organization the resource has to be moved to, or null if no change is requested.
+   */
+  private Organization resolveNewOrganization(Resource resource, Long organizationId) {
+    if (organizationId == null || organizationId.equals(resource.getOrganization().getId())) {
+      return null;
+    }
+    return organizationRepository
+        .findById(organizationId)
+        .orElseThrow(() -> new EntityNotFoundException(organizationId));
   }
 
   @Override

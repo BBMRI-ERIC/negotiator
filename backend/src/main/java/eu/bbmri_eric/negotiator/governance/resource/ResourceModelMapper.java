@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithRepsDTO;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -36,5 +37,10 @@ public class ResourceModelMapper {
     withResourcesDTOTypeMap.addMappings(
         mapper ->
             mapper.map(Resource::getRepresentatives, ResourceWithRepsDTO::setRepresentatives));
+    modelMapper
+        .emptyTypeMap(ResourceUpdateDTO.class, Resource.class)
+        .addMappings(mapper -> mapper.skip(Resource::setId))
+        .addMappings(mapper -> mapper.skip(Resource::setOrganization))
+        .implicitMappings();
   }
 }
