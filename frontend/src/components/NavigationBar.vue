@@ -215,11 +215,7 @@ const isRepresentativeActive = computed(() => {
   return route.path === '/biobanker' || route.params.userRole === 'ROLE_REPRESENTATIVE'
 })
 const isGovernanceActive = computed(() => {
-  return (
-    route.path === '/governance' ||
-    isRepresentative() || 
-    isGovernanceManager()
-  )
+  return route.path === '/governance'
 })
 const isNetworksActive = computed(() => {
   return route.path.startsWith('/networks')
