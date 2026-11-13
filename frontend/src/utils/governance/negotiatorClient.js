@@ -7,7 +7,7 @@ export function NegotiatorClient() {
   const userStore = useUserStore()
 
   const isManager = () => {
-    return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
+    return userStore.userInfo.roles?.includes(ROLES.ADMINISTRATOR)
   }
 
   const getAllOrganizations = async (filters = null) => {

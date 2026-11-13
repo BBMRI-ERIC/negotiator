@@ -29,8 +29,8 @@ export function PerunClient() {
 
   const isManager = () => {
     return (
-      userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR) ||
-      userStore.userInfo.roles.includes(ROLES.NETWORK_MANAGER)
+      userStore.userInfo.roles?.includes(ROLES.ADMINISTRATOR) ||
+      userStore.userInfo.roles?.includes(ROLES.NETWORK_MANAGER)
     )
   }
 
