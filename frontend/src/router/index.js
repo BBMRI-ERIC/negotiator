@@ -26,6 +26,7 @@ import { useUserStore } from '../store/user.js'
 import hasUser from '@/middlewares/hasUser.js'
 import middlewarePipeline from '@/middlewares/middleware-pipeline.js'
 import { useNotificationsStore } from '@/store/notifications'
+import governanceSettings from '../config/governance.js'
 
 const checkAccess = (allowedRoles) => {
   return async (to, from, next) => {
@@ -103,7 +104,7 @@ const router = createRouter({
       name: 'governance',
       component: GovernancePage,
       meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess([ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR]),
+      beforeEnter: checkAccess([ROLES.REPRESENTATIVE].concat(governanceSettings.managerRoles)),
     },
     {
       path: '/admin',
