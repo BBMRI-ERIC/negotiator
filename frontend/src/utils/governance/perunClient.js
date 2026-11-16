@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { computed } from 'vue'
 import { perunApiPaths, getBearerHeaders } from '../../config/apiPaths'
 import { NegotiatorClient } from './negotiatorClient'
 import { PerunGroupsManager, NegotiatorOrganization, NegotiatorResource } from './groupsManager'
@@ -21,18 +22,17 @@ export function PerunClient() {
     REMOVE: 'R',
   }
 
-  const negotiatorClient = new NegotiatorClient()
+  const negotiatorClient = NegotiatorClient()
 
   const perunGroupsManager = PerunGroupsManager(IDS_PREFIX)
 
   const userStore = useUserStore()
 
-  const isManager = () => {
-    return (
+  const isManager = computed(
+    () =>
       userStore.userInfo.roles?.includes(ROLES.ADMINISTRATOR) ||
-      userStore.userInfo.roles?.includes(ROLES.NETWORK_MANAGER)
-    )
-  }
+      userStore.userInfo.roles?.includes(ROLES.NETWORK_MANAGER),
+  )
 
   const getUserEmail = (user) => {
     const attribute = user.userAttributes.find((attr) => attr.baseFriendlyName === EMAIL_ATTR_ID)
@@ -84,7 +84,7 @@ export function PerunClient() {
             const negotiatorOrg = NegotiatorOrganization(orgReprGroup, negotiatorOrgData)
             orgReprGroup.setNegotiatorOrganization(negotiatorOrg)
           } else {
-            perunGroupsManager.deleteOrganisationGroup(orgReprGroup.getPerunId())
+            perunGroupsManager.deleteOrganizationGroup(orgReprGroup.getPerunId())
           }
         }),
       )

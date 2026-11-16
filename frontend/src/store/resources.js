@@ -2,11 +2,11 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
-import { getGovernanceClient } from '../utils/governance'
+import { useGovernanceClient } from '../composables/useGovernanceClient'
 
 export const useResourcesStore = defineStore('resources', () => {
   const notifications = useNotificationsStore()
-  const governanceClient = getGovernanceClient()
+  const governanceClient = useGovernanceClient()
 
   function getResourceById(id) {
     return axios
