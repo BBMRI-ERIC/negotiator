@@ -2,12 +2,11 @@ import axios from 'axios'
 import { computed } from 'vue'
 import { apiPaths, getBearerHeaders } from '../../config/apiPaths'
 import { useUserStore } from '@/store/user'
-import { ROLES } from '@/config/consts.js'
 
 export function NegotiatorClient() {
   const userStore = useUserStore()
 
-  const isManager = computed(() => userStore.userInfo.roles?.includes(ROLES.ADMINISTRATOR))
+  const isManager = computed(() => userStore.isGovernanceManager)
 
   const getAllOrganizations = async (filters = null) => {
     const params = filters ? new URLSearchParams(filters).toString() : ''

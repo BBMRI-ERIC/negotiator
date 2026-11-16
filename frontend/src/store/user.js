@@ -1,7 +1,8 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
+import governanceSettings from '../config/governance'
 // import { useNotificationsStore } from "./notifications"
 
 export const useUserStore = defineStore('user', () => {
@@ -19,5 +20,10 @@ export const useUserStore = defineStore('user', () => {
       })
   }
 
-  return { userInfo, retrieveUser }
+
+  const isGovernanceManager = computed(() =>
+    governanceSettings.managerRoles.some((role) => userInfo.value.roles?.includes(role)),
+  )
+
+  return { userInfo, retrieveUser, isGovernanceManager }
 })
