@@ -5,7 +5,6 @@ import { NegotiatorClient } from './negotiatorClient'
 import { PerunGroupsManager, NegotiatorOrganization, NegotiatorResource } from './groupsManager'
 import governanceSettings from '@/config/governance'
 import { useUserStore } from '@/store/user'
-import { ROLES } from '@/config/consts.js'
 
 export function PerunClient() {
   const IDS_PREFIX = governanceSettings.idsPrefix ?? ""
@@ -28,11 +27,7 @@ export function PerunClient() {
 
   const userStore = useUserStore()
 
-  const isManager = computed(
-    () =>
-      userStore.userInfo.roles?.includes(ROLES.ADMINISTRATOR) ||
-      userStore.userInfo.roles?.includes(ROLES.NETWORK_MANAGER),
-  )
+  const isManager = computed(() => userStore.isGovernanceManager)
 
   const getUserEmail = (user) => {
     const attribute = user.userAttributes.find((attr) => attr.baseFriendlyName === EMAIL_ATTR_ID)
