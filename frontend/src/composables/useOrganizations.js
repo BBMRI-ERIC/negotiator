@@ -5,14 +5,14 @@ import { useResourcesStore } from '@/store/resources'
 import { useUserStore } from '@/store/user.js'
 import { sortOrganizations, sortResources } from '@/utils/sort'
 import { getNoResultsMessage as buildNoResultsMsg } from '@/utils/messages'
-import { getGovernanceClient } from '@/utils/governance'
+import { useGovernanceClient } from '@/composables/useGovernanceClient'
 
 export function useOrganizations() {
   const adminStore = useAdminStore()
   const organizationsStore = useOrganizationsStore()
   const resourceStore = useResourcesStore()
   const userStore = useUserStore()
-  const governanceClient = getGovernanceClient()
+  const governanceClient = useGovernanceClient()
 
   const organizations = ref([])
   const organizationResources = ref({})
@@ -34,7 +34,7 @@ export function useOrganizations() {
 
   let searchTimeout = null
 
-  const isGovernanceManager = computed(() => governanceClient.isManager())
+  const isGovernanceManager = governanceClient.isManager
 
   const allExpanded = computed(() => {
     return (

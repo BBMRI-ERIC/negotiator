@@ -1,5 +1,4 @@
 import governanceSettings from '@/config/governance'
-import { ref } from 'vue'
 
 const ORGANIZATION_ID_ATTR = governanceSettings.organizationIdAttr
 const RESOURCE_ID_ATTR = governanceSettings.resourceIdAttr
@@ -22,96 +21,82 @@ const getValueForAttribute = (group, attributeName) => {
 }
 
 const getNegotiatorResourceIdFromRepresentativeGroup = (group, idsPrefix) => {
-  return getValueForAttribute(group, RESOURCE_ID_ATTR).replaceAll(idsPrefix, "").replaceAll('.', ':')
+  return getValueForAttribute(group, RESOURCE_ID_ATTR).replaceAll(idsPrefix, '').replaceAll('.', ':')
 }
 
 const getNegotiatorOrganizationIdFromRepresentativeGroup = (group, idsPrefix) => {
-  return getValueForAttribute(group, ORGANIZATION_ID_ATTR).replaceAll(idsPrefix, "").replaceAll('.', ':')
+  return getValueForAttribute(group, ORGANIZATION_ID_ATTR)
+    .replaceAll(idsPrefix, '')
+    .replaceAll('.', ':')
 }
 
-function OrganizationRepresentativeGroup(perunGroupId) {
-  const id = ref(perunGroupId)
-  const negotiatorId = ref(null)
-  const negotiatorOrganization = ref(null)
-  const resources = ref([])
-
-  const getPerunId = () => {
-    return id.value
+class OrganizationRepresentativeGroup {
+  constructor(perunGroupId) {
+    this.id = perunGroupId
+    this.negotiatorId = null
+    this.negotiatorOrganization = null
+    this.resources = []
   }
 
-  const setNegotiatorId = (newNegotiatorId) => {
-    negotiatorId.value = newNegotiatorId
+  getPerunId() {
+    return this.id
   }
 
-  const getNegotiatorId = () => {
-    return negotiatorId.value
+  setNegotiatorId(newNegotiatorId) {
+    this.negotiatorId = newNegotiatorId
   }
 
-  const addResourceGroup = (resource) => {
-    resources.value.push(resource)
+  getNegotiatorId() {
+    return this.negotiatorId
   }
 
-  const getResourcesGroup = () => {
-    return resources.value
+  addResourceGroup(resource) {
+    this.resources.push(resource)
   }
 
-  const setNegotiatorOrganization = (newNegotiatorOrganization) => {
-    negotiatorOrganization.value = newNegotiatorOrganization
+  getResourcesGroup() {
+    return this.resources
   }
 
-  const getNegotiatorOrganization = () => {
-    return negotiatorOrganization.value
+  setNegotiatorOrganization(newNegotiatorOrganization) {
+    this.negotiatorOrganization = newNegotiatorOrganization
   }
 
-  return {
-    getPerunId,
-    setNegotiatorId,
-    getNegotiatorId,
-    addResourceGroup,
-    getResourcesGroup,
-    setNegotiatorOrganization,
-    getNegotiatorOrganization,
-    resources: resources.value,
+  getNegotiatorOrganization() {
+    return this.negotiatorOrganization
   }
 }
 
-function ResourceRepresentativeGroup(perunGroup, idsPrefix) {
-  const id = ref(perunGroup.id)
-  const negotiatorId = ref(getNegotiatorResourceIdFromRepresentativeGroup(perunGroup, idsPrefix))
-  const parentId = ref(perunGroup.parentGroupId)
-  const managerGroupId = ref(null)
-
-  const getPerunId = () => {
-    return id.value
+class ResourceRepresentativeGroup {
+  constructor(perunGroup, idsPrefix) {
+    this.id = perunGroup.id
+    this.negotiatorId = getNegotiatorResourceIdFromRepresentativeGroup(perunGroup, idsPrefix)
+    this.parentId = perunGroup.parentGroupId
+    this.managerGroupId = null
   }
 
-  const setNegotiatorId = (newNegotiatorId) => {
-    negotiatorId.value = newNegotiatorId
+  getPerunId() {
+    return this.id
   }
 
-  const getNegotiatorId = () => {
-    return negotiatorId.value
+  setNegotiatorId(newNegotiatorId) {
+    this.negotiatorId = newNegotiatorId
   }
 
-  const getParentId = () => {
-    return parentId.value
+  getNegotiatorId() {
+    return this.negotiatorId
   }
 
-  const setManagerGroupId = (newManagerGroupId) => {
-    managerGroupId.value = newManagerGroupId
+  getParentId() {
+    return this.parentId
   }
 
-  const getManagerGroupId = () => {
-    return managerGroupId.value
+  setManagerGroupId(newManagerGroupId) {
+    this.managerGroupId = newManagerGroupId
   }
 
-  return {
-    getPerunId,
-    getParentId,
-    setNegotiatorId,
-    getNegotiatorId,
-    setManagerGroupId,
-    getManagerGroupId,
+  getManagerGroupId() {
+    return this.managerGroupId
   }
 }
 
@@ -167,7 +152,7 @@ function PerunGroupsManager(idsPrefix) {
 
   const getOrCreateOrganizationGroup = (perunGroupId) => {
     if (!(perunGroupId in groupsTree)) {
-      groupsTree[perunGroupId] = OrganizationRepresentativeGroup(perunGroupId)
+      groupsTree[perunGroupId] = new OrganizationRepresentativeGroup(perunGroupId)
     }
     return groupsTree[perunGroupId]
   }
@@ -196,7 +181,7 @@ function PerunGroupsManager(idsPrefix) {
           )
         } else if (isResourceRepresentativesGroup(perunGroup)) {
           const organizationGroup = getOrCreateOrganizationGroup(perunGroup.parentGroupId)
-          const resourceGroup = ResourceRepresentativeGroup(perunGroup, idsPrefix)
+          const resourceGroup = new ResourceRepresentativeGroup(perunGroup, idsPrefix)
           organizationGroup.addResourceGroup(resourceGroup)
         }
       }
@@ -222,7 +207,7 @@ function PerunGroupsManager(idsPrefix) {
     getOrganizationsRepresentativesGroups,
     getResourcesRepresentativesGroupsForOrganization,
     getNegotiatorOrganizations,
-    deleteOrganisationGroup: deleteOrganizationGroup
+    deleteOrganizationGroup,
   }
 }
 
