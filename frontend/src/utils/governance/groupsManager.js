@@ -102,7 +102,7 @@ class ResourceRepresentativeGroup {
 
 function NegotiatorOrganization(representativeGroup, negotiatorData) {
   return {
-    id: representativeGroup.getPerunId(),
+    id: negotiatorData.id,
     perunGroupId: representativeGroup.getPerunId(),
     externalId: negotiatorData.externalId,
     name: negotiatorData.name,
@@ -131,7 +131,7 @@ function NegotiatorResource(representativeGroup, negotiatorData, representatives
   }
 
   return {
-    id: perunGroupId,
+    id: negotiatorData.id,
     perunGroupId,
     perunParentGroupId,
     sourceId: negotiatorData.sourceId,
@@ -192,8 +192,25 @@ function PerunGroupsManager(idsPrefix) {
     return Object.values(groupsTree)
   }
 
+  const getOrganizationGroupByNegotiatorId = (negotiatorId) => {
+    if (negotiatorId === null || negotiatorId === undefined) {
+      return null
+    }
+    return (
+      Object.values(groupsTree).find(
+        (group) => String(group.getNegotiatorOrganization()?.id) === String(negotiatorId),
+      ) ?? null
+    )
+  }
+
   const getResourcesRepresentativesGroupsForOrganization = (organizationId) => {
-    return groupsTree[organizationId].getResourcesGroup()
+    const organizationGroup = getOrganizationGroupByNegotiatorId(organizationId)
+    return organizationGroup ? organizationGroup.getResourcesGroup() : []
+  }
+
+  const getNegotiatorOrganizationById = (organizationId) => {
+    const organizationGroup = getOrganizationGroupByNegotiatorId(organizationId)
+    return organizationGroup ? organizationGroup.getNegotiatorOrganization() : null
   }
 
   const getNegotiatorOrganizations = () => {
@@ -205,6 +222,7 @@ function PerunGroupsManager(idsPrefix) {
     init,
     reset,
     getOrganizationsRepresentativesGroups,
+    getNegotiatorOrganizationById,
     getResourcesRepresentativesGroupsForOrganization,
     getNegotiatorOrganizations,
     deleteOrganizationGroup,
