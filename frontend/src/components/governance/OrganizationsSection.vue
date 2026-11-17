@@ -25,6 +25,7 @@
       :no-results-message="getNoResultsMessage()"
       :sorted-resources-for-organization="sortedResourcesForOrganization"
       :is-admin="props.isAdmin"
+      :is-governance-manager="props.isGovernanceManager"
       @toggle-organization="toggleOrganization"
       @edit-organization="modals.openEditModal"
       @edit-resource="modals.openEditResourceModal"
@@ -41,7 +42,7 @@
       @previous-page="previousPage"
       @next-page="nextPage"
       @update-page-size="updatePageSize"
-      v-if="props.isAdmin"
+      v-if="props.isGovernanceManager"
     />
 
     <EditOrganizationModal
@@ -102,6 +103,10 @@ const operations = useOrganizationOperations()
 
 const props = defineProps({
   isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  isGovernanceManager: {
     type: Boolean,
     default: false,
   },
