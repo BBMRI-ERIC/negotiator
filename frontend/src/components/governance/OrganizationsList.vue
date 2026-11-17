@@ -28,6 +28,7 @@
       :resources="sortedResourcesForOrganization(organization.id)"
       :resources-loading="loadingResources.has(organization.id)"
       :is-admin="isAdmin"
+      :is-governance-manager="isGovernanceManager"
       @toggle-expanded="$emit('toggleOrganization', organization)"
       @edit-organization="$emit('editOrganization', organization)"
       @edit-resource="$emit('editResource', $event)"
@@ -42,6 +43,10 @@ import OrganizationCard from './OrganizationCard.vue'
 
 defineProps({
   isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  isGovernanceManager: {
     type: Boolean,
     default: false,
   },

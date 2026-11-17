@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import governanceSettings from '../config/governance'
+import { ROLES } from '@/config/consts'
 // import { useNotificationsStore } from "./notifications"
 
 export const useUserStore = defineStore('user', () => {
@@ -20,10 +21,13 @@ export const useUserStore = defineStore('user', () => {
       })
   }
 
+  const isAdmin = computed(() => {
+    return userInfo.value.roles?.includes(ROLES.ADMINISTRATOR)
+  })
 
   const isGovernanceManager = computed(() =>
     governanceSettings.managerRoles.some((role) => userInfo.value.roles?.includes(role)),
   )
 
-  return { userInfo, retrieveUser, isGovernanceManager }
+  return { userInfo, retrieveUser, isGovernanceManager, isAdmin }
 })
