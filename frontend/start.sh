@@ -28,7 +28,7 @@ for file in assets/*.js;
          -e "s|FEATURE_FLAG_COLLABORATORS_PLACEHOLDER|${FEATURE_FLAG_COLLABORATORS:-false}|g" \
          -e "s|DEV_MODE_PLACEHOLDER|${DEV_MODE:-false}|g" \
          -e "s|AUTH_MANAGEMENT_LINK_PLACEHOLDER|${AUTH_MANAGEMENT_LINK:-none}|g" \
-         -e "s|GOVERNANCE_CLIENT_PLACEHOLDER|${GOVERNANCE_CLIENT:-default-governance_client}|g" \
+         -e "s|GOVERNANCE_CLIENT_PLACEHOLDER|${GOVERNANCE_CLIENT:-NEGOTIATOR}|g" \
          -e "s|OIDC_API_PLACEHOLDER|${OIDC_API:-default-oidc_api}|g" \
          -e "s|VIRTUAL_ORGANIZATION_PLACEHOLDER|${VIRTUAL_ORGANIZATION:-default-virtual_organization}|g" \
          -e "s|ORGANIZATION_ID_ATTR_PLACEHOLDER|${ORGANIZATION_ID_ATTR:-default-organizationIdAttr}|g" \
