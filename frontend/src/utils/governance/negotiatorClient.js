@@ -96,7 +96,7 @@ export function NegotiatorClient() {
   const getOrganizationByExternalId = async (externalId) => {
     //FIXME: this is a workoaround to avoid the backend issue
     //described https://github.com/BBMRI-ERIC/negotiator/issues/1429
-    
+
     if (!externalId) {
       return null
     }
@@ -120,14 +120,30 @@ export function NegotiatorClient() {
   }
 
   const getResourceBySourceId = async (sourceId) => {
-    const params = {
-      sourceId: sourceId,
+    //FIXME: this is a workoaround to avoid the backend issue
+    //described https://github.com/BBMRI-ERIC/negotiator/issues/1430
+
+    if (!sourceId) {
+      return null
     }
-    const response = await axios.get(`${apiPaths.BASE_API_PATH}/resources`, {
-      params,
-      headers: getBearerHeaders(),
-    })
-    return response.data.page.totalElements == 1 ? response.data._embedded.resources[0] : null
+
+    let page = 0
+    let totalPages
+    do {
+      const response = await axios.get(`${apiPaths.BASE_API_PATH}/resources`, {
+        params: { sourceId, page },
+        headers: getBearerHeaders(),
+      })
+      const match = (response.data._embedded?.resources ?? []).find(
+        (resource) => resource.sourceId === sourceId,
+      )
+      if (match) {
+        return match
+      }
+      totalPages = response.data.page.totalPages
+      page += 1
+    } while (page < totalPages)
+    return null
   }
 
   return {
