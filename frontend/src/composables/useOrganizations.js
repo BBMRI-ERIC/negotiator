@@ -90,10 +90,7 @@ export function useOrganizations() {
           'resources',
         )
 
-        organizationResources.value[organizationId] =
-          organizationWithResources.resources ||
-          organizationWithResources._embedded?.resources ||
-          []
+        organizationResources.value[organizationId] = organizationWithResources.resources || []
       } else {
         organizationResources.value[organizationId] =
           organizations.value.find((org) => org.id === organizationId)?.resources || []
