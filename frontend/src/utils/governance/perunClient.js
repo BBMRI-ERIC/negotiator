@@ -93,6 +93,8 @@ export function PerunClient() {
           cause: failures[0].reason,
         })
       }
+    } else {
+      console.info("Already initialized")
     }
     return perunGroupsManager.getNegotiatorOrganizations()
   }
@@ -116,8 +118,20 @@ export function PerunClient() {
     }
   }
 
-  const getOrganizationById = async (organizationId) => {
-    const negotiatorResources = (
+  const getOrganizationById = async (organizationId, expand = null) => {
+    await getAllOrganizations()
+
+    const organization = perunGroupsManager.getNegotiatorOrganizationById(organizationId)
+    
+    if (!organization) {
+      throw new Error(`Organization ${organizationId} not found in the Perun groups tree`)
+    }
+
+    if (expand !== 'resources') {
+      return { data: { ...organization } }
+    }
+
+    const resources = (
       await Promise.all(
         perunGroupsManager
           .getResourcesRepresentativesGroupsForOrganization(organizationId)
@@ -135,11 +149,7 @@ export function PerunClient() {
     ).filter((resource) => resource !== null)
     return {
       data: {
-        _embedded: {
-          resources: negotiatorResources,
-        },
-        _links: {},
-        page: {},
+        resources,
       },
     }
   }
