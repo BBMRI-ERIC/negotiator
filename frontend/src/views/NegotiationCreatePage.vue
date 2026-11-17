@@ -362,30 +362,40 @@ async function updateSaveNegotiation(isSavingDraft) {
     const data = {
       payload: mappedAccessForm.value,
     }
-    const disableAttachmentUpload =
-      negotiationReplacedAttachmentsID.value.length === 0 ? true : false
-    await negotiationFormStore
-      .updateNegotiationById(requestId.value, data, disableAttachmentUpload)
-      .then(() => {
-        deleteAllReplacedAttachments()
-        if (!isSavingDraft) {
-          if (currentStatus.value === 'DRAFT') {
-            negotiationPageStore.updateNegotiationStatus(requestId.value, 'SUBMIT').then(() => {
-              backToNegotiation(requestId.value)
-            })
-          } else {
+    await negotiationFormStore.updateNegotiationById(requestId.value, data).then(() => {
+      keepUploadedAttachments(data.payload)
+      deleteAllReplacedAttachments()
+      if (!isSavingDraft) {
+        if (currentStatus.value === 'DRAFT') {
+          negotiationPageStore.updateNegotiationStatus(requestId.value, 'SUBMIT').then(() => {
             backToNegotiation(requestId.value)
-          }
+          })
         } else {
-          notificationsStore.setNotification(
-            isDraftStatus.value
-              ? 'Negotiation saved correctly as draft'
-              : 'Negotiation changes saved successfully',
-            'light',
-          )
+          backToNegotiation(requestId.value)
         }
-      })
+      } else {
+        notificationsStore.setNotification(
+          isDraftStatus.value
+            ? 'Negotiation saved correctly as draft'
+            : 'Negotiation changes saved successfully',
+          'light',
+        )
+      }
+    })
   }
+}
+
+// Replace uploaded File objects with their saved attachment so later auto-saves don't upload them again
+function keepUploadedAttachments(savedPayload) {
+  accessFormWithPayload.value.sections.forEach((section) => {
+    section.elements.forEach((element) => {
+      const saved = savedPayload[section.name]?.[element.name]
+      // name check: the user may have picked another file while this save was in flight
+      if (element.value instanceof File && saved?.id && saved.name === element.value.name) {
+        element.value = saved
+      }
+    })
+  })
 }
 
 function backToNegotiation(id) {
