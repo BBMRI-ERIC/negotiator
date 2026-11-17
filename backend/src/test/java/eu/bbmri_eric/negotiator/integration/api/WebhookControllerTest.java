@@ -166,6 +166,38 @@ public class WebhookControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
+  void deleteWebhook_withSecret_deletesWebhookAndSecret() throws Exception {
+    String payload =
+        "{"
+            + "\"url\":\"https://example.com/webhook\","
+            + "\"sslVerification\":true,"
+            + "\"active\":true,"
+            + "\"secret\":\""
+            + webhookSecretForBytes(24)
+            + "\""
+            + "}";
+    MvcResult createResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/v3/webhooks")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload))
+            .andExpect(status().isOk())
+            .andReturn();
+    var createdJson = objectMapper.readTree(createResult.getResponse().getContentAsString());
+    long webhookId = createdJson.get("id").asLong();
+    String secretId = createdJson.get("secretId").asText();
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.delete(String.format("/v3/webhooks/%d", webhookId)))
+        .andExpect(status().isOk());
+
+    assertFalse(webhookRepository.existsById(webhookId));
+    assertFalse(webhookSecretRepository.existsById(secretId));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   void getWebhookById_invalidId_notFound() throws Exception {
     mockMvc
         .perform(
