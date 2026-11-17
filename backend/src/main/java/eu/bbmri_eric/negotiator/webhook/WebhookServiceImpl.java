@@ -106,8 +106,9 @@ public class WebhookServiceImpl implements WebhookService {
   public void deleteWebhook(Long id) {
     Webhook webhook =
         webhookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    // The webhook references its secret, so the webhook has to be deleted first.
+    webhookRepository.delete(webhook);
     deleteAssociatedSecret(webhook);
-    webhookRepository.deleteById(id);
   }
 
   @Override
