@@ -16,12 +16,12 @@
             :to="item.to"
             class="nav-link text-lg-start mb-1 rounded"
             :class="[
-              route.path.startsWith(item.pathPrefix)
-                ? 'active bg-primary text-white'
-                : 'text-secondary',
+              isActive(item) ? 'active text-white' : 'text-secondary',
               `v-step-settings-${index + 1}`,
             ]"
+            :style="isActive(item) ? activeItemStyle : undefined"
             :title="item.description"
+            data-test="admin-settings-nav-item"
           >
             {{ item.label }}
           </router-link>
@@ -37,14 +37,24 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../store/user.js'
 import { useVueTourStore } from '../store/vueTour'
+import { useUiConfiguration } from '../store/uiConfiguration.js'
 
 const route = useRoute()
 const userStore = useUserStore()
 const vueTourStore = useVueTourStore()
+const uiConfigurationStore = useUiConfiguration()
+
+const activeItemStyle = computed(() => ({
+  backgroundColor: uiConfigurationStore.uiConfiguration?.theme?.buttonColor,
+}))
+
+function isActive(item) {
+  return route.path.startsWith(item.pathPrefix)
+}
 
 const navItems = [
   {
