@@ -71,6 +71,7 @@
         v-model="accessForm.name"
         type="TEXT"
         placeholder="Give a form name"
+        data-test="form-name-input"
         class="form-control text-secondary-text w-25"
       />
     </div>
@@ -736,6 +737,9 @@ async function editAccessForm() {
       })
     }
   })
+
+  // Update the access form with the new name and sections
+  await negotiationFormStore.updateAccessForm(accessFormId, postAccessForm)
 
   goToAdminSettingsPage()
 }

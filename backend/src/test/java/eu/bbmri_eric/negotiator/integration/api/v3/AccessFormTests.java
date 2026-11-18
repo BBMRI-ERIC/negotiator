@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.form.FormElementType;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
@@ -22,6 +23,7 @@ import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSetCreateDTO;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -487,6 +490,92 @@ public class AccessFormTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", equalTo(id.intValue())))
         .andExpect(jsonPath("$.name", is(createDTO.getName())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void renameExistingAccessForm_ok() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+    List<AccessFormUpdateSectionDTO> sections = currentSections(3L);
+    String newName = "Renamed BBMRI.cz Template";
+    AccessFormUpdateDTO updateDTO =
+        AccessFormUpdateDTO.builder().name(newName).sections(sections).build();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("%s/3".formatted(ACCESS_FORMS_ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(updateDTO.getName())));
+
+    // section 1 of form 3 has 7 elements in seed data, two sharing element_order 2
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("%s/3".formatted(ACCESS_FORMS_ENDPOINT)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(updateDTO.getName())))
+        .andExpect(jsonPath("$.sections[0].elements", hasSize(7)));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void updateAccessForm_removedElement_rebuildsForm() throws Exception {
+    List<AccessFormUpdateSectionDTO> sections = currentSections(201L);
+    List<AccessFormUpdateElementDTO> elements = sections.get(0).getElements();
+    elements.remove(elements.size() - 1);
+
+    putAccessForm(201L, sections)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.sections[0].elements", hasSize(elements.size())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void updateAccessForm_changedRequired_rebuildsForm() throws Exception {
+    List<AccessFormUpdateSectionDTO> sections = currentSections(201L);
+    AccessFormUpdateElementDTO element = sections.get(0).getElements().get(0);
+    element.setRequired(!element.getRequired());
+
+    putAccessForm(201L, sections)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.sections[0].elements[0].required", is(element.getRequired())));
+  }
+
+  private ResultActions putAccessForm(Long formId, List<AccessFormUpdateSectionDTO> sections)
+      throws Exception {
+    AccessFormUpdateDTO updateDTO =
+        AccessFormUpdateDTO.builder().name("Updated form").sections(sections).build();
+    return mockMvc.perform(
+        MockMvcRequestBuilders.put("%s/%s".formatted(ACCESS_FORMS_ENDPOINT, formId))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(updateDTO)));
+  }
+
+  private List<AccessFormUpdateSectionDTO> currentSections(Long formId) throws Exception {
+    MvcResult existingForm =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("%s/%s".formatted(ACCESS_FORMS_ENDPOINT, formId)))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode existingFormJson =
+        new ObjectMapper().readTree(existingForm.getResponse().getContentAsString());
+    List<AccessFormUpdateSectionDTO> sections = new ArrayList<>();
+    for (JsonNode section : existingFormJson.get("sections")) {
+      List<AccessFormUpdateElementDTO> elements = new ArrayList<>();
+      for (JsonNode element : section.get("elements")) {
+        elements.add(
+            AccessFormUpdateElementDTO.builder()
+                .id(element.get("id").asLong())
+                .required(element.get("required").asBoolean())
+                .build());
+      }
+      sections.add(
+          AccessFormUpdateSectionDTO.builder()
+              .id(section.get("id").asLong())
+              .elements(elements)
+              .build());
+    }
+    return sections;
   }
 
   @Test
