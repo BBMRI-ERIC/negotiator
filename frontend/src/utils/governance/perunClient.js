@@ -38,6 +38,7 @@ export function PerunClient() {
     if (Object.keys(filters).length == 0) return items
 
     return items.filter((item) => {
+      
       const nameMatch =
         filters.name === undefined ||
         item.name.toLowerCase().includes(filters.name.toLowerCase()) ||
@@ -45,7 +46,11 @@ export function PerunClient() {
 
       const withdrawnMatch = filters.withdrawn === undefined || item.withdrawn === filters.withdrawn
 
-      return nameMatch && withdrawnMatch
+      const externalIdMatch =
+         filters.externalId === undefined ||
+         item.externalId.toLowerCase().includes(filters.externalId.toLowerCase())
+
+      return externalIdMatch && nameMatch && withdrawnMatch
     })
   }
 
