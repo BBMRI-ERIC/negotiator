@@ -146,23 +146,37 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
-  function retrieveUsers(filtersSortData, page = 0, size = 10) {
-    const filterSortDataWithValues = Object.fromEntries(
-      Object.entries(filtersSortData).filter(([, value]) => value !== ''),
-    )
+  function usersPageFrom(response) {
+    return {
+      users: response.data.page.totalElements > 0 ? response.data._embedded.users : [],
+      totalUsers: response.data.page.totalElements, // Total count of users (for pagination)
+      failed: false,
+    }
+  }
 
+  function failedUsersPage(message) {
+    notifications.setNotification(message)
+    return { users: [], totalUsers: 0, failed: true }
+  }
+
+  function filtersWithValues(filtersSortData) {
+    return Object.fromEntries(Object.entries(filtersSortData).filter(([, value]) => value !== ''))
+  }
+
+  function retrieveUsers(filtersSortData, page = 0, size = 10) {
     return governanceClient
-      .retrieveUsers(filterSortDataWithValues, page, size)
-      .then((response) => {
-        return {
-          users: response.data.page.totalElements > 0 ? response.data._embedded.users : [],
-          totalUsers: response.data.page.totalElements, // Total count of users (for pagination)
-        }
-      })
-      .catch(() => {
-        notifications.setNotification('Error getting users data from server')
-        return { users: [], totalUsers: 0 }
-      })
+      .retrieveUsers(filtersWithValues(filtersSortData), page, size)
+      .then(usersPageFrom)
+      .catch(() => failedUsersPage('Error searching users'))
+  }
+
+  function retrieveNegotiatorUsers(filtersSortData, page = 0, size = 10) {
+    const params = { ...filtersWithValues(filtersSortData), page, size }
+
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/users`, { params, headers: getBearerHeaders() })
+      .then(usersPageFrom)
+      .catch(() => failedUsersPage('Error getting users data from server'))
   }
 
   function retrieveResources() {
@@ -295,6 +309,7 @@ export const useAdminStore = defineStore('admin', () => {
     getWebhook,
     redeliverWebhookDelivery,
     retrieveUsers,
+    retrieveNegotiatorUsers,
     retrieveResources,
     retrieveResourcesPaginated,
     fetchResourcesPage,
