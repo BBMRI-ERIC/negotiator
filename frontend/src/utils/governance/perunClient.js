@@ -29,6 +29,8 @@ export function PerunClient() {
 
   const isManager = computed(() => userStore.isGovernanceManager)
 
+  let organizationsLoad = null
+
   const getUserEmail = (user) => {
     const attribute = user.userAttributes.find((attr) => attr.baseFriendlyName === EMAIL_ATTR_ID)
     return attribute ? attribute.value.trim() : null
@@ -70,8 +72,17 @@ export function PerunClient() {
     })
   }
 
-  const getAllOrganizations = async () => {
-    if (!perunGroupsManager.isInitialized()) {
+  const getAllOrganizations = () => {
+    if (!organizationsLoad) {
+      organizationsLoad = loadOrganizationsTree().finally(() => {
+        organizationsLoad = null
+      })
+    }
+    return organizationsLoad
+  }
+
+  const loadOrganizationsTree = async () => {
+    if (!perunGroupsManager.isReady()) {
       perunGroupsManager.init(await getGroupsFromPerun())
 
       const orgReprGroups = perunGroupsManager.getOrganizationsRepresentativesGroups()
@@ -98,8 +109,8 @@ export function PerunClient() {
           cause: failures[0].reason,
         })
       }
-    } else {
-      console.info("Already initialized")
+
+      perunGroupsManager.markReady()
     }
     return perunGroupsManager.getNegotiatorOrganizations()
   }

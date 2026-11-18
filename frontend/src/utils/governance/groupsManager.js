@@ -150,6 +150,8 @@ function NegotiatorResource(representativeGroup, negotiatorData, representatives
 function PerunGroupsManager(idsPrefix) {
   const groupsTree = {}
 
+  let ready = false
+
   const getOrCreateOrganizationGroup = (perunGroupId) => {
     if (!(perunGroupId in groupsTree)) {
       groupsTree[perunGroupId] = new OrganizationRepresentativeGroup(perunGroupId)
@@ -161,18 +163,27 @@ function PerunGroupsManager(idsPrefix) {
     delete groupsTree[perunGroupId]
   }
 
-  const isInitialized = () => {
+  const isGroupsTreeBuilt = () => {
     return Object.keys(groupsTree).length > 0
+  }
+
+  const isReady = () => {
+    return ready
+  }
+
+  const markReady = () => {
+    ready = true
   }
 
   const reset = () => {
     for (const perunGroupId of Object.keys(groupsTree)) {
       delete groupsTree[perunGroupId]
     }
+    ready = false
   }
 
   const init = (perunGroups) => {
-    if (!isInitialized()) {
+    if (!isGroupsTreeBuilt()) {
       for (const perunGroup of perunGroups.data) {
         if (isOrganizationRepresentativesGroup(perunGroup)) {
           const organizationGroup = getOrCreateOrganizationGroup(perunGroup.id)
@@ -218,7 +229,9 @@ function PerunGroupsManager(idsPrefix) {
   }
 
   return {
-    isInitialized,
+    isGroupsTreeBuilt,
+    isReady,
+    markReady,
     init,
     reset,
     getOrganizationsRepresentativesGroups,
