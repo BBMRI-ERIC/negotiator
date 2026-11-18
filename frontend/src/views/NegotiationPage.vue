@@ -101,12 +101,12 @@
                   </div>
                 </span>
               </span>
-              <span
+              <TruncatedText
                 v-else
                 class="text-break"
                 :style="{ color: uiConfiguration.secondaryTextColor, whiteSpace: 'pre-wrap' }"
-                >{{ translateTrueFalse(subelement) }}</span
-              >
+                >{{ translateTrueFalse(subelement) }}
+              </TruncatedText>
             </div>
           </li>
           <li class="list-group-item p-3">
@@ -315,6 +315,7 @@ import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
 import { ROLES } from '@/config/consts.js'
 import UiBadge from '@/components/ui/UiBadge.vue'
+import TruncatedText from '@/components/ui/TruncatedText.vue'
 import NegotiationTitle from '@/components/NegotiationTitle.vue'
 import { getNegotiationTitle } from '@/utils/payload.js'
 
