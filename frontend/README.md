@@ -149,3 +149,40 @@ See the configuration references:
 
 - [vuex-oidc](https://github.com/perarnborg/vuex-oidc/wiki)
 - [pinia-oidc](https://github.com/zhazhazhu/pinia-oidc)
+
+## Configuration for Perun Governance
+
+When representatives are managed in Perun (`GOVERNANCE_CLIENT=PERUN`), the frontend calls the Perun API under the
+`/perun` prefix, as defined in `src/config/apiPaths.js`.
+
+### Perun API URL for Development
+
+In development the `/perun` proxy is provided by the Vite development server, and its target is read from
+`VITE_PERUN_API_URL` in `vite.config.js`:
+
+| Environment Variable | Description                                                                              | Default Value |
+|----------------------|------------------------------------------------------------------------------------------|---------------|
+| `VITE_PERUN_API_URL` | Base URL of the Perun API used as the target of the `/perun` development proxy.          | `none`        |
+
+Start the development server in the Perun mode:
+
+```sh
+yarn dev:perun
+```
+
+It loads `.env.perun.development`, which is committed with placeholders, such as
+`VITE_PERUN_API_URL='PERUN_API_PLACEHOLDER'`, that are not replaced automatically.
+
+To use your own values without committing them, copy that file to `.env.perun.development.local` and edit the copy:
+
+```sh
+cp .env.perun.development .env.perun.development.local
+yarn dev:perun:local
+```
+
+The `dev:perun:local` script loads only `.env.perun.development.local`, so the copy is what provides the values. Files
+matching `.env.*.local` are ignored by git.
+
+This variable is only used by the development server: production builds do not embed a Perun API URL, and the Perun
+endpoint is wired up by the deployment instead. For the variables that configure a Perun-based deployment, see the
+[Deployment guide](../docs/deployment.md#custom-properties-for-the-frontend-docker-container).

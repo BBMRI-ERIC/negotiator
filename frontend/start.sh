@@ -29,7 +29,6 @@ for file in assets/*.js;
          -e "s|DEV_MODE_PLACEHOLDER|${DEV_MODE:-false}|g" \
          -e "s|AUTH_MANAGEMENT_LINK_PLACEHOLDER|${AUTH_MANAGEMENT_LINK:-none}|g" \
          -e "s|GOVERNANCE_CLIENT_PLACEHOLDER|${GOVERNANCE_CLIENT:-NEGOTIATOR}|g" \
-         -e "s|OIDC_API_PLACEHOLDER|${OIDC_API:-default-oidc_api}|g" \
          -e "s|VIRTUAL_ORGANIZATION_PLACEHOLDER|${VIRTUAL_ORGANIZATION:-default-virtual_organization}|g" \
          -e "s|IDS_PREFIX_PLACEHOLDER|${IDS_PREFIX:-}|g" \
          -e "s|ADMIN_ORGANIZATION_ID_ATTR_PLACEHOLDER|${ADMIN_ORGANIZATION_ID_ATTR:-default-adminOrganizationIdAttr}|g" \
