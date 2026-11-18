@@ -1,7 +1,7 @@
 import { useOidcStore } from '../store/oidc'
-import governanceSettings from './governance'
+
 const BASE_API_PATH = '/api/v3'
-const BASE_PERUN_URL = governanceSettings.apiUrl
+const BASE_PERUN_URL = '/perun'
 
 const apiPaths = {
   BASE_API_PATH: `${BASE_API_PATH}`,
