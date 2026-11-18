@@ -172,7 +172,7 @@ export function PerunClient() {
         offset: page * size,
         order: 'ASCENDING',
         sortColumn: 'NAME',
-        searchString: filtersSortData.name,
+        searchString: filtersSortData.name || filtersSortData.email,
         statuses: [],
         groupId: null,
       },
