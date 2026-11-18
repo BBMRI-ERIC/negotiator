@@ -3,13 +3,15 @@
     <ul class="list-group list-group-flush my-3">
       <li class="list-group-item p-2">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Author:</div>
-        <div :style="{ color: uiConfiguration.secondaryTextColor }">
+        <div data-cy="negotiation-author" :style="{ color: uiConfiguration.secondaryTextColor }">
           {{ author.name }}
         </div>
       </li>
       <li class="list-group-item p-2 v-step-negotiation-3">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Email:</div>
-        <span :style="{ color: uiConfiguration.secondaryTextColor }">{{ author.email }}</span>
+        <span data-cy="negotiation-email" :style="{ color: uiConfiguration.secondaryTextColor }">{{
+          author.email
+        }}</span>
       </li>
       <!-- Collaborators list -->
       <li v-if="collaboratorsEnabled" class="list-group-item p-2">
@@ -43,7 +45,7 @@
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           {{ $t('negotiationPage.displayId') }}:
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div data-cy="negotiation-display-id" class="d-flex align-items-center gap-2">
           <span v-if="!isEditingDisplayId" :style="{ color: uiConfiguration.secondaryTextColor }">
             {{ negotiation ? negotiation.displayId : '' }}
           </span>
@@ -90,7 +92,10 @@
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Submitted at:
         </div>
-        <TimeStamp :value="negotiation ? negotiation.creationDate : ''" />
+        <TimeStamp
+          data-cy="negotiation-submitted-at"
+          :value="negotiation ? negotiation.creationDate : ''"
+        />
       </li>
       <li class="list-group-item p-2 d-flex justify-content-between v-step-negotiation-6">
         <div>

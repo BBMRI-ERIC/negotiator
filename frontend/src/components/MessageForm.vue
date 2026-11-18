@@ -12,13 +12,17 @@
       />
       <textarea
         v-model="message"
-        class="form-control mb-3"
+        data-cy="message-input"
+        class="form-control"
+        placeholder="Write your message..."
         :style="{ color: uiConfiguration.secondaryTextColor }"
         :disabled="props.isUploading"
+        @keydown.ctrl.enter.prevent="sendMessage"
+        @keydown.meta.enter.prevent="sendMessage"
       />
       <NegotiationAttachment
         v-if="attachment"
-        class="ms-auto"
+        class="ms-auto mt-2"
         :name="attachment.name"
         :content-type="attachment.type"
         :size="attachment.size"
@@ -28,16 +32,7 @@
         {{ attachmentError }}
       </div>
       <div class="d-flex flex-row-reverse mt-3 mb-2">
-        <span
-          data-bs-toggle="tooltip"
-          :title="
-            negotiation.publicPostsEnabled
-              ? ''
-              : negotiation.status === 'DRAFT'
-                ? 'Messaging is unavailable until you submit the request'
-                : 'Messaging is unavailable until the request has been reviewed.'
-          "
-        >
+        <span ref="sendTooltipEl">
           <button
             type="submit"
             id="send"
@@ -82,7 +77,8 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { Tooltip } from 'bootstrap'
 import NegotiationAttachment from './NegotiationAttachment.vue'
 import ChannelSelector from './ChannelSelector.vue'
 import { isFileExtensionsSupported } from '../composables/utils.js'
@@ -128,11 +124,45 @@ const attachment = ref(undefined)
 const fileInputKey = ref(0)
 const attachmentError = ref('')
 
+const sendShortcut = /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘+Enter' : 'Ctrl+Enter'
+
+const sendTooltipEl = ref(null)
+let sendTooltip
+
+const selectedChannelEnabled = computed(() => {
+  if (channelId.value === '') return false
+  return channelId.value === 'public'
+    ? props.negotiation.publicPostsEnabled
+    : props.negotiation.privatePostsEnabled
+})
+
+const sendTooltipText = computed(() => {
+  if (!props.negotiation.publicPostsEnabled && !props.negotiation.privatePostsEnabled) {
+    return 'Messaging is currently disabled for this request'
+  }
+  if (channelId.value === '') return 'Please select channel'
+  if (!selectedChannelEnabled.value) {
+    return channelId.value === 'public'
+      ? 'The request-wide channel is currently disabled for this request'
+      : '1:1 channels are currently disabled for this request'
+  }
+  if (message.value === '' && attachment.value === undefined) return 'Message cannot be empty'
+  return `Send (${sendShortcut})`
+})
+
+onMounted(() => {
+  // title as a function so Bootstrap re-reads it on every show instead of caching it
+  sendTooltip = new Tooltip(sendTooltipEl.value, { title: () => sendTooltipText.value })
+})
+
+onBeforeUnmount(() => {
+  sendTooltip?.dispose()
+})
+
 const readyToSend = computed(() => {
   return (
     (message.value !== '' || attachment.value !== undefined) &&
-    channelId.value !== '' &&
-    (props.negotiation.publicPostsEnabled || props.negotiation.privatePostsEnabled) &&
+    selectedChannelEnabled.value &&
     !props.isUploading
   )
 })
