@@ -9,6 +9,9 @@
       @filters-sort-data="fetchUsers"
     />
     <LoadingIndicator v-if="isLoading && users.length === 0" />
+    <div v-else-if="users.length === 0 && loadFailed" class="text-danger mb-3">
+      Could not load users. Please try again.
+    </div>
     <div v-else-if="users.length === 0" class="text-muted mb-3">No users found.</div>
     <div v-else class="table-container">
       <table class="table table-hover">
@@ -80,6 +83,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const totalUsers = ref(0)
 const isLoading = ref(false)
+const loadFailed = ref(false)
 const adminStore = useAdminStore()
 
 const sortByFields = ref({
@@ -175,20 +179,18 @@ const fetchUsers = async () => {
   }
 
   try {
-    const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
-      data,
-      currentPage.value - 1,
-      pageSize.value,
-    )
+    const {
+      users: usersData,
+      totalUsers: totalCount,
+      failed,
+    } = await adminStore.retrieveNegotiatorUsers(data, currentPage.value - 1, pageSize.value)
     users.value = usersData || []
     totalUsers.value = totalCount || 0
+    loadFailed.value = failed === true
     if (currentPage.value > totalPages.value && totalPages.value > 0) {
       currentPage.value = totalPages.value
       fetchUsers() // Re-fetch if page is out of bounds
     }
-  } catch {
-    users.value = []
-    totalUsers.value = 0
   } finally {
     isLoading.value = false
   }

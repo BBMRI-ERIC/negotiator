@@ -107,6 +107,12 @@
             </div>
 
             <div
+              v-else-if="hasSearched && searchResults.length === 0 && searchFailed"
+              class="text-danger text-center py-3"
+            >
+              User search failed. Please try again.
+            </div>
+            <div
               v-else-if="hasSearched && searchResults.length === 0"
               class="text-muted text-center py-3"
             >
@@ -224,6 +230,7 @@ const representativesFilterData = ref({
 const searchResults = ref([])
 const isLoading = ref(false)
 const hasSearched = ref(false)
+const searchFailed = ref(false)
 const isSaving = ref(false)
 const currentOperation = ref(0)
 const totalOperations = ref(0)
@@ -253,6 +260,7 @@ const searchUsers = async () => {
   ) {
     searchResults.value = []
     hasSearched.value = false
+    searchFailed.value = false
   } else {
     isLoading.value = true
     hasSearched.value = true
@@ -265,9 +273,7 @@ const searchUsers = async () => {
 
       const result = await adminStore.retrieveUsers(filtersSortData, 0, 20)
       searchResults.value = result.users || []
-    } catch {
-      notifications.setNotification('Error searching users')
-      searchResults.value = []
+      searchFailed.value = result.failed === true
     } finally {
       isLoading.value = false
     }
@@ -389,6 +395,7 @@ const resetState = () => {
   representativesFilterData.value.email = ''
   searchResults.value = []
   hasSearched.value = false
+  searchFailed.value = false
 }
 
 const initializeModal = () => {
@@ -418,6 +425,7 @@ const resetSearchState = () => {
   representativesFilterData.value.email = ''
   searchResults.value = []
   hasSearched.value = false
+  searchFailed.value = false
 }
 
 onMounted(() => {
