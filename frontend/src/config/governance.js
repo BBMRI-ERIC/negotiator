@@ -3,7 +3,6 @@ import { ROLES } from './consts'
 
 const devSettings = {
   client: import.meta.env.VITE_GOVERNANCE_CLIENT,
-  apiUrl: import.meta.env.VITE_PERUN_API_URL,
   virtualOrganizationId: import.meta.env.VITE_PERUN_VO_ID,
   idsPrefix: import.meta.env.VITE_PERUN_IDS_PREFIX,
   organizationIdAttr: import.meta.env.VITE_PERUN_ORGANIZATION_ID_ATTR,
@@ -17,7 +16,6 @@ const devSettings = {
 
 const prodSettings = {
   client: 'GOVERNANCE_CLIENT_PLACEHOLDER',
-  apiUrl: 'OIDC_API_PLACEHOLDER',
   virtualOrganizationId: 'VIRTUAL_ORGANIZATION_PLACEHOLDER',
   idsPrefix: 'IDS_PREFIX_PLACEHOLDER',
   organizationIdAttr: 'ORGANIZATION_ID_ATTR_PLACEHOLDER',
