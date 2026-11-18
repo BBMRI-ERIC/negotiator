@@ -204,7 +204,7 @@ export function PerunClient() {
         _embedded: {
           users: response.data.data.map((perunUser) => {
             return {
-              id: `${perunUser.id}`,
+              id: perunUser.id,
               name: `${perunUser.user.firstName} ${perunUser.user.lastName}`,
               email: getUserEmail(perunUser),
             }
