@@ -23,6 +23,11 @@ describe('Test file uploads in the access form', () => {
     cy.get('textarea').blur()
   }
 
+  function focusAndBlur() {
+    cy.get('textarea').focus()
+    cy.get('textarea').blur()
+  }
+
   // Creating a request can merge it into today's most recent draft, which may
   // already hold attachments from other runs, so only this run's names count.
   function attachmentNamesOfThisRun() {
@@ -142,5 +147,36 @@ describe('Test file uploads in the access form', () => {
     cy.get('@upload.all').should('have.length', 1)
     expectAttachmentsOfThisRun([file1.fileName])
     cy.contains(`Uploaded file: ${file1.fileName}`).should('be.visible')
+  })
+
+  it('goes back to the previous file after a rejected upload', () => {
+    cy.intercept('POST', '**/api/v3/negotiations/*/attachments').as('upload')
+
+    pick(file1)
+    typeAndBlur('a')
+    cy.wait('@upload')
+    cy.wait('@patch')
+    cy.wait(1000)
+
+    cy.intercept('POST', '**/api/v3/negotiations/*/attachments', {
+      statusCode: 400,
+      body: { detail: 'rejected' },
+    }).as('rejectedUpload')
+    cy.get('@patch.all').then((patches) => {
+      const patchesBefore = patches.length
+      pick(file2)
+      focusAndBlur()
+      cy.wait('@rejectedUpload')
+
+      cy.contains(`Uploaded file: ${file1.fileName}`).should('be.visible')
+      cy.wait(1000)
+      cy.get('@patch.all').should('have.length', patchesBefore)
+    })
+
+    focusAndBlur()
+    cy.wait(1000)
+
+    cy.get('@rejectedUpload.all').should('have.length', 1)
+    expectAttachmentsOfThisRun([file1.fileName])
   })
 })
