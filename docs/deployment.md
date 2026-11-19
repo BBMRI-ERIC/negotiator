@@ -180,7 +180,8 @@ Use the `rotate-secrets` profile to re-encrypt existing webhook secrets with a n
 > [!NOTE]
 > The Perun variables above are only used when `GOVERNANCE_CLIENT` is set to `PERUN`. Attribute names are sent to Perun
 > as `<GROUP_ATTR_BASE><ATTRIBUTE_NAME>` for groups and `<USER_ATTR_BASE><ATTRIBUTE_NAME>` for users, so the base values
-> must match the attribute definitions configured in your Virtual Organization.
+> must match the attribute definitions configured in your Virtual Organization. For a description of what each
+> governance mode does, see [Governance](/governance).
 
 
 ## Life science Login Integration
