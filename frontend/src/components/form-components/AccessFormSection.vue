@@ -247,23 +247,12 @@ import fileExtensions from '@/config/uploadFileExtensions.js'
 import { capitalizeAllWords, isFileExtensionsSupported } from '../../composables/utils.js'
 
 const accessFormWithPayloadSection = defineModel('accessFormWithPayloadSection')
-const negotiationReplacedAttachmentsID = defineModel('negotiationReplacedAttachmentsID')
 
 const formsStore = useFormsStore()
 const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
   validationErrorHighlight: {
-    type: Array,
-    required: false,
-    default: null,
-  },
-  existingAttachments: {
-    type: Object,
-    required: false,
-    default: null,
-  },
-  negotiationAttachments: {
     type: Array,
     required: false,
     default: null,
@@ -324,22 +313,31 @@ watch(choiceElementIds, (newIds, oldIds) => {
   }
 })
 
+// The page owns the element's value: it records the value before the pick so a
+// failed upload can undo it.
 function handleFileUpload(event, indexOfElement) {
+  const element = accessFormWithPayloadSection.value.elements[indexOfElement]
+  const file = event.target.files[0]
+  // The "Uploaded file" label shows the current file, so the input never keeps one.
+  event.target.value = ''
   if (
-    isFileExtensionsSupported(event.target.files[0]) &&
-    !isSameFile(
-      accessFormWithPayloadSection.value.elements[indexOfElement].value,
-      event.target.files[0],
-    ) &&
-    !isAttachmentPresentInNegotiation(event.target.files[0])
+    !file ||
+    !isFileExtensionsSupported(file) ||
+    isEmptyFile(file) ||
+    isSameFile(element.value, file)
   ) {
-    negotiationReplacedAttachmentsID.value.push(
-      accessFormWithPayloadSection.value.elements[indexOfElement].value?.id || null,
-    )
-    accessFormWithPayloadSection.value.elements[indexOfElement].value = event.target.files[0]
-  } else {
-    accessFormWithPayloadSection.value.elements[indexOfElement].value = null
+    return
   }
+  emit('filePicked', { element, file })
+}
+
+function isEmptyFile(file) {
+  if (file.size > 0) return false
+  notificationsStore.setNotification(
+    'The selected file is empty, please select a different file',
+    'danger',
+  )
+  return true
 }
 
 function isSameFile(file, newFile) {
@@ -362,16 +360,6 @@ function isSameFile(file, newFile) {
   return false
 }
 
-function isAttachmentPresentInNegotiation(newFile) {
-  let isAttachmentPresent = false
-  props.negotiationAttachments.forEach((element) => {
-    if (isSameFile(element, newFile)) {
-      isAttachmentPresent = true
-    }
-  })
-  return isAttachmentPresent
-}
-
 function transformMessage(text) {
   if (text == 'SINGLE_CHOICE_RADIO' || text == 'SINGLE_CHOICE_DROPDOWN' || text == 'BOOLEAN') {
     return 'Please select one of available values'
@@ -384,7 +372,7 @@ function transformMessage(text) {
   }
 }
 
-const emit = defineEmits(['elementFocusOutEventValidation', 'elementFocusOutEvent'])
+const emit = defineEmits(['elementFocusOutEventValidation', 'elementFocusOutEvent', 'filePicked'])
 
 function handleFocusOutEvent() {
   emit('elementFocusOutEvent')
