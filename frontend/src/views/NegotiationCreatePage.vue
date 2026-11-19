@@ -63,10 +63,6 @@
                   accessFormWithPayload.sections[activeNavItemIndex - 1].name
                 ]
               "
-              :existingAttachments="
-                existingAttachments[accessFormWithPayload.sections[activeNavItemIndex - 1].name]
-              "
-              :negotiationAttachments="negotiationAttachments"
               v-model:accessFormWithPayloadSection="
                 accessFormWithPayload.sections[activeNavItemIndex - 1]
               "
@@ -137,7 +133,6 @@ const accessFormResponse = ref(null)
 const accessFormWithPayload = ref(null)
 const validationErrorHighlight = ref({})
 const currentStatus = ref('')
-const negotiationAttachments = ref([])
 const openSaveModal = ref(null)
 const negotiationReplacedAttachmentsID = ref([])
 const saveDraftDisabled = ref(true)
@@ -162,9 +157,6 @@ onMounted(async () => {
       requestId.value,
     )
     currentStatus.value = requestSummary.value.status
-    negotiationAttachments.value = await negotiationPageStore.retrieveAttachmentsByNegotiationId(
-      requestId.value,
-    )
   } else {
     requestSummary.value = await negotiationFormStore.retrieveRequestById(requestId.value)
     accessFormResponse.value = await negotiationFormStore.retrieveCombinedAccessForm(
@@ -198,8 +190,6 @@ onMounted(async () => {
   isLoading.value = false
 })
 
-const existingAttachments = ref({})
-
 const isDraftStatus = computed(() => {
   return currentStatus.value === 'DRAFT'
 })
@@ -220,7 +210,6 @@ function createAccessFormWithPayload() {
   const payload = accessFormResponse.value
 
   payload.sections.forEach((section) => {
-    existingAttachments.value[section.name] = []
     section.elements.forEach((element) => {
       switch (element.type) {
         case 'TEXT':
@@ -249,10 +238,6 @@ function createAccessFormWithPayload() {
             : []
           break
         case 'FILE':
-          if (requestSummary.value?.payload)
-            existingAttachments.value[section.name].push(
-              requestSummary.value.payload[section.name][element.name],
-            )
           element.value = requestSummary.value.payload
             ? requestSummary.value.payload[section.name][element.name]
             : null
@@ -279,7 +264,8 @@ const returnNavItems = computed(() => {
   })
 })
 
-const mappedAccessForm = computed(() => {
+// Built fresh for every save: a cached copy would keep values the save replaced.
+function buildPayload() {
   const result = {}
   accessFormWithPayload.value.sections.forEach((section) => {
     result[section.name] = {}
@@ -288,7 +274,7 @@ const mappedAccessForm = computed(() => {
     })
   })
   return result
-})
+}
 
 watch(
   () => activeNavItemIndex.value,
@@ -335,7 +321,7 @@ async function createNegotiation() {
   const data = {
     draft: true,
     request: requestId.value,
-    payload: mappedAccessForm.value,
+    payload: buildPayload(),
   }
   await negotiationFormStore
     .createNegotiation(data)
@@ -358,49 +344,97 @@ async function createNegotiation() {
 
 async function updateSaveNegotiation(isSavingDraft) {
   saveDraftDisabled.value = true
-  if (props.isEditForm) {
-    const data = {
-      payload: mappedAccessForm.value,
-    }
-    const disableAttachmentUpload =
-      negotiationReplacedAttachmentsID.value.length === 0 ? true : false
-    await negotiationFormStore
-      .updateNegotiationById(requestId.value, data, disableAttachmentUpload)
-      .then(() => {
-        deleteAllReplacedAttachments()
-        if (!isSavingDraft) {
-          if (currentStatus.value === 'DRAFT') {
-            negotiationPageStore.updateNegotiationStatus(requestId.value, 'SUBMIT').then(() => {
-              backToNegotiation(requestId.value)
-            })
-          } else {
-            backToNegotiation(requestId.value)
-          }
-        } else {
-          notificationsStore.setNotification(
-            isDraftStatus.value
-              ? 'Negotiation saved correctly as draft'
-              : 'Negotiation changes saved successfully',
-            'light',
-          )
-        }
+  if (!props.isEditForm) return
+  if (!(await uploadPendingFiles())) return
+  const payload = buildPayload()
+  // A file picked while the uploads ran is left to the save that its own focus-out starts.
+  if (hasPendingFiles()) return
+  // Only attachments replaced before this payload was built are no longer referenced by it.
+  const replacedIds = [...negotiationReplacedAttachmentsID.value]
+  const updated = await negotiationFormStore.updateNegotiationById(requestId.value, { payload })
+  if (updated === null) return
+  await deleteReplacedAttachments(replacedIds)
+
+  if (!isSavingDraft) {
+    if (currentStatus.value === 'DRAFT') {
+      negotiationPageStore.updateNegotiationStatus(requestId.value, 'SUBMIT').then(() => {
+        backToNegotiation(requestId.value)
       })
+    } else {
+      backToNegotiation(requestId.value)
+    }
+  } else {
+    notificationsStore.setNotification(
+      isDraftStatus.value
+        ? 'Negotiation saved correctly as draft'
+        : 'Negotiation changes saved successfully',
+      'light',
+    )
   }
+}
+
+// Saves overlap (every focus-out of a draft starts one), so a save that finds an
+// upload of the same File already running waits for it instead of uploading again.
+const pendingUploads = new WeakMap()
+
+function uploadOnce(file) {
+  let upload = pendingUploads.get(file)
+  if (!upload) {
+    upload = negotiationFormStore.uploadAttachment(requestId.value, file).then((attachment) => {
+      if (!attachment) pendingUploads.delete(file)
+      return attachment
+    })
+    pendingUploads.set(file, upload)
+  }
+  return upload
+}
+
+function fileElementsToUpload() {
+  return accessFormWithPayload.value.sections
+    .flatMap((section) => section.elements)
+    .filter((element) => element.value instanceof File)
+}
+
+function hasPendingFiles() {
+  return fileElementsToUpload().length > 0
+}
+
+// Uploads every picked File and puts the returned attachment in its place.
+// Returns false if any upload failed.
+async function uploadPendingFiles() {
+  const results = await Promise.all(
+    fileElementsToUpload().map(async (element) => {
+      const file = element.value
+      const attachment = await uploadOnce(file)
+      if (!attachment) return false
+      if (element.value === file) {
+        element.value = attachment
+      } else if (
+        element.value?.id !== attachment.id &&
+        !negotiationReplacedAttachmentsID.value.includes(attachment.id)
+      ) {
+        // Another file was picked while this one was uploading.
+        negotiationReplacedAttachmentsID.value.push(attachment.id)
+      }
+      return true
+    }),
+  )
+  return results.every(Boolean)
+}
+
+// Takes the ids out of the list first so overlapping saves never delete one twice.
+async function deleteReplacedAttachments(replacedIds) {
+  const pending = negotiationReplacedAttachmentsID.value
+  const ids = replacedIds.filter((id) => pending.includes(id))
+  ids.forEach((id) => pending.splice(pending.indexOf(id), 1))
+  const results = await Promise.all(ids.map((id) => negotiationFormStore.deleteAttachment(id)))
+  ids.forEach((id, index) => {
+    if (results[index] === null) negotiationReplacedAttachmentsID.value.push(id)
+  })
 }
 
 function backToNegotiation(id) {
   router.push('/negotiations/' + id + '/ROLE_RESEARCHER')
-}
-
-function deleteAllReplacedAttachments() {
-  negotiationReplacedAttachmentsID.value.forEach((id) => {
-    if (id === null) return
-    negotiationFormStore.deleteAttachment(id).then(() => {
-      negotiationReplacedAttachmentsID.value = negotiationReplacedAttachmentsID.value.filter(
-        (attachmentId) => attachmentId !== id,
-      )
-    })
-  })
 }
 
 function openSaveNegotiationModal() {

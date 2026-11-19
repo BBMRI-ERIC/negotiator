@@ -258,16 +258,6 @@ const props = defineProps({
     required: false,
     default: null,
   },
-  existingAttachments: {
-    type: Object,
-    required: false,
-    default: null,
-  },
-  negotiationAttachments: {
-    type: Array,
-    required: false,
-    default: null,
-  },
   focusElementId: {
     type: Number,
     required: false,
@@ -325,21 +315,17 @@ watch(choiceElementIds, (newIds, oldIds) => {
 })
 
 function handleFileUpload(event, indexOfElement) {
-  if (
-    isFileExtensionsSupported(event.target.files[0]) &&
-    !isSameFile(
-      accessFormWithPayloadSection.value.elements[indexOfElement].value,
-      event.target.files[0],
-    ) &&
-    !isAttachmentPresentInNegotiation(event.target.files[0])
-  ) {
-    negotiationReplacedAttachmentsID.value.push(
-      accessFormWithPayloadSection.value.elements[indexOfElement].value?.id || null,
-    )
-    accessFormWithPayloadSection.value.elements[indexOfElement].value = event.target.files[0]
-  } else {
-    accessFormWithPayloadSection.value.elements[indexOfElement].value = null
+  const element = accessFormWithPayloadSection.value.elements[indexOfElement]
+  const file = event.target.files[0]
+  // The "Uploaded file" label shows the current file, so the input never keeps one.
+  event.target.value = ''
+  if (!file || !isFileExtensionsSupported(file) || isSameFile(element.value, file)) {
+    return
   }
+  if (element.value?.id) {
+    negotiationReplacedAttachmentsID.value.push(element.value.id)
+  }
+  element.value = file
 }
 
 function isSameFile(file, newFile) {
@@ -360,16 +346,6 @@ function isSameFile(file, newFile) {
     return true
   }
   return false
-}
-
-function isAttachmentPresentInNegotiation(newFile) {
-  let isAttachmentPresent = false
-  props.negotiationAttachments.forEach((element) => {
-    if (isSameFile(element, newFile)) {
-      isAttachmentPresent = true
-    }
-  })
-  return isAttachmentPresent
 }
 
 function transformMessage(text) {
