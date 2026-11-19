@@ -8,10 +8,13 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.bbmri_eric.negotiator.common.UserPrincipal;
 import eu.bbmri_eric.negotiator.common.configuration.security.oauth2.CustomJWTAuthConverter;
+import eu.bbmri_eric.negotiator.governance.network.Network;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -19,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -61,6 +65,12 @@ public class CustomJWTAuthConverterTest {
         .issuedAt(Instant.now())
         .expiresAt(Instant.now().plusSeconds(60))
         .build();
+  }
+
+  private static Set<String> getAuthorityNames(AbstractAuthenticationToken authToken) {
+    return authToken.getAuthorities().stream()
+        .map(GrantedAuthority::getAuthority)
+        .collect(Collectors.toSet());
   }
 
   @Test
@@ -290,6 +300,133 @@ public class CustomJWTAuthConverterTest {
     UserPrincipal principal = (UserPrincipal) authToken.getPrincipal();
     assertEquals("Updated User Name", principal.getName());
     assertEquals("updated.user@example.invalid", principal.getPerson().getEmail());
+  }
+
+  @Test
+  void testConvertUserToken_personWithNetworks_grantsNetworkManagerRole() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("sub", "network-manager-user");
+    claims.put("name", "Network Manager");
+    claims.put("email", "network.manager@example.invalid");
+    claims.put("scope", "profile");
+    Jwt jwt = createFakeJwt(claims, "networkManagerToken");
+
+    Network network = new Network("network-1", "https://network.example.invalid");
+    Person existingUser =
+        Person.builder()
+            .subjectId("network-manager-user")
+            .name("Network Manager")
+            .email("network.manager@example.invalid")
+            .networks(new HashSet<>(Set.of(network)))
+            .build();
+    when(personRepository.findBySubjectId("network-manager-user"))
+        .thenReturn(Optional.of(existingUser));
+
+    var authToken = converterWithoutUserInfo.convert(jwt);
+    Set<String> authorityNames = getAuthorityNames(authToken);
+    assertTrue(authorityNames.contains("ROLE_NETWORK_MANAGER"));
+    assertTrue(authorityNames.contains("ROLE_RESEARCHER"));
+    assertFalse(authorityNames.contains("ROLE_REPRESENTATIVE"));
+  }
+
+  @Test
+  void testConvertUserToken_personWithoutNetworks_doesNotGrantNetworkManagerRole() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("sub", "plain-user");
+    claims.put("name", "Plain User");
+    claims.put("email", "plain.user@example.invalid");
+    claims.put("scope", "profile");
+    Jwt jwt = createFakeJwt(claims, "plainUserToken");
+
+    Person existingUser =
+        Person.builder()
+            .subjectId("plain-user")
+            .name("Plain User")
+            .email("plain.user@example.invalid")
+            .networks(new HashSet<>())
+            .build();
+    when(personRepository.findBySubjectId("plain-user")).thenReturn(Optional.of(existingUser));
+
+    var authToken = converterWithoutUserInfo.convert(jwt);
+    Set<String> authorityNames = getAuthorityNames(authToken);
+    assertFalse(authorityNames.contains("ROLE_NETWORK_MANAGER"));
+    assertTrue(authorityNames.contains("ROLE_RESEARCHER"));
+  }
+
+  @Test
+  void testConvertUserToken_personWithNetworksAndResources_grantsBothManagerRoles() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("sub", "mixed-manager-user");
+    claims.put("name", "Mixed Manager");
+    claims.put("email", "mixed.manager@example.invalid");
+    claims.put("scope", "profile");
+    Jwt jwt = createFakeJwt(claims, "mixedManagerToken");
+
+    Network network = new Network("network-2", "https://network.example.invalid");
+    Resource resource =
+        Resource.builder().name("Test Resource").sourceId("biobank:1:collection:1").build();
+    Person existingUser =
+        Person.builder()
+            .subjectId("mixed-manager-user")
+            .name("Mixed Manager")
+            .email("mixed.manager@example.invalid")
+            .networks(new HashSet<>(Set.of(network)))
+            .resources(new HashSet<>(Set.of(resource)))
+            .build();
+    when(personRepository.findBySubjectId("mixed-manager-user"))
+        .thenReturn(Optional.of(existingUser));
+
+    var authToken = converterWithoutUserInfo.convert(jwt);
+    Set<String> authorityNames = getAuthorityNames(authToken);
+    assertTrue(authorityNames.contains("ROLE_NETWORK_MANAGER"));
+    assertTrue(authorityNames.contains("ROLE_REPRESENTATIVE"));
+  }
+
+  @Test
+  void testConvertUserToken_newlyCreatedUser_doesNotGrantNetworkManagerRole() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("sub", "brand-new-user");
+    claims.put("name", "Brand New User");
+    claims.put("email", "brand.new@example.invalid");
+    claims.put("scope", "profile");
+    Jwt jwt = createFakeJwt(claims, "newUserToken");
+
+    when(personRepository.findBySubjectId("brand-new-user")).thenReturn(Optional.empty());
+    Person newUser =
+        Person.builder()
+            .subjectId("brand-new-user")
+            .name("Brand New User")
+            .email("brand.new@example.invalid")
+            .build();
+    when(personRepository.save(any(Person.class))).thenReturn(newUser);
+
+    var authToken = converterWithoutUserInfo.convert(jwt);
+    Set<String> authorityNames = getAuthorityNames(authToken);
+    assertFalse(authorityNames.contains("ROLE_NETWORK_MANAGER"));
+  }
+
+  @Test
+  void testConvertMachineToken_personWithNetworks_doesNotGrantNetworkManagerRole() {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("client_id", "networkedClient");
+    claims.put("scope", "read write");
+    Jwt jwt = createFakeJwt(claims, "machineToken");
+
+    Network network = new Network("network-3", "https://network.example.invalid");
+    Person existingClient =
+        Person.builder()
+            .subjectId("networkedClient")
+            .name("networkedClient")
+            .email("no_email")
+            .isServiceAccount(true)
+            .networks(new HashSet<>(Set.of(network)))
+            .build();
+    when(personRepository.findBySubjectId("networkedClient"))
+        .thenReturn(Optional.of(existingClient));
+
+    var authToken = converterWithoutUserInfo.convert(jwt);
+    Set<String> authorityNames = getAuthorityNames(authToken);
+    assertFalse(authorityNames.contains("ROLE_NETWORK_MANAGER"));
   }
 
   @Test

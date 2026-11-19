@@ -1,0 +1,273 @@
+import axios from 'axios'
+import { computed } from 'vue'
+import { perunApiPaths, getBearerHeaders } from '../../config/apiPaths'
+import { NegotiatorClient } from './negotiatorClient'
+import { PerunGroupsManager, NegotiatorOrganization, NegotiatorResource } from './groupsManager'
+import governanceSettings from '@/config/governance'
+import { useUserStore } from '@/store/user'
+
+export function PerunClient() {
+  const IDS_PREFIX = governanceSettings.idsPrefix ?? ""
+  const VIRTUAL_ORGANIZATION_ID = governanceSettings.virtualOrganizationId
+  const ORGANIZATION_ID_ATTR = governanceSettings.organizationIdAttr
+  const RESOURCE_ID_ATTR = governanceSettings.resourceIdAttr
+  const ADMIN_ORGANIZATION_ID_ATTR = governanceSettings.adminOrganizationIdAttr
+  const ADMIN_RESOURCE_ID_ATTR = governanceSettings.adminResourceIdAttr
+  const GROUP_ATTR_DEF = governanceSettings.groupAttrDef
+  const USER_ATTR_DEF = governanceSettings.userAttrDef
+  const EMAIL_ATTR_ID = governanceSettings.emailAttrId
+  const REPRESENTATIVE_ACTIONS = {
+    ADD: 'A',
+    REMOVE: 'R',
+  }
+
+  const negotiatorClient = NegotiatorClient()
+
+  const perunGroupsManager = PerunGroupsManager(IDS_PREFIX)
+
+  const userStore = useUserStore()
+
+  const isManager = computed(() => userStore.isGovernanceManager)
+
+  let organizationsLoad = null
+
+  const getUserEmail = (user) => {
+    const attribute = user.userAttributes.find((attr) => attr.baseFriendlyName === EMAIL_ATTR_ID)
+    return attribute ? attribute.value.trim() : null
+  }
+
+  const filterOrganizations = (items, filters) => {
+    if (Object.keys(filters).length == 0) return items
+
+    return items.filter((item) => {
+      
+      const nameMatch =
+        filters.name === undefined ||
+        item.name.toLowerCase().includes(filters.name.toLowerCase()) ||
+        item.externalId.toLowerCase().includes(filters.name.toLowerCase())
+
+      const withdrawnMatch = filters.withdrawn === undefined || item.withdrawn === filters.withdrawn
+
+      const externalIdMatch =
+         filters.externalId === undefined ||
+         item.externalId.toLowerCase().includes(filters.externalId.toLowerCase())
+
+      return externalIdMatch && nameMatch && withdrawnMatch
+    })
+  }
+
+  const getGroupsFromPerun = async () => {
+    const params = {
+      vo: VIRTUAL_ORGANIZATION_ID,
+      attrNames: [
+        `${GROUP_ATTR_DEF}${ORGANIZATION_ID_ATTR}`,
+        `${GROUP_ATTR_DEF}${RESOURCE_ID_ATTR}`,
+        `${GROUP_ATTR_DEF}${ADMIN_ORGANIZATION_ID_ATTR}`,
+        `${GROUP_ATTR_DEF}${ADMIN_RESOURCE_ID_ATTR}`,
+      ],
+    }
+    return await axios.get(perunApiPaths.GET_GROUPS, {
+      params: params,
+      headers: getBearerHeaders(),
+    })
+  }
+
+  const getAllOrganizations = () => {
+    if (!organizationsLoad) {
+      organizationsLoad = loadOrganizationsTree().finally(() => {
+        organizationsLoad = null
+      })
+    }
+    return organizationsLoad
+  }
+
+  const loadOrganizationsTree = async () => {
+    if (!perunGroupsManager.isReady()) {
+      perunGroupsManager.init(await getGroupsFromPerun())
+
+      const orgReprGroups = perunGroupsManager.getOrganizationsRepresentativesGroups()
+      const resolutionResults = await Promise.allSettled(
+        orgReprGroups.map(async (orgReprGroup) => {
+          const negotiatorOrgData = await negotiatorClient.getOrganizationByExternalId(
+            orgReprGroup.getNegotiatorId(),
+          )
+          if (negotiatorOrgData) {
+            const negotiatorOrg = NegotiatorOrganization(orgReprGroup, negotiatorOrgData)
+            orgReprGroup.setNegotiatorOrganization(negotiatorOrg)
+          } else {
+            perunGroupsManager.deleteOrganizationGroup(orgReprGroup.getPerunId())
+          }
+        }),
+      )
+
+      // If some error occurred when getting one or more organization data, an error
+      // is shown in the notifications
+      const failures = resolutionResults.filter((result) => result.status === 'rejected')
+      if (failures.length > 0) {
+        perunGroupsManager.reset()
+        throw new Error('Could not resolve negotiator data for all organizations', {
+          cause: failures[0].reason,
+        })
+      }
+
+      perunGroupsManager.markReady()
+    }
+    return perunGroupsManager.getNegotiatorOrganizations()
+  }
+
+  const retrieveOrganizationsPaginated = async (page = 0, size = 20, filters = {}) => {
+    const organizations = filterOrganizations(await getAllOrganizations(), filters)
+
+    return {
+      data: {
+        _embedded: {
+          organizations: organizations.slice(page * size, page * size + size),
+        },
+        _links: {},
+        page: {
+          size: size,
+          totalElements: organizations.length,
+          totalPages: Math.ceil(organizations.length / size),
+          number: page,
+        },
+      },
+    }
+  }
+
+  const getOrganizationById = async (organizationId, expand = null) => {
+    await getAllOrganizations()
+
+    const organization = perunGroupsManager.getNegotiatorOrganizationById(organizationId)
+    
+    if (!organization) {
+      throw new Error(`Organization ${organizationId} not found in the Perun groups tree`)
+    }
+
+    if (expand !== 'resources') {
+      return { data: { ...organization } }
+    }
+
+    const resources = (
+      await Promise.all(
+        perunGroupsManager
+          .getResourcesRepresentativesGroupsForOrganization(organizationId)
+          .map(async (resourceGroup) => {
+            const negotiatorData = await negotiatorClient.getResourceBySourceId(
+              resourceGroup.getNegotiatorId(),
+            )
+            if (!negotiatorData) {
+              return null
+            }
+            const representatives = await getRepresentativesOfResource(resourceGroup.getPerunId())
+            return NegotiatorResource(resourceGroup, negotiatorData, representatives)
+          }),
+      )
+    ).filter((resource) => resource !== null)
+    return {
+      data: {
+        resources,
+      },
+    }
+  }
+
+  const getRepresentedResources = async (userId, page, size, filters = {}) => {
+    return negotiatorClient.getRepresentedResources(userId, page, size, filters)
+  }
+
+  const retrieveUsers = async (filtersSortData, page = 0, size = 10) => {
+    const data = {
+      vo: VIRTUAL_ORGANIZATION_ID,
+      attrNames: [`${USER_ATTR_DEF}${EMAIL_ATTR_ID}`],
+      query: {
+        pageSize: size,
+        offset: page * size,
+        order: 'ASCENDING',
+        sortColumn: 'NAME',
+        searchString: filtersSortData.name?.trim() || filtersSortData.email?.trim(),
+        statuses: [],
+        groupId: null,
+      },
+    }
+
+    const response = await axios.post(`${perunApiPaths.GET_MEMBERS}`, data, {
+      headers: getBearerHeaders(),
+    })
+
+    return {
+      data: {
+        page: {
+          size: response.data.pageSize,
+          totalElements: response.data.totalCount,
+          totalPages: Math.ceil(response.data.totalCount / response.data.pageSize),
+          number: response.data.offset / response.data.pageSize,
+        },
+        _embedded: {
+          users: response.data.data.map((perunUser) => {
+            return {
+              id: perunUser.id,
+              name: `${perunUser.user.firstName} ${perunUser.user.lastName}`,
+              email: getUserEmail(perunUser),
+            }
+          }),
+        },
+      },
+    }
+  }
+
+  const getRepresentativesOfResource = async (perunResourceGroupId) => {
+    const params = { group: perunResourceGroupId }
+    const members = await axios.get(perunApiPaths.GET_RICH_MEMBERS, {
+      params,
+      headers: getBearerHeaders(),
+    })
+    return members.data.map((member) => {
+      return {
+        id: member.id,
+        name: `${member.user.firstName} ${member.user.lastName}`,
+        email: getUserEmail(member),
+      }
+    })
+  }
+
+  const addOrRemoveRepresentativeToResource = async (userId, resource, action) => {
+    const url =
+      action == REPRESENTATIVE_ACTIONS.ADD
+        ? perunApiPaths.ADD_MEMBER_TO_GROUP
+        : perunApiPaths.REMOVE_MEMBER_TO_GROUP
+
+    const resourceGroupId = resource.getResourceGroupId()
+
+    const data = {
+      member: Number.parseInt(userId),
+      group: resourceGroupId,
+    }
+    await axios.post(url, data, {
+      headers: getBearerHeaders(),
+    })
+
+    return { data: null }
+  }
+
+  const addRepresentativeToResource = async (userId, resource) => {
+    return await addOrRemoveRepresentativeToResource(userId, resource, REPRESENTATIVE_ACTIONS.ADD)
+  }
+
+  const removeRepresentativeFromResource = async (userId, resource) => {
+    return await addOrRemoveRepresentativeToResource(
+      userId,
+      resource,
+      REPRESENTATIVE_ACTIONS.REMOVE,
+    )
+  }
+
+  return {
+    isManager,
+    getAllOrganizations,
+    retrieveOrganizationsPaginated,
+    getOrganizationById,
+    retrieveUsers,
+    getRepresentedResources,
+    addRepresentativeToResource,
+    removeRepresentativeFromResource,
+  }
+}

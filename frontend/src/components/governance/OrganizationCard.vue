@@ -52,6 +52,7 @@
       :resources="resources"
       :loading="resourcesLoading"
       :is-admin="isAdmin"
+      :is-governance-manager="isGovernanceManager"
       @edit-resource="$emit('editResource', $event)"
       @add-resources="$emit('addResources')"
       @representatives-updated="$emit('representativesUpdated', $event)"
@@ -64,6 +65,10 @@ import ResourcesList from './ResourcesList.vue'
 
 defineProps({
   isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  isGovernanceManager: {
     type: Boolean,
     default: false,
   },

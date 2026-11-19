@@ -5,13 +5,14 @@ import { useResourcesStore } from '@/store/resources'
 import { useUserStore } from '@/store/user.js'
 import { sortOrganizations, sortResources } from '@/utils/sort'
 import { getNoResultsMessage as buildNoResultsMsg } from '@/utils/messages'
-import { ROLES } from '@/config/consts.js'
+import { useGovernanceClient } from '@/composables/useGovernanceClient'
 
 export function useOrganizations() {
   const adminStore = useAdminStore()
   const organizationsStore = useOrganizationsStore()
   const resourceStore = useResourcesStore()
   const userStore = useUserStore()
+  const governanceClient = useGovernanceClient()
 
   const organizations = ref([])
   const organizationResources = ref({})
@@ -33,9 +34,7 @@ export function useOrganizations() {
 
   let searchTimeout = null
 
-  const isAdmin = computed(() => {
-    return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
-  })
+  const isGovernanceManager = governanceClient.isManager
 
   const allExpanded = computed(() => {
     return (
@@ -57,12 +56,12 @@ export function useOrganizations() {
     return buildNoResultsMsg(loading.value, hasSearchFilters, filters.value.statusFilter)
   }
 
-  const toggleOrganization = async (organizationId) => {
-    if (expandedOrganizations.value.has(organizationId)) {
-      expandedOrganizations.value.delete(organizationId)
+  const toggleOrganization = async (organization) => {
+    if (expandedOrganizations.value.has(organization.id)) {
+      expandedOrganizations.value.delete(organization.id)
     } else {
-      expandedOrganizations.value.add(organizationId)
-      await loadResourcesForOrganization(organizationId)
+      expandedOrganizations.value.add(organization.id)
+      await loadResourcesForOrganization(organization.id)
     }
   }
 
@@ -85,16 +84,13 @@ export function useOrganizations() {
     loadingResources.value.add(organizationId)
 
     try {
-      if (isAdmin.value) {
+      if (isGovernanceManager.value) {
         const organizationWithResources = await organizationsStore.getOrganizationById(
           organizationId,
           'resources',
         )
 
-        organizationResources.value[organizationId] =
-          organizationWithResources.resources ||
-          organizationWithResources._embedded?.resources ||
-          []
+        organizationResources.value[organizationId] = organizationWithResources.resources || []
       } else {
         organizationResources.value[organizationId] =
           organizations.value.find((org) => org.id === organizationId)?.resources || []
@@ -127,7 +123,7 @@ export function useOrganizations() {
       }
 
       let response = null
-      if (isAdmin.value) {
+      if (isGovernanceManager.value) {
         response = await adminStore.retrieveOrganizationsPaginated(
           pageNumber.value,
           pageSize.value,
@@ -137,6 +133,8 @@ export function useOrganizations() {
         response = await resourceStore.getRepresentedResources(
           userStore.userInfo?.id,
           false,
+          pageNumber.value,
+          pageSize.value,
           apiFilters,
         )
       }

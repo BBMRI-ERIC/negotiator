@@ -16,6 +16,7 @@
           :key="resource.id"
           :resource="resource"
           :is-admin="isAdmin"
+          :is-governance-manager="isGovernanceManager"
           @edit-resource="$emit('editResource', $event)"
           @representatives-updated="$emit('representativesUpdated', $event)"
         />
@@ -59,6 +60,10 @@ import PrimaryButton from '@/components/ui/buttons/PrimaryButton.vue'
 
 defineProps({
   isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  isGovernanceManager: {
     type: Boolean,
     default: false,
   },

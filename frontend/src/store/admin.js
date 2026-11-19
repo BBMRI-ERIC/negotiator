@@ -2,9 +2,11 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
+import { useGovernanceClient } from '../composables/useGovernanceClient'
 
 export const useAdminStore = defineStore('admin', () => {
   const notifications = useNotificationsStore()
+  const governanceClient = useGovernanceClient()
 
   function retrieveResourceAllEvents() {
     return axios
@@ -144,29 +146,37 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
-  function retrieveUsers(page = 0, size = 10, filtersSortData) {
-    // add filtersSortData in case they are valued
-    const params = Object.fromEntries(
-      // eslint-disable-next-line
-      Object.entries(filtersSortData).filter(([_, value]) => value !== ''),
-    )
-    params.page = page
-    params.size = size
+  function usersPageFrom(response) {
+    return {
+      users: response.data.page.totalElements > 0 ? response.data._embedded.users : [],
+      totalUsers: response.data.page.totalElements, // Total count of users (for pagination)
+      failed: false,
+    }
+  }
+
+  function failedUsersPage(message) {
+    notifications.setNotification(message)
+    return { users: [], totalUsers: 0, failed: true }
+  }
+
+  function filtersWithValues(filtersSortData) {
+    return Object.fromEntries(Object.entries(filtersSortData).filter(([, value]) => value !== ''))
+  }
+
+  function retrieveUsers(filtersSortData, page = 0, size = 10) {
+    return governanceClient
+      .retrieveUsers(filtersWithValues(filtersSortData), page, size)
+      .then(usersPageFrom)
+      .catch(() => failedUsersPage('Error searching users'))
+  }
+
+  function retrieveNegotiatorUsers(filtersSortData, page = 0, size = 10) {
+    const params = { ...filtersWithValues(filtersSortData), page, size }
+
     return axios
-      .get(`${apiPaths.BASE_API_PATH}/users`, {
-        headers: getBearerHeaders(),
-        params: params,
-      })
-      .then((response) => {
-        return {
-          users: response.data.page.totalElements > 0 ? response.data._embedded.users : [],
-          totalUsers: response.data.page.totalElements, // Total count of users (for pagination)
-        }
-      })
-      .catch(() => {
-        notifications.setNotification('Error getting users data from server')
-        return { users: [], totalUsers: 0 }
-      })
+      .get(`${apiPaths.BASE_API_PATH}/users`, { params, headers: getBearerHeaders() })
+      .then(usersPageFrom)
+      .catch(() => failedUsersPage('Error getting users data from server'))
   }
 
   function retrieveResources() {
@@ -239,25 +249,8 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   function retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
-    let url = `${apiPaths.BASE_API_PATH}/organizations?page=${page}&size=${size}`
-
-    // Add name filter if provided
-    if (filters.name && filters.name.trim()) {
-      url += `&name=${encodeURIComponent(filters.name.trim())}`
-    }
-
-    // Add externalId filter if provided
-    if (filters.externalId && filters.externalId.trim()) {
-      url += `&externalId=${encodeURIComponent(filters.externalId.trim())}`
-    }
-
-    // Add withdrawn filter if provided
-    if (typeof filters.withdrawn === 'boolean') {
-      url += `&withdrawn=${filters.withdrawn}`
-    }
-
-    return axios
-      .get(url, { headers: getBearerHeaders() })
+    return governanceClient
+      .retrieveOrganizationsPaginated(page, size, filters)
       .then((response) => {
         return response.data
       })
@@ -316,6 +309,7 @@ export const useAdminStore = defineStore('admin', () => {
     getWebhook,
     redeliverWebhookDelivery,
     retrieveUsers,
+    retrieveNegotiatorUsers,
     retrieveResources,
     retrieveResourcesPaginated,
     fetchResourcesPage,

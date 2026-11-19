@@ -45,6 +45,9 @@ build/
 ### Configuration Files ###
 application.properties
 
+### Frontend Environment Files ###
+frontend/.env.*.local
+
 ### Docker Compose ###
 compose.dev.yml
 /.env

@@ -107,6 +107,12 @@
             </div>
 
             <div
+              v-else-if="hasSearched && searchResults.length === 0 && searchFailed"
+              class="text-danger text-center py-3"
+            >
+              User search failed. Please try again.
+            </div>
+            <div
               v-else-if="hasSearched && searchResults.length === 0"
               class="text-muted text-center py-3"
             >
@@ -224,6 +230,7 @@ const representativesFilterData = ref({
 const searchResults = ref([])
 const isLoading = ref(false)
 const hasSearched = ref(false)
+const searchFailed = ref(false)
 const isSaving = ref(false)
 const currentOperation = ref(0)
 const totalOperations = ref(0)
@@ -239,6 +246,8 @@ const hasChanges = computed(
   () => representativesToAdd.value.length > 0 || representativesToRemove.value.length > 0,
 )
 
+const toUserId = (userId) => `${userId}`
+
 const handleSearchInput = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
@@ -253,6 +262,7 @@ const searchUsers = async () => {
   ) {
     searchResults.value = []
     hasSearched.value = false
+    searchFailed.value = false
   } else {
     isLoading.value = true
     hasSearched.value = true
@@ -263,11 +273,12 @@ const searchUsers = async () => {
         email: representativesFilterData.value.email,
       }
 
-      const result = await adminStore.retrieveUsers(0, 20, filtersSortData)
-      searchResults.value = result.users || []
-    } catch {
-      notifications.setNotification('Error searching users')
-      searchResults.value = []
+      const result = await adminStore.retrieveUsers(filtersSortData, 0, 20)
+      searchResults.value = (result.users || []).map((user) => ({
+        ...user,
+        id: toUserId(user.id),
+      }))
+      searchFailed.value = result.failed === true
     } finally {
       isLoading.value = false
     }
@@ -287,8 +298,8 @@ const isMarkedForRemoval = (userId) => {
 }
 
 const getAddButtonText = (userId) => {
-  if (isCurrentRepresentative(userId)) return 'Already Added'
   if (isMarkedForAddition(userId)) return 'Staged'
+  if (isCurrentRepresentative(userId)) return 'Already Added'
   return 'Add'
 }
 
@@ -351,16 +362,11 @@ const handleSave = async () => {
   try {
     for (const representative of representativesToRemove.value) {
       currentOperation.value++
-      await resourcesStore.removeRepresentativeFromResource(
-        representative.id,
-        props.resource.id,
-        true,
-      )
+      await resourcesStore.removeRepresentativeFromResource(representative.id, props.resource, true)
     }
-
     for (const representative of representativesToAdd.value) {
       currentOperation.value++
-      await resourcesStore.addRepresentativeToResource(representative.id, props.resource.id, true)
+      await resourcesStore.addRepresentativeToResource(representative.id, props.resource, true)
     }
 
     representativesToAdd.value = []
@@ -394,6 +400,7 @@ const resetState = () => {
   representativesFilterData.value.email = ''
   searchResults.value = []
   hasSearched.value = false
+  searchFailed.value = false
 }
 
 const initializeModal = () => {
@@ -407,7 +414,10 @@ watch(
   () => props.resource,
   (newResource) => {
     if (newResource) {
-      const reps = newResource.representatives || []
+      const reps = (newResource.representatives || []).map((rep) => ({
+        ...rep,
+        id: toUserId(rep.id),
+      }))
       originalRepresentatives.value = [...reps]
       currentRepresentatives.value = [...reps]
       resetSearchState()
@@ -423,6 +433,7 @@ const resetSearchState = () => {
   representativesFilterData.value.email = ''
   searchResults.value = []
   hasSearched.value = false
+  searchFailed.value = false
 }
 
 onMounted(() => {
