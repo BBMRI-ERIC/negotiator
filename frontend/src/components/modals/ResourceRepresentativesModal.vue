@@ -246,6 +246,8 @@ const hasChanges = computed(
   () => representativesToAdd.value.length > 0 || representativesToRemove.value.length > 0,
 )
 
+const toUserId = (userId) => `${userId}`
+
 const handleSearchInput = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
@@ -272,7 +274,10 @@ const searchUsers = async () => {
       }
 
       const result = await adminStore.retrieveUsers(filtersSortData, 0, 20)
-      searchResults.value = result.users || []
+      searchResults.value = (result.users || []).map((user) => ({
+        ...user,
+        id: toUserId(user.id),
+      }))
       searchFailed.value = result.failed === true
     } finally {
       isLoading.value = false
@@ -293,8 +298,8 @@ const isMarkedForRemoval = (userId) => {
 }
 
 const getAddButtonText = (userId) => {
-  if (isCurrentRepresentative(userId)) return 'Already Added'
   if (isMarkedForAddition(userId)) return 'Staged'
+  if (isCurrentRepresentative(userId)) return 'Already Added'
   return 'Add'
 }
 
@@ -409,7 +414,10 @@ watch(
   () => props.resource,
   (newResource) => {
     if (newResource) {
-      const reps = newResource.representatives || []
+      const reps = (newResource.representatives || []).map((rep) => ({
+        ...rep,
+        id: toUserId(rep.id),
+      }))
       originalRepresentatives.value = [...reps]
       currentRepresentatives.value = [...reps]
       resetSearchState()
