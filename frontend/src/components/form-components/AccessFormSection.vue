@@ -247,7 +247,6 @@ import fileExtensions from '@/config/uploadFileExtensions.js'
 import { capitalizeAllWords, isFileExtensionsSupported } from '../../composables/utils.js'
 
 const accessFormWithPayloadSection = defineModel('accessFormWithPayloadSection')
-const negotiationReplacedAttachmentsID = defineModel('negotiationReplacedAttachmentsID')
 
 const formsStore = useFormsStore()
 const notificationsStore = useNotificationsStore()
@@ -314,18 +313,31 @@ watch(choiceElementIds, (newIds, oldIds) => {
   }
 })
 
+// The page owns the element's value: it records the value before the pick so a
+// failed upload can undo it.
 function handleFileUpload(event, indexOfElement) {
   const element = accessFormWithPayloadSection.value.elements[indexOfElement]
   const file = event.target.files[0]
   // The "Uploaded file" label shows the current file, so the input never keeps one.
   event.target.value = ''
-  if (!file || !isFileExtensionsSupported(file) || isSameFile(element.value, file)) {
+  if (
+    !file ||
+    !isFileExtensionsSupported(file) ||
+    isEmptyFile(file) ||
+    isSameFile(element.value, file)
+  ) {
     return
   }
-  if (element.value?.id) {
-    negotiationReplacedAttachmentsID.value.push(element.value.id)
-  }
-  element.value = file
+  emit('filePicked', { element, file })
+}
+
+function isEmptyFile(file) {
+  if (file.size > 0) return false
+  notificationsStore.setNotification(
+    'The selected file is empty, please select a different file',
+    'danger',
+  )
+  return true
 }
 
 function isSameFile(file, newFile) {
@@ -360,7 +372,7 @@ function transformMessage(text) {
   }
 }
 
-const emit = defineEmits(['elementFocusOutEventValidation', 'elementFocusOutEvent'])
+const emit = defineEmits(['elementFocusOutEventValidation', 'elementFocusOutEvent', 'filePicked'])
 
 function handleFocusOutEvent() {
   emit('elementFocusOutEvent')

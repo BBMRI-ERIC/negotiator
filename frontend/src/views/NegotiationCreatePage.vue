@@ -67,7 +67,7 @@
                 accessFormWithPayload.sections[activeNavItemIndex - 1]
               "
               :focusElementId="focusElementId"
-              v-model:negotiationReplacedAttachmentsID="negotiationReplacedAttachmentsID"
+              @file-picked="setPickedFile"
               @element-focus-out-event="isDraftStatus ? updateSaveNegotiation(true) : undefined"
               @element-focus-out-event-validation="validateInput"
               @element-focus-in-event="saveDraftDisabled = false"
@@ -373,6 +373,40 @@ async function updateSaveNegotiation(isSavingDraft) {
   }
 }
 
+// A failed upload puts back the value the element held before the pick,
+// skipping back past picks whose uploads were rejected too.
+const valuesBeforePick = new WeakMap()
+const rejectedFiles = new WeakSet()
+
+function setPickedFile({ element, file }) {
+  valuesBeforePick.set(file, element.value)
+  if (element.value?.id) markReplaced(element.value.id)
+  element.value = file
+}
+
+// Only if the element still holds the failed File: a newer pick wins.
+function undoPick(element, file) {
+  rejectedFiles.add(file)
+  if (element.value !== file) return
+  let previous = valuesBeforePick.get(file) ?? null
+  while (previous instanceof File && rejectedFiles.has(previous)) {
+    previous = valuesBeforePick.get(previous) ?? null
+  }
+  element.value = previous
+  if (previous?.id) unmarkReplaced(previous.id)
+}
+
+function markReplaced(id) {
+  if (!negotiationReplacedAttachmentsID.value.includes(id)) {
+    negotiationReplacedAttachmentsID.value.push(id)
+  }
+}
+
+function unmarkReplaced(id) {
+  const ids = negotiationReplacedAttachmentsID.value
+  if (ids.includes(id)) ids.splice(ids.indexOf(id), 1)
+}
+
 // Saves overlap (every focus-out of a draft starts one), so a save that finds an
 // upload of the same File already running waits for it instead of uploading again.
 const pendingUploads = new WeakMap()
@@ -400,21 +434,23 @@ function hasPendingFiles() {
 }
 
 // Uploads every picked File and puts the returned attachment in its place.
-// Returns false if any upload failed.
+// A failed upload undoes the pick. Returns false if any upload failed.
 async function uploadPendingFiles() {
   const results = await Promise.all(
     fileElementsToUpload().map(async (element) => {
       const file = element.value
       const attachment = await uploadOnce(file)
-      if (!attachment) return false
+      if (!attachment) {
+        undoPick(element, file)
+        return false
+      }
       if (element.value === file) {
         element.value = attachment
-      } else if (
-        element.value?.id !== attachment.id &&
-        !negotiationReplacedAttachmentsID.value.includes(attachment.id)
-      ) {
+        // An undone pick can bring back a File whose attachment was marked replaced.
+        unmarkReplaced(attachment.id)
+      } else if (element.value?.id !== attachment.id) {
         // Another file was picked while this one was uploading.
-        negotiationReplacedAttachmentsID.value.push(attachment.id)
+        markReplaced(attachment.id)
       }
       return true
     }),
@@ -424,12 +460,11 @@ async function uploadPendingFiles() {
 
 // Takes the ids out of the list first so overlapping saves never delete one twice.
 async function deleteReplacedAttachments(replacedIds) {
-  const pending = negotiationReplacedAttachmentsID.value
-  const ids = replacedIds.filter((id) => pending.includes(id))
-  ids.forEach((id) => pending.splice(pending.indexOf(id), 1))
+  const ids = replacedIds.filter((id) => negotiationReplacedAttachmentsID.value.includes(id))
+  ids.forEach(unmarkReplaced)
   const results = await Promise.all(ids.map((id) => negotiationFormStore.deleteAttachment(id)))
   ids.forEach((id, index) => {
-    if (results[index] === null) negotiationReplacedAttachmentsID.value.push(id)
+    if (results[index] === null) markReplaced(id)
   })
 }
 
