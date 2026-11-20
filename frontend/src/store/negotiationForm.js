@@ -117,49 +117,47 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
-  async function updateNegotiationById(negotiationId, data, disableAutomaticUpload) {
+  async function updateNegotiationById(negotiationId, data) {
     data.attachments = []
-    if (!disableAutomaticUpload) {
-      for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
-        for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
-          if (criteriaValue instanceof File) {
-            const formData = new FormData()
-            formData.append('file', criteriaValue)
-            const uploadFileHeaders = { headers: getBearerHeaders() }
+    for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
+      for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
+        if (criteriaValue instanceof File) {
+          const formData = new FormData()
+          formData.append('file', criteriaValue)
+          const uploadFileHeaders = { headers: getBearerHeaders() }
 
-            uploadFileHeaders['Content-type'] = 'multipart/form-data'
+          uploadFileHeaders['Content-type'] = 'multipart/form-data'
 
-            const attachmentsIds = await axios
-              .post(
-                `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/attachments`,
-                formData,
-                uploadFileHeaders,
-              )
-              .then((response) => {
-                return response.data
-              })
-              .catch((error) => {
-                if (error.response) {
-                  notifications.setNotification(
-                    `There was an error updating the attachment, ${error.response.data.detail}`,
-                    'danger',
-                  )
-                } else if (error.request) {
-                  notifications.setNotification(
-                    `There was an error updating the attachment, ${error.request.statusText}`,
-                    'danger',
-                  )
-                } else {
-                  notifications.setNotification(
-                    `There was an error updating the attachment, ${error.message}`,
-                    'danger',
-                  )
-                }
-                return null
-              })
-            data.payload[sectionName][criteriaName] = attachmentsIds
-            data.attachments.push(attachmentsIds)
-          }
+          const attachmentsIds = await axios
+            .post(
+              `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/attachments`,
+              formData,
+              uploadFileHeaders,
+            )
+            .then((response) => {
+              return response.data
+            })
+            .catch((error) => {
+              if (error.response) {
+                notifications.setNotification(
+                  `There was an error updating the attachment, ${error.response.data.detail}`,
+                  'danger',
+                )
+              } else if (error.request) {
+                notifications.setNotification(
+                  `There was an error updating the attachment, ${error.request.statusText}`,
+                  'danger',
+                )
+              } else {
+                notifications.setNotification(
+                  `There was an error updating the attachment, ${error.message}`,
+                  'danger',
+                )
+              }
+              return null
+            })
+          data.payload[sectionName][criteriaName] = attachmentsIds
+          data.attachments.push(attachmentsIds)
         }
       }
     }
