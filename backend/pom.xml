@@ -22,7 +22,7 @@
         <spring.state-machine.version>4.0.2</spring.state-machine.version>
 
         <!-- Third-party libraries -->
-        <commons-csv.version>1.14.0</commons-csv.version>
+        <commons-csv.version>1.14.1</commons-csv.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-validator.version>1.10.1</commons-validator.version>
         <docx4j.version>17.3.4</docx4j.version>
