@@ -101,11 +101,11 @@ describe("Test access negotiations", () => {
             cy.get(".order-1 > .list-group > :nth-child(2) > .fw-bold").should("be.visible")
             cy.get(".order-1 > .list-group > :nth-child(2) > span").should("be.visible")
             //  Negotiation ID:
-            cy.get("[data-cy=sidebar-negotiation-id] > .fw-bold").should("be.visible")
-            cy.get("[data-cy=sidebar-negotiation-id] > .d-flex").should("be.visible")
+            cy.get("[data-cy=sidebar-negotiation-id-label]").should("be.visible")
+            cy.get("[data-cy=sidebar-negotiation-id-value]").should("be.visible")
             //  Submitted at:
-            cy.get("[data-cy=sidebar-submitted-at] > .fw-bold").should("be.visible")
-            cy.get("[data-cy=sidebar-submitted-at] > span").should("be.visible")
+            cy.get("[data-cy=sidebar-submitted-at-label]").should("be.visible")
+            cy.get("[data-cy=sidebar-submitted-at-value]").should("be.visible")
             //  Status:
             cy.get(".list-group > .justify-content-between > :nth-child(1) > .fw-bold").should("be.visible")
             cy.get(".list-group > .justify-content-between > :nth-child(1) > span").should("be.visible")

@@ -39,11 +39,15 @@
           </li>
         </ul>
       </li>
-      <li class="list-group-item p-2 v-step-negotiation-4" data-cy="sidebar-negotiation-id">
-        <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
+      <li class="list-group-item p-2 v-step-negotiation-4">
+        <div
+          class="fw-bold"
+          :style="{ color: uiConfiguration.primaryTextColor }"
+          data-cy="sidebar-negotiation-id-label"
+        >
           {{ $t('negotiationPage.displayId') }}:
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2" data-cy="sidebar-negotiation-id-value">
           <span v-if="!isEditingDisplayId" :style="{ color: uiConfiguration.secondaryTextColor }">
             {{ negotiation ? negotiation.displayId : '' }}
           </span>
@@ -86,11 +90,18 @@
           {{ negotiation ? negotiation.id : '' }}</span
         >
       </li>
-      <li class="list-group-item p-2 v-step-negotiation-5" data-cy="sidebar-submitted-at">
-        <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
+      <li class="list-group-item p-2 v-step-negotiation-5">
+        <div
+          class="fw-bold"
+          :style="{ color: uiConfiguration.primaryTextColor }"
+          data-cy="sidebar-submitted-at-label"
+        >
           Submitted at:
         </div>
-        <TimeStamp :value="negotiation ? negotiation.creationDate : ''" />
+        <TimeStamp
+          :value="negotiation ? negotiation.creationDate : ''"
+          data-cy="sidebar-submitted-at-value"
+        />
       </li>
       <li class="list-group-item p-2 d-flex justify-content-between v-step-negotiation-6">
         <div>
