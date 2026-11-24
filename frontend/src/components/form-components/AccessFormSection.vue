@@ -22,7 +22,7 @@
             : ''
       "
     >
-      <label class="form-label" :class="{ required: element.required }">
+      <label v-if="element.label" class="form-label" :class="{ required: element.required }">
         {{ capitalizeAllWords(element.label) }}
       </label>
       <span v-if="element.description && element.type !== 'INFORMATION'" class="ms-2 text-muted">

@@ -38,7 +38,12 @@
         >
           <p class="element-text mb-0">
             <span class="fw-bold"
-              >{{ element.label }}{{ element.required || !isEmpty(element.value) ? ': ' : '' }}
+              >{{ element.label
+              }}{{
+                element.type !== 'INFORMATION' && (element.required || !isEmpty(element.value))
+                  ? ': '
+                  : ''
+              }}
             </span>
             <span v-if="element.required && isEmpty(element.value)" class="invalid-text">
               this field is required <i class="bi bi-exclamation-circle"></i>
