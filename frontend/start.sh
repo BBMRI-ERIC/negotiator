@@ -29,15 +29,15 @@ for file in assets/*.js;
          -e "s|DEV_MODE_PLACEHOLDER|${DEV_MODE:-false}|g" \
          -e "s|AUTH_MANAGEMENT_LINK_PLACEHOLDER|${AUTH_MANAGEMENT_LINK:-none}|g" \
          -e "s|GOVERNANCE_CLIENT_PLACEHOLDER|${GOVERNANCE_CLIENT:-NEGOTIATOR}|g" \
-         -e "s|VIRTUAL_ORGANIZATION_PLACEHOLDER|${VIRTUAL_ORGANIZATION:-default-virtual_organization}|g" \
-         -e "s|IDS_PREFIX_PLACEHOLDER|${IDS_PREFIX:-}|g" \
-         -e "s|ADMIN_ORGANIZATION_ID_ATTR_PLACEHOLDER|${ADMIN_ORGANIZATION_ID_ATTR:-default-adminOrganizationIdAttr}|g" \
-         -e "s|ADMIN_RESOURCE_ID_ATTR_PLACEHOLDER|${ADMIN_RESOURCE_ID_ATTR:-default-adminResourceIdAttr}|g" \
-         -e "s|ORGANIZATION_ID_ATTR_PLACEHOLDER|${ORGANIZATION_ID_ATTR:-default-organizationIdAttr}|g" \
-         -e "s|RESOURCE_ID_ATTR_PLACEHOLDER|${RESOURCE_ID_ATTR:-default-resourceIdAttr}|g" \
-         -e "s|GROUP_ATTR_BASE_PLACEHOLDER|${GROUP_ATTR_BASE:-default-group_attr_base}|g" \
-         -e "s|USER_ATTR_BASE_PLACEHOLDER|${USER_ATTR_BASE:-default-user_attr_base}|g" \
-         -e "s|EMAIL_ATTR_PLACEHOLDER|${EMAIL_ATTR:-default-email_attr}|g" "$file"
+         -e "s|GOVERNANCE_PERUN_VIRTUAL_ORGANIZATION_PLACEHOLDER|${GOVERNANCE_PERUN_VIRTUAL_ORGANIZATION:-default-virtual_organization}|g" \
+         -e "s|GOVERNANCE_PERUN_IDS_PREFIX_PLACEHOLDER|${GOVERNANCE_PERUN_IDS_PREFIX:-}|g" \
+         -e "s|GOVERNANCE_PERUN_ADMIN_ORGANIZATION_ID_ATTR_PLACEHOLDER|${GOVERNANCE_PERUN_ADMIN_ORGANIZATION_ID_ATTR:-default-adminOrganizationIdAttr}|g" \
+         -e "s|GOVERNANCE_PERUN_ADMIN_RESOURCE_ID_ATTR_PLACEHOLDER|${GOVERNANCE_PERUN_ADMIN_RESOURCE_ID_ATTR:-default-adminResourceIdAttr}|g" \
+         -e "s|GOVERNANCE_PERUN_ORGANIZATION_ID_ATTR_PLACEHOLDER|${GOVERNANCE_PERUN_ORGANIZATION_ID_ATTR:-default-organizationIdAttr}|g" \
+         -e "s|GOVERNANCE_PERUN_RESOURCE_ID_ATTR_PLACEHOLDER|${GOVERNANCE_PERUN_RESOURCE_ID_ATTR:-default-resourceIdAttr}|g" \
+         -e "s|GOVERNANCE_PERUN_GROUP_ATTR_BASE_PLACEHOLDER|${GOVERNANCE_PERUN_GROUP_ATTR_BASE:-default-group_attr_base}|g" \
+         -e "s|GOVERNANCE_PERUN_USER_ATTR_BASE_PLACEHOLDER|${GOVERNANCE_PERUN_USER_ATTR_BASE:-default-user_attr_base}|g" \
+         -e "s|GOVERNANCE_PERUN_EMAIL_ATTR_PLACEHOLDER|${GOVERNANCE_PERUN_EMAIL_ATTR:-default-email_attr}|g" "$file"
 done
 
 exec nginx -g 'daemon off;'
