@@ -22,7 +22,3 @@ export function useGovernanceClient() {
   }
   return client
 }
-
-export function resetGovernanceClient() {
-  client = null
-}

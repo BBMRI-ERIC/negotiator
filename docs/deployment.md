@@ -167,15 +167,15 @@ Use the `rotate-secrets` profile to re-encrypt existing webhook secrets with a n
 | `DEV_MODE`                   | Enables development mode behavior                                                                                      | `false`                |
 | `AUTH_MANAGEMENT_LINK`       | Link to external authentication management interface                                                                   | `none`                 |
 | `GOVERNANCE_CLIENT` | Governance backend used to manage organization and resource representatives. Set to `PERUN` to read and assign representatives in Perun, or to `NEGOTIATOR` to manage them inside the Negotiator. | `NEGOTIATOR` |
-| `VIRTUAL_ORGANIZATION` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** ID of the Perun Virtual Organization (VO) that holds the users and groups used for governance. | `none` |
-| `IDS_PREFIX` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Prefix that Perun adds to the values of `ORGANIZATION_ID_ATTR` and `RESOURCE_ID_ATTR` in this VO; it is stripped to recover the Negotiator ID. | `""` |
-| `ADMIN_ORGANIZATION_ID_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the group attribute that stores the organization ID in the Perun managers groups. | `none` |
-| `ADMIN_RESOURCE_ID_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the group attribute that stores the resource ID in the Perun managers groups. | `none` |
-| `ORGANIZATION_ID_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the group attribute that stores the organization ID in the Perun representatives groups. | `none` |
-| `RESOURCE_ID_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the group attribute that stores the resource ID in the Perun representatives groups. | `none` |
-| `GROUP_ATTR_BASE` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Common prefix prepended to the group attribute names above when querying Perun. | `none` |
-| `EMAIL_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the user attribute that stores the email address, used to display the email of users and representatives. | `none` |
-| `USER_ATTR_BASE` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Common prefix prepended to user attribute names, such as `EMAIL_ATTR`, when querying Perun. | `none` |
+| `GOVERNANCE_PERUN_VIRTUAL_ORGANIZATION` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** ID of the Perun Virtual Organization (VO) that holds the users and groups used for governance. | `none` |
+| `GOVERNANCE_PERUN_IDS_PREFIX` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Prefix that Perun adds to the values of `ORGANIZATION_ID_ATTR` and `RESOURCE_ID_ATTR` in this VO; it is stripped to recover the Negotiator ID. | `""` |
+| `GOVERNANCE_PERUN_ADMIN_ORGANIZATION_ID_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the group attribute that stores the organization ID in the Perun managers groups. | `none` |
+| `GOVERNANCE_PERUN_ADMIN_RESOURCE_ID_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the group attribute that stores the resource ID in the Perun managers groups. | `none` |
+| `GOVERNANCE_PERUN_ORGANIZATION_ID_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the group attribute that stores the organization ID in the Perun representatives groups. | `none` |
+| `GOVERNANCE_PERUN_RESOURCE_ID_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the group attribute that stores the resource ID in the Perun representatives groups. | `none` |
+| `GOVERNANCE_PERUN_GROUP_ATTR_BASE` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Common prefix prepended to the group attribute names above when querying Perun. | `none` |
+| `GOVERNANCE_PERUN_EMAIL_ATTR` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Name of the user attribute that stores the email address, used to display the email of users and representatives. | `none` |
+| `GOVERNANCE_PERUN_USER_ATTR_BASE` | **(Required when `GOVERNANCE_CLIENT` is `PERUN`)** Common prefix prepended to user attribute names, such as `EMAIL_ATTR`, when querying Perun. | `none` |
 
 > [!NOTE]
 > The Perun variables above are only used when `GOVERNANCE_CLIENT` is set to `PERUN`. Attribute names are sent to Perun
