@@ -140,12 +140,3 @@ The mode is fixed when the frontend is built: the value of `GOVERNANCE_CLIENT` i
 substituted at container start, so switching modes means redeploying the frontend container with the new value and its
 Perun attributes. Representative assignments live in different stores in each mode and are not shared between them.
 :::
-
-## Related documentation
-
-* [Deployment](/deployment) — the frontend and backend environment variables, including the Perun attributes.
-* [Authentication and Authorization](/auth) — how roles are derived from token claims.
-* [Network Manager](/network_manager) — registering representatives through the AAI groups.
-* [Administrator](/administrator) — managing organizations, resources and representatives from the interface.
-* [Connecting to a Negotiator](/connecting-to-negotiator) — how organizations and resources are handed over by a
-  Discovery Service.

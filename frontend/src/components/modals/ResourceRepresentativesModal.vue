@@ -107,13 +107,13 @@
             </div>
 
             <div
-              v-else-if="hasSearched && searchResults.length === 0 && searchFailed"
+              v-else-if="hasSearched && searchFailed"
               class="text-danger text-center py-3"
             >
               User search failed. Please try again.
             </div>
             <div
-              v-else-if="hasSearched && searchResults.length === 0"
+              v-else-if="hasSearched"
               class="text-muted text-center py-3"
             >
               No users found matching your search.
