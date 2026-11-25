@@ -36,28 +36,27 @@
             })
           "
         >
-          <p class="element-text mb-0">
-            <span class="fw-bold"
-              >{{ element.label
-              }}{{
-                element.type !== 'INFORMATION' && (element.required || !isEmpty(element.value))
-                  ? ': '
-                  : ''
-              }}
-            </span>
-            <span v-if="element.required && isEmpty(element.value)" class="invalid-text">
-              this field is required <i class="bi bi-exclamation-circle"></i>
-            </span>
-            <span v-else-if="isAttachment(element.value)" class="text-truncate">
-              <span v-if="element.value.name" :title="element.name">{{ element.value.name }}</span>
-              <span v-for="(choice, index) in element.value" v-else :key="index">
-                {{ choice }}<span v-if="index < element.value.length - 1">, </span>
+          <div v-if="element.type !== 'INFORMATION'">
+            <p class="element-text mb-0">
+              <span class="fw-bold"
+                >{{ element.label }}{{ element.required || !isEmpty(element.value) ? ': ' : '' }}
               </span>
-            </span>
-            <span v-else>
-              {{ translateTrueFalse(element.value) }}
-            </span>
-          </p>
+              <span v-if="element.required && isEmpty(element.value)" class="invalid-text">
+                this field is required <i class="bi bi-exclamation-circle"></i>
+              </span>
+              <span v-else-if="isAttachment(element.value)" class="text-truncate">
+                <span v-if="element.value.name" :title="element.name">{{
+                  element.value.name
+                }}</span>
+                <span v-for="(choice, index) in element.value" v-else :key="index">
+                  {{ choice }}<span v-if="index < element.value.length - 1">, </span>
+                </span>
+              </span>
+              <span v-else>
+                {{ translateTrueFalse(element.value) }}
+              </span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
