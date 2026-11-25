@@ -157,33 +157,6 @@ function getChannelName(item) {
   }
 }
 
-function getUserBadges(item) {
-  const badges = []
-  if (item.createdBy?.representativeOfAnyResource === true) {
-    badges.push('Representative')
-  }
-  if (item.createdBy?.id === props.negotiation.author?.id) {
-    badges.push('Author')
-  }
-  if (item.createdBy?.admin === true) {
-    badges.push('Admin')
-  }
-  if (item.createdBy?.networkManager === true) {
-    badges.push('NetworkManager')
-  }
-  return badges
-}
-
-function getBadgeTooltip(badge) {
-  const badgeTooltips = {
-    Admin: 'Negotiator Administrator',
-    Author: 'Author of this Request',
-    Representative: 'Representative of a resource',
-    NetworkManager: 'Manager of a Network responsible for moderating requests',
-  }
-  return badgeTooltips[badge] || 'Badge details'
-}
-
 function showOriginal(postId) {
   const card = document.getElementById(`post-${postId}`)
   if (!card) return
