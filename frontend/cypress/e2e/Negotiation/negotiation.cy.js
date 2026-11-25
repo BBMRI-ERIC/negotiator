@@ -95,9 +95,9 @@ describe("Test access negotiations", () => {
 
             // Right side informations
             //  Author:
-            cy.get('[data-cy="negotiation-author"]').should("be.visible")
+            cy.get('[data-test="negotiation-author"]').should("be.visible")
             //  Email:
-            cy.get('[data-cy="negotiation-email"]').should("be.visible")
+            cy.get('[data-test="negotiation-email"]').should("be.visible")
             //  Negotiation ID:
             cy.get("[data-test=sidebar-negotiation-id-label]").should("be.visible")
             cy.get("[data-test=sidebar-negotiation-id-value]").should("be.visible")

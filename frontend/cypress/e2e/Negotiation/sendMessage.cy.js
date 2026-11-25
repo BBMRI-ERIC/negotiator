@@ -13,7 +13,7 @@ describe("Test negotiation message", () => {
             // Comment section
             cy.get("[resources=\"[object Object]\"] > :nth-child(1)").should("be.visible")
             // Send message section
-            cy.get('[data-cy="message-input"]').should("be.visible")
+            cy.get('[data-test="message-input"]').should("be.visible")
             cy.get("#recipient").should("be.visible")
             cy.get(".btn-attachment").should("be.visible")
             cy.get("#send").should("be.visible")
@@ -25,24 +25,24 @@ describe("Test negotiation message", () => {
             // Comment section
             cy.get("[resources=\"[object Object]\"] > :nth-child(1)").should("be.visible")
             // Send message section
-            cy.get('[data-cy="message-input"]').type("Hi i want to test message functionality, have a great day.")
+            cy.get('[data-test="message-input"]').type("Hi i want to test message functionality, have a great day.")
             cy.get("#recipient").select("Request-wide")
             cy.get('#send').click()
         })
 
         it("test send a message with Ctrl+Enter", () => {
             cy.get("#recipient").select("public")
-            cy.get('[data-cy="message-input"]').type("First line{enter}second line")
-            cy.get('[data-cy="message-input"]').should("have.value", "First line\nsecond line")
-            cy.get('[data-cy="message-input"]').type("{ctrl}{enter}")
-            cy.get('[data-cy="message-input"]').should("have.value", "")
+            cy.get('[data-test="message-input"]').type("First line{enter}second line")
+            cy.get('[data-test="message-input"]').should("have.value", "First line\nsecond line")
+            cy.get('[data-test="message-input"]').type("{ctrl}{enter}")
+            cy.get('[data-test="message-input"]').should("have.value", "")
         })
 
         it("test send a message with Cmd+Enter", () => {
             cy.get("#recipient").select("public")
-            cy.get('[data-cy="message-input"]').type("Sent with Cmd+Enter")
-            cy.get('[data-cy="message-input"]').type("{cmd}{enter}")
-            cy.get('[data-cy="message-input"]').should("have.value", "")
+            cy.get('[data-test="message-input"]').type("Sent with Cmd+Enter")
+            cy.get('[data-test="message-input"]').type("{cmd}{enter}")
+            cy.get('[data-test="message-input"]').should("have.value", "")
         })
     })
     context("check if message is visible in negotiation", () => {

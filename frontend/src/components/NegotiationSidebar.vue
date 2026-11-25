@@ -3,15 +3,17 @@
     <ul class="list-group list-group-flush my-3">
       <li class="list-group-item p-2">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Author:</div>
-        <div data-cy="negotiation-author" :style="{ color: uiConfiguration.secondaryTextColor }">
+        <div data-test="negotiation-author" :style="{ color: uiConfiguration.secondaryTextColor }">
           {{ author.name }}
         </div>
       </li>
       <li class="list-group-item p-2 v-step-negotiation-3">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Email:</div>
-        <span data-cy="negotiation-email" :style="{ color: uiConfiguration.secondaryTextColor }">{{
-          author.email
-        }}</span>
+        <span
+          data-test="negotiation-email"
+          :style="{ color: uiConfiguration.secondaryTextColor }"
+          >{{ author.email }}</span
+        >
       </li>
       <!-- Collaborators list -->
       <li v-if="collaboratorsEnabled" class="list-group-item p-2">
