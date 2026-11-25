@@ -24,20 +24,19 @@
           {{ section.label.toUpperCase() }}
         </h2>
 
-        <div
-          class="element mt-2"
-          v-for="(element, elementIndex) in section?.elements"
-          :key="element.id"
-          @click="
-            $emit('emitErrorElementIndex', {
-              elementId: element?.id,
-              elementIndex: elementIndex,
-              sectionIndex: sectionIndex,
-            })
-          "
-        >
-          <div v-if="element.type !== 'INFORMATION'">
-            <p class="element-text mb-0">
+        <template v-for="(element, elementIndex) in section?.elements" :key="element.id">
+          <div
+            v-if="element.type !== 'INFORMATION'"
+            class="element"
+            @click="
+              $emit('emitErrorElementIndex', {
+                elementId: element?.id,
+                elementIndex: elementIndex,
+                sectionIndex: sectionIndex,
+              })
+            "
+          >
+            <p class="element-text mb-0 mt-2">
               <span class="fw-bold"
                 >{{ element.label }}{{ element.required || !isEmpty(element.value) ? ': ' : '' }}
               </span>
@@ -57,7 +56,7 @@
               </span>
             </p>
           </div>
-        </div>
+        </template>
       </div>
     </div>
   </div>
