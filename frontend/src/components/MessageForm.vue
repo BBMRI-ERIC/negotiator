@@ -1,7 +1,7 @@
 <template>
   <div>
     <h5 :style="{ color: uiConfiguration.primaryTextColor }">Send a message</h5>
-    <form class="border rounded mb-4 p-2" @submit.prevent="sendMessage">
+    <form id="message-form" class="border rounded mb-4 p-2" @submit.prevent="sendMessage">
       <ChannelSelector
         v-model:channel-id="channelId"
         :selected-channel-name="selectedChannelName"
@@ -9,8 +9,26 @@
         :negotiation="negotiation"
         :recipients="recipients"
         :ui-configuration="uiConfiguration"
+        :disabled="!!replyTarget?.locked"
       />
+      <div
+        v-if="replyTarget"
+        class="reply-preview d-flex align-items-center border-start border-3 ps-2 mb-2"
+        :style="{ color: uiConfiguration.secondaryTextColor }"
+      >
+        <span class="reply-preview-text me-2">
+          Replying to <strong>{{ replyTarget.authorName }}</strong
+          >: {{ replyTarget.excerpt }}
+        </span>
+        <button
+          type="button"
+          class="btn-close ms-auto"
+          aria-label="Cancel reply"
+          @click="emit('cancel-reply')"
+        />
+      </div>
       <textarea
+        ref="messageInput"
         v-model="message"
         class="form-control mb-3"
         :style="{ color: uiConfiguration.secondaryTextColor }"
@@ -82,7 +100,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import NegotiationAttachment from './NegotiationAttachment.vue'
 import ChannelSelector from './ChannelSelector.vue'
 import { isFileExtensionsSupported } from '../composables/utils.js'
@@ -118,15 +136,37 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  replyTarget: {
+    type: Object,
+    default: null,
+  },
 })
 
-const emit = defineEmits(['new-attachment', 'send-message', 'clear-upload-error'])
+const emit = defineEmits(['new-attachment', 'send-message', 'clear-upload-error', 'cancel-reply'])
 
 const message = ref('')
 const channelId = ref('')
 const attachment = ref(undefined)
 const fileInputKey = ref(0)
 const attachmentError = ref('')
+const messageInput = ref(null)
+
+// A reply to a private message forces and locks its channel. Otherwise only an empty channel,
+// or one left over from a locked reply, is filled, so a channel the user picked is kept.
+watch(
+  () => props.replyTarget,
+  (target, previous) => {
+    if (target) {
+      if (target.locked || channelId.value === '' || previous?.locked) {
+        channelId.value = target.channelId
+      }
+      messageInput.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      messageInput.value.focus({ preventScroll: true })
+    } else if (previous?.locked) {
+      channelId.value = ''
+    }
+  },
+)
 
 const readyToSend = computed(() => {
   return (
@@ -157,7 +197,8 @@ const channelVisibilityMessage = computed(() => {
 
 function resetForm() {
   message.value = ''
-  channelId.value = ''
+  // Runs before the server answers: if the send fails, a locked reply must keep its channel
+  channelId.value = props.replyTarget?.locked ? props.replyTarget.channelId : ''
   attachment.value = undefined
   fileInputKey.value++
   attachmentError.value = ''
@@ -204,6 +245,12 @@ async function sendMessage() {
 </script>
 
 <style scoped>
+.reply-preview-text {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .btn-attachment {
   position: relative;
   overflow: hidden;
