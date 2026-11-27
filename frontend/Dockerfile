@@ -7,7 +7,7 @@ RUN yarn install --immutable
 COPY . .
 RUN yarn build
 
-FROM nginx/nginx-unprivileged:1.31.9-perl@sha256:36629f7660274d738f76fdcf0b73ebce65c58fef0552232734deb2b498bdc422 AS production-stage
+FROM nginx/nginx-unprivileged:1.31.10-perl@sha256:7605fe45e0013ee629475f8d428b3b399a568b8919d95d3d55059a3949c10f06 AS production-stage
 ARG NGINX_UID=101
 WORKDIR /app
 COPY nginx.conf /etc/nginx/conf.d/default.conf
